@@ -447,6 +447,8 @@
               >
               <select
                 v-model.number="form.paymentMethodId"
+                :disabled="true"
+                title="Phương thức thanh toán (chỉ hiển thị)"
                 class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 dark:border-[#3c342e] dark:bg-[#2b241f] dark:text-[#e6d7c8]"
               >
                 <option :value="null">-- Chọn phương thức --</option>

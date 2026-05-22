@@ -12,7 +12,14 @@ function toFiniteNumber(value, fallback = 0) {
 }
 
 function parseJsonSafe(response) {
-    return response.json().catch(() => null)
+    return response.json().catch(async() => {
+        try {
+            const text = await response.text();
+            return text || null;
+        } catch {
+            return null;
+        }
+    })
 }
 
 function normalizeText(value) {
@@ -349,22 +356,16 @@ export const orderAPI = {
      */
     async placeOrder(orderData) {
         validatePlaceOrderPayload(orderData)
-
         const response = await fetch(`${API_BASE_URL}/orders`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(orderData)
         });
 
-        let data = null;
-        try {
-            data = await response.json();
-        } catch {
-            data = null;
-        }
+        const data = await parseJsonSafe(response);
 
         if (!response.ok) {
-            const errorMsg = (data && (data.message || data.error)) || `Failed to place order (HTTP ${response.status})`;
+            const errorMsg = typeof data === 'string' ? data : (data && (data.message || data.error)) || `Failed to place order (HTTP ${response.status})`;
             throw new Error(errorMsg);
         }
 
@@ -617,7 +618,7 @@ export const orderAPI = {
         throw lastError || new Error('Không thể xác nhận đã nhận hàng')
     },
 
-    
+
 
     /**
      * Get order details
@@ -635,7 +636,7 @@ export const orderAPI = {
 
         return normalizeOrderDetailPayload(data)
     }
-    
+
 };
 
 // Voucher Operations

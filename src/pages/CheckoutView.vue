@@ -532,8 +532,13 @@ function initMap() {
 
 async function reverseGeocode(lat, lng) {
   try {
-    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`);
-    const data = await res.json();
+    const res = await fetch(`/nominatim/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`);
+    if (!res.ok) {
+      if (res.status === 429) throw new Error('Geocoding service rate-limited (429).');
+      const txt = await safeParseResponse(res);
+      throw new Error(typeof txt === 'string' ? txt : `Reverse geocode failed (HTTP ${res.status})`);
+    }
+    const data = await safeParseResponse(res);
     if (data && data.address) {
       // Find matching Province
       const cityOrProvince = data.address.city || data.address.state || data.address.province;
@@ -581,9 +586,9 @@ const provinces = ref([]);
 const districts = ref([]);
 const wards = ref([]);
 
-const selectedProvince = ref("");
-const selectedDistrict = ref("");
-const selectedWard = ref("");
+const selectedProvince = ref(null);
+const selectedDistrict = ref(null);
+const selectedWard = ref(null);
 const streetAddress = ref("");
 
 const isRouteCalculated = ref(false);
@@ -738,6 +743,21 @@ function findBestMatchByName(options, ...rawNames) {
   return bestScore >= 20 ? best : null;
 }
 
+async function safeParseResponse(res) {
+  if (!res) return null;
+  try {
+    const data = await res.json();
+    return data;
+  } catch (err) {
+    try {
+      const text = await res.text();
+      return text;
+    } catch {
+      return null;
+    }
+  }
+}
+
 async function autoFillAddressHierarchyFromText(rawAddress) {
   const input = String(rawAddress || "").trim();
   if (!input || !provinces.value.length) return;
@@ -747,9 +767,16 @@ async function autoFillAddressHierarchyFromText(rawAddress) {
 
   try {
     const geoRes = await fetch(
-      `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&limit=1&q=${encodeURIComponent(input + ", Việt Nam")}`,
+      `/nominatim/search?format=json&addressdetails=1&limit=1&q=${encodeURIComponent(input + ", Việt Nam")}`,
     );
-    const geoData = await geoRes.json();
+    if (!geoRes.ok) {
+      if (geoRes.status === 429) {
+        throw new Error('Geocoding service rate-limited (429). Please try again later.');
+      }
+      const txt = await safeParseResponse(geoRes);
+      throw new Error(typeof txt === 'string' ? txt : `Geocoding failed (HTTP ${geoRes.status})`);
+    }
+    const geoData = await safeParseResponse(geoRes);
     const first = Array.isArray(geoData) ? geoData[0] : null;
     
     // Extract from Nominatim ONLY for basic hints
@@ -883,9 +910,19 @@ async function calculateRouteFromFreeformAddress(rawAddress, silent = false) {
 
   try {
     const geoRes = await fetch(
-      `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&limit=1&q=${encodeURIComponent(addressText + ", Việt Nam")}`,
+      `/nominatim/search?format=json&addressdetails=1&limit=1&q=${encodeURIComponent(addressText + ", Việt Nam")}`,
     );
-    const geoData = await geoRes.json();
+    if (!geoRes.ok) {
+      if (geoRes.status === 429) {
+        // Rate limit: provide graceful fallback
+        routeError.value = 'Geocoding service busy — tính ship tạm thời bằng ước lượng.';
+        applyTextFallbackShipping(addressText);
+        return true;
+      }
+      const txt = await safeParseResponse(geoRes);
+      throw new Error(typeof txt === 'string' ? txt : `Geocoding failed (HTTP ${geoRes.status})`);
+    }
+    const geoData = await safeParseResponse(geoRes);
     const first = Array.isArray(geoData) ? geoData[0] : null;
     if (!first) {
       applyTextFallbackShipping(addressText);
@@ -1079,7 +1116,19 @@ function computeVoucherDiscount(voucher, baseAmount) {
 }
 
 function isVoucherActive(voucher) {
-  if (!(voucher?.isActive || voucher?.is_active)) return false;
+  // Prefer explicit status when provided by backend
+  const statusRaw = String(voucher?.status || voucher?.state || "").trim();
+  if (statusRaw) {
+    const st = String(statusRaw).toUpperCase();
+    // Treat these as active states
+    if (['ACTIVE', 'ENABLED', 'AVAILABLE', 'APPROVED'].includes(st)) {
+      // continue to further checks (dates/usages)
+    } else {
+      return false;
+    }
+  } else {
+    if (!(voucher?.isActive || voucher?.is_active)) return false;
+  }
 
   const now = new Date();
   const endDateRaw = voucher?.endDate || voucher?.end_date;

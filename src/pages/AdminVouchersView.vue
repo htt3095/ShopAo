@@ -196,7 +196,7 @@
                     class="rounded-full px-2 py-1 text-xs font-semibold"
                     :class="statusClass(voucher.status)"
                   >
-                    {{ voucherStatusLabel(voucher.status) }}
+                    {{ voucher.statusLabel || voucherStatusLabel(voucher.status) }}
                   </span>
                 </td>
                 <td class="px-2 py-2">

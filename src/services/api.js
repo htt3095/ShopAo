@@ -1117,24 +1117,33 @@ function normalizeVoucherRecord(rawVoucher) {
         usedCount,
         usageLimit,
         isActive,
+        statusLabel: firstDefinedValue([source.statusLabel, source.status_label], null),
     };
 
     const now = Date.now();
     const startTime = startDate ? new Date(startDate).getTime() : null;
     const endTime = endDate ? new Date(endDate).getTime() : null;
 
-    let status = isActive ? "ACTIVE" : "INACTIVE";
-    if (Number.isFinite(endTime) && endTime < now) {
-        status = "EXPIRED";
-    } else if (Number.isFinite(startTime) && startTime > now) {
-        status = "SCHEDULED";
-    } else if (
-        usageLimit !== null &&
-        Number.isFinite(usageLimit) &&
-        usageLimit > 0 &&
-        usedCount >= usageLimit
-    ) {
-        status = "USED";
+    let status = String(
+            firstDefinedValue([source.status, source.statusLabel, source.status_label], "")
+        )
+        .trim()
+        .toUpperCase();
+
+    if (!["ACTIVE", "INACTIVE", "SCHEDULED", "USED", "EXPIRED"].includes(status)) {
+        status = isActive ? "ACTIVE" : "INACTIVE";
+        if (Number.isFinite(endTime) && endTime < now) {
+            status = "EXPIRED";
+        } else if (Number.isFinite(startTime) && startTime > now) {
+            status = "SCHEDULED";
+        } else if (
+            usageLimit !== null &&
+            Number.isFinite(usageLimit) &&
+            usageLimit > 0 &&
+            usedCount >= usageLimit
+        ) {
+            status = "USED";
+        }
     }
 
     return {
@@ -1349,7 +1358,7 @@ async function softDisableVariantById(id) {
 
 async function softDisableAccountById(id) {
     const current = await accountsApi.getById(id);
-    const payload = { ...current, isActive: false };
+    const payload = {...current, isActive: false };
     await tryApiRequests([
         { endpoint: `/accounts/${id}`, method: "PUT", body: payload }
     ]);
@@ -1364,7 +1373,7 @@ async function softCancelOrderById(id) {
 
 async function softDisableBrandById(id) {
     const current = await brandsApi.getById(id);
-    const payload = { ...current, isActive: false };
+    const payload = {...current, isActive: false };
     await tryApiRequests([
         { endpoint: `/brands/${id}`, method: "PUT", body: payload }
     ]);
@@ -1485,7 +1494,7 @@ export const adminApi = {
     async restoreBrand(id) {
         const numericId = asFiniteNumber(id, null);
         const current = await brandsApi.getById(numericId);
-        const payload = { ...current, isActive: true };
+        const payload = {...current, isActive: true };
         await tryApiRequests([
             { endpoint: `/brands/${numericId}`, method: "PUT", body: payload }
         ]);
@@ -1590,7 +1599,7 @@ export const adminApi = {
     async restoreAccount(accountId) {
         const id = asFiniteNumber(accountId, null);
         const current = await accountsApi.getById(id);
-        const payload = { ...current, isActive: true };
+        const payload = {...current, isActive: true };
         await tryApiRequests([
             { endpoint: `/accounts/${id}`, method: "PUT", body: payload }
         ]);
@@ -1653,7 +1662,7 @@ export const adminApi = {
     async restoreProduct(productId) {
         const id = asFiniteNumber(productId, null);
         const current = await productsApi.getById(id);
-        const payload = { ...current, status: "AVAILABLE" };
+        const payload = {...current, status: "AVAILABLE" };
         await tryApiRequests([
             { endpoint: `/products/${id}`, method: "PUT", body: payload }
         ]);
@@ -1714,7 +1723,7 @@ export const adminApi = {
     async restoreVariant(variantId, stockQuantity) {
         const id = asFiniteNumber(variantId, null);
         const current = await variantsApi.getById(id);
-        const payload = { ...current, status: "SELLING", stockQuantity: stockQuantity || 0 };
+        const payload = {...current, status: "SELLING", stockQuantity: stockQuantity || 0 };
         await tryApiRequests([
             { endpoint: `/variants/${id}`, method: "PUT", body: payload }
         ]);

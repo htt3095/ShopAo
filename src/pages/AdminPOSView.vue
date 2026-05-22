@@ -63,8 +63,12 @@
           </button>
           <button
             @click="addInvoice"
-            class="flex size-9 items-center justify-center rounded-full bg-slate-100 text-slate-600 transition-colors hover:bg-primary hover:text-white dark:bg-[#2b241f] dark:text-[#b9aa9a]"
-            title="Thêm hóa đơn mới"
+            :disabled="invoices.value.length >= MAX_INVOICES"
+            :title="invoices.value.length >= MAX_INVOICES ? 'Đã đạt giới hạn hóa đơn' : 'Thêm hóa đơn mới'"
+            class="flex size-9 items-center justify-center rounded-full transition-colors"
+            :class="invoices.value.length >= MAX_INVOICES
+              ? 'bg-slate-200 text-slate-400 cursor-not-allowed dark:bg-[#26221f] dark:text-[#5a524d]'
+              : 'bg-slate-100 text-slate-600 hover:bg-primary hover:text-white dark:bg-[#2b241f] dark:text-[#b9aa9a]'"
           >
             <span class="material-symbols-outlined text-[20px]">add</span>
           </button>
@@ -439,7 +443,7 @@
             </article>
 
             <article
-              class="flex flex-1 flex-col rounded-2xl border border-slate-200 bg-white p-5 dark:border-[#3c342e] dark:bg-[#1f1a17]"
+              class="flex flex-1 flex-col rounded-2xl border border-slate-200 bg-white p-5 dark:border-[#3c342e] dark:bg-[#1f1a17] sticky-actions"
             >
               <div
                 class="mb-4 flex items-center gap-2 border-b border-slate-100 pb-3 dark:border-[#3c342e]"
@@ -701,6 +705,7 @@ const showSuccessModal = ref(false);
 const completedOrderInfo = ref(null);
 
 let invoiceCounter = 1;
+const MAX_INVOICES = 5;
 const createNewInvoice = () => ({
   id: invoiceCounter++,
   name: `Hóa đơn ${invoiceCounter - 1}`,
@@ -924,6 +929,11 @@ const filteredVariants = computed(() => {
 });
 
 const addInvoice = () => {
+  if (invoices.value.length >= MAX_INVOICES) {
+    // Prevent creating more than allowed invoices
+    return;
+  }
+
   const newInv = createNewInvoice();
   invoices.value.push(newInv);
   activeInvoiceId.value = newInv.id;
@@ -1188,5 +1198,19 @@ const closeSuccessModal = () => {
 }
 .animate-fade-in-up {
   animation: fadeInUp 0.4s ease-out forwards;
+}
+
+/* Sticky action container inside POS right column */
+.sticky-actions {
+  position: sticky;
+  bottom: 1rem;
+  z-index: 30;
+}
+
+/* Generic drag-handle style to better fit theme if present */
+.drag-handle {
+  height: 6px;
+  background: linear-gradient(90deg, rgba(59,130,246,0.12), rgba(59,130,246,0.06));
+  border-radius: 4px;
 }
 </style>
