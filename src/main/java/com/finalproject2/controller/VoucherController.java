@@ -311,6 +311,28 @@ public class VoucherController {
         }
     }
 
+    @GetMapping("/validate")
+    public ResponseEntity<?> validateVoucher(
+            @RequestParam String code,
+            @RequestParam(required = false) java.math.BigDecimal orderTotal) {
+        try {
+            Voucher voucher = voucherRepo.findByCode(code)
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy mã giảm giá: " + code));
+
+            ResponseEntity<?> validationError = validateVoucherForUse(voucher, orderTotal);
+            if (validationError != null) return validationError;
+
+            java.math.BigDecimal discountAmount = calculateDiscount(voucher, orderTotal);
+            return ResponseEntity.ok(buildApplyResponse(voucher, discountAmount));
+
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "success", false,
+                    "error", e.getMessage()
+            ));
+        }
+    }
+
     /**
      * USE VOUCHER — increments usedCount by 1 (call after order is successfully placed)
      * POST /api/vouchers/use?code=SUMMER20&orderTotal=500000
@@ -354,11 +376,8 @@ public class VoucherController {
     @GetMapping("/status/active")
     public ResponseEntity<?> getActiveVouchers() {
         try {
-            Instant now = Instant.now();
             List<Voucher> vouchers = voucherRepo.findAll().stream()
-                    .filter(v -> v.getIsActive() &&
-                            now.isAfter(v.getStartDate()) &&
-                            now.isBefore(v.getEndDate()))
+                    .filter(v -> "ACTIVE".equals(determineVoucherStatus(v)))
                     .toList();
 
             List<Map<String, Object>> voucherList = new ArrayList<>();
@@ -394,7 +413,14 @@ public class VoucherController {
         }
 
         Instant now = Instant.now();
-        if (now.isBefore(voucher.getStartDate()) || now.isAfter(voucher.getEndDate())) {
+        if (now.isBefore(voucher.getStartDate())) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "success", false,
+                    "error", "Mã giảm giá chưa bắt đầu hoạt động!"
+            ));
+        }
+
+        if (now.isAfter(voucher.getEndDate())) {
             return ResponseEntity.badRequest().body(Map.of(
                     "success", false,
                     "error", "Mã giảm giá đã hết hạn!"
@@ -450,6 +476,8 @@ public class VoucherController {
         response.put("minOrderValue", voucher.getMinOrderValue());
         response.put("usedCount", voucher.getUsedCount() != null ? voucher.getUsedCount() : 0);
         response.put("usageLimit", voucher.getUsageLimit() != null ? voucher.getUsageLimit() : 0);
+        response.put("status", determineVoucherStatus(voucher));
+        response.put("statusLabel", getVoucherStatusLabel(determineVoucherStatus(voucher)));
         return response;
     }
 
@@ -469,10 +497,47 @@ public class VoucherController {
         response.put("usageLimit", voucher.getUsageLimit());
         response.put("usedCount", voucher.getUsedCount() != null ? voucher.getUsedCount() : 0);
         response.put("maxDiscountAmount", voucher.getMaxDiscountAmount());
+        response.put("status", determineVoucherStatus(voucher));
+        response.put("statusLabel", getVoucherStatusLabel(determineVoucherStatus(voucher)));
         response.put("createdAt", voucher.getCreatedAt());
         if (voucher.getUpdatedAt() != null) {
             response.put("updatedAt", voucher.getUpdatedAt());
         }
         return response;
     }
+
+    private String determineVoucherStatus(Voucher voucher) {
+        if (voucher == null) {
+            return "INACTIVE";
+        }
+        if (!Boolean.TRUE.equals(voucher.getIsActive())) {
+            return "INACTIVE";
+        }
+
+        Instant now = Instant.now();
+        if (now.isBefore(voucher.getStartDate())) {
+            return "SCHEDULED";
+        }
+        if (now.isAfter(voucher.getEndDate())) {
+            return "EXPIRED";
+        }
+
+        int usedCount = voucher.getUsedCount() != null ? voucher.getUsedCount() : 0;
+        if (voucher.getUsageLimit() != null && voucher.getUsageLimit() > 0 && usedCount >= voucher.getUsageLimit()) {
+            return "USED";
+        }
+
+        return "ACTIVE";
+    }
+
+    private String getVoucherStatusLabel(String status) {
+        return switch (status) {
+            case "ACTIVE" -> "Đang hoạt động";
+            case "SCHEDULED" -> "Sắp diễn ra";
+            case "EXPIRED" -> "Hết hạn";
+            case "USED" -> "Đã hết lượt";
+            default -> "Không hoạt động";
+        };
+    }
 }
+

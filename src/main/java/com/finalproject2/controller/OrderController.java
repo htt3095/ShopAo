@@ -54,136 +54,118 @@ public class OrderController {
     @PostMapping
     @Transactional
     public ResponseEntity<?> createOrder(@RequestBody Map<String, Object> payload) {
-        try {
-            Integer accountId = asInteger(payload.get("accountId"));
-            Account account = accountRepo.findById(accountId)
-                    .orElseThrow(() -> new BadRequestException("Tài khoản không tồn tại"));
-
-            // 1. Tạo đơn hàng cơ bản
-            Order order = new Order();
-            order.setAccount(account);
-            order.setCreatedAt(Instant.now());
-            order.setStatus("NEW");
-            order.setFullname(asString(payload.get("fullname")));
-            order.setPhone(asString(payload.get("phone")));
-            order.setShippingAddress(asString(payload.get("shippingAddress")));
-            order.setPaymentStatus("PENDING");
-
-            Long pmId = asLong(payload.get("paymentMethodId"));
-            PaymentMethod pm = paymentRepo.findById(pmId)
-                    .orElseThrow(() -> new BadRequestException("Phương thức thanh toán không hợp lệ"));
-            order.setPaymentMethod(pm);
-
-            // 2. Xử lý Voucher (nếu có)
-            String voucherCode = asString(payload.get("voucherCode"));
-            if (voucherCode != null && !voucherCode.isEmpty()) {
-                Voucher v = voucherRepo.findByCode(voucherCode)
-                        .orElseThrow(() -> new BadRequestException("Mã giảm giá không tồn tại"));
-                order.setVoucher(v);
-            }
-
-            // 3. Tính toán tiền và Lưu Item
-            List<Map<String, Object>> itemsReq = null;
-
-            // Hứng mọi thể loại tên biến từ các màn hình khác nhau (User Checkout, POS,
-            // v.v...)
-            if (payload.get("items") != null) {
-                itemsReq = (List<Map<String, Object>>) payload.get("items");
-            } else if (payload.get("cartItems") != null) {
-                itemsReq = (List<Map<String, Object>>) payload.get("cartItems");
-            } else if (payload.get("cart") != null) {
-                itemsReq = (List<Map<String, Object>>) payload.get("cart");
-            } else if (payload.get("orderItems") != null) {
-                itemsReq = (List<Map<String, Object>>) payload.get("orderItems");
-            }
-
-            // Nếu quét qua 4 tên vẫn không thấy, in ra log để biết Frontend thực sự gửi cái
-            // gì
-            if (itemsReq == null || itemsReq.isEmpty()) {
-                System.out.println("=== LỖI PAYLOAD KHÔNG TÌM THẤY GIỎ HÀNG ===");
-                System.out.println("Dữ liệu Frontend gửi xuống: " + payload);
-                throw new BadRequestException("Giỏ hàng đang trống, không thể đặt hàng!");
-            }
-
-            BigDecimal totalMoney = BigDecimal.ZERO;
-            List<OrderItem> orderItems = new ArrayList<>();
-
-            for (Map<String, Object> itemReq : itemsReq) {
-                Long variantId = asLong(itemReq.get("variantId"));
-                Integer qty = asInteger(itemReq.get("quantity"));
-
-                ProductVariant variant = variantRepo.findById(variantId)
-                        .orElseThrow(() -> new BadRequestException("Sản phẩm không tồn tại"));
-
-                // --- VÁ LỖI 1: KIỂM TRA VÀ TRỪ KHO ---
-                if (variant.getStockQuantity() < qty) {
-                    throw new BadRequestException(
-                            "Sản phẩm " + variant.getProduct().getName() + " không đủ số lượng trong kho!");
-                }
-                variant.setStockQuantity(variant.getStockQuantity() - qty);
-                variantRepo.save(variant);
-                // ------------------------------------
-
-                BigDecimal price = variant.getPrice();
-                totalMoney = totalMoney.add(price.multiply(BigDecimal.valueOf(qty)));
-
-                OrderItem oi = new OrderItem();
-                oi.setOrder(order);
-                oi.setVariant(variant);
-                oi.setQuantity(qty);
-                oi.setPrice(price);
-                orderItems.add(oi);
-            }
-
-            order.setTotalMoney(totalMoney);
-
-            // Tính số tiền giảm
-            BigDecimal discount = BigDecimal.ZERO;
-            if (order.getVoucher() != null) {
-                Voucher v = order.getVoucher();
-                if ("PERCENT".equals(v.getDiscountType())) {
-                    discount = totalMoney.multiply(v.getDiscountValue()).divide(new BigDecimal(100),
-                            RoundingMode.HALF_UP);
-                    if (v.getMaxDiscountAmount() != null
-                            && discount.compareTo(v.getMaxDiscountAmount()) > 0) {
-                        discount = v.getMaxDiscountAmount();
-                    }
-                } else {
-                    discount = v.getDiscountValue();
-                }
-            }
-            order.setDiscountAmount(discount);
-            order.setFinalAmount(totalMoney.subtract(discount));
-
-            // 4. Lưu Đơn hàng
-            Order savedOrder = orderRepo.save(order);
-            orderItemRepo.saveAll(orderItems);
-
-            // --- VÁ LỖI 2: CẬP NHẬT LƯỢT DÙNG VOUCHER ---
-            if (savedOrder.getVoucher() != null) {
-                Voucher v = savedOrder.getVoucher();
-                int currentUsed = (v.getUsedCount() != null) ? v.getUsedCount() : 0;
-                v.setUsedCount(currentUsed + 1);
-                voucherRepo.save(v);
-
-                AccountVoucher av = new AccountVoucher();
-                av.setAccount(account);
-                av.setVoucher(v);
-                av.setUsedAt(Instant.now());
-                accountVoucherRepo.save(av);
-            }
-            // -------------------------------------------
-
-            // 5. Xóa giỏ hàng sau khi đặt thành công
-            cartRepo.findByAccountId(accountId).ifPresent(cart -> {
-                cartItemRepo.deleteByCartId(cart.getId());
-            });
-
-            return ResponseEntity.ok(Map.of("success", true, "orderId", savedOrder.getId()));
-
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        Integer accountId = asInteger(payload.get("accountId"));
+        if (accountId == null) {
+            throw new BadRequestException("Tài khoản không tồn tại");
         }
+        Account account = accountRepo.findById(accountId)
+                .orElseThrow(() -> new BadRequestException("Tài khoản không tồn tại"));
+
+        Long pmId = asLong(payload.get("paymentMethodId"));
+        if (pmId == null) {
+            throw new BadRequestException("Phương thức thanh toán không hợp lệ");
+        }
+        PaymentMethod pm = paymentRepo.findById(pmId)
+                .orElseThrow(() -> new BadRequestException("Phương thức thanh toán không hợp lệ"));
+
+        String voucherCode = asString(payload.get("voucherCode"));
+        Long voucherId = asLong(payload.get("voucherId"));
+        Voucher voucher = null;
+        if (voucherCode != null && !voucherCode.isBlank()) {
+            voucher = voucherRepo.findByCode(voucherCode.trim())
+                    .orElseThrow(() -> new BadRequestException("Mã giảm giá không tồn tại"));
+        } else if (voucherId != null) {
+            voucher = voucherRepo.findById(voucherId)
+                    .orElseThrow(() -> new BadRequestException("Mã giảm giá không tồn tại"));
+        }
+
+        List<Map<String, Object>> itemsReq = extractOrderItems(payload);
+        if (itemsReq == null || itemsReq.isEmpty()) {
+            System.out.println("=== LỖI PAYLOAD KHÔNG TÌM THẤY GIỎ HÀNG ===");
+            System.out.println("Dữ liệu Frontend gửi xuống: " + payload);
+            throw new BadRequestException("Giỏ hàng đang trống, không thể đặt hàng!");
+        }
+
+        Order order = new Order();
+        order.setAccount(account);
+        order.setCreatedAt(Instant.now());
+        order.setStatus("PENDING");
+        order.setFullname(asString(payload.get("fullname")));
+        order.setPhone(asString(payload.get("phone")));
+        order.setShippingAddress(asString(payload.get("shippingAddress")));
+        order.setPaymentStatus("PENDING");
+        order.setPaymentMethod(pm);
+        if (voucher != null) {
+            order.setVoucher(voucher);
+        }
+
+        BigDecimal totalMoney = BigDecimal.ZERO;
+        List<OrderItem> orderItems = new ArrayList<>();
+
+        for (Map<String, Object> itemReq : itemsReq) {
+            Long variantId = asLong(itemReq.get("variantId"));
+            Integer qty = asInteger(itemReq.get("quantity"));
+            if (variantId == null) {
+                throw new BadRequestException("Sản phẩm không hợp lệ");
+            }
+            if (qty == null || qty <= 0) {
+                throw new BadRequestException("Số lượng sản phẩm không hợp lệ");
+            }
+
+            ProductVariant variant = variantRepo.findById(variantId)
+                    .orElseThrow(() -> new BadRequestException("Sản phẩm không tồn tại"));
+
+            if (variant.getStockQuantity() < qty) {
+                throw new BadRequestException(
+                        "Sản phẩm " + variant.getProduct().getName() + " không đủ số lượng trong kho!");
+            }
+
+            variant.setStockQuantity(variant.getStockQuantity() - qty);
+            variantRepo.save(variant);
+
+            BigDecimal price = variant.getPrice();
+            totalMoney = totalMoney.add(price.multiply(BigDecimal.valueOf(qty)));
+
+            OrderItem oi = new OrderItem();
+            oi.setOrder(order);
+            oi.setVariant(variant);
+            oi.setQuantity(qty);
+            oi.setPrice(price);
+            orderItems.add(oi);
+        }
+
+        order.setTotalMoney(totalMoney);
+
+        if (voucher != null) {
+            validateVoucherForOrder(voucher, totalMoney);
+        }
+
+        BigDecimal discount = calculateDiscount(voucher, totalMoney);
+        order.setDiscountAmount(discount);
+        order.setFinalAmount(totalMoney.subtract(discount));
+
+        Order savedOrder = orderRepo.save(order);
+        for (OrderItem item : orderItems) {
+            item.setOrder(savedOrder);
+        }
+        orderItemRepo.saveAll(orderItems);
+
+        if (savedOrder.getVoucher() != null) {
+            Voucher v = savedOrder.getVoucher();
+            int currentUsed = (v.getUsedCount() != null) ? v.getUsedCount() : 0;
+            v.setUsedCount(currentUsed + 1);
+            voucherRepo.save(v);
+
+            AccountVoucher av = new AccountVoucher();
+            av.setAccount(account);
+            av.setVoucher(v);
+            av.setUsedAt(Instant.now());
+            accountVoucherRepo.save(av);
+        }
+
+        cartRepo.findByAccountId(accountId).ifPresent(cart -> cartItemRepo.deleteByCartId(cart.getId()));
+
+        return ResponseEntity.ok(Map.of("success", true, "orderId", savedOrder.getId()));
     }
 
     @PutMapping("/{id}")
@@ -297,6 +279,61 @@ public class OrderController {
         // --------------------------------------------------------------
 
         return map;
+    }
+
+    private void validateVoucherForOrder(Voucher voucher, BigDecimal orderTotal) {
+        if (!Boolean.TRUE.equals(voucher.getIsActive())) {
+            throw new BadRequestException("Mã giảm giá không còn hoạt động!");
+        }
+
+        Instant now = Instant.now();
+        if (now.isBefore(voucher.getStartDate())) {
+            throw new BadRequestException("Mã giảm giá chưa bắt đầu hoạt động");
+        }
+        if (now.isAfter(voucher.getEndDate())) {
+            throw new BadRequestException("Mã giảm giá đã hết hạn");
+        }
+
+        int usedCount = voucher.getUsedCount() != null ? voucher.getUsedCount() : 0;
+        if (voucher.getUsageLimit() != null && voucher.getUsageLimit() > 0 && usedCount >= voucher.getUsageLimit()) {
+            throw new BadRequestException("Mã giảm giá đã đạt giới hạn sử dụng");
+        }
+
+        if (orderTotal != null && voucher.getMinOrderValue() != null && orderTotal.compareTo(voucher.getMinOrderValue()) < 0) {
+            throw new BadRequestException("Giá trị đơn hàng chưa đạt mức tối thiểu để sử dụng mã giảm giá");
+        }
+    }
+
+    private BigDecimal calculateDiscount(Voucher voucher, BigDecimal orderTotal) {
+        if (voucher == null || orderTotal == null || orderTotal.compareTo(BigDecimal.ZERO) <= 0) {
+            return BigDecimal.ZERO;
+        }
+
+        if ("PERCENT".equals(voucher.getDiscountType())) {
+            BigDecimal discount = orderTotal.multiply(voucher.getDiscountValue())
+                    .divide(new BigDecimal(100), RoundingMode.HALF_UP);
+            if (voucher.getMaxDiscountAmount() != null && discount.compareTo(voucher.getMaxDiscountAmount()) > 0) {
+                return voucher.getMaxDiscountAmount();
+            }
+            return discount;
+        }
+        return voucher.getDiscountValue();
+    }
+
+    private List<Map<String, Object>> extractOrderItems(Map<String, Object> payload) {
+        if (payload.get("items") instanceof List) {
+            return (List<Map<String, Object>>) payload.get("items");
+        }
+        if (payload.get("cartItems") instanceof List) {
+            return (List<Map<String, Object>>) payload.get("cartItems");
+        }
+        if (payload.get("cart") instanceof List) {
+            return (List<Map<String, Object>>) payload.get("cart");
+        }
+        if (payload.get("orderItems") instanceof List) {
+            return (List<Map<String, Object>>) payload.get("orderItems");
+        }
+        return null;
     }
 
     private Integer asInteger(Object v) {
