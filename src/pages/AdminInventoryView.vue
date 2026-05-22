@@ -1806,7 +1806,11 @@ async function saveVariant() {
   saving.value = true;
   try {
     let variantIdForUpload = editingId.value;
-    const normalizedStock = Math.max(0, Number(f.stockQuantity || 0));
+    const requestedStatus = String(f.status || "").trim().toUpperCase();
+    const normalizedStock =
+      requestedStatus === "OUT_OF_STOCK"
+        ? 0
+        : Math.max(0, Number(f.stockQuantity || 0));
     const normalizedStatus = normalizeVariantStatus(f.status, normalizedStock);
 
     if (!editingId.value) {

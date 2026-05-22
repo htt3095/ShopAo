@@ -1232,7 +1232,7 @@ function normalizeVariantPayload(rawVariant) {
         .map((url) => (typeof url === "string" ? url.trim() : ""))
         .filter(Boolean);
 
-    return cleanupPayload({
+    const payload = {
         productId: asFiniteNumber(
             firstDefinedValue([source.productId, source.product_id], null),
             null,
@@ -1253,13 +1253,18 @@ function normalizeVariantPayload(rawVariant) {
             ),
             0,
         ),
-        status: normalizeVariantStatus(
-            firstDefinedValue([source.status, source.variantStatus, source.variant_status], null),
-            firstDefinedValue([source.stockQuantity, source.stock_quantity, source.quantity], 0),
-        ),
         imageUrl: firstDefinedValue([source.imageUrl, source.image_url], null),
         extraImages: normalizedExtraImages,
-    });
+    };
+
+    if (source.status !== undefined || source.variantStatus !== undefined || source.variant_status !== undefined) {
+        payload.status = normalizeVariantStatus(
+            firstDefinedValue([source.status, source.variantStatus, source.variant_status], null),
+            firstDefinedValue([source.stockQuantity, source.stock_quantity, source.quantity], 0),
+        );
+    }
+
+    return cleanupPayload(payload);
 }
 
 function normalizeVoucherPayload(rawVoucher) {
@@ -1366,7 +1371,7 @@ async function softDisableVariantById(id) {
     const updatePayload = {
         ...current,
         stockQuantity: 0,
-        status: "OUT_OF_STOCK",
+        status: "HIDDEN",
     };
     await tryApiRequests([
         { endpoint: `/variants/${id}`, method: "PUT", body: updatePayload }
