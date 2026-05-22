@@ -1,58 +1,120 @@
-# Backend Transfer Summary
+﻿# Backend Context For Codex
 
-## Paths
-- New backend workspace: C:/Users/Dell/Downloads/custom/New folder/FinalProject-Inteliji
-- Original backend (reference): C:/Users/Dell/Downloads/custom/FinalProject2
+This note is for future Codex sessions working against the active backend in this folder.
 
-## Project type
-- Java Spring Boot (Maven)
-- Java version: 17 (from pom.xml)
-- Key dependencies (from pom.xml):
-  - `spring-boot-starter-web`
-  - `spring-boot-starter-data-jpa`
-  - `spring-boot-starter-security`
-  - `spring-boot-starter-mail`
-  - `mssql-jdbc` (Microsoft SQL Server driver)
-  - `modelmapper`
-  - `cloudinary-http44` (image uploads)
-  - `jackson-datatype-jsr310` (date/time serialization)
-  - `lombok` (provided)
+## Active Project
 
-## DB and schema
-- The target database is `ShopGiay` (SQL Server).
-- The original SQL script (schema) includes tables: `Accounts`, `Roles`, `Products`, `ProductVariants`, `VariantImages`, `Categories`, `Brands`, `Sizes`, `Colors`, `Carts`, `CartItems`, `Orders`, `OrderItems`, `ProductReviews`, `Vouchers`, `PaymentMethods`, `ProductCompares`, `Feedbacks`, `AccountVouchers`, `AccountRoles`.
-- Key constraints and defaults: identity columns, foreign keys linking product→brand/category, variant→product/size/color, cart/order relationships, unique constraints on `product_code` and `gmail`.
+- Backend folder: `C:\Users\Dell\Downloads\custom\New folder\FinalProject-Inteliji`
+- Package: `com.finalproject2`
+- Stack: Spring Boot, Java 17, Maven, SQL Server, Spring Data JPA, Spring Security, Cloudinary, Google login, SMTP mail.
+- Frontend folder: `C:\Users\Dell\Downloads\custom\New folder\FinalProject-Vue`
+- Frontend dev URL: `http://localhost:3002`
+- Backend API URL: `http://localhost:8080/api`
 
-## Expected REST endpoints (to map from frontend)
-- Authentication: `/api/auth/login`, `/api/auth/register`, `/api/auth/google` (possible)
-- Accounts: `/api/accounts/{id}`, `/api/accounts/profile`
-- Products: `/api/products`, `/api/products/{id}`, `/api/products/{id}/variants`
-- Categories/Brands: `/api/categories`, `/api/brands`
-- Cart: `/api/cart`, `/api/cart/items`, `/api/cart/{id}`
-- Orders: `/api/orders`, `/api/orders/{id}`
-- Reviews: `/api/products/{id}/reviews`
-- Vouchers: `/api/vouchers`, `/api/vouchers/apply`
+## Security And Config
 
-> NOTE: These endpoints are inferred from frontend calls (`src/services/api.js`) and common REST patterns. Confirm exact mappings by inspecting controller classes in `src/main/java`.
+- `src/main/resources/application.properties` contains real database and service credentials. Do not paste credential values into chat, commits, or docs.
+- JPA uses `ddl-auto=update` and SQL Server database `ShopGiay`.
+- Security config currently disables CSRF, uses stateless sessions, permits `/api/accounts/**`, and permits all other requests.
+- CORS allows `http://localhost:3002` and `http://127.0.0.1:3002`.
 
-## Important backend files to review (add links to file paths)
-- Spring Boot application entry: `src/main/java/.../Application.java`
-- Controllers: `src/main/java/.../controller/*Controller.java`
-- Services: `src/main/java/.../service/*Service.java`
-- Repositories (JPA): `src/main/java/.../repository/*Repository.java`
-- DTOs / Models: `src/main/java/.../dto` and `src/main/java/.../model`
-- Security configuration: `src/main/java/.../security` (if present)
-- `application.properties` or `application.yml` for DB connection and Cloudinary settings
+## Current SQL Constraints To Respect
 
-## How this file helps future analysis
-- Use this as a quick reference to map frontend API calls to backend controllers.
-- When reporting a bug, include the frontend route, the exact API request (method and URL), and this file helps identify corresponding backend controller and DB table.
+User reported these active constraints on 2026-05-22:
 
-## Next recommended actions
-1. Run `mvn -q -DskipTests package` to build the backend and ensure dependencies resolve.
-2. Search controller classes for the exact API endpoints and paste them under "Expected REST endpoints" above.
-3. Add ER diagram or export from SQL Server for clearer relationship mapping.
+```sql
+Roles.name IN ('GUEST', 'USER', 'ADMIN', 'STAFF')
+Orders.status IN ('PENDING', 'PROCESSING', 'SHIPPING', 'SUCCESS', 'CANCELLED', 'RETURN_REQUEST', 'RETURNING', 'RETURNED')
+```
 
+Do not use old order statuses `NEW` or `CONFIRMED` in outbound API behavior. `Order.status` still has `@ColumnDefault("NEW")`; that is stale against the current SQL constraint and should be fixed when backend edits are requested.
 
----
-Generated: 2026-05-22
+## Main Controllers
+
+- `AccountController`: `/api/accounts`, login, Google login, forgot password, avatar upload.
+- `ProductController`: `/api/products`, product CRUD, product image upload.
+- `ProductVariantController`: `/api/variants`, variant CRUD, primary/extra image upload.
+- `CartController`: `/api/cart`, `/init`, `/add`, `/update/{cartItemId}`, `/remove/{cartItemId}`, `/clear`.
+- `OrderController`: `/api/orders`, `/api/orders/{id}`, `/api/orders/account/{accountId}`.
+- `VoucherController`: `/api/vouchers`, `/apply`, `/validate`, `/use`, `/status/active`.
+- `PaymentController`: VNPay endpoints.
+
+## Order Contract
+
+`POST /api/orders` accepts a map payload.
+
+Required:
+
+- `accountId`
+- `paymentMethodId`
+- item list under `items`, `cartItems`, `cart`, or `orderItems`
+
+Creation behavior:
+
+- Loads account and payment method.
+- Optionally loads voucher by `voucherCode` or `voucherId`.
+- Validates stock and decrements variant stock.
+- Sets `status = PENDING`.
+- Sets `paymentStatus = PENDING`.
+- Calculates totals and discount.
+- Saves `OrderItems`.
+- Increments voucher usage and creates `AccountVoucher` when voucher is attached.
+- Clears the account cart.
+- Returns `{ success: true, orderId }`.
+
+`PUT /api/orders/{id}`:
+
+- Accepts `status`, `paymentStatus`, `returnReason`.
+- Restocks order items when status changes to `CANCELLED` or `RETURNED`.
+- Returns `{ success: true }`.
+
+Order response mapping:
+
+- `mapOrderToMap()` returns `paymentMethodName`, but currently does not return `paymentMethodId`.
+- It returns both `items` and `orderItems` for frontend compatibility.
+
+## Voucher Contract
+
+- `GET /api/vouchers` returns `{ success, data, currentPage, totalPages, totalElements }`.
+- `GET /api/vouchers/apply` and `/validate` preview discount.
+- `POST /api/vouchers/use` increments usage.
+- `POST /api/orders` also increments voucher usage when a voucher is attached; avoid double-counting from frontend.
+- Derived voucher statuses: `ACTIVE`, `SCHEDULED`, `EXPIRED`, `USED`, `INACTIVE`.
+
+## Cart Contract
+
+Active cart API is `/api/cart`:
+
+- `GET /api/cart?accountId=...`
+- `POST /api/cart/init`
+- `POST /api/cart/add`
+- `PUT /api/cart/update/{cartItemId}`
+- `DELETE /api/cart/remove/{cartItemId}`
+- `DELETE /api/cart/clear?accountId=...`
+
+The frontend should not use older `/carts` or `/cart-items` routes unless the backend is extended.
+
+## Known Backend Issues / Watch Items
+
+- `Order.status` entity default still says `NEW`; this conflicts with the active SQL constraint.
+- `OrderController.mapOrderToMap()` should include `paymentMethodId` in a future backend fix to avoid frontend inference.
+- Several controllers use `Map<String,Object>` payloads, so frontend field names must be exact and defensive.
+- Many source strings show mojibake Vietnamese; avoid broad encoding rewrites unless explicitly fixing UI text.
+- Hard deletes may fail due to FKs; frontend often uses soft-delete/status fallback behavior.
+
+## Verification
+
+Run backend tests with:
+
+```powershell
+cd "C:\Users\Dell\Downloads\custom\New folder\FinalProject-Inteliji"
+.\mvnw.cmd test
+```
+
+## Recent Frontend Fixes Depending On Backend Contract
+
+2026-05-22:
+
+- Admin orders now uses backend-valid statuses `PENDING` and `PROCESSING`.
+- Admin order payment method display derives from `paymentMethodName` when `paymentMethodId` is absent.
+- Admin POS creates orders with `paymentMethodId` and then updates orders to `SUCCESS` / `PAID` for completed in-store purchases.
