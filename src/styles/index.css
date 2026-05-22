@@ -1,0 +1,130 @@
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+	:root {
+		color-scheme: light;
+		--brand-ink: #1f1712;
+		--brand-muted: #8f8477;
+		--brand-paper: #f5f1ea;
+		--brand-card: #fffdf8;
+		--brand-accent: #c66231;
+		--brand-dark: #151311;
+	}
+
+	* {
+		box-sizing: border-box;
+	}
+
+	html {
+		scroll-behavior: smooth;
+	}
+
+	body {
+		margin: 0;
+		min-width: 320px;
+		background:
+			radial-gradient(circle at top left, rgba(198, 98, 49, 0.12), transparent 28%),
+			linear-gradient(180deg, #fbf8f2 0%, #f5f1ea 52%, #efe7dc 100%);
+		color: var(--brand-ink);
+		font-family: "Be Vietnam Pro", sans-serif;
+	}
+
+	body.dark,
+	.dark body {
+		background:
+			radial-gradient(circle at top left, rgba(198, 98, 49, 0.16), transparent 28%),
+			linear-gradient(180deg, #1d1917 0%, #151311 100%);
+		color: #f8f3eb;
+	}
+
+	a {
+		color: inherit;
+		text-decoration: none;
+	}
+
+	img {
+		display: block;
+	}
+
+	button,
+	input,
+	select,
+	textarea {
+		font: inherit;
+	}
+
+	::selection {
+		background: rgba(198, 98, 49, 0.22);
+		color: #1f1712;
+	}
+}
+
+@layer components {
+	.retail-shell {
+		@apply min-h-screen font-display text-slate-900 dark:text-white;
+		background:
+			radial-gradient(circle at top left, rgba(198, 98, 49, 0.09), transparent 28%),
+			linear-gradient(180deg, #fbf8f2 0%, #f5f1ea 52%, #efe7dc 100%);
+	}
+
+	.dark .retail-shell {
+		background:
+			radial-gradient(circle at top left, rgba(198, 98, 49, 0.16), transparent 28%),
+			linear-gradient(180deg, #1d1917 0%, #151311 100%);
+	}
+
+	.retail-header {
+		@apply sticky top-0 z-50 border-b backdrop-blur-md;
+		border-color: rgba(226, 232, 240, 0.8);
+		background: rgba(249, 245, 238, 0.9);
+	}
+
+	.dark .retail-header {
+		border-color: #3c342e;
+		background: rgba(21, 19, 17, 0.9);
+	}
+
+	.retail-card {
+		@apply border backdrop-blur-sm;
+		border-radius: 28px;
+		border-color: rgba(226, 232, 240, 0.8);
+		background: rgba(255, 253, 248, 0.88);
+		box-shadow: 0 18px 60px rgba(62, 38, 24, 0.08);
+	}
+
+	.dark .retail-card {
+		border-color: #3c342e;
+		background: rgba(31, 26, 23, 0.92);
+		box-shadow: 0 20px 60px rgba(0, 0, 0, 0.28);
+	}
+
+	.retail-kicker {
+		@apply inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-primary;
+	}
+
+	.retail-heading {
+		font-family: "Barlow Condensed", "Be Vietnam Pro", sans-serif;
+		@apply uppercase tracking-tight;
+	}
+
+	.retail-divider {
+		@apply h-px w-full bg-gradient-to-r from-transparent via-slate-300 to-transparent dark:via-[#3c342e];
+	}
+}
+
+@layer utilities {
+	.bg-grid-soft {
+		background-image:
+			linear-gradient(rgba(198, 98, 49, 0.06) 1px, transparent 1px),
+			linear-gradient(90deg, rgba(198, 98, 49, 0.06) 1px, transparent 1px);
+		background-size: 28px 28px;
+	}
+
+	.shadow-card-warm {
+		box-shadow: 0 22px 65px rgba(69, 45, 31, 0.12);
+	}
+}
