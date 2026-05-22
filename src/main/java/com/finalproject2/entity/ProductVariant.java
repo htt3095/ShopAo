@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.ColumnDefault;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -49,6 +50,11 @@ public class ProductVariant {
     @Size(max = 1000, message = "Link ảnh quá dài")
     @Column(name = "image_Url", length = 1000)
     private String imageUrl;
+
+    @Size(max = 30)
+    @ColumnDefault("SELLING")
+    @Column(name = "status", length = 30)
+    private String status;
 
     @Column(name = "updated_at")
     private Instant updatedAt;

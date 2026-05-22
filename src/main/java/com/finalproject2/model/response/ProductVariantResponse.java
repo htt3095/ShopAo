@@ -18,6 +18,7 @@ public class ProductVariantResponse {
     private String sizeName;
     private BigDecimal price;
     private Integer stockQuantity;
+    private String status;
     private String imageUrl;
     private List<String> extraImages;
 }

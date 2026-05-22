@@ -20,6 +20,7 @@ public class ProductVariantRequest {
     private BigDecimal price;
     @NotNull
     private Integer stockQuantity;
+    private String status;
     private String imageUrl;
     private List<String> extraImages;  // NEW: for 4 additional images
 }

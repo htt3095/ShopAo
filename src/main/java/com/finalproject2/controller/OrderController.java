@@ -103,7 +103,7 @@ public class OrderController {
         List<OrderItem> orderItems = new ArrayList<>();
 
         for (Map<String, Object> itemReq : itemsReq) {
-            Long variantId = asLong(itemReq.get("variantId"));
+            Long variantId = extractVariantId(itemReq);
             Integer qty = asInteger(itemReq.get("quantity"));
             if (variantId == null) {
                 throw new BadRequestException("Sản phẩm không hợp lệ");
@@ -115,13 +115,16 @@ public class OrderController {
             ProductVariant variant = variantRepo.findById(variantId)
                     .orElseThrow(() -> new BadRequestException("Sản phẩm không tồn tại"));
 
-            if (variant.getStockQuantity() < qty) {
+            if (!isVariantSellable(variant)) {
+                throw new BadRequestException(
+                        "Sáº£n pháº©m " + variant.getProduct().getName() + " hiá»‡n khÃ´ng má»Ÿ bÃ¡n!");
+            }
+
+            int updatedRows = variantRepo.decrementStockIfAvailable(variantId, qty);
+            if (updatedRows == 0) {
                 throw new BadRequestException(
                         "Sản phẩm " + variant.getProduct().getName() + " không đủ số lượng trong kho!");
             }
-
-            variant.setStockQuantity(variant.getStockQuantity() - qty);
-            variantRepo.save(variant);
 
             BigDecimal price = variant.getPrice();
             totalMoney = totalMoney.add(price.multiply(BigDecimal.valueOf(qty)));
@@ -334,6 +337,56 @@ public class OrderController {
             return (List<Map<String, Object>>) payload.get("orderItems");
         }
         return null;
+    }
+
+    private Long extractVariantId(Map<String, Object> itemReq) {
+        if (itemReq == null) {
+            return null;
+        }
+
+        Long direct = asLong(itemReq.get("variantId"));
+        if (direct != null) {
+            return direct;
+        }
+
+        direct = asLong(itemReq.get("variant_id"));
+        if (direct != null) {
+            return direct;
+        }
+
+        direct = asLong(itemReq.get("productVariantId"));
+        if (direct != null) {
+            return direct;
+        }
+
+        direct = asLong(itemReq.get("product_variant_id"));
+        if (direct != null) {
+            return direct;
+        }
+
+        Object nested = itemReq.get("variant");
+        if (nested instanceof Map<?, ?> nestedMap) {
+            return asLong(nestedMap.get("id"));
+        }
+
+        return null;
+    }
+
+    private boolean isVariantSellable(ProductVariant variant) {
+        if (variant == null) {
+            return false;
+        }
+
+        String status = variant.getStatus();
+        if (status == null || status.isBlank()) {
+            return true;
+        }
+
+        String normalized = status.trim().toUpperCase();
+        return !("HIDDEN".equals(normalized)
+                || "INACTIVE".equals(normalized)
+                || "STOP_SELLING".equals(normalized)
+                || "DISCONTINUED".equals(normalized));
     }
 
     private Integer asInteger(Object v) {

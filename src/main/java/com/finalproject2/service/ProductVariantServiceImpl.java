@@ -53,6 +53,7 @@ public class ProductVariantServiceImpl implements ProductVariantService {
         v.setColor(c);
         v.setPrice(req.getPrice());
         v.setStockQuantity(req.getStockQuantity());
+        v.setStatus(normalizeStatus(req.getStatus(), req.getStockQuantity()));
         v.setImageUrl(req.getImageUrl());
 
         // NEW: Handle extraImages
@@ -86,6 +87,11 @@ public class ProductVariantServiceImpl implements ProductVariantService {
         }
         if (req.getStockQuantity() != null) {
             v.setStockQuantity(req.getStockQuantity());
+        }
+        if (req.getStatus() != null) {
+            v.setStatus(normalizeStatus(req.getStatus(), v.getStockQuantity()));
+        } else if (req.getStockQuantity() != null && v.getStockQuantity() <= 0) {
+            v.setStatus("OUT_OF_STOCK");
         }
         if (req.getImageUrl() != null) {
             v.setImageUrl(req.getImageUrl());
@@ -125,6 +131,7 @@ public class ProductVariantServiceImpl implements ProductVariantService {
         } catch (DataIntegrityViolationException e) {
             // Foreign key constraint violation - soft delete by setting stockQuantity to 0
             v.setStockQuantity(0);
+            v.setStatus("HIDDEN");
             v.setUpdatedAt(Instant.now());
             repo.save(v);
         }
@@ -145,8 +152,25 @@ public class ProductVariantServiceImpl implements ProductVariantService {
         r.setSizeName(v.getSize()     != null ? v.getSize().getName()  : null);
         r.setPrice(v.getPrice());
         r.setStockQuantity(v.getStockQuantity());
+        r.setStatus(normalizeStatus(v.getStatus(), v.getStockQuantity()));
         r.setImageUrl(v.getImageUrl());
         r.setExtraImages(v.getExtraImages());
         return r;
+    }
+
+    private String normalizeStatus(String value, Integer stockQuantity) {
+        String normalized = value == null ? "" : value.trim().toUpperCase();
+        boolean hasStock = stockQuantity != null && stockQuantity > 0;
+
+        if ("HIDDEN".equals(normalized) || "INACTIVE".equals(normalized) || "STOP_SELLING".equals(normalized)) {
+            return "HIDDEN";
+        }
+        if ("OUT_OF_STOCK".equals(normalized) || "SOLD_OUT".equals(normalized) || "OUTOFSTOCK".equals(normalized)) {
+            return "OUT_OF_STOCK";
+        }
+        if ("SELLING".equals(normalized) || "AVAILABLE".equals(normalized) || "ACTIVE".equals(normalized) || "ON_SALE".equals(normalized)) {
+            return hasStock ? "SELLING" : "OUT_OF_STOCK";
+        }
+        return hasStock ? "SELLING" : "OUT_OF_STOCK";
     }
 }
