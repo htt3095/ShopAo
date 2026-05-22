@@ -42,15 +42,15 @@ function normalizeStatusKey(value) {
 function normalizeOrderStatus(value) {
     const key = normalizeStatusKey(value)
 
-    if (['NEW', 'PENDING', 'WAITING', 'CHUA_XU_LY', 'CHO_XU_LY'].includes(key)) return 'NEW'
-    if (['CONFIRMED', 'PROCESSING', 'DANG_XU_LY', 'XAC_NHAN', 'IN_PROGRESS'].includes(key)) return 'CONFIRMED'
+    if (['NEW', 'PENDING', 'WAITING', 'CHUA_XU_LY', 'CHO_XU_LY'].includes(key)) return 'PENDING'
+    if (['CONFIRMED', 'PROCESSING', 'DANG_XU_LY', 'XAC_NHAN', 'IN_PROGRESS'].includes(key)) return 'PROCESSING'
     if (['SHIPPING', 'DELIVERING', 'DANG_GIAO', 'IN_TRANSIT', 'TRANSIT'].includes(key)) return 'SHIPPING'
     if (['SUCCESS', 'COMPLETED', 'DELIVERED', 'THANH_CONG', 'HOAN_THANH', 'RECEIVED'].includes(key)) return 'SUCCESS'
     if (['RETURNING', 'TRA_HANG', 'YEU_CAU_TRA'].includes(key)) return 'RETURNING'
     if (['RETURNED', 'HOAN_TRA', 'HOAN_TIEN', 'REFUND', 'REFUNDED'].includes(key)) return 'RETURNED'
     if (['CANCELLED', 'CANCELED', 'DA_HUY', 'HUY', 'FAILED'].includes(key)) return 'CANCELLED'
 
-    return key || 'NEW'
+    return key || 'PENDING'
 }
 
 function normalizePaymentStatus(value) {
@@ -174,7 +174,7 @@ function normalizeOrderItem(rawOrder) {
         source.status ||
         source.orderStatus ||
         source.order_status ||
-        'NEW'
+        'PENDING'
 
     return {
         ...source,

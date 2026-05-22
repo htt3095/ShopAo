@@ -28,7 +28,7 @@
 
     <div class="space-y-3">
       <section class="retail-card p-3">
-        <div class="grid gap-3 md:grid-cols-[1fr_220px]">
+        <div class="grid gap-3 md:grid-cols-[1fr_240px]">
           <label
             class="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-1.5 dark:border-[#3c342e] dark:bg-[#1f1a17]"
           >
@@ -43,10 +43,29 @@
             />
           </label>
 
-          <!-- Select dropdown removed, replaced by pipeline tabs below -->
+          <label
+            class="flex items-center gap-2 rounded-xl border border-[#3c342e] bg-[#1f1a17] px-3 py-1.5"
+          >
+            <span class="material-symbols-outlined text-[18px] text-slate-400"
+              >filter_list</span
+            >
+            <select
+              v-model="statusFilter"
+              class="w-full cursor-pointer bg-transparent text-sm text-[#eadfd3] outline-none"
+            >
+              <option value="ALL">Tất cả trạng thái</option>
+              <option
+                v-for="status in statusOptions"
+                :key="status.value"
+                :value="status.value"
+              >
+                {{ status.label }}
+              </option>
+            </select>
+          </label>
         </div>
 
-        <div class="mt-4 flex flex-wrap gap-2 border-b border-slate-200 pb-2 dark:border-[#3c342e]">
+        <div class="hidden">
           <button
             class="rounded-full px-4 py-1.5 text-sm font-medium transition-colors"
             :class="statusFilter === 'ALL' ? 'bg-primary text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-[#2b241f] dark:text-[#b9aa9a] dark:hover:bg-[#3c342e]'"
@@ -155,24 +174,36 @@
           Không tìm thấy đơn hàng phù hợp.
         </div>
 
-        <div v-else class="overflow-x-auto">
-          <table class="w-full min-w-[1320px] text-left text-xs">
+        <div v-else class="admin-orders-table-scroll overflow-x-auto">
+          <table class="admin-orders-table w-full min-w-[1328px] table-fixed text-left text-xs">
+            <colgroup>
+              <col class="w-[64px]" />
+              <col class="w-[140px]" />
+              <col class="w-[190px]" />
+              <col class="w-[145px]" />
+              <col class="w-[220px]" />
+              <col class="w-[120px]" />
+              <col class="w-[140px]" />
+              <col class="w-[132px]" />
+              <col class="w-[145px]" />
+              <col class="w-[112px]" />
+            </colgroup>
             <thead>
               <tr
                 class="border-b border-slate-200 text-slate-500 dark:border-[#3c342e] dark:text-[#b9aa9a]"
               >
-                <th class="px-2 py-2 font-medium">ID</th>
+                <th class="sticky left-0 z-20 bg-[#1f1a17] px-2 py-2 font-medium shadow-[1px_0_0_rgba(60,52,46,0.9)]">ID</th>
                 <th class="px-2 py-2 font-medium">Khách hàng</th>
                 <th class="px-2 py-2 font-medium">Sản phẩm</th>
                 <th class="px-2 py-2 font-medium">Liên hệ</th>
-                <th class="px-2 py-2 font-medium w-[220px]">
+                <th class="px-2 py-2 font-medium">
                   Địa chỉ giao hàng
                 </th>
                 <th class="px-2 py-2 font-medium">Tổng tiền</th>
                 <th class="px-2 py-2 font-medium">Thanh toán</th>
-                <th class="px-2 py-2 font-medium">Trạng thái</th>
+                <th class="px-2 py-2 font-medium whitespace-nowrap">Trạng thái</th>
                 <th class="px-2 py-2 font-medium">Ngày tạo</th>
-                <th class="px-2 py-2 text-right font-medium">Thao tác</th>
+                <th class="sticky right-0 z-20 bg-[#1f1a17] px-2 py-2 text-right font-medium shadow-[-1px_0_0_rgba(60,52,46,0.9)]">Thao tác</th>
               </tr>
             </thead>
             <tbody>
@@ -181,8 +212,12 @@
                 :key="order.id"
                 class="border-b border-slate-100 last:border-none dark:border-[#2b241f]"
               >
-                <td class="px-2 py-2 font-semibold">#{{ order.id || "-" }}</td>
-                <td class="px-2 py-2">{{ order.fullName || "Khách hàng" }}</td>
+                <td class="sticky left-0 z-10 bg-[#1f1a17] px-2 py-2 font-semibold shadow-[1px_0_0_rgba(60,52,46,0.75)]">#{{ order.id || "-" }}</td>
+                <td class="px-2 py-2">
+                  <p class="truncate" :title="order.fullName || 'Khách hàng'">
+                    {{ order.fullName || "Khách hàng" }}
+                  </p>
+                </td>
                 <td class="px-2 py-2 text-slate-600 dark:text-[#b9aa9a]">
                   <p
                     v-for="(itemText, idx) in getOrderItemsPreview(order)"
@@ -193,8 +228,8 @@
                   </p>
                 </td>
                 <td class="px-2 py-2 text-slate-500 dark:text-[#b9aa9a]">
-                  <p>{{ order.phone || "-" }}</p>
-                  <p>{{ order.email || "-" }}</p>
+                  <p class="truncate" :title="order.phone || '-'">{{ order.phone || "-" }}</p>
+                  <p class="truncate" :title="order.email || '-'">{{ order.email || "-" }}</p>
                 </td>
                 <td
                   class="px-2 py-2 text-xs text-slate-600 dark:text-[#b9aa9a]"
@@ -219,21 +254,21 @@
                   {{ formatCurrency(order.finalAmount || order.totalMoney) }}
                 </td>
                 <td class="px-2 py-2">
-                  <div class="font-medium text-slate-700 dark:text-[#e6d7c8]">{{ order.paymentMethodName || order.paymentMethod || "COD" }}</div>
+                  <div class="truncate font-medium text-slate-700 dark:text-[#e6d7c8]" :title="getPaymentMethodLabel(order)">{{ getPaymentMethodLabel(order) }}</div>
                   <div class="mt-0.5 text-[11px] text-slate-500">{{ getPaymentStatusLabel(order.paymentStatus) }}</div>
                 </td>
-                <td class="px-2 py-2">
+                <td class="px-2 py-2 whitespace-nowrap">
                   <span
-                    class="rounded-full px-2 py-1 text-xs font-semibold"
+                    class="inline-flex whitespace-nowrap rounded-full px-2 py-1 text-xs font-semibold"
                     :class="statusClass(order.status)"
                   >
                     {{ getOrderStatusLabel(order.status) }}
                   </span>
                 </td>
-                <td class="px-2 py-2 text-slate-500 dark:text-[#b9aa9a]">
+                <td class="px-2 py-2 text-slate-500 dark:text-[#b9aa9a] whitespace-nowrap">
                   {{ formatDate(order.createdAt) }}
                 </td>
-                <td class="px-2 py-2 text-right">
+                <td class="sticky right-0 z-10 bg-[#1f1a17] px-2 py-2 text-right shadow-[-1px_0_0_rgba(60,52,46,0.75)]">
                   <div class="flex items-center justify-end gap-1">
                     <button
                       class="rounded-lg p-1.5 hover:bg-slate-100 dark:hover:bg-[#2b241f]"
@@ -445,19 +480,12 @@
               <label class="mb-1 block text-xs font-medium text-slate-500"
                 >Phương thức thanh toán</label
               >
-              <select
-                v-model.number="form.paymentMethodId"
-                :disabled="true"
+              <input
+                :value="getPaymentMethodLabel(form)"
+                readonly
                 title="Phương thức thanh toán (chỉ hiển thị)"
-                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 dark:border-[#3c342e] dark:bg-[#2b241f] dark:text-[#e6d7c8]"
-              >
-                <option :value="null">-- Chọn phương thức --</option>
-                <option :value="1">Thanh toán khi nhận hàng (COD)</option>
-                <option :value="2">VNPay</option>
-                <option :value="3">Momo</option>
-                <option :value="4">Chuyển khoản ngân hàng</option>
-                <option :value="5">ZaloPay</option>
-              </select>
+                class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 dark:border-[#3c342e] dark:bg-[#2b241f] dark:text-[#e6d7c8]"
+              />
             </div>
 
             <div v-if="form.returnReason" class="md:col-span-2">
@@ -621,7 +649,7 @@ function normalizeOrderStatusValue(value) {
   const key = normalizeStatusKey(value);
 
   if (["NEW", "PENDING", "WAITING", "CHUA_XU_LY", "CHO_XU_LY"].includes(key)) {
-    return "NEW";
+    return "PENDING";
   }
   if (
     [
@@ -632,7 +660,7 @@ function normalizeOrderStatusValue(value) {
       "IN_PROGRESS",
     ].includes(key)
   ) {
-    return "CONFIRMED";
+    return "PROCESSING";
   }
   if (["SHIPPING", "DANG_GIAO", "DELIVERING", "IN_TRANSIT"].includes(key)) {
     return "SHIPPING";
@@ -659,7 +687,7 @@ function normalizeOrderStatusValue(value) {
     return "CANCELLED";
   }
 
-  return key || "NEW";
+  return key || "PENDING";
 }
 
 function normalizePaymentStatusValue(paymentStatus) {
@@ -683,8 +711,8 @@ function normalizePaymentStatusValue(paymentStatus) {
 }
 
 const statusOptions = [
-  { value: "NEW", label: "Chờ xử lý" },
-  { value: "CONFIRMED", label: "Đang xử lý" },
+  { value: "PENDING", label: "Chờ xử lý" },
+  { value: "PROCESSING", label: "Đang xử lý" },
   { value: "SHIPPING", label: "Đang giao" },
   { value: "SUCCESS", label: "Thành công" },
   { value: "RETURN_REQUEST", label: "Yêu cầu hoàn" },
@@ -790,9 +818,10 @@ function emptyForm() {
     address: "",
     paymentMethodId: null,
     paymentMethod: "",
+    paymentMethodName: "",
     totalMoney: 0,
     finalAmount: 0,
-    status: "NEW",
+    status: "PENDING",
     paymentStatus: "PENDING",
     returnReason: "",
   };
@@ -802,11 +831,42 @@ function normalizePaymentMethodKey(value) {
   return normalizeStatusKey(value).replace(/\s+/g, "_");
 }
 
+function getPaymentMethodId(orderLike) {
+  const source = orderLike && typeof orderLike === "object" ? orderLike : {};
+  const rawId =
+    source.paymentMethodId ??
+    source.payment_method_id ??
+    source.paymentMethod?.id ??
+    source.payment_method?.id ??
+    null;
+  const methodId = Number(rawId);
+
+  if (Number.isFinite(methodId) && methodId > 0) {
+    return methodId;
+  }
+
+  const methodKey = normalizePaymentMethodKey(
+    source.paymentMethodName ??
+      source.payment_method_name ??
+      source.paymentMethod?.name ??
+      source.payment_method?.name ??
+      source.paymentMethod ??
+      source.payment_method ??
+      "",
+  );
+
+  if (["COD", "CASH", "TIEN_MAT", "THANH_TOAN_KHI_NHAN_HANG"].some((token) => methodKey.includes(token))) return 1;
+  if (methodKey.includes("VNPAY")) return 2;
+  if (methodKey.includes("MOMO")) return 3;
+  if (["BANK", "TRANSFER", "CHUYEN_KHOAN"].some((token) => methodKey.includes(token))) return 4;
+  if (methodKey.includes("ZALOPAY")) return 5;
+
+  return null;
+}
+
 function isCashOnDeliveryMethod(orderLike) {
   const source = orderLike && typeof orderLike === "object" ? orderLike : {};
-  const methodId = Number(
-    source.paymentMethodId ?? source.payment_method_id ?? null,
-  );
+  const methodId = getPaymentMethodId(source);
   const methodKey = normalizePaymentMethodKey(
     source.paymentMethod ??
       source.payment_method ??
@@ -823,9 +883,7 @@ function isCashOnDeliveryMethod(orderLike) {
 
 function isPrepaidMethod(orderLike) {
   const source = orderLike && typeof orderLike === "object" ? orderLike : {};
-  const methodId = Number(
-    source.paymentMethodId ?? source.payment_method_id ?? null,
-  );
+  const methodId = getPaymentMethodId(source);
   const methodKey = normalizePaymentMethodKey(
     source.paymentMethod ??
       source.payment_method ??
@@ -852,7 +910,7 @@ function resolveManagedOrderState(
   const isCod = isCashOnDeliveryMethod(orderLike);
   const isPrepaid = isPrepaidMethod(orderLike);
   const isReturnRequestPending =
-    currentStatus === "SUCCESS" && nextStatus === "NEW";
+    currentStatus === "SUCCESS" && nextStatus === "PENDING";
 
   if (isFinalOrderStatus(currentStatus) && nextStatus !== currentStatus) {
     return {
@@ -893,7 +951,7 @@ function resolveManagedOrderState(
   // Prepaid/QR orders should remain paid throughout the fulfillment pipeline.
   if (
     isPrepaid &&
-    ["NEW", "CONFIRMED", "SHIPPING", "SUCCESS"].includes(nextStatus)
+    ["PENDING", "PROCESSING", "SHIPPING", "SUCCESS"].includes(nextStatus)
   ) {
     nextPaymentStatus = "PAID";
   }
@@ -902,7 +960,7 @@ function resolveManagedOrderState(
   if (
     !isReturnRequestPending &&
     isCod &&
-    ["NEW", "CONFIRMED", "SHIPPING"].includes(nextStatus)
+    ["PENDING", "PROCESSING", "SHIPPING"].includes(nextStatus)
   ) {
     nextPaymentStatus = "PENDING";
   }
@@ -1037,14 +1095,14 @@ function getPaymentStatusLabel(status) {
 
 function getPaymentMethodLabel(orderLike) {
   const source = orderLike && typeof orderLike === "object" ? orderLike : {};
-  const methodId = Number(
-    source.paymentMethodId ?? source.payment_method_id ?? null,
-  );
+  const methodId = getPaymentMethodId(source);
   const rawMethod = String(
-    source.paymentMethod ??
-      source.payment_method ??
-      source.paymentMethodName ??
+    source.paymentMethodName ??
       source.payment_method_name ??
+      source.paymentMethod?.name ??
+      source.payment_method?.name ??
+      source.paymentMethod ??
+      source.payment_method ??
       "",
   ).trim();
 
@@ -1176,7 +1234,7 @@ function statusClass(status) {
   if (["SUCCESS"].includes(normalized)) {
     return "bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400";
   }
-  if (["CONFIRMED", "SHIPPING"].includes(normalized)) {
+  if (["PROCESSING", "SHIPPING"].includes(normalized)) {
     return "bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400";
   }
   if (["RETURN_REQUEST", "RETURNING"].includes(normalized)) {
@@ -1253,13 +1311,19 @@ async function openEdit(order) {
     email: order.email || order.gmail || "",
     address:
       order.shippingAddress || order.shipping_address || order.address || "",
-    paymentMethodId: Number.isFinite(Number(order.paymentMethodId))
-      ? Number(order.paymentMethodId)
-      : null,
+    paymentMethodId: getPaymentMethodId(order),
     paymentMethod:
       order.paymentMethod ||
       order.payment_method ||
+      order.paymentMethod?.name ||
+      order.payment_method?.name ||
       order.paymentMethodName ||
+      "",
+    paymentMethodName:
+      order.paymentMethodName ||
+      order.payment_method_name ||
+      order.paymentMethod?.name ||
+      order.payment_method?.name ||
       "",
     totalMoney: asNumber(order.totalMoney || order.total_money, 0),
     finalAmount: asNumber(
@@ -1313,7 +1377,7 @@ watch(
 );
 
 watch(
-  () => [form.value.paymentMethodId, form.value.paymentMethod],
+  () => [form.value.paymentMethodId, form.value.paymentMethod, form.value.paymentMethodName],
   () => {
     applyManagedOrderRules("method");
   },
@@ -1472,3 +1536,49 @@ async function loadOrders() {
 
 onMounted(loadOrders);
 </script>
+
+<style scoped>
+.admin-orders-table-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: #c66231 transparent;
+}
+
+.admin-orders-table-scroll::-webkit-scrollbar {
+  height: 10px;
+}
+
+.admin-orders-table-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.admin-orders-table-scroll::-webkit-scrollbar-thumb {
+  border: 3px solid transparent;
+  background-clip: content-box;
+  border-radius: 999px;
+  background: #c66231;
+}
+
+.admin-orders-table-scroll::-webkit-scrollbar-thumb:hover {
+  background: #a94f24;
+}
+
+.admin-orders-table tbody tr:hover > td {
+  background-color: #2b241f;
+}
+
+:global(.dark) .admin-orders-table-scroll {
+  scrollbar-color: #c66231 transparent;
+}
+
+:global(.dark) .admin-orders-table-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+:global(.dark) .admin-orders-table-scroll::-webkit-scrollbar-thumb {
+  border-color: transparent;
+}
+
+:global(.dark) .admin-orders-table tbody tr:hover > td {
+  background-color: #2b241f;
+}
+</style>

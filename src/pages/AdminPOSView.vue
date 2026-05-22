@@ -63,10 +63,10 @@
           </button>
           <button
             @click="addInvoice"
-            :disabled="invoices.value.length >= MAX_INVOICES"
-            :title="invoices.value.length >= MAX_INVOICES ? 'Đã đạt giới hạn hóa đơn' : 'Thêm hóa đơn mới'"
+            :disabled="invoices.length >= MAX_INVOICES"
+            :title="invoices.length >= MAX_INVOICES ? 'Đã đạt giới hạn hóa đơn' : 'Thêm hóa đơn mới'"
             class="flex size-9 items-center justify-center rounded-full transition-colors"
-            :class="invoices.value.length >= MAX_INVOICES
+            :class="invoices.length >= MAX_INVOICES
               ? 'bg-slate-200 text-slate-400 cursor-not-allowed dark:bg-[#26221f] dark:text-[#5a524d]'
               : 'bg-slate-100 text-slate-600 hover:bg-primary hover:text-white dark:bg-[#2b241f] dark:text-[#b9aa9a]'"
           >

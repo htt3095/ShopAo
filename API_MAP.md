@@ -1,121 +1,171 @@
-# API_MAP — Frontend ↔ Backend
+# API Map For Codex
 
-Base URL (frontend default): `VITE_API_URL` or `http://localhost:8080/api`
+This is a concise frontend/backend contract map for quick debugging.
 
-This file maps frontend API helper functions (in `src/services/api.js`) to backend controller endpoints (in `FinalProject-Inteliji/src/main/java/com/finalproject2/controller`). Use these names when reporting issues.
+## Base URLs
+
+- Frontend API default: `import.meta.env.VITE_API_URL || "http://localhost:8080/api"`
+- Vite dev server: `http://localhost:3002`
+- Backend: `http://localhost:8080/api`
 
 ## Accounts
-- Backend controller: `AccountController` (`/api/accounts`)
-  - POST `/api/accounts` ← `authApi.register()`
-  - POST `/api/accounts/login` ← `authApi.login()`
-  - POST `/api/accounts/google` ← `authApi.loginWithGoogle()`
-  - POST `/api/accounts/forgot-password/request` ← `authApi.requestPasswordResetCode()`
-  - POST `/api/accounts/forgot-password/verify` ← `authApi.verifyPasswordResetCode()`
-  - POST `/api/accounts/forgot-password/reset` ← `authApi.resetPassword()`
-  - GET `/api/accounts` ← `accountsApi.getAll()`
-  - GET `/api/accounts/{id}` ← `accountsApi.getById(id)`
-  - PUT `/api/accounts/{id}` ← `accountsApi.update(id, data)`
-  - POST `/api/accounts/{id}/upload-avatar` (file upload)
 
-Files referencing accounts: `src/pages/LoginView.vue`, `src/pages/RegisterView.vue`, `src/pages/ProfileEdit.vue`
+Backend: `AccountController`, `/api/accounts`
 
-## Products
-- Backend controller: `ProductController` (`/api/products`)
-  - GET `/api/products` ← `productsApi.getAll()`
-  - GET `/api/products/{id}` ← `productsApi.getById(id)`
-  - GET `/api/products?categoryId=...` ← `productsApi.getByCategory()`
-  - GET `/api/products?brandId=...` ← `productsApi.getByBrand()`
-  - POST `/api/products` ← (admin create) via admin pages
-  - PUT `/api/products/{id}` ← (admin update)
-  - DELETE `/api/products/{id}` ← (admin delete)
-  - POST `/api/products/{id}/upload-image` (cloudinary upload)
+- `POST /accounts` creates account.
+- `GET /accounts` lists accounts.
+- `GET /accounts/{id}` gets account.
+- `PUT /accounts/{id}` updates account.
+- `DELETE /accounts/{id}` deletes account.
+- `POST /accounts/login`
+- `POST /accounts/google`
+- `POST /accounts/forgot-password/request`
+- `POST /accounts/forgot-password/verify`
+- `POST /accounts/forgot-password/reset`
+- `POST /accounts/{id}/upload-avatar`
 
-Files: `src/pages/ProductView.vue`, `src/pages/AdminProductsView.vue`, `src/pages/HomeView.vue`
+Frontend:
 
-## Variants
-- Backend controller: `ProductVariantController` (`/api/variants`)
-  - GET `/api/variants` ← `variantsApi.getAll()`
-  - GET `/api/variants/{id}` ← `variantsApi.getById()`
-  - GET `/api/variants?productId=...` ← `variantsApi.getByProductId()`
-  - POST `/api/variants` ← (admin)
-  - PUT `/api/variants/{id}` ← (admin)
-  - DELETE `/api/variants/{id}` ← (admin)
-  - POST `/api/variants/{id}/upload-image` ← upload image for variant
-  - POST `/api/variants/{id}/add-extra-image` ← add extra image
-  - DELETE `/api/variants/{id}/extra-images/{index}` ← remove extra image
-  - PUT `/api/variants/{id}/extra-images` ← update extra images
+- `src/services/api.js`: `authApi`, `accountsApi`, `adminApi.getAccounts()`, customer admin flows.
+- `src/router/index.js`: frontend role guards.
 
-Files: `src/pages/ProductDetailView.vue`, `src/pages/AdminInventoryView.vue`
+Roles:
 
-## Reviews
-- Backend controller: `ProductReviewController` (`/api/reviews`)
-  - GET `/api/reviews` ← `reviewsApi.getAll()` or `getByProductId()` or `getByAccountId()`
-  - POST `/api/reviews` ← `reviewsApi.create()`
-  - PUT `/api/reviews/{id}` ← `reviewsApi.update()`
-  - DELETE `/api/reviews/{id}` ← `reviewsApi.delete()`
+- Active SQL constraint: `GUEST`, `USER`, `ADMIN`, `STAFF`.
+- Admin routes mostly require `ADMIN`; customers route allows `ADMIN` or `STAFF`.
 
-Files: `src/pages/ReviewFormView.vue`, `src/pages/ProductDetailView.vue`
+## Products And Variants
 
-## Brands & Categories
-- `BrandController` (`/api/brands`) ← `brandsApi.*` (getAll, getById, create, update, delete)
-- `CategoryController` (`/api/categories`) ← `categoriesApi.*`
+Backend:
 
-Files: `src/pages/BrandView.vue`, admin brand/category pages
+- `ProductController`, `/api/products`
+- `ProductVariantController`, `/api/variants`
+
+Products:
+
+- `POST /products`
+- `GET /products`
+- `GET /products/{id}`
+- `PUT /products/{id}`
+- `DELETE /products/{id}`
+- `POST /products/{id}/upload-image`
+
+Variants:
+
+- `POST /variants`
+- `GET /variants`
+- `GET /variants/{id}`
+- `PUT /variants/{id}`
+- `DELETE /variants/{id}`
+- `POST /variants/{id}/upload-image`
+- `POST /variants/{id}/add-extra-image`
+- `DELETE /variants/{id}/extra-images/{index}`
+- `PUT /variants/{id}/extra-images`
+
+Frontend:
+
+- `src/services/api.js`: `productsApi`, `variantsApi`, `adminApi`.
+- `src/stores/products.js`: product store and normalization.
+- `src/pages/AdminProductsView.vue`, `AdminInventoryView.vue`, `ShopView.vue`, `ProductDetailView.vue`.
 
 ## Cart
-- Backend controller: `CartController` (`/api/cart`)
-  - POST `/api/cart/init` ← called by some flows to ensure cart exists
-  - GET `/api/cart?accountId={accountId}` ← `cartApi.getCart(accountId)`
-  - POST `/api/cart/add` ← `cartApi.addToCart()` (payload: accountId, variantId, quantity)
-  - PUT `/api/cart/update/{cartItemId}` ← `cartApi.updateCartItem(cartItemId, quantity)`
-  - DELETE `/api/cart/remove/{cartItemId}` ← `cartApi.removeCartItem()`
-  - DELETE `/api/cart/clear?accountId={accountId}` ← clear cart
 
-Files: `src/stores/cart.js`, `src/pages/CartView.vue`, `src/pages/CheckoutView.vue`
+Backend: `CartController`, `/api/cart`
+
+- `POST /cart/init`
+- `GET /cart?accountId=...`
+- `POST /cart/add`
+- `PUT /cart/update/{cartItemId}`
+- `DELETE /cart/remove/{cartItemId}`
+- `DELETE /cart/clear?accountId=...`
+
+Frontend:
+
+- Active cart service is `src/services/orders.js` via `cartAPI`.
+- `src/stores/cart.js` uses the newer `/cart` endpoints.
+- Ignore older `cartApi` paths in `src/services/api.js` unless deliberately refactoring.
 
 ## Orders
-- Backend controller: `OrderController` (`/api/orders`)
-  - POST `/api/orders` ← `ordersApi.createOrder(orderData)`
-  - GET `/api/orders?accountId=...` ← `ordersApi.getUserOrders()`
-  - GET `/api/orders/{id}` ← `ordersApi.getOrderById()`
-  - PUT `/api/orders/{id}` ← admin updates order status
-  - GET `/api/orders/account/{accountId}` ← additional listing
 
-Files: `src/pages/CheckoutView.vue`, `src/pages/OrderHistoryView.vue`, `src/pages/AdminOrdersView.vue`, `src/pages/AdminPOSView.vue`
+Backend: `OrderController`, `/api/orders`
+
+- `POST /orders`
+- `PUT /orders/{id}`
+- `GET /orders/{id}`
+- `GET /orders?page=0&size=10`
+- `GET /orders/account/{accountId}`
+
+Create order payload:
+
+- Required: `accountId`, `paymentMethodId`.
+- Items accepted under `items`, `cartItems`, `cart`, or `orderItems`.
+- Item fields: `variantId`, `quantity`; backend uses current variant price.
+- Optional voucher fields: `voucherCode` or `voucherId`.
+
+Order response:
+
+- Includes `id`, `status`, `totalMoney`, `discountAmount`, `finalAmount`, `fullname`, `phone`, `shippingAddress`, `paymentStatus`, `returnReason`, `createdAt`, `accountId`, `paymentMethodName`, `items`, `orderItems`.
+- Currently does not include `paymentMethodId`.
+
+Status:
+
+- Active SQL constraint: `PENDING`, `PROCESSING`, `SHIPPING`, `SUCCESS`, `CANCELLED`, `RETURN_REQUEST`, `RETURNING`, `RETURNED`.
+- Backend creation sets `PENDING`.
+- Backend update accepts raw `status`; frontend must only send backend-valid values.
+- Backend restocks when status changes to `CANCELLED` or `RETURNED`.
+
+Frontend:
+
+- `src/services/api.js`: `ordersApi`, `adminApi.getOrders()`, `adminApi.updateOrder()`.
+- `src/services/orders.js`: customer order history and checkout helpers.
+- `src/pages/AdminOrdersView.vue`: admin order management.
+- `src/pages/AdminPOSView.vue`: POS creates order then marks it `SUCCESS` / `PAID`.
+- `src/pages/OrderHistoryView.vue`: customer order list/detail.
 
 ## Vouchers
-- Backend controller: `VoucherController` (`/api/vouchers`)
-  - GET `/api/vouchers` ← `vouchersApi.getAllVouchers()`
-  - GET `/api/vouchers/{voucherId}` ← get voucher by id
-  - GET `/api/vouchers/apply?code=...&orderTotal=...` ← preview voucher (`vouchersApi.validateVoucher` uses `/validate` path but backend exposes `/apply`)
-  - POST `/api/vouchers/use?code=...&orderTotal=...` ← `use` endpoint
-  - GET `/api/vouchers/status/active` ← get active vouchers
-  - POST `/api/vouchers` ← create voucher (admin)
-  - PUT `/api/vouchers/{id}` ← update voucher
-  - DELETE `/api/vouchers/{id}` ← delete
 
-Files: `src/pages/HomeView.vue`, `src/pages/AdminVouchersView.vue`, `src/pages/AdminPOSView.vue`
+Backend: `VoucherController`, `/api/vouchers`
 
-## Payment
-- Backend controller: `PaymentController` (`/api/payment`)
-  - POST `/api/payment/vnpay/create` ← create VNPay payment and return `paymentUrl`
-  - GET `/api/payment/vnpay/ipn` ← VNPay IPN callback
-  - GET `/api/payment/vnpay/return` ← VNPay return URL
+- `GET /vouchers?page=0&size=10&sortBy=createdAt&direction=DESC`
+- `GET /vouchers/{voucherId}`
+- `POST /vouchers`
+- `PUT /vouchers/{voucherId}`
+- `DELETE /vouchers/{voucherId}`
+- `GET /vouchers/apply?code=...&orderTotal=...`
+- `GET /vouchers/validate?code=...&orderTotal=...`
+- `POST /vouchers/use?code=...&orderTotal=...`
+- `GET /vouchers/status/active`
 
-Files: `src/pages/CheckoutView.vue`, `src/pages/VnpayReturnView.vue`, `src/pages/AdminPOSView.vue`
+Frontend:
 
-## Misc
-- Colors: `/api/colors` ← `colorsApi.getAll()`
-- Sizes: `/api/sizes` ← `sizesApi.getAll()`
-- Payment methods: `/api/payment-methods` (check backend)
+- `src/services/orders.js`: customer voucher API.
+- `src/services/api.js`: admin voucher API.
+- `src/pages/AdminVouchersView.vue`, `VoucherView.vue`, `CheckoutView.vue`, `AdminPOSView.vue`.
 
-## Hardcoded URLs found in frontend
-- `http://localhost:8080/api/vouchers` used directly in `src/pages/AdminPOSView.vue` and `src/pages/HomeView.vue`
-- Several pages define local `API_BASE_URL` instead of using `src/services/api.js` (e.g., `ProfileEdit.vue`, `AdminSettingsView.vue`) — consider standardizing to `authApi`/`productsApi` helpers.
-- Image resolution: `BrandView.vue` builds `http://localhost:8080/images/...` in places — better to use `resolveImageUrl()` from `src/services/api.js`.
+Important:
 
-## Next steps
-- Standardize frontend to use `src/services/api.js` everywhere.
-- Optionally produce `API_EXAMPLES.md` with sample requests and expected responses for main flows (login, add-to-cart, create-order).
+- `POST /orders` increments voucher usage if voucher is attached.
+- Avoid calling `/vouchers/use` after order creation unless checking that it will not double-count.
 
-Generated: 2026-05-22
+## Payments
+
+Backend: `PaymentController`
+
+- `POST /payment/vnpay/create`
+- `GET /payment/vnpay/ipn`
+- `GET /payment/vnpay/return`
+
+Frontend:
+
+- `src/services/api.js`: `paymentApi`.
+- `src/pages/VnpayReturnView.vue`
+- `src/pages/CheckoutView.vue`
+
+## Recent Fix Log
+
+2026-05-22:
+
+- Admin orders filter is a dropdown, not pipeline pills.
+- Admin orders table has dark-only hover behavior and transparent scrollbar track.
+- POS blank view fixed by removing `.value` from template access to `invoices`.
+- Frontend order status normalization now sends backend-valid status values.

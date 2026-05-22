@@ -519,12 +519,12 @@ function normalizeBooleanValue(value, fallback = true) {
 }
 
 function normalizeOrderStatus(statusValue) {
-    const normalized = String(statusValue || "NEW")
+    const normalized = String(statusValue || "PENDING")
         .trim()
         .toUpperCase();
 
     if (!normalized) {
-        return "NEW";
+        return "PENDING";
     }
 
     const compact = normalized
@@ -536,7 +536,7 @@ function normalizeOrderStatus(statusValue) {
     if (
         ["NEW", "PENDING", "WAITING", "CHO_XU_LY", "CHUA_XU_LY"].includes(compact)
     ) {
-        return "NEW";
+        return "PENDING";
     }
 
     if (
@@ -549,7 +549,7 @@ function normalizeOrderStatus(statusValue) {
             "INPROGRESS",
         ].includes(compact)
     ) {
-        return "CONFIRMED";
+        return "PROCESSING";
     }
 
     if (
@@ -560,12 +560,8 @@ function normalizeOrderStatus(statusValue) {
         return "SHIPPING";
     }
 
-    if (["DELIVERED", "DA_GIAO", "GIAO_THANH_CONG"].includes(compact)) {
-        return "DELIVERED";
-    }
-
     if (
-        ["SUCCESS", "COMPLETED", "THANH_CONG", "HOAN_THANH", "RECEIVED"].includes(
+        ["SUCCESS", "COMPLETED", "DELIVERED", "DA_GIAO", "GIAO_THANH_CONG", "THANH_CONG", "HOAN_THANH", "RECEIVED"].includes(
             compact,
         )
     ) {
@@ -589,11 +585,11 @@ function normalizeOrderStatus(statusValue) {
             compact,
         )
     ) {
-        return "DELIVERY_FAILED";
+        return "CANCELLED";
     }
 
     if (["LOST", "THAT_LAC", "PARCEL_LOST"].includes(compact)) {
-        return "LOST";
+        return "CANCELLED";
     }
 
     if (
@@ -795,7 +791,8 @@ function buildOrderUpdateCandidates(id, payload) {
             ...(normalizedStatus === "RETURN_REQUEST" ? ["TRA_HANG", "YEU_CAU_TRA"] : []),
             ...(normalizedStatus === "RETURNING" ? ["DANG_HOAN", "TRA_HANG"] : []),
             ...(normalizedStatus === "RETURNED" ? ["HOAN_TRA"] : []),
-            ...(normalizedStatus === "NEW" ? ["CHO_XU_LY"] : []),
+            ...(normalizedStatus === "PENDING" ? ["CHO_XU_LY"] : []),
+            ...(normalizedStatus === "PROCESSING" ? ["XAC_NHAN", "DANG_XU_LY"] : []),
             ...(normalizedStatus === "DELIVERED" ? ["DA_GIAO"] : []),
             ...(normalizedStatus === "DELIVERY_FAILED" ? ["GIAO_THAT_BAI"] : []),
             ...(normalizedStatus === "LOST" ? ["THAT_LAC"] : []),
@@ -875,7 +872,7 @@ function normalizeOrderRecord(rawOrder) {
         status: normalizeOrderStatus(
             firstDefinedValue(
                 [source.status, source.orderStatus, source.order_status],
-                "NEW",
+                "PENDING",
             ),
         ),
         paymentStatus: normalizePaymentStatus(
@@ -883,11 +880,32 @@ function normalizeOrderRecord(rawOrder) {
                 [
                     source.paymentStatus,
                     source.payment_status,
-                    source.payment_method,
-                    source.paymentMethod,
                 ],
                 "PENDING",
             ),
+        ),
+        paymentMethodId: asFiniteNumber(
+            firstDefinedValue(
+                [
+                    source.paymentMethodId,
+                    source.payment_method_id,
+                    source.paymentMethod && source.paymentMethod.id,
+                    source.payment_method && source.payment_method.id,
+                ],
+                null,
+            ),
+            null,
+        ),
+        paymentMethodName: firstDefinedValue(
+            [
+                source.paymentMethodName,
+                source.payment_method_name,
+                source.paymentMethod && source.paymentMethod.name,
+                source.payment_method && source.payment_method.name,
+                typeof source.paymentMethod === "string" ? source.paymentMethod : null,
+                typeof source.payment_method === "string" ? source.payment_method : null,
+            ],
+            "",
         ),
         totalMoney: asFiniteNumber(
             firstDefinedValue(
