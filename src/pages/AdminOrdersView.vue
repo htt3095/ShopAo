@@ -53,11 +53,12 @@
               v-model="statusFilter"
               class="w-full cursor-pointer bg-transparent text-sm text-[#eadfd3] outline-none"
             >
-              <option value="ALL">Tất cả trạng thái</option>
+              <option value="ALL" class="bg-[#1f1a17] text-[#eadfd3]">Tất cả trạng thái</option>
               <option
                 v-for="status in statusOptions"
                 :key="status.value"
                 :value="status.value"
+                class="bg-[#1f1a17] text-[#eadfd3]"
               >
                 {{ status.label }}
               </option>
@@ -109,6 +110,32 @@
           >
             Lợi nhuận ròng:
             <span class="font-semibold">{{ formatCurrency(netRevenue) }}</span>
+          </div>
+        </div>
+
+        <!-- Order Progress Tracker -->
+        <div v-if="activeTrackedOrder" class="mb-4 rounded-xl border border-slate-200 bg-white p-4 dark:border-[#3c342e] dark:bg-[#1f1a17]">
+          <div class="mb-4 flex items-center justify-between">
+            <h3 class="font-bold text-slate-800 dark:text-white flex items-center gap-2">
+              <span class="material-symbols-outlined text-primary">local_shipping</span>
+              Theo dõi tiến độ đơn hàng <span class="text-primary">#{{ activeTrackedOrder.id }}</span>
+            </h3>
+            <span class="text-xs text-slate-500 dark:text-[#b9aa9a]">Khách hàng: {{ activeTrackedOrder.fullName || activeTrackedOrder.fullname || 'Khách hàng' }}</span>
+          </div>
+          
+          <div class="relative flex items-center justify-between w-full mt-6 px-4">
+            <div class="absolute left-4 right-4 top-1/2 h-1 -translate-y-1/2 bg-slate-100 dark:bg-[#2b241f] rounded-full"></div>
+            <div class="absolute left-4 top-1/2 h-1 -translate-y-1/2 rounded-full transition-all duration-500" 
+                 :class="trackingSteps.some(s => s.isError) ? 'bg-red-500' : (trackingSteps.some(s => s.isWarning) ? 'bg-amber-500' : 'bg-primary')"
+                 :style="{ width: `calc(${(Math.max(0, trackingSteps.map(s => s.isActive).lastIndexOf(true)) / (trackingSteps.length - 1 || 1) * 100)}% - 32px)` }"></div>
+            
+            <div v-for="(step, idx) in trackingSteps" :key="idx" class="relative flex flex-col items-center gap-2" :class="step.isActive ? (step.isError ? 'text-red-500' : step.isWarning ? 'text-amber-500' : 'text-primary') : 'text-slate-400 dark:text-slate-600'">
+              <div class="flex h-8 w-8 items-center justify-center rounded-full border-2 bg-white dark:bg-[#1f1a17] transition-colors" 
+                   :class="step.isActive ? (step.isError ? 'border-red-500 shadow-[0_0_10px_rgba(239,68,68,0.3)]' : step.isWarning ? 'border-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.3)]' : 'border-primary shadow-[0_0_10px_rgba(198,98,49,0.3)]') : 'border-slate-200 dark:border-[#3c342e]'">
+                <span class="material-symbols-outlined text-[16px]">{{ step.icon }}</span>
+              </div>
+              <span class="text-xs font-semibold whitespace-nowrap">{{ step.label }}</span>
+            </div>
           </div>
         </div>
 
@@ -210,7 +237,9 @@
               <tr
                 v-for="order in filteredOrders"
                 :key="order.id"
-                class="border-b border-slate-100 last:border-none dark:border-[#2b241f]"
+                class="border-b border-slate-100 last:border-none dark:border-[#2b241f] cursor-pointer transition-colors hover:bg-slate-50 dark:hover:bg-[#2b241f]/80"
+                :class="{ 'bg-primary/5 dark:bg-primary/10 border-l-2 border-l-primary': activeTrackedOrder?.id === order.id }"
+                @click="selectOrderToTrack(order)"
               >
                 <td class="sticky left-0 z-10 bg-[#1f1a17] px-2 py-2 font-semibold shadow-[1px_0_0_rgba(60,52,46,0.75)]">#{{ order.id || "-" }}</td>
                 <td class="px-2 py-2">
@@ -317,10 +346,37 @@
                       >
                     </button>
 
+                    <!-- Xác nhận đơn (PENDING -> PROCESSING) -->
                     <button
-                      v-if="!['RETURN_REQUEST', 'RETURNING', 'RETURNED', 'CANCELLED', 'SUCCESS'].includes(order.status)"
+                      v-if="order.status === 'PENDING'"
+                      class="rounded-lg p-1.5 hover:bg-amber-50 dark:hover:bg-amber-900/20"
+                      title="Xác nhận đơn (Chuyển sang Đang xử lý)"
+                      @click="quickUpdateStatus(order, 'PROCESSING')"
+                    >
+                      <span
+                        class="material-symbols-outlined text-[18px] text-amber-500"
+                        >inventory_2</span
+                      >
+                    </button>
+
+                    <!-- Giao hàng (PROCESSING -> SHIPPING) -->
+                    <button
+                      v-if="order.status === 'PROCESSING'"
+                      class="rounded-lg p-1.5 hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                      title="Giao hàng (Chuyển sang Đang giao)"
+                      @click="quickUpdateStatus(order, 'SHIPPING')"
+                    >
+                      <span
+                        class="material-symbols-outlined text-[18px] text-blue-500"
+                        >local_shipping</span
+                      >
+                    </button>
+
+                    <!-- Hoàn thành (SHIPPING -> SUCCESS) -->
+                    <button
+                      v-if="order.status === 'SHIPPING'"
                       class="rounded-lg p-1.5 hover:bg-emerald-50 dark:hover:bg-emerald-900/20"
-                      title="Đánh dấu thành công"
+                      title="Đánh dấu hoàn thành (Thành công)"
                       @click="quickUpdateStatus(order, 'SUCCESS')"
                     >
                       <span
@@ -598,6 +654,24 @@
         </div>
       </div>
     </Teleport>
+
+    <!-- Toast Notification -->
+    <Teleport to="body">
+      <div v-if="newOrderToast" class="fixed bottom-4 right-4 z-50 animate-slide-in-up">
+        <div class="flex items-center gap-3 rounded-xl border border-primary/20 bg-white p-4 shadow-xl dark:border-primary/20 dark:bg-[#1f1a17]">
+          <div class="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+            <span class="material-symbols-outlined">notifications_active</span>
+          </div>
+          <div>
+            <h4 class="font-bold text-slate-800 dark:text-white">{{ newOrderToast.title }}</h4>
+            <p class="text-sm text-slate-500 dark:text-[#b9aa9a]">{{ newOrderToast.message }}</p>
+          </div>
+          <button class="ml-4 text-slate-400 hover:text-slate-600" @click="newOrderToast = null">
+            <span class="material-symbols-outlined text-lg">close</span>
+          </button>
+        </div>
+      </div>
+    </Teleport>
   </AdminShell>
 </template>
 
@@ -626,6 +700,11 @@ const deleteTarget = ref(null);
 const deleting = ref(false);
 const hiddenOrders = ref([]);
 
+const newOrderToast = ref(null);
+const trackedOrder = ref(null);
+let pollingInterval = null;
+const isFirstLoad = ref(true);
+
 const visibleOrders = computed(() => {
   return orders.value.filter(
     (order) =>
@@ -633,6 +712,43 @@ const visibleOrders = computed(() => {
         (hidden) => Number(order.id) === Number(hidden.id),
       ),
   );
+});
+
+const latestOrder = computed(() => {
+  return visibleOrders.value.length > 0 ? visibleOrders.value[0] : null;
+});
+
+const activeTrackedOrder = computed(() => {
+  return trackedOrder.value || latestOrder.value;
+});
+
+function selectOrderToTrack(order) {
+  trackedOrder.value = order;
+}
+
+const trackingSteps = computed(() => {
+  if (!activeTrackedOrder.value) return [];
+  const status = normalizeOrderStatusValue(activeTrackedOrder.value.status);
+  
+  const steps = [
+    { label: "Chờ xử lý", icon: "receipt_long", isActive: true, isError: false, isWarning: false },
+    { label: "Đang xử lý", icon: "inventory_2", isActive: ["PROCESSING", "SHIPPING", "SUCCESS", "RETURN_REQUEST", "RETURNING", "RETURNED"].includes(status), isError: false, isWarning: false },
+  ];
+
+  if (status === "CANCELLED") {
+    steps.push({ label: "Đã hủy", icon: "cancel", isActive: true, isError: true, isWarning: false });
+  } else if (["RETURN_REQUEST", "RETURNING", "RETURNED"].includes(status)) {
+    steps.push({ label: "Đang giao", icon: "local_shipping", isActive: true, isError: false, isWarning: false });
+    steps.push({ label: "Thành công", icon: "check_circle", isActive: true, isError: false, isWarning: false });
+    steps.push({ label: "Yêu cầu hoàn", icon: "assignment_return", isActive: true, isError: false, isWarning: true });
+    steps.push({ label: "Đang hoàn về", icon: "local_shipping", isActive: ["RETURNING", "RETURNED"].includes(status), isError: false, isWarning: true });
+    steps.push({ label: "Đã hoàn", icon: "settings_backup_restore", isActive: status === "RETURNED", isError: false, isWarning: true });
+  } else {
+    steps.push({ label: "Đang giao", icon: "local_shipping", isActive: ["SHIPPING", "SUCCESS"].includes(status), isError: false, isWarning: false });
+    steps.push({ label: "Thành công", icon: "check_circle", isActive: status === "SUCCESS", isError: false, isWarning: false });
+  }
+  
+  return steps;
 });
 
 function normalizeStatusKey(value) {
@@ -1516,28 +1632,66 @@ async function restoreAllHiddenOrders() {
   }
 }
 
-async function loadOrders() {
-  loading.value = true;
-  error.value = "";
+async function loadOrders(silent = false) {
+  if (!silent) {
+    loading.value = true;
+    error.value = "";
+  }
   try {
     const data = await adminApi.getOrders({ page: 0, size: 250 });
-    orders.value = Array.isArray(data) ? data : [];
-    console.log(
-      "[DEBUG] loaded orders:",
-      orders.value.map((order) => ({ id: order.id, fullname: order.fullname })),
-    );
+    const newOrdersList = Array.isArray(data) ? data : [];
+    
+    // Check for new orders
+    if (!isFirstLoad.value && newOrdersList.length > 0) {
+      const oldLatestId = orders.value.length > 0 ? orders.value[0].id : 0;
+      const newLatestId = newOrdersList[0].id;
+      if (newLatestId > oldLatestId) {
+         newOrderToast.value = {
+            title: "Có đơn hàng mới!",
+            message: `Khách hàng ${newOrdersList[0].fullname || newOrdersList[0].fullName || 'mới'} vừa đặt đơn #${newLatestId}.`
+         };
+         setTimeout(() => { newOrderToast.value = null; }, 5000);
+      }
+    }
+    
+    orders.value = newOrdersList;
+    isFirstLoad.value = false;
   } catch (err) {
     console.error("Failed to load admin orders:", err);
-    error.value = "Không thể tải đơn hàng. Vui lòng kiểm tra backend API.";
+    if (!silent) error.value = "Không thể tải đơn hàng. Vui lòng kiểm tra backend API.";
   } finally {
-    loading.value = false;
+    if (!silent) loading.value = false;
   }
 }
 
-onMounted(loadOrders);
+onMounted(() => {
+  loadOrders();
+  pollingInterval = setInterval(() => {
+    loadOrders(true);
+  }, 10000); // Poll every 10 seconds
+});
+
+import { onUnmounted } from "vue";
+onUnmounted(() => {
+  if (pollingInterval) clearInterval(pollingInterval);
+});
 </script>
 
 <style scoped>
+@keyframes slideInUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+.animate-slide-in-up {
+  animation: slideInUp 0.3s ease-out forwards;
+}
+
 .admin-orders-table-scroll {
   scrollbar-width: thin;
   scrollbar-color: #c66231 transparent;

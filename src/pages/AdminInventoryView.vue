@@ -545,7 +545,8 @@
                 <div
                   v-for="v in group.variants"
                   :key="v.id"
-                  class="grid grid-cols-[1fr_auto] items-center gap-2 rounded-lg border-2 border-slate-200 bg-slate-50/80 px-2 py-2 text-xs dark:border-[#3a312b] dark:bg-[#201a16]"
+                  class="grid grid-cols-[1fr_auto] items-center gap-2 rounded-lg border-2 border-slate-200 bg-slate-50/80 px-2 py-2 text-xs dark:border-[#3a312b] dark:bg-[#201a16] cursor-pointer hover:border-primary/50 transition-colors"
+                  @click="setBulkColorFromVariant(v)"
                 >
                   <div class="min-w-0">
                     <p class="font-semibold">
@@ -571,7 +572,7 @@
                     <button
                       class="rounded-lg p-1.5 hover:bg-slate-100 dark:hover:bg-[#2b241f]"
                       title="Chỉnh sửa"
-                      @click="openEdit(v)"
+                      @click.stop="openEdit(v)"
                     >
                       <span
                         class="material-symbols-outlined text-[18px] text-slate-500"
@@ -581,7 +582,7 @@
                     <button
                       class="rounded-lg p-1.5 hover:bg-red-50 dark:hover:bg-red-900/20"
                       title="Xóa"
-                      @click="confirmDelete(v)"
+                      @click.stop="confirmDelete(v)"
                     >
                       <span
                         class="material-symbols-outlined text-[18px] text-red-500"
@@ -651,7 +652,7 @@
                 class="w-full rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm dark:border-[#3c342e] dark:bg-[#2b241f]"
               >
                 <option :value="null">-- Chọn size --</option>
-                <option v-for="s in sizes" :key="s.id" :value="Number(s.id)">
+                <option v-for="s in availableSizesForForm" :key="s.id" :value="Number(s.id)">
                   {{ s.name }}
                 </option>
               </select>
@@ -812,6 +813,18 @@ const editingId = ref(null);
 const saving = ref(false);
 const modalError = ref("");
 const form = ref(emptyForm());
+
+const availableSizesForForm = computed(() => {
+  if (!form.value.productId || !form.value.colorId) return sizes.value;
+  // Exclude sizes already used by variants of the same product and color
+  const existingVariants = visibleVariants.value.filter(v => 
+    Number(v.productId) === Number(form.value.productId) && 
+    Number(v.colorId) === Number(form.value.colorId) && 
+    Number(v.id) !== Number(editingId.value)
+  );
+  const usedSizeIds = new Set(existingVariants.map(v => Number(v.sizeId)));
+  return sizes.value.filter(s => !usedSizeIds.has(Number(s.id)));
+});
 
 const deleteTarget = ref(null);
 const deleting = ref(false);
@@ -1776,8 +1789,20 @@ function openCreate() {
   showModal.value = true;
 }
 
+function setBulkColorFromVariant(v) {
+  bulkImageProductId.value = asFiniteNumber(v.productId, null);
+  bulkImageColorId.value = asFiniteNumber(v.colorId, null);
+  
+  // Tự động cuộn lên phần upload ảnh để tiện thao tác
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
 function openEdit(v) {
   editingId.value = v.id;
+  
+  // Tự động set form cập nhật ảnh nhóm màu
+  bulkImageProductId.value = asFiniteNumber(v.productId, null);
+  bulkImageColorId.value = asFiniteNumber(v.colorId, null);
   form.value = {
     productId: asFiniteNumber(v.productId, null),
     colorId: asFiniteNumber(v.colorId, null),

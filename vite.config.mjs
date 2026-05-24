@@ -66,8 +66,8 @@ export default defineConfig({
                 secure: true,
                 headers: {
                     // Nominatim requires a valid User-Agent and optionally a contact email
-                    'User-Agent': 'FinalProject-Vue/1.0 (dev@example.com)',
-                    'From': 'dev@example.com'
+                    'User-Agent': 'DATN-PeakSeven-ShopGiay-Dev/1.0 (contact@peakseven.com)',
+                    'From': 'contact@peakseven.com'
                 },
                 rewrite: (path) => path.replace(/^\/nominatim/, ''),
             },

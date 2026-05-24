@@ -522,21 +522,27 @@ function initMap() {
 
   marker = L.marker(defaultCoord).addTo(map);
 
-  map.on("click", async (e) => {
+  let geocodeTimeout = null;
+  map.on("click", (e) => {
     const lat = e.latlng.lat;
     const lng = e.latlng.lng;
     marker.setLatLng([lat, lng]);
-    await reverseGeocode(lat, lng);
+    
+    if (geocodeTimeout) clearTimeout(geocodeTimeout);
+    geocodeTimeout = setTimeout(async () => {
+      await reverseGeocode(lat, lng);
+    }, 600); // Debounce to avoid 429 Too Many Requests
   });
 }
 
 async function reverseGeocode(lat, lng) {
+  routeError.value = ""; // Clear previous errors
   try {
     const res = await fetch(`/nominatim/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`);
     if (!res.ok) {
-      if (res.status === 429) throw new Error('Geocoding service rate-limited (429).');
+      if (res.status === 429) throw new Error('Dịch vụ bản đồ đang quá tải, vui lòng thử lại sau.');
       const txt = await safeParseResponse(res);
-      throw new Error(typeof txt === 'string' ? txt : `Reverse geocode failed (HTTP ${res.status})`);
+      throw new Error(typeof txt === 'string' ? txt : `Lỗi bản đồ (HTTP ${res.status})`);
     }
     const data = await safeParseResponse(res);
     if (data && data.address) {
@@ -559,7 +565,7 @@ async function reverseGeocode(lat, lng) {
               await nextTick();
               
               // Find matching Ward
-              const wardOrVillage = data.address.village || data.address.hamlet || data.address.quarter || data.address.suburb || data.address.neighbourhood;
+              const wardOrVillage = data.address.ward || data.address.village || data.address.hamlet || data.address.quarter || data.address.suburb || data.address.neighbourhood;
               if (wardOrVillage && selectedDistrict.value.wards) {
                 const matchedWard = findBestMatchByName(selectedDistrict.value.wards, wardOrVillage);
                 if (matchedWard) {
@@ -578,6 +584,7 @@ async function reverseGeocode(lat, lng) {
     }
   } catch (err) {
     console.error("Lỗi khi reverse geocoding", err);
+    routeError.value = err.message || "Không thể lấy địa chỉ tự động.";
   }
 }
 
