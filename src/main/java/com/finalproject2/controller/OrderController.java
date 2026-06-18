@@ -32,14 +32,14 @@ public class OrderController {
     private final CartItemRepository cartItemRepo;
 
     public OrderController(OrderRepository orderRepo,
-            OrderItemRepository orderItemRepo,
-            PaymentMethodRepository paymentRepo,
-            VoucherRepository voucherRepo,
-            ProductVariantRepository variantRepo,
-            AccountRepository accountRepo,
-            AccountVoucherRepository accountVoucherRepo,
-            CartRepository cartRepo,
-            CartItemRepository cartItemRepo) {
+                           OrderItemRepository orderItemRepo,
+                           PaymentMethodRepository paymentRepo,
+                           VoucherRepository voucherRepo,
+                           ProductVariantRepository variantRepo,
+                           AccountRepository accountRepo,
+                           AccountVoucherRepository accountVoucherRepo,
+                           CartRepository cartRepo,
+                           CartItemRepository cartItemRepo) {
         this.orderRepo = orderRepo;
         this.orderItemRepo = orderItemRepo;
         this.paymentRepo = paymentRepo;
@@ -180,6 +180,24 @@ public class OrderController {
         String oldStatus = order.getStatus();
         String newStatus = asString(req.get("status"));
 
+        // --- CHẶN HOÀN HÀNG NHIỀU LẦN ---
+        // Nếu đơn đang được yêu cầu chuyển sang RETURN_REQUEST mà trước đó đã có bất kỳ
+        // trạng thái hoàn hàng nào rồi thì trả lỗi ngay
+        if ("RETURN_REQUEST".equals(newStatus)) {
+            boolean alreadyReturned = oldStatus != null && (
+                    oldStatus.contains("RETURN") ||
+                            oldStatus.contains("REFUND") ||
+                            oldStatus.equals("HOAN_TRA") ||
+                            oldStatus.equals("HOAN_TIEN") ||
+                            oldStatus.equals("YEU_CAU_TRA") ||
+                            oldStatus.equals("TRA_HANG")
+            );
+            if (alreadyReturned) {
+                throw new BadRequestException("Don hang nay da duoc gui yeu cau hoan tra truoc do, khong the hoan them lan nua!");
+            }
+        }
+        // ----------------------------------
+
         // --- VÁ LỖI 3: CỘNG LẠI KHO KHI HỦY/HOÀN ĐƠN ---
         if (oldStatus != null && !oldStatus.equals(newStatus) &&
                 ("CANCELLED".equals(newStatus) || "RETURNED".equals(newStatus))) {
@@ -203,6 +221,30 @@ public class OrderController {
         }
         if (pStatus != null)
             order.setPaymentStatus(pStatus);
+
+        // --- Cập nhật thông tin khách hàng ---
+        String fullname = asString(req.get("fullname"));
+        if (fullname != null && !fullname.trim().isEmpty()) {
+            order.setFullname(fullname);
+        }
+
+        String phone = asString(req.get("phone"));
+        if (phone != null) {
+            order.setPhone(phone);
+        }
+
+        String email = asString(req.get("email"));
+        if (email != null) {
+            order.setEmail(email);
+        }
+
+        String shippingAddress = asString(req.get("shippingAddress"));
+        if (shippingAddress == null) {
+            shippingAddress = asString(req.get("address"));
+        }
+        if (shippingAddress != null) {
+            order.setShippingAddress(shippingAddress);
+        }
 
         orderRepo.save(order);
         return ResponseEntity.ok(Map.of("success", true));

@@ -101,7 +101,6 @@ public class CartController {
                     itemMap.put("size", variant.getSize().getName());
                     itemMap.put("image", variant.getImageUrl() != null ? variant.getImageUrl() : product.getImageUrl());
                     itemMap.put("color", variant.getColor().getName());
-                    itemMap.put("image", variant.getImageUrl());
 
                     items.add(itemMap);
                     totalPrice = totalPrice.add(variant.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())));

@@ -22,4 +22,15 @@ public class ColorController {
     public ResponseEntity<List<Color>> getAll() {
         return ResponseEntity.ok(colorRepository.findAll());
     }
+
+    @PostMapping
+    public ResponseEntity<Color> addColor(@RequestBody java.util.Map<String, String> req) {
+        String name = req.get("name");
+        if (name == null || name.trim().isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+        Color c = new Color();
+        c.setName(name.trim());
+        return ResponseEntity.ok(colorRepository.save(c));
+    }
 }

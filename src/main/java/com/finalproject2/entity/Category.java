@@ -21,7 +21,7 @@ public class Category {
     private Long id;
 
     @Size(max = 255)
-    @Column(name = "name")
+    @Column(name = "name", columnDefinition = "nvarchar(255)")
     private String name;
 
     @Size(max = 250)

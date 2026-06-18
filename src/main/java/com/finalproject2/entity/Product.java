@@ -51,7 +51,7 @@ public class Product {
     private Brand brand;
 
     @Size(max = 255)
-    @ColumnDefault("AVAILABLE")
+    @ColumnDefault("'AVAILABLE'")
     @Column(name = "status")
     private String status;
 

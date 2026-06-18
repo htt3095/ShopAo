@@ -52,7 +52,7 @@ public class ProductVariant {
     private String imageUrl;
 
     @Size(max = 30)
-    @ColumnDefault("SELLING")
+    @ColumnDefault("'SELLING'")
     @Column(name = "status", length = 30)
     private String status;
 

@@ -63,12 +63,12 @@ public class Order {
     private PaymentMethod paymentMethod;
 
     @Size(max = 20)
-    @ColumnDefault("PENDING")
+    @ColumnDefault("'PENDING'")
     @Column(name = "payment_status", length = 20)
     private String paymentStatus;
 
     @Size(max = 255)
-    @ColumnDefault("NEW")
+    @ColumnDefault("'NEW'")
     @Column(name = "status")
     private String status;
 
