@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="retail-shell min-h-screen">
     <MainTopBar />
 
@@ -24,7 +24,7 @@
         <article class="retail-card overflow-hidden p-0">
           <img
             src="https://images.unsplash.com/photo-1543508282-6319a3e2621f?auto=format&fit=crop&w=1400&q=80"
-            alt="Đo size giày bằng thước"
+            alt="Đo size áo bằng thước"
             class="aspect-[4/5] h-full w-full object-cover lg:min-h-[430px]"
           />
         </article>
@@ -115,7 +115,7 @@ const quickTips = [
 const fittingNotes = [
   {
     title: 'Nếu nằm giữa hai size',
-    description: 'Với giày chạy bộ hoặc upper ôm, bạn nên tăng nửa size hoặc 1 size để thoải mái hơn.',
+    description: 'Với áo chạy bộ hoặc upper ôm, bạn nên tăng nửa size hoặc 1 size để thoải mái hơn.',
   },
   {
     title: 'Mẫu mang hằng ngày',

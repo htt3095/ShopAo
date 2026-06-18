@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div
     class="retail-shell min-h-screen flex flex-col overflow-x-hidden font-display"
   >
@@ -28,7 +28,7 @@
             >/</span>
             <span
               class="text-slate-900 dark:text-white text-sm font-medium leading-normal"
-            >Tất cả giày</span>
+            >Tất cả áo</span>
           </div>
 
           <div
@@ -38,12 +38,12 @@
               <h1
                 class="text-slate-900 dark:text-white text-3xl md:text-4xl font-black leading-tight tracking-[-0.033em]"
               >
-                Tất cả sản phẩm giày
+                Tất cả sản phẩm áo
               </h1>
               <p
                 class="text-slate-500 dark:text-[#9cabba] text-base font-normal leading-normal"
               >
-                Tìm đôi giày hợp chân trong bộ sưu tập đang có tại cửa hàng.
+                Tìm đôi áo hợp chân trong bộ sưu tập đang có tại cửa hàng.
               </p>
             </div>
             <div class="flex items-center gap-2">

@@ -19,7 +19,7 @@
             <h2
               class="font-headline text-[28px] uppercase leading-none tracking-tight text-slate-900 dark:text-white"
             >
-              Sneaker Store
+              SPORT STORE
             </h2>
           </div>
         </router-link>

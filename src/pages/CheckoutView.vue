@@ -1375,7 +1375,7 @@ async function handlePlaceOrder() {
       finalAmount: effectiveFinalAmount,
       final_amount: effectiveFinalAmount,
 
-      // >>> DANH SÁCH GIÀY GỬI KÈM MỚI Ở ĐÂY NÈ! <<<
+      // >>> DANH SÁCH Áo GỬI KÈM MỚI Ở ĐÂY NÈ! <<<
       items: cartItems.value.map((item) => ({
         variantId:
           item.variantId || item.id || (item.variant && item.variant.id),

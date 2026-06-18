@@ -3,9 +3,9 @@
     <div class="footer-grid">
       <div>
         <p class="footer-kicker">Peak Seven</p>
-        <h3 class="footer-title">Giày thể thao chọn kỹ cho nhịp sống thật.</h3>
+        <h3 class="footer-title">Áo thể thao chọn kỹ cho nhịp sống thật.</h3>
         <p class="footer-copy">
-          Từ giày chạy bộ, giày tập gym đến mẫu mang hằng ngày, Peak Seven tập trung
+          Từ Áo chạy bộ, Áo tập gym đến mẫu mang hằng ngày, Peak Seven tập trung
           vào form vừa chân, phối màu dễ mặc và trải nghiệm mua sắm rõ ràng.
         </p>
       </div>

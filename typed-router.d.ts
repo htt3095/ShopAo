@@ -19,6 +19,8 @@ declare module 'vue-router/auto-routes' {
    */
   export interface RouteNamedMap {
     '/AboutView': RouteRecordInfo<'/AboutView', '/AboutView', Record<never, never>, Record<never, never>>,
+    '/AboutView_test': RouteRecordInfo<'/AboutView_test', '/AboutView_test', Record<never, never>, Record<never, never>>,
+    '/AboutView_test2': RouteRecordInfo<'/AboutView_test2', '/AboutView_test2', Record<never, never>, Record<never, never>>,
     '/AdminBrandsView': RouteRecordInfo<'/AdminBrandsView', '/AdminBrandsView', Record<never, never>, Record<never, never>>,
     '/AdminCustomersView': RouteRecordInfo<'/AdminCustomersView', '/AdminCustomersView', Record<never, never>, Record<never, never>>,
     '/AdminDashboardView': RouteRecordInfo<'/AdminDashboardView', '/AdminDashboardView', Record<never, never>, Record<never, never>>,
@@ -64,6 +66,14 @@ declare module 'vue-router/auto-routes' {
   export interface _RouteFileInfoMap {
     'src/pages/AboutView.vue': {
       routes: '/AboutView'
+      views: never
+    }
+    'src/pages/AboutView_test.vue': {
+      routes: '/AboutView_test'
+      views: never
+    }
+    'src/pages/AboutView_test2.vue': {
+      routes: '/AboutView_test2'
       views: never
     }
     'src/pages/AdminBrandsView.vue': {

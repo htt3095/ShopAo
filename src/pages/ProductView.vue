@@ -9,7 +9,7 @@
           <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
             <div class="flex flex-col gap-3">
               <h1 class="text-slate-900 dark:text-white text-4xl font-black leading-tight tracking-[-0.033em]">Quản lý kho sản phẩm</h1>
-              <p class="text-slate-500 dark:text-[#9cabba] text-base font-normal leading-normal max-w-2xl">Theo dõi danh sách giày, tồn kho, danh mục và biến thể để việc bán hàng ổn định hơn.</p>
+              <p class="text-slate-500 dark:text-[#9cabba] text-base font-normal leading-normal max-w-2xl">Theo dõi danh sách áo, tồn kho, danh mục và biến thể để việc bán hàng ổn định hơn.</p>
             </div>
             <div class="flex gap-3 flex-wrap">
               <button class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-slate-200 dark:bg-surface-dark hover:bg-slate-300 dark:hover:bg-[#283039] text-slate-900 dark:text-white text-sm font-bold leading-normal tracking-[0.015em] transition-colors gap-2">

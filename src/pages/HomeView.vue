@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="retail-shell flex flex-col overflow-x-hidden antialiased">
     <MainTopBar />
 
@@ -9,12 +9,12 @@
         <div
           class="retail-card bg-grid-soft overflow-hidden px-6 py-7 sm:px-8 lg:px-9 lg:py-10"
         >
-          <span class="retail-kicker">Giày cho lịch trình mỗi ngày</span>
+          <span class="retail-kicker">Áo cho lịch trình mỗi ngày</span>
           <div class="mt-6 max-w-2xl">
             <h1
               class="retail-heading text-[46px] leading-[0.95] text-slate-900 dark:text-white sm:text-[62px]"
             >
-              Chọn đôi giày
+              Chọn đôi Áo
               <span class="text-primary">đúng form</span>
               cho từng ngày.
             </h1>
@@ -22,7 +22,7 @@
               class="mt-5 max-w-xl text-base leading-7 text-slate-600 dark:text-[#d5c6b7] sm:text-lg"
             >
               Từ đi làm, đi học đến chạy bộ cuối tuần, Peak Seven sắp sẵn các
-              nhóm giày dễ chọn, giá rõ ràng và lối mua nhanh để bạn tìm được
+              nhóm Áo dễ chọn, giá rõ ràng và lối mua nhanh để bạn tìm được
               đôi phù hợp mà không phải cuộn quá nhiều.
             </p>
           </div>
@@ -341,14 +341,14 @@ const activeVouchers = ref([]);
 const categoryShortcuts = [
   {
     kicker: "Tập luyện",
-    title: "Giày chạy bộ",
+    title: "Áo chạy bộ",
     description:
       "Ưu tiên upper thoáng, đế bật lực và form ôm chân cho lịch chạy hằng tuần.",
     to: "/shop",
   },
   {
     kicker: "Đi làm, đi chơi",
-    title: "Giày mang hằng ngày",
+    title: "Áo mang hằng ngày",
     description:
       "Màu trung tính, dễ phối đồ, không quá thể thao nhưng vẫn đủ êm để đi lâu.",
     to: "/shop",

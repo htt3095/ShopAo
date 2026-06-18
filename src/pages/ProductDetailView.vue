@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div
     class="retail-shell text-[#111418] dark:text-white font-display overflow-x-hidden antialiased"
   >
@@ -682,7 +682,7 @@ const mainImageUrl = computed(() => {
   });
 });
 
-// 3. THÊM ĐOẠN NÀY ĐỂ RESET LẠI ẢNH CHÍNH KHI ĐỔI MÀU GIÀY KHÁC
+// 3. THÊM ĐOẠN NÀY ĐỂ RESET LẠI ẢNH CHÍNH KHI ĐỔI MÀU Áo KHÁC
 watch(selectedVariant, () => {
   activeImageIndex.value = 0;
 });

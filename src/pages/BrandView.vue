@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="retail-shell min-h-screen">
     <MainTopBar />
 
@@ -23,7 +23,7 @@
         <article class="retail-card overflow-hidden p-0">
           <img
             src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=1400&q=80"
-            alt="Cận cảnh giày sneaker theo từng thương hiệu"
+            alt="Cận cảnh áo sneaker theo từng thương hiệu"
             class="aspect-[4/5] h-full w-full object-cover lg:min-h-[460px]"
           />
         </article>

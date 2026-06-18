@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-display min-h-screen flex flex-col">
     <MainTopBar />
 
@@ -73,7 +73,7 @@
             <textarea
               v-model="comment"
               class="w-full rounded-lg border border-slate-200 dark:border-[#3b4754] bg-white dark:bg-[#1b2127] px-3 py-2.5 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-[#9cabba] focus:outline-none focus:ring-2 focus:ring-primary/60 min-h-[120px] resize-y"
-              placeholder="Bạn thấy form giày, độ êm và trải nghiệm khi mang như thế nào?"
+              placeholder="Bạn thấy form áo, độ êm và trải nghiệm khi mang như thế nào?"
               required
             />
           </div>
