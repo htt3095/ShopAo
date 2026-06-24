@@ -22,6 +22,7 @@ declare module 'vue-router/auto-routes' {
     '/AboutView_test': RouteRecordInfo<'/AboutView_test', '/AboutView_test', Record<never, never>, Record<never, never>>,
     '/AboutView_test2': RouteRecordInfo<'/AboutView_test2', '/AboutView_test2', Record<never, never>, Record<never, never>>,
     '/AdminBrandsView': RouteRecordInfo<'/AdminBrandsView', '/AdminBrandsView', Record<never, never>, Record<never, never>>,
+    '/AdminCategoriesView': RouteRecordInfo<'/AdminCategoriesView', '/AdminCategoriesView', Record<never, never>, Record<never, never>>,
     '/AdminCustomersView': RouteRecordInfo<'/AdminCustomersView', '/AdminCustomersView', Record<never, never>, Record<never, never>>,
     '/AdminDashboardView': RouteRecordInfo<'/AdminDashboardView', '/AdminDashboardView', Record<never, never>, Record<never, never>>,
     '/AdminHomeView': RouteRecordInfo<'/AdminHomeView', '/AdminHomeView', Record<never, never>, Record<never, never>>,
@@ -78,6 +79,10 @@ declare module 'vue-router/auto-routes' {
     }
     'src/pages/AdminBrandsView.vue': {
       routes: '/AdminBrandsView'
+      views: never
+    }
+    'src/pages/AdminCategoriesView.vue': {
+      routes: '/AdminCategoriesView'
       views: never
     }
     'src/pages/AdminCustomersView.vue': {

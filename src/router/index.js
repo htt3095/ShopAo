@@ -31,6 +31,7 @@ import AdminVouchersView from "@/pages/AdminVouchersView.vue";
 import AdminReportsView from "@/pages/AdminReportsView.vue";
 import AdminSettingsView from "@/pages/AdminSettingsView.vue";
 import AdminBrandsView from "@/pages/AdminBrandsView.vue";
+import AdminCategoriesView from "@/pages/AdminCategoriesView.vue";
 
 function getLoggedInAccountId() {
   const rawUser = localStorage.getItem("user");
@@ -145,6 +146,12 @@ const router = createRouter({
       path: "/admin/brands",
       name: "admin-brands",
       component: AdminBrandsView,
+      meta: { requiresAdmin: true },
+    },
+    {
+      path: "/admin/categories",
+      name: "admin-categories",
+      component: AdminCategoriesView,
       meta: { requiresAdmin: true },
     },
     {

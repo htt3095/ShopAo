@@ -82,12 +82,14 @@ async function apiCall(endpoint, options = {}) {
             }
         }
 
+        const headers = { ...options.headers };
+        if (!(options.body instanceof FormData) && !headers["Content-Type"]) {
+            headers["Content-Type"] = "application/json";
+        }
+
         const response = await fetch(url, {
-            headers: {
-                "Content-Type": "application/json",
-                ...options.headers,
-            },
             ...options,
+            headers,
         });
 
         let data = null;
@@ -284,12 +286,37 @@ export const brandsApi = {
 };
 
 export const categoriesApi = {
-    async getAll() {
-        return apiCall("/categories");
-    },
-    async getById(id) {
-        return apiCall(`/categories/${id}`);
-    },
+  async getAll() {
+    return apiCall("/categories");
+  },
+  async getById(id) {
+    return apiCall(`/categories/${id}`);
+  },
+  async uploadImage(file) {
+    const formData = new FormData();
+    formData.append("file", file);
+    return apiCall("/upload/image", {
+      method: "POST",
+      body: formData,
+    });
+  },
+  async create(data) {
+    return apiCall("/categories", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  },
+  async update(id, data) {
+    return apiCall(`/categories/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    });
+  },
+  async delete(id) {
+    return apiCall(`/categories/${id}`, {
+      method: "DELETE",
+    });
+  },
 };
 
 export const productsApi = {
@@ -1502,7 +1529,16 @@ export const adminApi = {
     async updateBrand(id, data) {
         return brandsApi.update(id, data);
     },
-    async deleteBrand(id) {
+    
+  async uploadImage(file) {
+    const formData = new FormData();
+    formData.append("file", file);
+    return apiCall("/upload/image", {
+      method: "POST",
+      body: formData,
+    });
+  },
+  async deleteBrand(id) {
         const numericId = asFiniteNumber(id, null);
         if (numericId === null) {
             throw new Error("Thiếu brandId hợp lệ");

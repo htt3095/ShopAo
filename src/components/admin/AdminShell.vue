@@ -130,6 +130,7 @@ const navItems = [
   { path: "/admin/pos", label: "Bán hàng POS", icon: "point_of_sale" },
   { path: "/admin/orders", label: "Đơn hàng", icon: "shopping_bag" },
   { path: "/admin/products", label: "Sản phẩm", icon: "inventory_2" },
+  { path: "/admin/categories", label: "Danh mục", icon: "category" },
   { path: "/admin/inventory", label: "Kho hàng", icon: "warehouse" },
   { path: "/admin/brands", label: "Thương hiệu", icon: "branding_watermark" },
   { path: "/admin/customers", label: "Khách hàng", icon: "group" },

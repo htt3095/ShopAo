@@ -68,33 +68,9 @@
                 Bạn có thể khôi phục lại khi cần.
               </p>
             </div>
-            <button
-              type="button"
-              class="rounded-xl bg-primary px-3 py-2 text-xs font-semibold text-white hover:opacity-90"
-              @click="restoreAllHiddenBrands"
-            >
-              Khôi phục tất cả
-            </button>
+            
           </div>
-          <div class="mt-3 space-y-2">
-            <div
-              v-for="brand in hiddenBrands"
-              :key="brand.id"
-              class="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 dark:border-[#4c4138] dark:bg-[#1e1812]"
-            >
-              <div class="text-sm">
-                <span class="font-semibold">#{{ brand.id }}</span>
-                <span class="ml-2">{{ brand.name || "Thương hiệu" }}</span>
-              </div>
-              <button
-                type="button"
-                class="rounded-xl bg-emerald-500 px-3 py-2 text-xs font-semibold text-white hover:bg-emerald-600"
-                @click="restoreBrand(brand)"
-              >
-                Khôi phục
-              </button>
-            </div>
-          </div>
+          
         </div>
 
         <div
@@ -256,31 +232,14 @@
               </p>
             </div>
 
-            <div>
-              <label class="mb-1 block text-xs font-medium text-slate-500"
-                >Slug (URL thân thiện)</label
-              >
-              <input
-                v-model.trim="form.slug"
-                type="text"
-                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm dark:border-[#3c342e] dark:bg-[#2b241f]"
-                placeholder="tu-khoa-url-thuong-hieu"
-              />
-              <p class="mt-1 text-xs text-slate-400">
-                Để trống để tự động tạo từ tên thương hiệu
-              </p>
-            </div>
 
             <div>
-              <label class="mb-1 block text-xs font-medium text-slate-500"
-                >URL Logo</label
-              >
-              <input
-                v-model.trim="form.logoUrl"
-                type="text"
-                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm dark:border-[#3c342e] dark:bg-[#2b241f]"
-                placeholder="https://example.com/logo.png"
-              />
+              <label class="mb-1 block text-xs font-medium text-slate-500">Ảnh thương hiệu</label>
+              <input ref="imageInput" type="file" accept="image/*" class="hidden" @change="handleImageUpload" />
+              <button type="button" class="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-slate-300 bg-slate-50 px-3 py-2 text-sm font-medium text-slate-600 transition-colors hover:border-primary hover:text-primary dark:border-[#3c342e] dark:bg-[#2b241f] dark:text-[#b9aa9a]" @click="$refs.imageInput?.click()">
+                <span class="material-symbols-outlined text-[18px]">upload</span>
+                Chọn ảnh từ máy tính
+              </button>
             </div>
 
             <!-- Preview logo -->
@@ -387,16 +346,17 @@
 <script setup>
 import { ref, computed, onMounted, watch } from "vue";
 import AdminShell from "@/components/admin/AdminShell.vue";
-import { brandsApi, resolveImageUrl } from "@/services/api";
+import { brandsApi, adminApi, resolveImageUrl } from "@/services/api";
 
 // State
 const brands = ref([]);
+const hiddenBrands = ref([]);
 const loading = ref(false);
 const error = ref("");
 const searchQuery = ref("");
 const currentPage = ref(1);
 const pageSize = ref(10);
-const hiddenBrands = ref([]);
+
 
 // Modal state
 const showModal = ref(false);
@@ -404,6 +364,7 @@ const editingBrandId = ref(null);
 const saving = ref(false);
 const modalError = ref("");
 const previewError = ref(false);
+const brandImageFile = ref(null);
 
 const visibleBrands = computed(() => {
   return brands.value.filter(
@@ -455,6 +416,31 @@ const paginatedBrands = computed(() => {
 });
 
 // Methods
+function handleImageUpload(event) {
+  const file = event.target?.files?.[0];
+  if (!file) return;
+
+  if (!file.type.startsWith("image/")) {
+    modalError.value = "Vui lòng chọn tệp ảnh hợp lệ.";
+    return;
+  }
+
+  if (file.size > 5 * 1024 * 1024) {
+    modalError.value = "Kích thước ảnh không được vượt quá 5MB.";
+    return;
+  }
+
+  modalError.value = "";
+  brandImageFile.value = file;
+  
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    form.value.logoUrl = e.target?.result || "";
+  };
+  reader.readAsDataURL(file);
+  event.target.value = "";
+}
+
 function resetForm() {
   form.value = {
     name: "",
@@ -559,10 +545,23 @@ async function submitForm() {
   modalError.value = "";
 
   try {
+    let finalImageUrl = form.value.logoUrl;
+    if (brandImageFile.value) {
+      try {
+        const uploadRes = await adminApi.uploadImage(brandImageFile.value);
+        if (uploadRes && uploadRes.imageUrl) {
+          finalImageUrl = uploadRes.imageUrl;
+        }
+      } catch (uploadErr) {
+        modalError.value = "Lỗi khi upload ảnh. Vui lòng thử lại.";
+        saving.value = false;
+        return;
+      }
+    }
     const payload = {
       name: form.value.name.trim(),
       slug: form.value.slug?.trim() || generateSlug(form.value.name),
-      logoUrl: form.value.logoUrl || null,
+      logoUrl: finalImageUrl || null,
     };
 
     if (editingBrandId.value) {
@@ -590,43 +589,18 @@ function confirmDelete(brand) {
 }
 
 async function deleteBrand() {
-  if (!deleteTarget.value) return;
-
-  deleting.value = true;
-  try {
-    const result = await adminApi.deleteBrand(deleteTarget.value.id);
-
-    if (result && result.softDeleted) {
-      if (
-        !hiddenBrands.value.some(
-          (brand) => Number(brand.id) === Number(deleteTarget.value.id),
-        )
-      ) {
-        hiddenBrands.value.push(deleteTarget.value);
-      }
+    if (!deleteTarget.value) return;
+    deleting.value = true;
+    try {
+      await brandsApi.delete(deleteTarget.value.id);
+      brands.value = brands.value.filter((item) => Number(item.id) !== Number(deleteTarget.value.id));
       deleteTarget.value = null;
-      return;
+    } catch (err) {
+      alert("Lỗi khi xóa: " + err.message);
+    } finally {
+      deleting.value = false;
     }
-
-    deleteTarget.value = null;
-    await fetchBrands();
-  } catch (err) {
-    console.error("Lỗi khi xóa thương hiệu:", err);
-    let errorMsg = "Không thể xóa thương hiệu";
-    if (err.message && err.message.includes("foreign key")) {
-      errorMsg = "Không thể xóa thương hiệu vì đang có sản phẩm liên quan";
-    } else if (err.message) {
-      errorMsg += ": " + err.message;
-    }
-    error.value = errorMsg;
-    setTimeout(() => {
-      error.value = "";
-    }, 3000);
-    deleteTarget.value = null;
-  } finally {
-    deleting.value = false;
   }
-}
 
 async function fetchBrands() {
   loading.value = true;
