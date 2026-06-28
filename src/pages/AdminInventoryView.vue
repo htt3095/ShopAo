@@ -775,24 +775,24 @@
       </div>
     </Teleport>
   
-    <!-- Modal Sinh Bi?n Th? H�ng Lo?t -->
+        <!-- Modal Sinh Biến Thể Hàng Loạt -->
     <Teleport to="body">
       <div v-if="showBulkModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" @click.self="closeBulkModal">
         <div class="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl dark:bg-[#1f1a17]">
-          <h3 class="mb-4 text-lg font-bold">Sinh Bi?n Th? H�ng Lo?t</h3>
+          <h3 class="mb-4 text-lg font-bold">Sinh Biến Thể Hàng Loạt</h3>
           
           <div class="grid gap-4">
             <div>
-              <label class="mb-1 block text-sm font-medium text-slate-500">S?n ph?m *</label>
+              <label class="mb-1 block text-sm font-medium text-slate-500">Sản phẩm *</label>
               <select v-model="bulkForm.productId" class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-[#3c342e] dark:bg-[#2b241f]">
-                <option :value="null">-- Ch?n s?n ph?m --</option>
+                <option :value="null">-- Chọn sản phẩm --</option>
                 <option v-for="p in products" :key="p.id" :value="p.id">{{ p.name }}</option>
               </select>
             </div>
 
             <div class="grid md:grid-cols-2 gap-4">
               <div class="border rounded-xl p-3 border-slate-200 dark:border-[#3c342e]">
-                <label class="mb-2 block text-sm font-medium text-slate-500">Ch?n M�u S?c *</label>
+                <label class="mb-2 block text-sm font-medium text-slate-500">Chọn Màu Sắc *</label>
                 <div class="max-h-40 overflow-y-auto space-y-1">
                   <label v-for="c in colors" :key="c.id" class="flex items-center gap-2 text-sm cursor-pointer hover:bg-slate-50 p-1 rounded dark:hover:bg-[#2b241f]">
                     <input type="checkbox" :value="c.id" v-model="bulkForm.selectedColors" class="rounded border-slate-300" />
@@ -802,7 +802,7 @@
               </div>
 
               <div class="border rounded-xl p-3 border-slate-200 dark:border-[#3c342e]">
-                <label class="mb-2 block text-sm font-medium text-slate-500">Ch?n K�ch C? *</label>
+                <label class="mb-2 block text-sm font-medium text-slate-500">Chọn Kích Cỡ *</label>
                 <div class="max-h-40 overflow-y-auto space-y-1">
                   <label v-for="s in sizes" :key="s.id" class="flex items-center gap-2 text-sm cursor-pointer hover:bg-slate-50 p-1 rounded dark:hover:bg-[#2b241f]">
                     <input type="checkbox" :value="s.id" v-model="bulkForm.selectedSizes" class="rounded border-slate-300" />
@@ -814,26 +814,26 @@
 
             <div class="grid md:grid-cols-2 gap-4">
               <div>
-                <label class="mb-1 block text-sm font-medium text-slate-500">Gi� b�n chung (VND) *</label>
+                <label class="mb-1 block text-sm font-medium text-slate-500">Giá bán chung (VND) *</label>
                 <input v-model.number="bulkForm.price" type="number" min="0" class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-[#3c342e] dark:bg-[#2b241f]" />
               </div>
               <div>
-                <label class="mb-1 block text-sm font-medium text-slate-500">S? lu?ng t?n kho chung *</label>
+                <label class="mb-1 block text-sm font-medium text-slate-500">Số lượng tồn kho chung *</label>
                 <input v-model.number="bulkForm.stockQuantity" type="number" min="0" class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-[#3c342e] dark:bg-[#2b241f]" />
               </div>
             </div>
             
             <div class="rounded-lg bg-blue-50 p-3 text-sm text-blue-700 dark:bg-blue-900/20 dark:text-blue-300">
-              S? t?o ra: <strong>{{ bulkForm.selectedColors.length * bulkForm.selectedSizes.length }}</strong> bi?n th?.
+              Sẽ tạo ra: <strong>{{ bulkForm.selectedColors.length * bulkForm.selectedSizes.length }}</strong> biến thể.
             </div>
 
             <p v-if="bulkError" class="text-sm text-red-500 font-medium">{{ bulkError }}</p>
           </div>
 
           <div class="mt-6 flex justify-end gap-3 border-t border-slate-200 pt-4 dark:border-[#3c342e]">
-            <button type="button" class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium hover:bg-slate-50 dark:border-[#3c342e] dark:hover:bg-[#2b241f]" @click="closeBulkModal">H?y</button>
+            <button type="button" class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium hover:bg-slate-50 dark:border-[#3c342e] dark:hover:bg-[#2b241f]" @click="closeBulkModal">Hủy</button>
             <button type="button" :disabled="bulkGenerating || !bulkForm.productId || !bulkForm.selectedColors.length || !bulkForm.selectedSizes.length" class="rounded-xl bg-orange-500 px-4 py-2 text-sm font-medium text-white hover:bg-orange-600 disabled:opacity-50" @click="doBulkCreate">
-              {{ bulkGenerating ? "�ang x? l�..." : "B?t d?u t?o" }}
+              {{ bulkGenerating ? "Đang xử lý..." : "Bắt đầu tạo" }}
             </button>
           </div>
         </div>
@@ -888,15 +888,15 @@ async function doBulkCreate() {
   const { productId, selectedColors, selectedSizes, price, stockQuantity } = bulkForm.value;
   
   if (!productId) {
-    bulkError.value = "Vui l�ng ch?n s?n ph?m.";
+    bulkError.value = "Vui lòng chọn sản phẩm.";
     return;
   }
   if (!selectedColors.length || !selectedSizes.length) {
-    bulkError.value = "Vui l�ng ch?n �t nh?t 1 m�u v� 1 size.";
+    bulkError.value = "Vui lòng chọn ít nhất 1 màu và 1 size.";
     return;
   }
   if (price < 0 || stockQuantity < 0) {
-    bulkError.value = "Gi� v� s? lu?ng ph?i l?n hon ho?c b?ng 0.";
+    bulkError.value = "Giá và số lượng phải lớn hơn hoặc bằng 0.";
     return;
   }
 
@@ -918,7 +918,7 @@ async function doBulkCreate() {
         });
         successCount++;
       } catch (err) {
-        console.error("L?i khi t?o bi?n th? m�u " + colorId + " size " + sizeId, err);
+        console.error("Lỗi khi tạo biến thể màu " + colorId + " size " + sizeId, err);
         errorCount++;
       }
     }
@@ -926,7 +926,7 @@ async function doBulkCreate() {
 
   bulkGenerating.value = false;
   if (errorCount > 0) {
-    bulkError.value = "�� t?o th�nh c�ng " + successCount + " bi?n th?. Th?t b?i " + errorCount + " bi?n th? (c� th? do d� t?n t?i).";
+    bulkError.value = "Đã tạo thành công " + successCount + " biến thể. Thất bại " + errorCount + " biến thể (có thể do đã tồn tại).";
   } else {
     showBulkModal.value = false;
     await loadInventory();
