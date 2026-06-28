@@ -646,7 +646,7 @@
                 class="w-full rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm dark:border-[#3c342e] dark:bg-[#2b241f]"
               >
                 <option :value="null">-- Chọn màu --</option>
-                <option v-for="c in colors" :key="c.id" :value="Number(c.id)">
+                <option v-for="c in availableColorsForForm" :key="c.id" :value="Number(c.id)">
                   {{ c.name }}
                 </option>
               </select>
