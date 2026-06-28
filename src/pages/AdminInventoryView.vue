@@ -794,7 +794,7 @@
               <div class="border rounded-xl p-3 border-slate-200 dark:border-[#3c342e]">
                 <label class="mb-2 block text-sm font-medium text-slate-500">Chọn Màu Sắc *</label>
                 <div class="max-h-40 overflow-y-auto space-y-1">
-                  <label v-for="c in colors" :key="c.id" class="flex items-center gap-2 text-sm cursor-pointer hover:bg-slate-50 p-1 rounded dark:hover:bg-[#2b241f]">
+                  <label v-for="c in availableColorsForBulk" :key="c.id" class="flex items-center gap-2 text-sm cursor-pointer hover:bg-slate-50 p-1 rounded dark:hover:bg-[#2b241f]">
                     <input type="checkbox" :value="c.id" v-model="bulkForm.selectedColors" class="rounded border-slate-300" />
                     {{ c.name }}
                   </label>
@@ -804,7 +804,7 @@
               <div class="border rounded-xl p-3 border-slate-200 dark:border-[#3c342e]">
                 <label class="mb-2 block text-sm font-medium text-slate-500">Chọn Kích Cỡ *</label>
                 <div class="max-h-40 overflow-y-auto space-y-1">
-                  <label v-for="s in sizes" :key="s.id" class="flex items-center gap-2 text-sm cursor-pointer hover:bg-slate-50 p-1 rounded dark:hover:bg-[#2b241f]">
+                  <label v-for="s in availableSizesForBulk" :key="s.id" class="flex items-center gap-2 text-sm cursor-pointer hover:bg-slate-50 p-1 rounded dark:hover:bg-[#2b241f]">
                     <input type="checkbox" :value="s.id" v-model="bulkForm.selectedSizes" class="rounded border-slate-300" />
                     {{ s.name }}
                   </label>
@@ -824,7 +824,7 @@
             </div>
             
             <div class="rounded-lg bg-blue-50 p-3 text-sm text-blue-700 dark:bg-blue-900/20 dark:text-blue-300">
-              Sẽ tạo ra: <strong>{{ bulkForm.selectedColors.length * bulkForm.selectedSizes.length }}</strong> biến thể.
+              Sẽ tạo ra: <strong>{{ newCombinationsCount }}</strong> biến thể.
             </div>
 
             <p v-if="bulkError" class="text-sm text-red-500 font-medium">{{ bulkError }}</p>
@@ -832,7 +832,7 @@
 
           <div class="mt-6 flex justify-end gap-3 border-t border-slate-200 pt-4 dark:border-[#3c342e]">
             <button type="button" class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium hover:bg-slate-50 dark:border-[#3c342e] dark:hover:bg-[#2b241f]" @click="closeBulkModal">Hủy</button>
-            <button type="button" :disabled="bulkGenerating || !bulkForm.productId || !bulkForm.selectedColors.length || !bulkForm.selectedSizes.length" class="rounded-xl bg-orange-500 px-4 py-2 text-sm font-medium text-white hover:bg-orange-600 disabled:opacity-50" @click="doBulkCreate">
+            <button type="button" :disabled="bulkGenerating || !bulkForm.productId || newCombinationsCount === 0" class="rounded-xl bg-orange-500 px-4 py-2 text-sm font-medium text-white hover:bg-orange-600 disabled:opacity-50" @click="doBulkCreate">
               {{ bulkGenerating ? "Đang xử lý..." : "Bắt đầu tạo" }}
             </button>
           </div>
@@ -847,7 +847,7 @@
 import { computed, onMounted, ref, watch } from "vue";
 import axios from "axios";
 import AdminShell from "@/components/admin/AdminShell.vue";
-import { adminApi, colorsApi, sizesApi, variantsApi } from "@/services/api";
+import { adminApi, colorsApi, sizesApi } from "@/services/api";
 import { resolveImageUrl } from "@/services/api";
 
 
@@ -907,8 +907,11 @@ async function doBulkCreate() {
 
   for (const colorId of selectedColors) {
     for (const sizeId of selectedSizes) {
+      const exists = rawVariants.value.some(v => v.productId === productId && v.colorId === colorId && v.sizeId === sizeId);
+      if (exists) continue;
+
       try {
-        await variantsApi.createVariant({
+        await adminApi.createVariant({
           productId,
           colorId,
           sizeId,
@@ -938,6 +941,7 @@ const error = ref("");
 const searchKeyword = ref("");
 const showFilters = ref(false);
 const variants = ref([]);
+const rawVariants = ref([]);
 const products = ref([]);
 const colors = ref([]);
 const sizes = ref([]);
@@ -972,9 +976,19 @@ const saving = ref(false);
 const modalError = ref("");
 const form = ref(emptyForm());
 
+const availableColorsForForm = computed(() => {
+  if (!form.value.productId || !form.value.sizeId) return colors.value;
+  const existingVariants = visibleVariants.value.filter(v => 
+    Number(v.productId) === Number(form.value.productId) && 
+    Number(v.sizeId) === Number(form.value.sizeId) && 
+    Number(v.id) !== Number(editingId.value)
+  );
+  const usedColorIds = new Set(existingVariants.map(v => Number(v.colorId)));
+  return colors.value.filter(c => !usedColorIds.has(Number(c.id)));
+});
+
 const availableSizesForForm = computed(() => {
   if (!form.value.productId || !form.value.colorId) return sizes.value;
-  // Exclude sizes already used by variants of the same product and color
   const existingVariants = visibleVariants.value.filter(v => 
     Number(v.productId) === Number(form.value.productId) && 
     Number(v.colorId) === Number(form.value.colorId) && 
@@ -982,6 +996,38 @@ const availableSizesForForm = computed(() => {
   );
   const usedSizeIds = new Set(existingVariants.map(v => Number(v.sizeId)));
   return sizes.value.filter(s => !usedSizeIds.has(Number(s.id)));
+});
+
+const availableColorsForBulk = computed(() => {
+  if (!bulkForm.value.productId) return colors.value;
+  const totalSizes = sizes.value.length;
+  if (totalSizes === 0) return colors.value;
+  return colors.value.filter(c => {
+    const existingSizesCount = visibleVariants.value.filter(v => v.productId === bulkForm.value.productId && v.colorId === c.id).length;
+    return existingSizesCount < totalSizes;
+  });
+});
+
+const availableSizesForBulk = computed(() => {
+  if (!bulkForm.value.productId) return sizes.value;
+  const totalColors = colors.value.length;
+  if (totalColors === 0) return sizes.value;
+  return sizes.value.filter(s => {
+    const existingColorsCount = visibleVariants.value.filter(v => v.productId === bulkForm.value.productId && v.sizeId === s.id).length;
+    return existingColorsCount < totalColors;
+  });
+});
+
+const newCombinationsCount = computed(() => {
+  if (!bulkForm.value.productId) return 0;
+  let count = 0;
+  for (const cid of bulkForm.value.selectedColors) {
+    for (const sid of bulkForm.value.selectedSizes) {
+      const exists = visibleVariants.value.some(v => v.productId === bulkForm.value.productId && v.colorId === cid && v.sizeId === sid);
+      if (!exists) count++;
+    }
+  }
+  return count;
 });
 
 const deleteTarget = ref(null);
