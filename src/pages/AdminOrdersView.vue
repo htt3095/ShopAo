@@ -1050,10 +1050,14 @@ function resolveManagedOrderState(
     nextPaymentStatus = "REFUNDED";
   }
 
-  // Cancelled orders: prepaid -> refunded, COD -> pending (customer did not receive item).
+  // Cancelled orders: prepaid -> refunded (if paid), COD -> pending (customer did not receive item).
   if (nextStatus === "CANCELLED") {
     if (isPrepaid) {
-      nextPaymentStatus = "REFUNDED";
+      if (currentPayment === "PAID") {
+        nextPaymentStatus = "REFUNDED";
+      } else {
+        nextPaymentStatus = "PENDING";
+      }
     } else if (isCod) {
       nextPaymentStatus = "PENDING";
     }
@@ -1064,10 +1068,10 @@ function resolveManagedOrderState(
     nextPaymentStatus = "PAID";
   }
 
-  // Prepaid/QR orders should remain paid throughout the fulfillment pipeline.
+  // Prepaid/QR orders must be paid to enter fulfillment pipeline.
   if (
     isPrepaid &&
-    ["PENDING", "PROCESSING", "SHIPPING", "SUCCESS"].includes(nextStatus)
+    ["PROCESSING", "SHIPPING", "SUCCESS"].includes(nextStatus)
   ) {
     nextPaymentStatus = "PAID";
   }
