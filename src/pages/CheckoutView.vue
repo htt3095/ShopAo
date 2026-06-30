@@ -1004,9 +1004,24 @@ onMounted(async () => {
 
   await hydrateCheckout();
   try {
-    const res = await fetch("https://provinces.open-api.vn/api/?depth=3");
-    const data = await res.json();
-    provinces.value = data;
+    const res = await fetch("https://esgoo.net/api-tinhthanh/4/0.htm");
+    const json = await res.json();
+    if (json.error === 0 && json.data) {
+      provinces.value = json.data.map((p) => ({
+        name: p.full_name || p.name,
+        code: p.id,
+        districts: (p.data2 || []).map((d) => ({
+          name: d.full_name || d.name,
+          code: d.id,
+          wards: (d.data3 || []).map((w) => ({
+            name: w.full_name || w.name,
+            code: w.id,
+          })),
+        })),
+      }));
+    } else {
+      provinces.value = [];
+    }
 
     if (shippingForm.address) {
       await autoFillAddressHierarchyFromText(shippingForm.address);
