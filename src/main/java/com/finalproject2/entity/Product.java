@@ -36,8 +36,7 @@ public class Product {
     private String productCode;
 
     @Nationalized
-    @Lob
-    @Column(name = "description")
+    @Column(name = "description", columnDefinition = "nvarchar(max)")
     private String description;
 
     @NotNull

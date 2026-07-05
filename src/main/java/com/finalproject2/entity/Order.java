@@ -41,8 +41,7 @@ public class Order {
 
     @NotNull
     @Nationalized
-    @Lob
-    @Column(name = "shipping_address", nullable = false)
+    @Column(name = "shipping_address", nullable = false, columnDefinition = "nvarchar(max)")
     private String shippingAddress;
 
     @NotNull
@@ -81,8 +80,7 @@ public class Order {
     private String email;
 
     @Nationalized
-    @Lob
-    @Column(name = "return_reason")
+    @Column(name = "return_reason", columnDefinition = "nvarchar(max)")
     private String returnReason;
 
 
