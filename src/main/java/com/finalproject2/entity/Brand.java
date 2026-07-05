@@ -18,10 +18,8 @@ public class Brand {
     @Size(max = 255)
     @Column(name = "name", columnDefinition = "nvarchar(255)")
     private String name;
-    @Lob
     @Column(name = "logo_url", columnDefinition = "NVARCHAR(MAX)")
     private String logoUrl;
-    @Lob
     @Column(name = "logoUrl", columnDefinition = "NVARCHAR(MAX)")
     private String logoUrl1;
     @JsonIgnore

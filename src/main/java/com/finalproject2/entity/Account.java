@@ -48,8 +48,7 @@ public class Account {
     private String passwordHash;
 
     @Nationalized
-    @Lob
-    @Column(name = "address")
+    @Column(name = "address", columnDefinition = "nvarchar(max)")
     private String address;
 
     @Size(max = 1000)
