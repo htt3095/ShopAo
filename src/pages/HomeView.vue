@@ -3,44 +3,61 @@
     <MainTopBar />
 
     <main class="flex-1 pb-16">
-      <section
-        class="mx-auto grid w-full max-w-[1240px] grid-cols-1 gap-6 px-4 pt-8 md:px-8 lg:grid-cols-[1.28fr_0.72fr] xl:px-10"
-      >
-        <div
-          class="retail-card bg-grid-soft overflow-hidden px-6 py-7 sm:px-8 lg:px-9 lg:py-10"
-        >
-          <span class="retail-kicker">Áo cho lịch trình mỗi ngày</span>
-          <div class="mt-6 max-w-2xl">
-            <h1
-              class="retail-heading text-[46px] leading-[0.95] text-slate-900 dark:text-white sm:text-[62px]"
-            >
-              Chọn chiếc Áo
-              <span class="text-primary">đúng form</span>
-              cho từng ngày.
-            </h1>
-            <p
-              class="mt-5 max-w-xl text-base leading-7 text-slate-600 dark:text-[#d5c6b7] sm:text-lg"
-            >
-              Từ đi làm, đi học đến chạy bộ cuối tuần, Peak Seven sắp sẵn các
-              nhóm Áo dễ chọn, giá rõ ràng và lối mua nhanh để bạn tìm được
-              đôi phù hợp mà không phải cuộn quá nhiều.
-            </p>
-          </div>
+      <section class="mx-auto w-full max-w-[1400px] px-4 pt-8 md:px-8 xl:px-10">
+        <div class="relative overflow-hidden rounded-[32px] bg-[#18181b]/80 border border-[#27272a] shadow-glass min-h-[550px] flex items-center">
+          <!-- Background Glows specifically for the hero -->
+          <div class="absolute top-[-20%] left-[-10%] w-[50%] h-[80%] bg-primary/20 blur-[120px] rounded-full pointer-events-none"></div>
+          <div class="absolute bottom-[-20%] right-[-10%] w-[40%] h-[70%] bg-primary/10 blur-[100px] rounded-full pointer-events-none"></div>
 
-          <div class="mt-8 flex flex-wrap gap-4">
-            <router-link
-              to="/shop"
-              class="inline-flex items-center rounded-full bg-primary px-8 py-3.5 text-sm font-bold text-white shadow-neon transition-all hover:-translate-y-1 hover:shadow-[0_0_25px_rgba(255,77,0,0.5)]"
-              >Mua ngay</router-link
-            >
-            <router-link
-              to="/size-guide"
-              class="inline-flex items-center rounded-full border border-[#3f3f46] px-8 py-3.5 text-sm font-bold text-white transition-all hover:border-primary hover:text-primary bg-[#18181b]/50"
-              >Xem bảng size</router-link
-            >
+          <div class="relative z-10 grid w-full grid-cols-1 lg:grid-cols-2 gap-8 p-8 md:p-12 lg:p-16 items-center">
+            <!-- Left Text Content -->
+            <div class="max-w-2xl">
+              <span class="inline-flex items-center gap-2 rounded-full border border-primary/40 bg-primary/20 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-primary shadow-neon mb-6">
+                BỘ SƯU TẬP MỚI NHẤT
+              </span>
+              <h1 class="retail-heading text-[48px] leading-[0.95] text-white sm:text-[68px] lg:text-[76px] drop-shadow-2xl">
+                CHỌN CHIẾC ÁO
+                <br />
+                <span class="text-primary neon-text">ĐÚNG FORM</span>
+                <br />
+                CHO TỪNG NGÀY.
+              </h1>
+              <p class="mt-6 max-w-xl text-base leading-relaxed text-[#a1a1aa] sm:text-lg">
+                Từ đi làm, đi học đến chạy bộ cuối tuần. Peak Seven sắp sẵn các dòng áo thể thao
+                dễ chọn, chất vải thoáng mát và lên form cực chuẩn để bạn luôn thoải mái vận động.
+              </p>
+
+              <div class="mt-10 flex flex-wrap gap-4">
+                <router-link
+                  to="/shop"
+                  class="inline-flex items-center rounded-full bg-primary px-10 py-4 text-sm font-bold text-white shadow-neon transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_30px_rgba(255,77,0,0.6)]"
+                >
+                  Mua Ngay Bây Giờ
+                </router-link>
+                <router-link
+                  to="/size-guide"
+                  class="inline-flex items-center rounded-full border border-[#3f3f46] px-10 py-4 text-sm font-bold text-white transition-all duration-300 hover:border-primary hover:text-primary bg-[#18181b]/50 backdrop-blur-md"
+                >
+                  Xem Bảng Size
+                </router-link>
+              </div>
+            </div>
+
+            <!-- Right Image Content -->
+            <div class="relative hidden lg:block h-full w-full min-h-[400px]">
+              <img
+                src="https://images.unsplash.com/photo-1581655353564-df123a1eb820?q=80&w=1000&auto=format&fit=crop"
+                alt="Áo thể thao Peak Seven"
+                class="absolute right-0 top-1/2 -translate-y-1/2 w-[120%] max-w-[800px] object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)] transition-transform duration-700 hover:scale-105"
+                style="mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);"
+              />
+            </div>
           </div>
         </div>
+      </section>
 
+      <!-- Old quick access blocks now moved below hero -->
+      <section class="mx-auto grid w-full max-w-[1400px] grid-cols-1 gap-6 px-4 pt-8 md:px-8 xl:px-10">
         <div class="grid gap-6">
           <article class="retail-card p-6 sm:p-7">
             <p
