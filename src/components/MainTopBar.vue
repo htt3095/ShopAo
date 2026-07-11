@@ -4,24 +4,22 @@
       
       <!-- 1. Logo (Left) -->
       <router-link to="/" class="flex items-center gap-3 group shrink-0">
-        <div class="flex size-10 items-center justify-center rounded-2xl bg-primary text-white transition-transform group-hover:-rotate-6 group-hover:scale-105 shadow-neon">
-          <span class="material-symbols-outlined text-xl">bolt</span>
-        </div>
         <div class="hidden sm:block">
           <p class="text-[10px] font-semibold uppercase tracking-[0.24em] text-primary">Peak Seven</p>
-          <h2 class="font-headline text-[24px] uppercase leading-none tracking-tight text-white">SPORT STORE</h2>
+          <h2 class="font-headline text-[24px] uppercase leading-none tracking-tight text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]">SPORT STORE</h2>
         </div>
       </router-link>
 
       <!-- 2. Centered Nav (Middle) -->
-      <nav class="hidden flex-1 items-center justify-center gap-8 text-[11px] font-bold uppercase tracking-widest text-[#a1a1aa] xl:flex">
-        <router-link to="/" class="hover:text-primary transition-colors text-white">TRANG CHỦ</router-link>
-        <router-link to="/shop" class="hover:text-primary transition-colors">CHẠY BỘ</router-link>
-        <router-link to="/shop" class="hover:text-primary transition-colors">TẬP GYM</router-link>
-        <router-link to="/shop" class="hover:text-primary transition-colors">HÀNG NGÀY</router-link>
-        <router-link to="/brands" class="hover:text-primary transition-colors">THƯƠNG HIỆU</router-link>
-        <router-link to="/vouchers" class="hover:text-primary transition-colors">KHUYẾN MÃI</router-link>
-        <router-link v-if="isAdmin" to="/admin" class="hover:text-primary transition-colors text-primary">QUẢN TRỊ</router-link>
+      <nav class="hidden flex-1 items-center justify-center xl:flex">
+        <div class="flex items-center gap-8 rounded-full bg-[#18181b]/90 border border-[#27272a] px-8 py-3 shadow-glass text-[12px] font-medium tracking-wide text-[#a1a1aa]">
+          <router-link to="/" class="hover:text-primary hover:drop-shadow-[0_0_8px_rgba(255,77,0,0.6)] transition-all text-white">Trang chủ</router-link>
+          <router-link to="/shop" class="hover:text-primary hover:drop-shadow-[0_0_8px_rgba(255,77,0,0.6)] transition-all">Cửa Hàng</router-link>
+          <router-link to="/brands" class="hover:text-primary hover:drop-shadow-[0_0_8px_rgba(255,77,0,0.6)] transition-all">Thương hiệu</router-link>
+          <router-link to="/vouchers" class="hover:text-primary hover:drop-shadow-[0_0_8px_rgba(255,77,0,0.6)] transition-all">Khuyến mãi</router-link>
+          <router-link to="/about" class="hover:text-primary hover:drop-shadow-[0_0_8px_rgba(255,77,0,0.6)] transition-all">Về Peak Seven</router-link>
+          <router-link v-if="isAdmin" to="/admin" class="hover:text-primary hover:drop-shadow-[0_0_8px_rgba(255,77,0,0.6)] transition-all text-primary">Quản trị</router-link>
+        </div>
       </nav>
 
       <!-- 3. Icons & Actions (Right) -->

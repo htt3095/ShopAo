@@ -22,8 +22,8 @@ export default {
                 "border-dark": "#3f3f46", // Zinc 700
             },
             fontFamily: {
-                "display": ['"Outfit"', '"Inter"', "sans-serif"],
-                "headline": ['"Outfit"', '"Inter"', "sans-serif"],
+                "display": ['"Inter"', "sans-serif"],
+                "headline": ['"Inter"', "sans-serif"],
                 "sans": ['"Inter"', "sans-serif"],
             },
             boxShadow: {

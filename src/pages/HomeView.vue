@@ -3,27 +3,38 @@
     <MainTopBar />
 
     <main class="flex-1 pb-16">
-      <section class="mx-auto w-full max-w-[1400px] px-4 pt-8 md:px-8 xl:px-10">
-        <div class="relative overflow-hidden rounded-[32px] bg-[#18181b]/80 border border-[#27272a] shadow-glass min-h-[550px] flex items-center">
-          <!-- Background Glows specifically for the hero -->
-          <div class="absolute top-[-20%] left-[-10%] w-[50%] h-[80%] bg-primary/20 blur-[120px] rounded-full pointer-events-none"></div>
-          <div class="absolute bottom-[-20%] right-[-10%] w-[40%] h-[70%] bg-primary/10 blur-[100px] rounded-full pointer-events-none"></div>
+      <section class="w-full relative bg-[#0a0a0b]">
+        <div class="relative w-full h-[600px] lg:h-[800px] flex items-center overflow-hidden">
+          
+          <!-- Background Image Transition -->
+          <transition name="fade" mode="in-out">
+            <img
+              :key="currentSlide"
+              :src="heroSlides[currentSlide].image"
+              :alt="heroSlides[currentSlide].titleLine1"
+              class="absolute inset-0 w-full h-full object-cover transition-transform duration-[10000ms] ease-linear hover:scale-110"
+            />
+          </transition>
+          
+          <!-- Dark Overlay for text readability -->
+          <div class="absolute inset-0 bg-gradient-to-r from-black/90 via-black/50 to-transparent"></div>
+          <div class="absolute inset-0 bg-black/30"></div>
 
-          <div class="relative z-10 grid w-full grid-cols-1 lg:grid-cols-2 gap-8 p-8 md:p-12 lg:p-16 items-center">
+          <div class="relative z-10 w-full max-w-[1400px] mx-auto px-4 md:px-8 xl:px-10">
             <!-- Left Text Content -->
             <transition name="fade" mode="out-in">
               <div :key="currentSlide" class="max-w-2xl">
-                <span class="inline-flex items-center gap-2 rounded-full border border-primary/40 bg-primary/20 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-primary shadow-neon mb-6">
+                <span class="inline-flex items-center gap-2 rounded-full border border-primary/40 bg-primary/20 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-primary shadow-neon mb-6 backdrop-blur-sm">
                   {{ heroSlides[currentSlide].kicker }}
                 </span>
-                <h1 class="retail-heading text-[48px] leading-[0.95] text-white sm:text-[68px] lg:text-[76px] drop-shadow-2xl">
+                <h1 class="retail-heading text-[48px] leading-[0.95] text-white sm:text-[68px] lg:text-[76px] drop-shadow-[0_4px_10px_rgba(0,0,0,0.8)]">
                   {{ heroSlides[currentSlide].titleLine1 }}
                   <br />
                   <span class="text-primary neon-text">{{ heroSlides[currentSlide].titleLine2 }}</span>
                   <br />
                   {{ heroSlides[currentSlide].titleLine3 }}
                 </h1>
-                <p class="mt-6 max-w-xl text-base leading-relaxed text-[#a1a1aa] sm:text-lg">
+                <p class="mt-6 max-w-xl text-base leading-relaxed text-[#d4d4d8] sm:text-lg drop-shadow-lg">
                   {{ heroSlides[currentSlide].description }}
                 </p>
 
@@ -36,34 +47,21 @@
                   </router-link>
                   <router-link
                     to="/size-guide"
-                    class="inline-flex items-center rounded-full border border-[#3f3f46] px-10 py-4 text-sm font-bold text-white transition-all duration-300 hover:border-primary hover:text-primary bg-[#18181b]/50 backdrop-blur-md"
+                    class="inline-flex items-center rounded-full border border-white/30 px-10 py-4 text-sm font-bold text-white transition-all duration-300 hover:border-white bg-white/10 backdrop-blur-md hover:bg-white/20"
                   >
                     Xem Bảng Size
                   </router-link>
                 </div>
               </div>
             </transition>
-
-            <!-- Right Image Content -->
-            <div class="relative hidden lg:block h-full w-full min-h-[400px]">
-              <transition name="fade" mode="out-in">
-                <img
-                  :key="currentSlide"
-                  :src="heroSlides[currentSlide].image"
-                  :alt="heroSlides[currentSlide].titleLine1"
-                  class="absolute right-0 top-1/2 -translate-y-1/2 w-[120%] max-w-[800px] object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)] transition-transform duration-700 hover:scale-105"
-                  style="mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);"
-                />
-              </transition>
-            </div>
             
             <!-- Carousel Controls -->
-            <div class="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-20">
+            <div class="absolute bottom-12 left-4 md:left-8 xl:left-10 flex gap-2 z-20">
               <button 
                 v-for="(_, index) in heroSlides" 
                 :key="'dot-'+index"
                 @click="setSlide(index)"
-                :class="['h-1.5 rounded-full transition-all duration-300', currentSlide === index ? 'w-8 bg-primary shadow-neon' : 'w-2 bg-[#3f3f46] hover:bg-[#a1a1aa]']"
+                :class="['h-1.5 rounded-full transition-all duration-300', currentSlide === index ? 'w-8 bg-primary shadow-neon' : 'w-2 bg-white/50 hover:bg-white']"
               ></button>
             </div>
           </div>
