@@ -5,26 +5,26 @@
     <main class="mx-auto flex w-full max-w-[1240px] flex-col gap-10 px-4 py-10 md:px-8 xl:px-10">
       <section class="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
         <article class="retail-card px-6 py-7 sm:px-8 lg:px-9 lg:py-9">
-          <span class="retail-kicker">Hướng dẫn đo chân</span>
-          <h1 class="retail-heading mt-4 text-[54px] leading-[0.92] text-slate-900 dark:text-white sm:text-[72px]">Chọn đúng size ngay từ lần đầu.</h1>
-          <p class="mt-6 max-w-2xl text-base leading-8 text-slate-600 dark:text-[#cabdae] sm:text-lg">
-            Đo đúng chiều dài bàn chân theo cm rồi đối chiếu bảng US/EU bên dưới.
-            Cách này giúp bạn giảm rủi ro lệch size khi đặt hàng online.
+          <span class="retail-kicker">Hướng dẫn đo size áo</span>
+          <h1 class="retail-heading mt-4 text-[54px] leading-[0.92] text-white sm:text-[72px]">Chọn đúng form dáng ngay từ lần đầu.</h1>
+          <p class="mt-6 max-w-2xl text-base leading-8 text-[#a1a1aa] sm:text-lg">
+            Đo đúng vòng ngực, chiều cao và cân nặng rồi đối chiếu bảng size bên dưới.
+            Cách này giúp bạn có chiếc áo thể thao vừa vặn, thoải mái nhất khi vận động.
           </p>
 
           <div class="mt-8 grid gap-4 sm:grid-cols-3">
-            <article v-for="tip in quickTips" :key="tip.title" class="rounded-[24px] border border-slate-200/70 bg-white/75 p-5 dark:border-[#3c342e] dark:bg-[#241d19]/80">
+            <article v-for="tip in quickTips" :key="tip.title" class="rounded-[24px] border border-[#27272a] bg-[#18181b]/80 p-5">
               <span class="material-symbols-outlined text-[28px] text-primary">{{ tip.icon }}</span>
-              <h3 class="mt-3 text-lg font-semibold text-slate-900 dark:text-white">{{ tip.title }}</h3>
-              <p class="mt-2 text-sm leading-6 text-slate-600 dark:text-[#cabdae]">{{ tip.description }}</p>
+              <h3 class="mt-3 text-lg font-semibold text-white">{{ tip.title }}</h3>
+              <p class="mt-2 text-sm leading-6 text-[#a1a1aa]">{{ tip.description }}</p>
             </article>
           </div>
         </article>
 
         <article class="retail-card overflow-hidden p-0">
           <img
-            src="https://images.unsplash.com/photo-1543508282-6319a3e2621f?auto=format&fit=crop&w=1400&q=80"
-            alt="Đo size áo bằng thước"
+            src="https://images.unsplash.com/photo-1593030761757-71fae45fa0e7?auto=format&fit=crop&w=1400&q=80"
+            alt="Áo thể thao nam"
             class="aspect-[4/5] h-full w-full object-cover lg:min-h-[430px]"
           />
         </article>
@@ -32,23 +32,23 @@
 
       <section class="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <article class="retail-card overflow-hidden">
-          <div class="border-b border-slate-200/70 px-6 py-5 dark:border-[#3c342e]">
-            <h2 class="text-2xl font-semibold text-slate-900 dark:text-white">Nam / Unisex (US)</h2>
+          <div class="border-b border-[#27272a] px-6 py-5">
+            <h2 class="text-2xl font-semibold text-white">Bảng size Nam / Unisex</h2>
           </div>
           <div class="overflow-x-auto px-6 py-5">
             <table class="w-full min-w-[320px] text-sm">
               <thead>
-                <tr class="text-left text-slate-500 dark:text-[#cabdae]">
-                  <th class="py-2">US</th>
-                  <th class="py-2">EU</th>
-                  <th class="py-2">CM</th>
+                <tr class="text-left text-[#a1a1aa]">
+                  <th class="py-2">Size</th>
+                  <th class="py-2">Chiều cao (cm)</th>
+                  <th class="py-2">Cân nặng (kg)</th>
                 </tr>
               </thead>
-              <tbody class="divide-y divide-slate-200 dark:divide-[#3c342e]">
-                <tr v-for="row in menRows" :key="row.us" class="text-slate-900 dark:text-white">
-                  <td class="py-3 font-semibold">{{ row.us }}</td>
-                  <td class="py-3">{{ row.eu }}</td>
-                  <td class="py-3">{{ row.cm }}</td>
+              <tbody class="divide-y divide-[#27272a]">
+                <tr v-for="row in menRows" :key="row.size" class="text-white">
+                  <td class="py-3 font-semibold text-primary">{{ row.size }}</td>
+                  <td class="py-3">{{ row.height }}</td>
+                  <td class="py-3">{{ row.weight }}</td>
                 </tr>
               </tbody>
             </table>
@@ -56,23 +56,23 @@
         </article>
 
         <article class="retail-card overflow-hidden">
-          <div class="border-b border-slate-200/70 px-6 py-5 dark:border-[#3c342e]">
-            <h2 class="text-2xl font-semibold text-slate-900 dark:text-white">Nữ (US)</h2>
+          <div class="border-b border-[#27272a] px-6 py-5">
+            <h2 class="text-2xl font-semibold text-white">Bảng size Nữ</h2>
           </div>
           <div class="overflow-x-auto px-6 py-5">
             <table class="w-full min-w-[320px] text-sm">
               <thead>
-                <tr class="text-left text-slate-500 dark:text-[#cabdae]">
-                  <th class="py-2">US</th>
-                  <th class="py-2">EU</th>
-                  <th class="py-2">CM</th>
+                <tr class="text-left text-[#a1a1aa]">
+                  <th class="py-2">Size</th>
+                  <th class="py-2">Chiều cao (cm)</th>
+                  <th class="py-2">Cân nặng (kg)</th>
                 </tr>
               </thead>
-              <tbody class="divide-y divide-slate-200 dark:divide-[#3c342e]">
-                <tr v-for="row in womenRows" :key="row.us" class="text-slate-900 dark:text-white">
-                  <td class="py-3 font-semibold">{{ row.us }}</td>
-                  <td class="py-3">{{ row.eu }}</td>
-                  <td class="py-3">{{ row.cm }}</td>
+              <tbody class="divide-y divide-[#27272a]">
+                <tr v-for="row in womenRows" :key="row.size" class="text-white">
+                  <td class="py-3 font-semibold text-primary">{{ row.size }}</td>
+                  <td class="py-3">{{ row.height }}</td>
+                  <td class="py-3">{{ row.weight }}</td>
                 </tr>
               </tbody>
             </table>
@@ -83,9 +83,9 @@
       <section class="retail-card px-6 py-7 sm:px-8">
         <span class="retail-kicker">Mẹo nhỏ trước khi mua</span>
         <div class="mt-5 grid gap-5 md:grid-cols-3">
-          <article v-for="tip in fittingNotes" :key="tip.title" class="rounded-[24px] bg-[#f6efe6] p-5 dark:bg-[#2b241f]">
-            <h3 class="text-lg font-semibold text-slate-900 dark:text-white">{{ tip.title }}</h3>
-            <p class="mt-2 text-sm leading-6 text-slate-600 dark:text-[#cabdae]">{{ tip.description }}</p>
+          <article v-for="tip in fittingNotes" :key="tip.title" class="rounded-[24px] bg-[#18181b]/60 border border-[#27272a] p-5">
+            <h3 class="text-lg font-semibold text-white">{{ tip.title }}</h3>
+            <p class="mt-2 text-sm leading-6 text-[#a1a1aa]">{{ tip.description }}</p>
           </article>
         </div>
       </section>
@@ -94,32 +94,34 @@
 </template>
 
 <script setup>
+import MainTopBar from '@/components/MainTopBar.vue'
+
 const quickTips = [
   {
     icon: 'straighten',
-    title: 'Đo chiều dài bàn chân',
-    description: 'Đặt gót sát tường, đo từ gót đến đầu ngón dài nhất rồi đối chiếu theo cm.',
+    title: 'Đo vòng ngực',
+    description: 'Dùng thước dây đo vòng qua phần lớn nhất của ngực để chọn size áo chuẩn xác nhất.',
   },
   {
-    icon: 'schedule',
-    title: 'Thử vào cuối ngày',
-    description: 'Cuối ngày chân nở nhẹ, giúp bạn chọn size sát cảm giác mang thực tế hơn.',
+    icon: 'fitness_center',
+    title: 'Chú ý form dáng',
+    description: 'Áo ôm (slim fit) hay rộng (oversize) sẽ mang lại trải nghiệm và cảm giác khác biệt khi tập luyện.',
   },
   {
-    icon: 'socks',
-    title: 'Mang đúng loại tất',
-    description: 'Nếu bạn thường đi tất thể thao dày, hãy đo và thử theo đúng loại tất đó.',
+    icon: 'dry_cleaning',
+    title: 'Chất liệu vải',
+    description: 'Chất liệu co giãn nhiều bạn có thể lùi size để mặc ôm, vải cotton ít co giãn nên chọn đúng size.',
   },
 ]
 
 const fittingNotes = [
   {
     title: 'Nếu nằm giữa hai size',
-    description: 'Với áo chạy bộ hoặc upper ôm, bạn nên tăng nửa size hoặc 1 size để thoải mái hơn.',
+    description: 'Nên chọn size lớn hơn nếu bạn thích thoải mái khi vận động mạnh, chọn size nhỏ hơn nếu thích ôm sát body.',
   },
   {
-    title: 'Mẫu mang hằng ngày',
-    description: 'Với chất liệu mềm và dáng regular, bạn có thể chọn đúng size thường đi để giữ form gọn.',
+    title: 'Sự chênh lệch cân nặng/chiều cao',
+    description: 'Nếu cân nặng và chiều cao của bạn thuộc 2 size khác nhau, ưu tiên chọn size theo cân nặng.',
   },
   {
     title: 'Khi còn phân vân',
@@ -128,20 +130,20 @@ const fittingNotes = [
 ]
 
 const menRows = [
-  { us: 7, eu: 40, cm: 25 },
-  { us: 8, eu: 41, cm: 26 },
-  { us: 9, eu: 42, cm: 27 },
-  { us: 10, eu: 43, cm: 28 },
-  { us: 11, eu: 44, cm: 29 },
-  { us: 12, eu: 45, cm: 30 },
+  { size: 'S', height: '160 - 165', weight: '55 - 60' },
+  { size: 'M', height: '165 - 170', weight: '60 - 65' },
+  { size: 'L', height: '170 - 175', weight: '65 - 70' },
+  { size: 'XL', height: '175 - 180', weight: '70 - 75' },
+  { size: '2XL', height: '180 - 185', weight: '75 - 80' },
+  { size: '3XL', height: '185 - 190', weight: '80 - 85' },
 ]
 
 const womenRows = [
-  { us: 6, eu: 37, cm: 23 },
-  { us: 7, eu: 38, cm: 24 },
-  { us: 8, eu: 39, cm: 25 },
-  { us: 9, eu: 40, cm: 26 },
-  { us: 10, eu: 41, cm: 27 },
-  { us: 11, eu: 42, cm: 28 },
+  { size: 'S', height: '150 - 155', weight: '40 - 45' },
+  { size: 'M', height: '155 - 160', weight: '45 - 50' },
+  { size: 'L', height: '160 - 165', weight: '50 - 55' },
+  { size: 'XL', height: '165 - 170', weight: '55 - 60' },
+  { size: '2XL', height: '170 - 175', weight: '60 - 65' },
+  { size: '3XL', height: '175 - 180', weight: '65 - 70' },
 ]
 </script>

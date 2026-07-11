@@ -241,10 +241,15 @@
         </div>
       </section>
 
-      <section class="retail-card p-3">
-        <div class="mb-3 flex items-center justify-between gap-2">
-          <div>
-            <h3 class="text-sm font-bold">Cập nhật ảnh theo nhóm màu</h3>
+            <!-- Modal: Cập nhật ảnh theo nhóm màu -->
+      <div v-if="showBulkImageModal" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 overflow-y-auto">
+        <section class="retail-card p-5 w-full max-w-3xl flex flex-col max-h-[90vh] overflow-y-auto relative animate-[fadeIn_0.2s_ease-out]">
+          <button @click="showBulkImageModal = false" class="absolute top-4 right-4 text-slate-400 hover:text-white">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+          <div class="mb-4 flex items-center justify-between gap-2">
+            <div>
+              <h3 class="text-lg font-bold text-white">Cập nhật ảnh theo nhóm màu</h3>
             <p class="text-xs text-slate-500 dark:text-[#b9aa9a]">
               1 bộ ảnh áp dụng cho toàn bộ biến thể cùng màu (khác size).
             </p>
@@ -386,7 +391,8 @@
             {{ bulkImageSuccess }}
           </p>
         </div>
-      </section>
+              </section>
+      </div>
 
       <!-- Statistics Cards -->
       <section class="retail-card p-5">
@@ -618,8 +624,22 @@
           class="w-full max-w-md max-h-[88vh] overflow-y-auto rounded-2xl bg-white p-4 shadow-2xl dark:bg-[#1f1a17]"
         >
           <h3 class="mb-3 text-base font-bold">
-            {{ editingId ? `Sửa biến thể #${editingId}` : "Thêm biến thể mới" }}
-          </h3>
+              {{ editingId ? `Sửa biến thể #${editingId}` : "Thêm biến thể mới" }}
+            </h3>
+            
+            <div v-if="editingId" class="mb-4 flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-[#2b241f] border border-slate-200 dark:border-[#3c342e]">
+              <div>
+                <p class="text-xs font-medium text-slate-500 dark:text-[#b9aa9a]">Ảnh của nhóm màu này</p>
+                <div class="flex items-center gap-1 mt-1">
+                  <div v-for="entry in imageSlotEntries" :key="entry.key" class="size-8 rounded-md overflow-hidden bg-slate-200 dark:bg-black/50 border border-slate-300 dark:border-slate-700">
+                    <img v-if="slotSource(bulkImageSlots, entry.key)" :src="slotSource(bulkImageSlots, entry.key)" class="w-full h-full object-cover" />
+                  </div>
+                </div>
+              </div>
+              <button type="button" @click="showBulkImageModal = true" class="text-xs font-semibold text-primary hover:underline">
+                Xem / Sửa ảnh
+              </button>
+            </div>
 
           <div class="space-y-3">
             <div>
@@ -1057,6 +1077,7 @@ function createImageSlots() {
   };
 }
 
+const showBulkImageModal = ref(false);
 const bulkImageProductId = ref(null);
 const bulkImageColorId = ref(null);
 const bulkImageSlots = ref(createImageSlots());
@@ -1918,6 +1939,7 @@ async function preloadBulkSlotsFromVariantDetails() {
 }
 
 function openBulkImageForGroup(productId, colorId = null) {
+  showBulkImageModal.value = true;
   bulkImageProductId.value =
     productId === null || productId === undefined ? null : Number(productId);
   if (colorId !== null && colorId !== undefined) {

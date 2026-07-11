@@ -23,12 +23,7 @@
       </nav>
 
       <!-- 3. Icons & Actions (Right) -->
-      <div class="flex items-center justify-end gap-2 shrink-0">
-        <!-- Search Icon (Mock) -->
-        <button class="flex size-11 items-center justify-center rounded-full text-slate-300 hover:text-primary hover:bg-[#18181b] transition-colors">
-          <span class="material-symbols-outlined">search</span>
-        </button>
-
+      <div class="flex shrink-0 items-center justify-end gap-2">
         <!-- Cart Icon -->
         <router-link to="/cart" class="relative flex size-11 items-center justify-center rounded-full text-slate-300 hover:text-primary hover:bg-[#18181b] transition-colors">
           <span class="material-symbols-outlined">shopping_bag</span>
