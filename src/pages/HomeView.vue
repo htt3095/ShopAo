@@ -11,46 +11,60 @@
 
           <div class="relative z-10 grid w-full grid-cols-1 lg:grid-cols-2 gap-8 p-8 md:p-12 lg:p-16 items-center">
             <!-- Left Text Content -->
-            <div class="max-w-2xl">
-              <span class="inline-flex items-center gap-2 rounded-full border border-primary/40 bg-primary/20 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-primary shadow-neon mb-6">
-                BỘ SƯU TẬP MỚI NHẤT
-              </span>
-              <h1 class="retail-heading text-[48px] leading-[0.95] text-white sm:text-[68px] lg:text-[76px] drop-shadow-2xl">
-                CHỌN CHIẾC ÁO
-                <br />
-                <span class="text-primary neon-text">ĐÚNG FORM</span>
-                <br />
-                CHO TỪNG NGÀY.
-              </h1>
-              <p class="mt-6 max-w-xl text-base leading-relaxed text-[#a1a1aa] sm:text-lg">
-                Từ đi làm, đi học đến chạy bộ cuối tuần. Peak Seven sắp sẵn các dòng áo thể thao
-                dễ chọn, chất vải thoáng mát và lên form cực chuẩn để bạn luôn thoải mái vận động.
-              </p>
+            <transition name="fade" mode="out-in">
+              <div :key="currentSlide" class="max-w-2xl">
+                <span class="inline-flex items-center gap-2 rounded-full border border-primary/40 bg-primary/20 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-primary shadow-neon mb-6">
+                  {{ heroSlides[currentSlide].kicker }}
+                </span>
+                <h1 class="retail-heading text-[48px] leading-[0.95] text-white sm:text-[68px] lg:text-[76px] drop-shadow-2xl">
+                  {{ heroSlides[currentSlide].titleLine1 }}
+                  <br />
+                  <span class="text-primary neon-text">{{ heroSlides[currentSlide].titleLine2 }}</span>
+                  <br />
+                  {{ heroSlides[currentSlide].titleLine3 }}
+                </h1>
+                <p class="mt-6 max-w-xl text-base leading-relaxed text-[#a1a1aa] sm:text-lg">
+                  {{ heroSlides[currentSlide].description }}
+                </p>
 
-              <div class="mt-10 flex flex-wrap gap-4">
-                <router-link
-                  to="/shop"
-                  class="inline-flex items-center rounded-full bg-primary px-10 py-4 text-sm font-bold text-white shadow-neon transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_30px_rgba(255,77,0,0.6)]"
-                >
-                  Mua Ngay Bây Giờ
-                </router-link>
-                <router-link
-                  to="/size-guide"
-                  class="inline-flex items-center rounded-full border border-[#3f3f46] px-10 py-4 text-sm font-bold text-white transition-all duration-300 hover:border-primary hover:text-primary bg-[#18181b]/50 backdrop-blur-md"
-                >
-                  Xem Bảng Size
-                </router-link>
+                <div class="mt-10 flex flex-wrap gap-4">
+                  <router-link
+                    :to="heroSlides[currentSlide].link"
+                    class="inline-flex items-center rounded-full bg-primary px-10 py-4 text-sm font-bold text-white shadow-neon transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_30px_rgba(255,77,0,0.6)]"
+                  >
+                    {{ heroSlides[currentSlide].btnText }}
+                  </router-link>
+                  <router-link
+                    to="/size-guide"
+                    class="inline-flex items-center rounded-full border border-[#3f3f46] px-10 py-4 text-sm font-bold text-white transition-all duration-300 hover:border-primary hover:text-primary bg-[#18181b]/50 backdrop-blur-md"
+                  >
+                    Xem Bảng Size
+                  </router-link>
+                </div>
               </div>
-            </div>
+            </transition>
 
             <!-- Right Image Content -->
             <div class="relative hidden lg:block h-full w-full min-h-[400px]">
-              <img
-                src="https://images.unsplash.com/photo-1581655353564-df123a1eb820?q=80&w=1000&auto=format&fit=crop"
-                alt="Áo thể thao Peak Seven"
-                class="absolute right-0 top-1/2 -translate-y-1/2 w-[120%] max-w-[800px] object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)] transition-transform duration-700 hover:scale-105"
-                style="mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);"
-              />
+              <transition name="fade" mode="out-in">
+                <img
+                  :key="currentSlide"
+                  :src="heroSlides[currentSlide].image"
+                  :alt="heroSlides[currentSlide].titleLine1"
+                  class="absolute right-0 top-1/2 -translate-y-1/2 w-[120%] max-w-[800px] object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)] transition-transform duration-700 hover:scale-105"
+                  style="mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);"
+                />
+              </transition>
+            </div>
+            
+            <!-- Carousel Controls -->
+            <div class="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-20">
+              <button 
+                v-for="(_, index) in heroSlides" 
+                :key="'dot-'+index"
+                @click="setSlide(index)"
+                :class="['h-1.5 rounded-full transition-all duration-300', currentSlide === index ? 'w-8 bg-primary shadow-neon' : 'w-2 bg-[#3f3f46] hover:bg-[#a1a1aa]']"
+              ></button>
             </div>
           </div>
         </div>
@@ -338,7 +352,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref } from "vue";
 import axios from "axios";
 
 import { useCartStore } from "@/stores/cart";
@@ -354,6 +368,56 @@ const userName = ref("");
 const userEmail = ref("");
 const userAvatar = ref("");
 const activeVouchers = ref([]);
+
+// Carousel Logic
+const heroSlides = ref([
+  {
+    kicker: 'BỘ SƯU TẬP MỚI NHẤT',
+    titleLine1: 'CHỌN CHIẾC ÁO',
+    titleLine2: 'ĐÚNG FORM',
+    titleLine3: 'CHO TỪNG NGÀY.',
+    description: 'Từ đi làm, đi học đến chạy bộ cuối tuần. Peak Seven sắp sẵn các dòng áo thể thao dễ chọn, chất vải thoáng mát và lên form cực chuẩn để bạn luôn thoải mái vận động.',
+    image: 'https://images.unsplash.com/photo-1581655353564-df123a1eb820?q=80&w=1000&auto=format&fit=crop',
+    link: '/shop',
+    btnText: 'Mua Ngay Bây Giờ'
+  },
+  {
+    kicker: 'HÀNG MỚI VỀ',
+    titleLine1: 'THOẢI MÁI',
+    titleLine2: 'TỐI ĐA',
+    titleLine3: 'MỌI HOẠT ĐỘNG.',
+    description: 'Chất vải co giãn 4 chiều cùng công nghệ thấm hút mồ hôi vượt trội, giúp bạn tự tin vượt qua mọi giới hạn trong mọi bài tập.',
+    image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=1000&q=80',
+    link: '/shop',
+    btnText: 'Khám Phá Ngay'
+  },
+  {
+    kicker: 'PHONG CÁCH TỐI GIẢN',
+    titleLine1: 'TỰ TIN',
+    titleLine2: 'THỂ HIỆN',
+    titleLine3: 'CHÍNH MÌNH.',
+    description: 'Thiết kế tinh tế, màu sắc basic dễ phối đồ. Không cần quá cầu kỳ, chỉ cần một chiếc áo vừa vặn cũng đủ làm nổi bật khí chất của bạn.',
+    image: 'https://images.unsplash.com/photo-1576566588028-4147f3842f27?auto=format&fit=crop&w=1000&q=80',
+    link: '/shop',
+    btnText: 'Xem Bộ Sưu Tập'
+  }
+]);
+const currentSlide = ref(0);
+let slideInterval = null;
+
+const setSlide = (index) => {
+  currentSlide.value = index;
+  resetInterval();
+};
+
+const nextSlide = () => {
+  currentSlide.value = (currentSlide.value + 1) % heroSlides.value.length;
+};
+
+const resetInterval = () => {
+  if (slideInterval) clearInterval(slideInterval);
+  slideInterval = setInterval(nextSlide, 5000);
+};
 
 const categoryShortcuts = [
   {
@@ -528,7 +592,12 @@ async function loadUserData() {
 }
 
 onMounted(async () => {
+  resetInterval();
   await Promise.all([loadHomeData(), loadUserData()]);
+});
+
+onUnmounted(() => {
+  if (slideInterval) clearInterval(slideInterval);
 });
 
 function toggleUserMenu(event) {
@@ -547,3 +616,14 @@ function handleLogout() {
   window.location.reload();
 }
 </script>
+
+<style scoped>
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
+  transform: translateY(10px);
+}
+</style>
+

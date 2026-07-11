@@ -22,8 +22,8 @@
 
         <article class="retail-card overflow-hidden p-0">
           <img
-            src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=1400&q=80"
-            alt="Cận cảnh áo sneaker theo từng thương hiệu"
+            src="https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=1400&q=80"
+            alt="Cận cảnh áo thể thao Peak Seven"
             class="aspect-[4/5] h-full w-full object-cover lg:min-h-[460px]"
           />
         </article>

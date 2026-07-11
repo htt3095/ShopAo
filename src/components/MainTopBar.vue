@@ -1,79 +1,53 @@
 <template>
-  <header class="retail-header">
-    <div
-      class="mx-auto flex w-full max-w-[1240px] items-center justify-between px-4 py-4 md:px-8 xl:px-10"
-    >
-      <div class="flex items-center gap-8">
-        <router-link to="/" class="flex items-center gap-3 group">
-          <div
-            class="flex size-10 items-center justify-center rounded-2xl bg-primary text-white transition-transform group-hover:-rotate-6 group-hover:scale-105"
-          >
-            <span class="material-symbols-outlined text-xl">bolt</span>
-          </div>
-          <div>
-            <p
-              class="text-[11px] font-semibold uppercase tracking-[0.24em] text-primary"
-            >
-              Peak Seven
-            </p>
-            <h2
-              class="font-headline text-[28px] uppercase leading-none tracking-tight text-slate-900 dark:text-white"
-            >
-              SPORT STORE
-            </h2>
-          </div>
-        </router-link>
+  <header class="retail-header backdrop-blur-xl bg-[#0a0a0b]/80 sticky top-0 z-50 border-b border-[#27272a]">
+    <div class="mx-auto flex w-full max-w-[1400px] items-center justify-between px-4 py-4 md:px-8 xl:px-10">
+      
+      <!-- 1. Logo (Left) -->
+      <router-link to="/" class="flex items-center gap-3 group shrink-0">
+        <div class="flex size-10 items-center justify-center rounded-2xl bg-primary text-white transition-transform group-hover:-rotate-6 group-hover:scale-105 shadow-neon">
+          <span class="material-symbols-outlined text-xl">bolt</span>
+        </div>
+        <div class="hidden sm:block">
+          <p class="text-[10px] font-semibold uppercase tracking-[0.24em] text-primary">Peak Seven</p>
+          <h2 class="font-headline text-[24px] uppercase leading-none tracking-tight text-white">SPORT STORE</h2>
+        </div>
+      </router-link>
 
-        <nav
-          class="hidden items-center gap-7 text-sm font-medium text-slate-600 dark:text-[#d5c6b7] xl:flex"
-        >
-          <router-link to="/shop" class="hover:text-primary transition-colors"
-            >Cửa Hàng</router-link
-          >
-          <router-link to="/brands" class="hover:text-primary transition-colors"
-            >Thương hiệu</router-link
-          >
-          <router-link
-            to="/vouchers"
-            class="hover:text-primary transition-colors"
-            >Ưu đãi</router-link
-          >
-          <router-link to="/about" class="hover:text-primary transition-colors"
-            >Về Peak Seven</router-link
-          >
+      <!-- 2. Centered Nav (Middle) -->
+      <nav class="hidden flex-1 items-center justify-center gap-8 text-[11px] font-bold uppercase tracking-widest text-[#a1a1aa] xl:flex">
+        <router-link to="/" class="hover:text-primary transition-colors text-white">TRANG CHỦ</router-link>
+        <router-link to="/shop" class="hover:text-primary transition-colors">CHẠY BỘ</router-link>
+        <router-link to="/shop" class="hover:text-primary transition-colors">TẬP GYM</router-link>
+        <router-link to="/shop" class="hover:text-primary transition-colors">HÀNG NGÀY</router-link>
+        <router-link to="/brands" class="hover:text-primary transition-colors">THƯƠNG HIỆU</router-link>
+        <router-link to="/vouchers" class="hover:text-primary transition-colors">KHUYẾN MÃI</router-link>
+        <router-link v-if="isAdmin" to="/admin" class="hover:text-primary transition-colors text-primary">QUẢN TRỊ</router-link>
+      </nav>
 
-          <router-link
-            v-if="isAdmin"
-            to="/admin"
-            class="hover:text-primary transition-colors"
-          >
-            Vào Quản Trị
-          </router-link>
-        </nav>
-      </div>
+      <!-- 3. Icons & Actions (Right) -->
+      <div class="flex items-center justify-end gap-2 shrink-0">
+        <!-- Search Icon (Mock) -->
+        <button class="flex size-11 items-center justify-center rounded-full text-slate-300 hover:text-primary hover:bg-[#18181b] transition-colors">
+          <span class="material-symbols-outlined">search</span>
+        </button>
 
-      <div class="flex items-center gap-3">
-        <router-link
-          to="/cart"
-          class="relative flex size-11 items-center justify-center rounded-full border border-slate-200 bg-white/80 text-slate-700 transition-colors hover:border-primary hover:text-primary dark:border-[#3c342e] dark:bg-[#1f1a17] dark:text-white"
-        >
+        <!-- Cart Icon -->
+        <router-link to="/cart" class="relative flex size-11 items-center justify-center rounded-full text-slate-300 hover:text-primary hover:bg-[#18181b] transition-colors">
           <span class="material-symbols-outlined">shopping_bag</span>
-          <span
-            v-if="cartCount > 0"
-            class="absolute -right-1 -top-1 flex size-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white"
-          >
+          <span v-if="cartCount > 0" class="absolute right-1 top-2 flex size-4 items-center justify-center rounded-full bg-primary text-[9px] font-bold text-white shadow-neon">
             {{ cartCount }}
           </span>
         </router-link>
 
-        <div v-if="isLoggedIn" ref="userMenuRef" class="relative">
+        <!-- User Menu -->
+        <div v-if="isLoggedIn" ref="userMenuRef" class="relative ml-2">
           <button
-            class="flex h-11 items-center gap-3 rounded-full border border-slate-200 bg-white/85 pl-2 pr-4 text-left shadow-sm transition-colors hover:border-primary dark:border-[#3c342e] dark:bg-[#1f1a17]"
+            class="flex size-11 items-center justify-center rounded-full border border-[#27272a] bg-[#18181b] text-white hover:border-primary transition-colors"
             type="button"
             @click="toggleUserMenu"
           >
             <div
-              class="flex size-8 items-center justify-center overflow-hidden rounded-full bg-primary/10 text-xs font-bold uppercase text-primary"
+              class="flex size-8 items-center justify-center overflow-hidden rounded-full bg-primary/20 text-[10px] font-bold uppercase text-primary"
             >
               <img
                 v-if="resolvedUserAvatar"
@@ -82,14 +56,6 @@
                 class="h-full w-full object-cover"
               />
               <span v-else>{{ userInitials }}</span>
-            </div>
-            <div class="hidden sm:block">
-              <p class="text-xs text-slate-500 dark:text-[#b5a99c]">
-                Khách hàng thân thiết
-              </p>
-              <p class="text-sm font-semibold text-slate-900 dark:text-white">
-                {{ userName }}
-              </p>
             </div>
           </button>
 
