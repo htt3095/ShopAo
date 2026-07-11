@@ -343,14 +343,14 @@ const categoryShortcuts = [
     kicker: "Tập luyện",
     title: "Áo chạy bộ",
     description:
-      "Ưu tiên upper thoáng, đế bật lực và form ôm chân cho lịch chạy hằng tuần.",
+      "Ưu tiên chất vải thoáng mát, form áo thể thao linh hoạt cho lịch chạy hàng tuần.",
     to: "/shop",
   },
   {
     kicker: "Đi làm, đi chơi",
-    title: "Áo mang hằng ngày",
+    title: "Áo mang hàng ngày",
     description:
-      "Màu trung tính, dễ phối đồ, không quá thể thao nhưng vẫn đủ êm để đi lâu.",
+      "Màu trung tính, dễ phối đồ, không quá thể thao nhưng vẫn đủ thoải mái để mặc cả ngày dài.",
     to: "/shop",
   },
   {
@@ -397,7 +397,7 @@ const categoryCards = computed(() => {
 
     if (!catImage) {
       catImage =
-        "https://res.cloudinary.com/dmas2qrrw/image/upload/v1773290010/AIR_MAX_270_1_ipqieq.avif";
+        "https://images.unsplash.com/photo-1576566588028-4147f3842f27?auto=format&fit=crop&w=800&q=80";
     }
 
     return {

@@ -6,14 +6,14 @@
       <section class="grid gap-8 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
         <div class="retail-card overflow-hidden p-0">
           <img
-            src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=1400&q=80"
+            src="https://images.unsplash.com/photo-1576566588028-4147f3842f27?auto=format&fit=crop&w=1400&q=80"
             alt="Không gian trưng bày áo Peak Seven"
             class="aspect-[4/5] h-full w-full object-cover lg:aspect-auto lg:min-h-[580px]"
           />
         </div>
 
         <div>
-          <span class="retail-kicker">Đồng hành cùng từng bước chân</span>
+          <span class="retail-kicker">Đồng hành cùng mọi hoạt động</span>
           <h1 class="retail-heading mt-5 text-[56px] leading-[0.92] text-slate-900 dark:text-white sm:text-[72px]">
             Peak Seven chọn áo để bạn mang thoải mái mỗi ngày.
           </h1>
@@ -40,8 +40,8 @@
           <h2 class="retail-heading mt-4 text-[42px] leading-none text-slate-900 dark:text-white">Bắt đầu từ nhu cầu mua thật.</h2>
           <div class="mt-5 space-y-4 text-sm leading-7 text-slate-600 dark:text-[#cabdae] sm:text-base">
             <p>
-              Peak Seven bắt đầu từ một cửa hàng nhỏ, nơi khách thường hỏi cùng một điều: đôi nào êm,
-              dễ phối đồ và đi lâu không mỏi chân.
+              Peak Seven bắt đầu từ một cửa hàng nhỏ, nơi khách thường hỏi cùng một điều: chất vải nào thoáng,
+              dễ phối đồ và vận động lâu không bí bách.
             </p>
             <p>
               Từ đó, chúng tôi tập trung chọn mẫu theo trải nghiệm sử dụng thực tế thay vì chạy theo xu hướng ngắn hạn.
@@ -103,7 +103,7 @@
               <h2 class="font-headline mt-4 text-[44px] uppercase leading-none">Mua online vẫn yên tâm.</h2>
               <p class="mt-5 max-w-md text-sm leading-7 text-[#f0dfd2] sm:text-base">
                 Chúng tôi hỗ trợ chọn size, xác nhận đơn nhanh và hướng dẫn đổi size minh bạch,
-                để bạn nhận được đôi áo đúng kỳ vọng ngay từ lần mua đầu tiên.
+                để bạn nhận được chiếc áo đúng kỳ vọng ngay từ lần mua đầu tiên.
               </p>
             </div>
 
@@ -124,16 +124,16 @@
 
 <script setup>
 const userFocusNotes = [
-  'Mỗi mẫu đều được kiểm tra độ êm, độ bền và độ ôm chân trước khi lên cửa hàng.',
+  'Mỗi mẫu đều được kiểm tra chất liệu, độ thoáng khí và form áo trước khi lên kệ.',
   'Thông tin size, chất liệu, ưu đãi và giá bán hiển thị rõ ngay tại nơi cần xem.',
-  'Đội ngũ hỗ trợ chọn áo theo mục đích: đi hằng ngày, chạy bộ, tập luyện hoặc đi làm.',
+  'Đội ngũ hỗ trợ chọn áo theo mục đích: mặc hằng ngày, chạy bộ, tập gym hoặc đi làm.',
 ];
 
 const operatingPrinciples = [
   {
     icon: 'styler',
     title: 'Ưu tiên form áo dễ chọn',
-    description: 'Mô tả tập trung vào phom, độ ôm chân, cảm giác đế và tình huống sử dụng thực tế.',
+    description: 'Mô tả tập trung vào phom dáng, độ co giãn, chất vải và tình huống sử dụng thực tế.',
   },
   {
     icon: 'palette',
