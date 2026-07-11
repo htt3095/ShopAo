@@ -4,7 +4,7 @@
 
     <main class="flex-1 pb-16">
       <section class="w-full relative bg-[#0a0a0b]">
-        <div class="relative w-full h-[600px] lg:h-[800px] flex items-center overflow-hidden">
+        <div class="relative w-full h-[600px] lg:h-[800px] overflow-hidden">
           
           <!-- Background Image Transition -->
           <transition name="fade" mode="in-out">
@@ -20,7 +20,7 @@
           <div class="absolute inset-0 bg-gradient-to-r from-black/90 via-black/50 to-transparent"></div>
           <div class="absolute inset-0 bg-black/30"></div>
 
-          <div class="relative z-10 w-full max-w-[1400px] mx-auto px-4 md:px-8 xl:px-10">
+          <div class="relative z-10 w-full h-full max-w-[1400px] mx-auto px-4 md:px-8 xl:px-10 flex flex-col justify-center">
             <!-- Left Text Content -->
             <transition name="fade" mode="out-in">
               <div :key="currentSlide" class="max-w-2xl">
@@ -375,7 +375,7 @@ const heroSlides = ref([
     titleLine2: 'ĐÚNG FORM',
     titleLine3: 'CHO TỪNG NGÀY.',
     description: 'Từ đi làm, đi học đến chạy bộ cuối tuần. Peak Seven sắp sẵn các dòng áo thể thao dễ chọn, chất vải thoáng mát và lên form cực chuẩn để bạn luôn thoải mái vận động.',
-    image: 'https://images.unsplash.com/photo-1581655353564-df123a1eb820?q=80&w=1000&auto=format&fit=crop',
+    image: 'https://images.unsplash.com/photo-1538805060514-97d9cc17730c?auto=format&fit=crop&w=1400&q=80',
     link: '/shop',
     btnText: 'Mua Ngay Bây Giờ'
   },
@@ -385,7 +385,7 @@ const heroSlides = ref([
     titleLine2: 'TỐI ĐA',
     titleLine3: 'MỌI HOẠT ĐỘNG.',
     description: 'Chất vải co giãn 4 chiều cùng công nghệ thấm hút mồ hôi vượt trội, giúp bạn tự tin vượt qua mọi giới hạn trong mọi bài tập.',
-    image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=1000&q=80',
+    image: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=1400&q=80',
     link: '/shop',
     btnText: 'Khám Phá Ngay'
   },
@@ -395,7 +395,7 @@ const heroSlides = ref([
     titleLine2: 'THỂ HIỆN',
     titleLine3: 'CHÍNH MÌNH.',
     description: 'Thiết kế tinh tế, màu sắc basic dễ phối đồ. Không cần quá cầu kỳ, chỉ cần một chiếc áo vừa vặn cũng đủ làm nổi bật khí chất của bạn.',
-    image: 'https://images.unsplash.com/photo-1576566588028-4147f3842f27?auto=format&fit=crop&w=1000&q=80',
+    image: 'https://images.unsplash.com/photo-1554284126-aa254a4afb05?auto=format&fit=crop&w=1400&q=80',
     link: '/shop',
     btnText: 'Xem Bộ Sưu Tập'
   }

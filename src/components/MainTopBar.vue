@@ -1,5 +1,5 @@
 <template>
-  <header class="retail-header backdrop-blur-xl bg-[#0a0a0b]/80 sticky top-0 z-50 border-b border-[#27272a]">
+  <header :class="['retail-header z-50 transition-all duration-300', isHome ? 'absolute w-full top-0 bg-transparent pt-4' : 'sticky top-0 bg-[#0a0a0b]/80 border-b border-[#27272a] backdrop-blur-xl']">
     <div class="mx-auto flex w-full max-w-[1400px] items-center justify-between px-4 py-4 md:px-8 xl:px-10">
       
       <!-- 1. Logo (Left) -->
@@ -117,6 +117,8 @@ import { resolveBackendAssetUrl } from "@/services/api";
 const cartStore = useCartStore();
 const route = useRoute();
 const router = useRouter();
+
+const isHome = computed(() => route.name === 'home' || route.path === '/');
 
 const showUserMenu = ref(false);
 const isLoggedIn = ref(false);
