@@ -14,7 +14,7 @@
             <h1
               class="retail-heading text-[46px] leading-[0.95] text-slate-900 dark:text-white sm:text-[62px]"
             >
-              Chọn đôi Áo
+              Chọn chiếc Áo
               <span class="text-primary">đúng form</span>
               cho từng ngày.
             </h1>
