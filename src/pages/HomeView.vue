@@ -27,15 +27,15 @@
             </p>
           </div>
 
-          <div class="mt-8 flex flex-wrap gap-3">
+          <div class="mt-8 flex flex-wrap gap-4">
             <router-link
               to="/shop"
-              class="inline-flex items-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white transition-transform hover:-translate-y-0.5"
+              class="inline-flex items-center rounded-full bg-primary px-8 py-3.5 text-sm font-bold text-white shadow-neon transition-all hover:-translate-y-1 hover:shadow-[0_0_25px_rgba(255,77,0,0.5)]"
               >Mua ngay</router-link
             >
             <router-link
               to="/size-guide"
-              class="inline-flex items-center rounded-full border border-slate-300 px-6 py-3 text-sm font-semibold text-slate-900 transition-colors hover:border-primary hover:text-primary dark:border-[#4c4138] dark:text-white"
+              class="inline-flex items-center rounded-full border border-[#3f3f46] px-8 py-3.5 text-sm font-bold text-white transition-all hover:border-primary hover:text-primary bg-[#18181b]/50"
               >Xem bảng size</router-link
             >
           </div>

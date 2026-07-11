@@ -5,7 +5,7 @@
 
     <div class="flex flex-1 overflow-hidden">
 
-    <aside class="hidden md:flex flex-col w-72 h-full border-r border-slate-200 dark:border-slate-800 bg-surface-light dark:bg-background-dark">
+    <aside class="hidden md:flex flex-col w-72 h-full border-r border-primary/20 dark:border-slate-800 bg-transparent dark:bg-background-dark">
       <div class="flex flex-col h-full p-4">
         <div class="flex items-center gap-3 px-2 py-6 mb-2">
           <div class="size-12 flex items-center justify-center bg-primary text-white rounded-lg">
@@ -45,7 +45,7 @@
           </a>
         </nav>
 
-        <div class="mt-auto border-t border-slate-200 dark:border-slate-800 pt-4">
+        <div class="mt-auto border-t border-primary/20 dark:border-slate-800 pt-4">
           <a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-surface-dark transition-colors" href="#">
             <span class="material-symbols-outlined text-[24px]">settings</span>
             <p class="text-sm font-medium">Cài đặt</p>
@@ -68,7 +68,7 @@
               <h1 class="text-slate-900 dark:text-white text-3xl font-bold leading-tight">Tổng quan vận hành</h1>
             </div>
             <div class="flex gap-3">
-              <button class="flex items-center gap-2 px-4 py-2 bg-white dark:bg-surface-dark border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+              <button class="flex items-center gap-2 px-4 py-2 bg-transparent dark:bg-surface-dark border border-primary/20 dark:border-slate-700 rounded-lg text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
                 <span class="material-symbols-outlined text-[20px]">cloud_download</span>
                 Xuất báo cáo
               </button>
@@ -80,7 +80,7 @@
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div class="flex flex-col gap-3 p-6 rounded-xl bg-white dark:bg-surface-dark border border-slate-200 dark:border-slate-800 shadow-sm">
+            <div class="flex flex-col gap-3 p-6 rounded-xl bg-transparent dark:bg-surface-dark border border-primary/20 dark:border-slate-800 shadow-sm">
               <div class="flex items-center justify-between">
                 <p class="text-slate-500 dark:text-slate-400 text-sm font-medium">Tổng doanh thu</p>
                 <div class="p-2 bg-green-100 dark:bg-green-900/20 rounded-lg text-green-600 dark:text-green-400">
@@ -96,7 +96,7 @@
               </div>
               <p class="text-xs text-slate-400 dark:text-slate-500">So với tháng trước</p>
             </div>
-            <div class="flex flex-col gap-3 p-6 rounded-xl bg-white dark:bg-surface-dark border border-slate-200 dark:border-slate-800 shadow-sm">
+            <div class="flex flex-col gap-3 p-6 rounded-xl bg-transparent dark:bg-surface-dark border border-primary/20 dark:border-slate-800 shadow-sm">
               <div class="flex items-center justify-between">
                 <p class="text-slate-500 dark:text-slate-400 text-sm font-medium">Tổng đơn hàng</p>
                 <div class="p-2 bg-primary/10 rounded-lg text-primary">
@@ -112,7 +112,7 @@
               </div>
               <p class="text-xs text-slate-400 dark:text-slate-500">So với tháng trước</p>
             </div>
-            <div class="flex flex-col gap-3 p-6 rounded-xl bg-white dark:bg-surface-dark border border-slate-200 dark:border-slate-800 shadow-sm">
+            <div class="flex flex-col gap-3 p-6 rounded-xl bg-transparent dark:bg-surface-dark border border-primary/20 dark:border-slate-800 shadow-sm">
               <div class="flex items-center justify-between">
                 <p class="text-slate-500 dark:text-slate-400 text-sm font-medium">Voucher đang hoạt động</p>
                 <div class="p-2 bg-orange-100 dark:bg-orange-900/20 rounded-lg text-orange-500">
@@ -135,10 +135,10 @@
               <h2 class="text-slate-900 dark:text-white text-xl font-bold">Đơn hàng gần đây</h2>
               <a class="text-primary text-sm font-medium hover:underline" href="#">Xem tất cả</a>
             </div>
-            <div class="w-full overflow-hidden rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-surface-dark shadow-sm">
+            <div class="w-full overflow-hidden rounded-xl border border-primary/20 dark:border-slate-800 bg-transparent dark:bg-surface-dark shadow-sm">
               <div class="overflow-x-auto">
                 <table class="w-full text-left text-sm">
-                  <thead class="bg-slate-50 dark:bg-[#151c24] border-b border-slate-200 dark:border-slate-800">
+                  <thead class="bg-slate-50 dark:bg-[#151c24] border-b border-primary/20 dark:border-slate-800">
                     <tr>
                       <th class="px-6 py-4 font-semibold text-slate-500 dark:text-slate-400 whitespace-nowrap">Mã đơn</th>
                       <th class="px-6 py-4 font-semibold text-slate-500 dark:text-slate-400 whitespace-nowrap">Khách hàng</th>
@@ -203,11 +203,11 @@
                   </tbody>
                 </table>
               </div>
-              <div class="flex items-center justify-between px-6 py-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-surface-dark">
+              <div class="flex items-center justify-between px-6 py-4 border-t border-primary/20 dark:border-slate-800 bg-slate-50 dark:bg-surface-dark">
                 <p class="text-sm text-slate-500 dark:text-slate-400">Hiển thị <span class="font-medium">1</span> đến <span class="font-medium">5</span> trên tổng <span class="font-medium">50</span> đơn hàng</p>
                 <div class="flex gap-2">
-                  <button class="px-3 py-1 text-sm border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-surface-dark text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-50" disabled="">Trước</button>
-                  <button class="px-3 py-1 text-sm border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-surface-dark text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800">Sau</button>
+                  <button class="px-3 py-1 text-sm border border-primary/20 dark:border-slate-700 rounded bg-transparent dark:bg-surface-dark text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-50" disabled="">Trước</button>
+                  <button class="px-3 py-1 text-sm border border-primary/20 dark:border-slate-700 rounded bg-transparent dark:bg-surface-dark text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800">Sau</button>
                 </div>
               </div>
             </div>
@@ -221,3 +221,4 @@
 
 <script setup>
 </script>
+

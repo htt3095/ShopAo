@@ -11,18 +11,24 @@ export default {
     theme: {
         extend: {
             colors: {
-                "primary": "#c66231",
-                "background-light": "#f5f1ea",
-                "background-dark": "#151311",
-                "surface-light": "#fffdf8",
-                "surface-dark": "#1f1a17",
-                "surface-dark-highlight": "#2b241f",
-                "text-secondary": "#8f8477",
-                "border-dark": "#3c342e",
+                "primary": "#ff4d00", // Vibrant Neon Orange
+                "primary-hover": "#ff6a2b",
+                "background-light": "#f8f9fa",
+                "background-dark": "#0a0a0b", // Deep Matte Black
+                "surface-light": "#ffffff",
+                "surface-dark": "#18181b", // Zinc 900
+                "surface-dark-highlight": "#27272a", // Zinc 800
+                "text-secondary": "#a1a1aa", // Zinc 400
+                "border-dark": "#3f3f46", // Zinc 700
             },
             fontFamily: {
-                "display": ['"Be Vietnam Pro"', "sans-serif"],
-                "headline": ['"Barlow Condensed"', '"Be Vietnam Pro"', "sans-serif"],
+                "display": ['"Outfit"', '"Inter"', "sans-serif"],
+                "headline": ['"Outfit"', '"Inter"', "sans-serif"],
+                "sans": ['"Inter"', "sans-serif"],
+            },
+            boxShadow: {
+                'glass': '0 4px 30px rgba(0, 0, 0, 0.1)',
+                'neon': '0 0 10px rgba(255, 77, 0, 0.3), 0 0 20px rgba(255, 77, 0, 0.2)',
             }
         },
     },

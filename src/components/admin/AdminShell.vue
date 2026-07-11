@@ -1,8 +1,6 @@
 <template>
-  <div class="retail-shell text-slate-900 dark:text-white min-h-screen">
-    <header
-      class="sticky top-0 z-40 border-b border-slate-200/70 bg-[#f9f5ee]/95 backdrop-blur-md dark:border-[#3c342e] dark:bg-[#151311]/95"
-    >
+  <div class="retail-shell">
+    <header class="retail-header">
       <div
         class="mx-auto flex w-full max-w-[1400px] items-center justify-between px-4 py-3 md:px-6"
       >
