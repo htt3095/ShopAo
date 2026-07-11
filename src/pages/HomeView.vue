@@ -84,49 +84,48 @@
         </div>
       </section>
 
-      <!-- Old quick access blocks now moved below hero -->
-      <section class="mx-auto mt-12 grid w-full max-w-[1400px] grid-cols-1 lg:grid-cols-4 gap-6 px-4 md:px-8 xl:px-10">
-        <!-- Quick Access (Left Column) -->
-        <div class="lg:col-span-1">
-          <article class="retail-card p-6 sm:p-7 h-full flex flex-col justify-center">
+      <!-- Quick access block -> Full width like before -->
+      <section class="mx-auto mt-12 grid w-full max-w-[1400px] gap-6 px-4 md:px-8 xl:px-10">
+        <article class="retail-card p-6 sm:p-7 flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div class="max-w-xl">
             <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">
               Lối vào nhanh
             </p>
-            <h2 class="mt-3 font-headline text-[32px] uppercase leading-none text-slate-900 dark:text-white">
+            <h2 class="mt-3 font-headline text-[32px] md:text-[40px] uppercase leading-none text-slate-900 dark:text-white">
               Mua Theo Nhu Cầu
             </h2>
             <p class="mt-4 text-sm leading-6 text-slate-600 dark:text-[#cabdae]">
               Chọn điểm bắt đầu phù hợp để vào đúng trang bạn cần ngay từ đầu.
             </p>
+          </div>
 
-            <div class="mt-6 grid gap-2">
-              <router-link
-                to="/shop"
-                class="group inline-flex items-center justify-between rounded-xl px-2 py-2 text-sm font-semibold text-slate-900 transition-colors hover:text-primary dark:text-white"
-              >
-                Tất cả sản phẩm
-                <span class="material-symbols-outlined text-lg transition-transform group-hover:translate-x-1">arrow_forward</span>
-              </router-link>
-              <router-link
-                to="/size-guide"
-                class="group inline-flex items-center justify-between rounded-xl border-t border-slate-200 px-2 py-3 text-sm font-semibold text-slate-900 transition-colors hover:text-primary dark:border-[#3c342e] dark:text-white"
-              >
-                Bảng size
-                <span class="material-symbols-outlined text-lg transition-transform group-hover:translate-x-1">arrow_forward</span>
-              </router-link>
-              <router-link
-                to="/vouchers"
-                class="group inline-flex items-center justify-between rounded-xl border-t border-slate-200 px-2 py-3 text-sm font-semibold text-slate-900 transition-colors hover:text-primary dark:border-[#3c342e] dark:text-white"
-              >
-                Kiểm tra ưu đãi
-                <span class="material-symbols-outlined text-lg transition-transform group-hover:translate-x-1">arrow_forward</span>
-              </router-link>
-            </div>
-          </article>
-        </div>
+          <div class="flex flex-col sm:flex-row gap-3">
+            <router-link
+              to="/shop"
+              class="group inline-flex items-center justify-center rounded-xl bg-slate-100 px-6 py-4 text-sm font-semibold text-slate-900 transition-colors hover:bg-primary hover:text-white dark:bg-[#2b241f] dark:text-white dark:hover:bg-primary"
+            >
+              Tất cả sản phẩm
+              <span class="material-symbols-outlined ml-2 text-lg transition-transform group-hover:translate-x-1">arrow_forward</span>
+            </router-link>
+            <router-link
+              to="/size-guide"
+              class="group inline-flex items-center justify-center rounded-xl border border-slate-200 px-6 py-4 text-sm font-semibold text-slate-900 transition-colors hover:border-primary hover:text-primary dark:border-[#3c342e] dark:text-white"
+            >
+              Bảng size
+            </router-link>
+            <router-link
+              to="/vouchers"
+              class="group inline-flex items-center justify-center rounded-xl border border-slate-200 px-6 py-4 text-sm font-semibold text-slate-900 transition-colors hover:border-primary hover:text-primary dark:border-[#3c342e] dark:text-white"
+            >
+              Kiểm tra ưu đãi
+            </router-link>
+          </div>
+        </article>
+      </section>
 
-        <!-- 3 Shortcuts (Right Columns) -->
-        <div class="lg:col-span-3 grid gap-6 md:grid-cols-3">
+      <!-- 3 Shortcuts -->
+      <section class="mx-auto mt-6 w-full max-w-[1400px] px-4 md:px-8 xl:px-10">
+        <div class="grid gap-6 md:grid-cols-3">
           <article
             v-for="item in categoryShortcuts"
             :key="item.title"
@@ -143,7 +142,7 @@
                 {{ item.description }}
               </p>
             </div>
-            <div class="mt-6">
+            <div class="mt-6 flex justify-end">
               <router-link
                 :to="item.to"
                 class="inline-flex size-11 items-center justify-center rounded-full bg-primary/10 text-primary transition-colors hover:bg-primary hover:text-white"
