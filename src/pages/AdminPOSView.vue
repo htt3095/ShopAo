@@ -117,17 +117,17 @@
               <div class="flex-1 overflow-y-auto p-3">
                 <div class="grid grid-cols-2 gap-3 xl:grid-cols-3">
                   <div
-                    v-for="variant in filteredVariants"
-                    :key="variant.variantId"
-                    @click="addToCart(variant)"
+                    v-for="product in filteredVariants"
+                    :key="product.productId"
+                    @click="addToCart(product)"
                     class="group flex cursor-pointer gap-3 rounded-xl border border-slate-200 p-2 transition-all hover:border-primary hover:bg-slate-50 dark:border-[#4c4138] dark:hover:border-primary dark:hover:bg-[#2b241f]"
                   >
                     <div
                       class="size-16 shrink-0 overflow-hidden rounded-lg bg-slate-100 dark:bg-[#151311]"
                     >
                       <img
-                        v-if="variant.imageUrl"
-                        :src="variant.imageUrl"
+                        v-if="product.imageUrl"
+                        :src="product.imageUrl"
                         class="h-full w-full object-cover transition-transform group-hover:scale-110"
                       />
                       <span
@@ -141,26 +141,22 @@
                     >
                       <p
                         class="truncate text-sm font-bold text-slate-900 dark:text-white"
-                        :title="variant.productName"
+                        :title="product.productName"
                       >
-                        {{ variant.productName }}
+                        {{ product.productName }}
                       </p>
                       <p class="text-[11px] text-slate-500 dark:text-[#b9aa9a]">
-                        {{ variant.colorName }} - {{ variant.sizeName }}
+                        {{ product.variants.length }} biến thể
                       </p>
                       <div class="mt-1 flex items-center justify-between">
                         <p class="text-xs font-bold text-primary">
-                          {{ formatMoney(variant.price) }}
+                          {{ formatMoney(product.price) }}
                         </p>
                         <span
-                          class="text-[10px] font-semibold"
-                          :class="
-                            variant.stockQuantity > 0
-                              ? 'text-green-600'
-                              : 'text-red-600'
-                          "
-                          >Kho: {{ variant.stockQuantity }}</span
+                          class="text-[10px] font-semibold text-slate-500"
                         >
+                          Kho: {{ product.variants.reduce((sum, v) => sum + v.stockQuantity, 0) }}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -229,7 +225,7 @@
                   >
                     <tr
                       v-for="(item, index) in activeInvoice.cart"
-                      :key="item.variantId"
+                      :key="item.cartItemId"
                       class="hover:bg-slate-50 dark:hover:bg-[#2b241f]/50"
                     >
                       <td class="px-4 py-3 font-bold text-slate-400">
@@ -237,11 +233,17 @@
                       </td>
                       <td class="px-2 py-3">
                         <p class="font-bold text-slate-900 dark:text-white">
-                          {{ item.productName }}
+                          {{ item.product.productName }}
                         </p>
-                        <p class="text-xs text-slate-500 dark:text-[#b9aa9a]">
-                          {{ item.colorName }} / Size {{ item.sizeName }}
-                        </p>
+                        <select
+                          v-model="item.variantId"
+                          @change="validateQuantity(item)"
+                          class="mt-1 block w-[180px] rounded-md border-slate-300 py-1 text-xs dark:bg-[#1f1a17] dark:border-[#4c4138] text-slate-700 dark:text-white"
+                        >
+                          <option v-for="v in item.product.variants" :key="v.variantId" :value="v.variantId">
+                            {{ v.colorName }} / Size {{ v.sizeName }} (Kho: {{ v.stockQuantity }})
+                          </option>
+                        </select>
                       </td>
                       <td class="px-2 py-3">
                         <div
@@ -271,11 +273,11 @@
                       <td
                         class="px-2 py-3 text-right font-bold text-slate-900 dark:text-white"
                       >
-                        {{ formatMoney(item.price * item.quantity) }}
+                        {{ formatMoney(getVariant(item).price * item.quantity) }}
                       </td>
                       <td class="px-4 py-3 text-center">
                         <button
-                          @click="removeFromCart(item.variantId)"
+                          @click="removeFromCart(item.cartItemId)"
                           class="rounded-lg p-1.5 text-red-500 transition-colors hover:bg-red-50 dark:hover:bg-red-900/20"
                         >
                           <span class="material-symbols-outlined text-[18px]"
@@ -443,7 +445,7 @@
             </article>
 
             <article
-              class="flex flex-1 flex-col rounded-2xl border border-slate-200 bg-white p-5 dark:border-[#3c342e] dark:bg-[#1f1a17] sticky-actions"
+              class="flex flex-1 flex-col rounded-2xl border border-slate-200 bg-white p-5 dark:border-[#3c342e] dark:bg-[#1f1a17] sticky-actions mt-4"
             >
               <div
                 class="mb-4 flex items-center gap-2 border-b border-slate-100 pb-3 dark:border-[#3c342e]"
@@ -743,10 +745,10 @@ const activeInvoice = computed(() =>
 
 const activeSubtotal = computed(() => {
   if (!activeInvoice.value) return 0;
-  return activeInvoice.value.cart.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0,
-  );
+  return activeInvoice.value.cart.reduce((sum, item) => {
+    const variant = item.product.variants.find(v => v.variantId === item.variantId);
+    return sum + (variant ? variant.price : 0) * item.quantity;
+  }, 0);
 });
 
 // ✅ LOGIC ĐÃ ĐƯỢC SỬA: Lọc bỏ những voucher quá hạn sử dụng hoặc hết số lượng
@@ -869,7 +871,9 @@ onMounted(async () => {
       if (s && s.id) sizeMap.set(Number(s.id), s);
     });
 
-    inventoryVariants.value = rawVariants.map((v) => {
+    // Group into products
+    const pMap = new Map();
+    rawVariants.forEach((v) => {
       const pId = Number(v.productId || v.product_id);
       const cId = Number(v.colorId || v.color_id);
       const sId = Number(v.sizeId || v.size_id);
@@ -882,7 +886,7 @@ onMounted(async () => {
       if (!pName || pName === "undefined")
         pName = `Sản phẩm #${pId || v.id || "?"}`;
 
-      return {
+      const variant = {
         ...v,
         variantId: v.id || Math.random(),
         productName: pName,
@@ -891,7 +895,7 @@ onMounted(async () => {
           v.product_code ||
           product.productCode ||
           product.product_code ||
-          "N/A", // Đã lấy mã SP
+          "N/A",
         colorName: v.colorName || color.name || "Mặc định",
         sizeName: v.sizeName || size.name || "Mặc định",
         price: Number(v.price) || 0,
@@ -899,7 +903,20 @@ onMounted(async () => {
         status: v.status || v.variantStatus || v.variant_status || null,
         imageUrl: v.imageUrl || product.imageUrl || null,
       };
+
+      if (!pMap.has(pId)) {
+        pMap.set(pId, {
+          productId: pId,
+          productName: pName,
+          imageUrl: variant.imageUrl,
+          price: variant.price, // base price
+          variants: []
+        });
+      }
+      pMap.get(pId).variants.push(variant);
     });
+
+    inventoryVariants.value = Array.from(pMap.values());
   } catch (error) {
     console.error("Lỗi tải kho hàng POS", error);
   }
@@ -907,21 +924,14 @@ onMounted(async () => {
 
 const filteredVariants = computed(() => {
   try {
-    const visibleVariants = inventoryVariants.value.filter(
-      (v) =>
-        Number(v.stockQuantity || 0) > 0 &&
-        !["HIDDEN", "INACTIVE", "OUT_OF_STOCK"].includes(
-          String(v.status || "").trim().toUpperCase(),
-        ),
-    );
-
     const q = searchQuery.value.toLowerCase().trim();
-    if (!q) return visibleVariants;
+    if (!q) return inventoryVariants.value;
 
-    return visibleVariants.filter((v) => {
-      const name = String(v.productName || "").toLowerCase();
-      const code = String(v.productCode || "").toLowerCase();
-      return name.includes(q) || code.includes(q);
+    return inventoryVariants.value.filter((p) => {
+      const name = String(p.productName || "").toLowerCase();
+      // Code is now in variants, so check if any variant matches
+      const matchCode = p.variants.some(v => String(v.productCode || "").toLowerCase().includes(q));
+      return name.includes(q) || matchCode;
     });
   } catch (error) {
     return [];
@@ -946,47 +956,42 @@ const removeInvoice = (id) => {
   }
 };
 
-const addToCart = (variant) => {
-  if (variant.stockQuantity <= 0) {
+const addToCart = (product) => {
+  const defaultVariant = product.variants[0];
+  if (!defaultVariant || defaultVariant.stockQuantity <= 0) {
     alert("Sản phẩm này đã hết hàng!");
     return;
   }
 
   const cart = activeInvoice.value.cart;
-  const existing = cart.find((i) => i.variantId === variant.variantId);
-
-  if (existing) {
-    if (existing.quantity < variant.stockQuantity) existing.quantity++;
-    else alert("Vượt quá số lượng tồn kho!");
-  } else {
-    cart.push({
-      variantId: variant.variantId,
-      productName: variant.productName,
-      productCode: variant.productCode, // Lưu mã để in
-      colorName: variant.colorName,
-      sizeName: variant.sizeName,
-      price: variant.price,
-      maxStock: variant.stockQuantity,
-      quantity: 1,
-    });
-  }
+  // Push a new row
+  cart.push({
+    cartItemId: Date.now() + Math.random(),
+    product: product,
+    variantId: defaultVariant.variantId,
+    quantity: 1,
+  });
 };
+
+const getVariant = (item) => item.product.variants.find(v => v.variantId === item.variantId) || item.product.variants[0];
 
 const updateQuantity = (item, change) => {
   const newQty = item.quantity + change;
-  if (newQty > 0 && newQty <= item.maxStock) {
+  const maxStock = getVariant(item).stockQuantity;
+  if (newQty > 0 && newQty <= maxStock) {
     item.quantity = newQty;
   }
 };
 
 const validateQuantity = (item) => {
-  if (item.quantity > item.maxStock) item.quantity = item.maxStock;
+  const maxStock = getVariant(item).stockQuantity;
+  if (item.quantity > maxStock) item.quantity = maxStock;
   if (item.quantity < 1) item.quantity = 1;
 };
 
-const removeFromCart = (variantId) => {
+const removeFromCart = (cartItemId) => {
   activeInvoice.value.cart = activeInvoice.value.cart.filter(
-    (i) => i.variantId !== variantId,
+    (i) => i.cartItemId !== cartItemId,
   );
 };
 

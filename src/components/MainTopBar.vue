@@ -1,5 +1,5 @@
 <template>
-  <header :class="['retail-header z-50 transition-all duration-300', isHome ? 'absolute w-full top-0 bg-transparent pt-4' : 'sticky top-0 bg-[#0a0a0b]/80 border-b border-[#27272a] backdrop-blur-xl']">
+  <header :class="['retail-header z-50 transition-all duration-300', isHome ? 'absolute w-full top-0 bg-transparent' : 'sticky top-0 bg-[#0a0a0b]/80 border-b border-[#27272a] backdrop-blur-xl']">
     <div class="mx-auto flex w-full max-w-[1400px] items-center justify-between px-4 py-4 md:px-8 xl:px-10">
       
       <!-- 1. Logo (Left) -->

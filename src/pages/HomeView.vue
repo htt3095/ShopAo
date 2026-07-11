@@ -56,104 +56,101 @@
             </transition>
             
             <!-- Carousel Controls -->
-            <div class="absolute bottom-12 left-4 md:left-8 xl:left-10 flex gap-2 z-20">
-              <button 
-                v-for="(_, index) in heroSlides" 
-                :key="'dot-'+index"
-                @click="setSlide(index)"
-                :class="['h-1.5 rounded-full transition-all duration-300', currentSlide === index ? 'w-8 bg-primary shadow-neon' : 'w-2 bg-white/50 hover:bg-white']"
-              ></button>
+            <div class="absolute bottom-12 left-4 md:left-8 xl:left-10 flex gap-4 z-20 items-center">
+              <button
+                @click="prevSlide"
+                class="flex size-10 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur-md transition-all hover:bg-primary"
+              >
+                <span class="material-symbols-outlined">chevron_left</span>
+              </button>
+              
+              <div class="flex gap-2">
+                <button 
+                  v-for="(_, index) in heroSlides" 
+                  :key="'dot-'+index"
+                  @click="setSlide(index)"
+                  :class="['h-1.5 rounded-full transition-all duration-300', currentSlide === index ? 'w-8 bg-primary shadow-neon' : 'w-2 bg-white/50 hover:bg-white']"
+                ></button>
+              </div>
+
+              <button
+                @click="nextSlide"
+                class="flex size-10 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur-md transition-all hover:bg-primary"
+              >
+                <span class="material-symbols-outlined">chevron_right</span>
+              </button>
             </div>
           </div>
         </div>
       </section>
 
       <!-- Old quick access blocks now moved below hero -->
-      <section class="mx-auto grid w-full max-w-[1400px] grid-cols-1 gap-6 px-4 pt-8 md:px-8 xl:px-10">
-        <div class="grid gap-6">
-          <article class="retail-card p-6 sm:p-7">
-            <p
-              class="text-[11px] font-semibold uppercase tracking-[0.22em] text-primary"
-            >
+      <section class="mx-auto mt-12 grid w-full max-w-[1400px] grid-cols-1 lg:grid-cols-4 gap-6 px-4 md:px-8 xl:px-10">
+        <!-- Quick Access (Left Column) -->
+        <div class="lg:col-span-1">
+          <article class="retail-card p-6 sm:p-7 h-full flex flex-col justify-center">
+            <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">
               Lối vào nhanh
             </p>
-            <h2
-              class="mt-3 font-headline text-[40px] uppercase leading-none text-slate-900 dark:text-white"
-            >
-              Bắt đầu mua theo nhu cầu
+            <h2 class="mt-3 font-headline text-[32px] uppercase leading-none text-slate-900 dark:text-white">
+              Mua Theo Nhu Cầu
             </h2>
-            <p
-              class="mt-4 text-sm leading-7 text-slate-600 dark:text-[#cabdae]"
-            >
+            <p class="mt-4 text-sm leading-6 text-slate-600 dark:text-[#cabdae]">
               Chọn điểm bắt đầu phù hợp để vào đúng trang bạn cần ngay từ đầu.
             </p>
 
-            <div class="mt-6 grid gap-3">
+            <div class="mt-6 grid gap-2">
               <router-link
                 to="/shop"
                 class="group inline-flex items-center justify-between rounded-xl px-2 py-2 text-sm font-semibold text-slate-900 transition-colors hover:text-primary dark:text-white"
               >
-                Xem toàn bộ sản phẩm
-                <span
-                  class="material-symbols-outlined text-lg transition-transform group-hover:translate-x-1"
-                  >arrow_forward</span
-                >
+                Tất cả sản phẩm
+                <span class="material-symbols-outlined text-lg transition-transform group-hover:translate-x-1">arrow_forward</span>
               </router-link>
               <router-link
                 to="/size-guide"
                 class="group inline-flex items-center justify-between rounded-xl border-t border-slate-200 px-2 py-3 text-sm font-semibold text-slate-900 transition-colors hover:text-primary dark:border-[#3c342e] dark:text-white"
               >
-                Xem bảng size trước khi mua
-                <span
-                  class="material-symbols-outlined text-lg transition-transform group-hover:translate-x-1"
-                  >arrow_forward</span
-                >
+                Bảng size
+                <span class="material-symbols-outlined text-lg transition-transform group-hover:translate-x-1">arrow_forward</span>
               </router-link>
               <router-link
                 to="/vouchers"
                 class="group inline-flex items-center justify-between rounded-xl border-t border-slate-200 px-2 py-3 text-sm font-semibold text-slate-900 transition-colors hover:text-primary dark:border-[#3c342e] dark:text-white"
               >
-                Kiểm tra ưu đãi đang áp dụng
-                <span
-                  class="material-symbols-outlined text-lg transition-transform group-hover:translate-x-1"
-                  >arrow_forward</span
-                >
+                Kiểm tra ưu đãi
+                <span class="material-symbols-outlined text-lg transition-transform group-hover:translate-x-1">arrow_forward</span>
               </router-link>
             </div>
           </article>
         </div>
-      </section>
 
-      <section class="mx-auto mt-8 w-full max-w-[1240px] px-4 md:px-8 xl:px-10">
-        <div class="grid gap-5 md:grid-cols-3">
+        <!-- 3 Shortcuts (Right Columns) -->
+        <div class="lg:col-span-3 grid gap-6 md:grid-cols-3">
           <article
             v-for="item in categoryShortcuts"
             :key="item.title"
-            class="retail-card flex items-center justify-between gap-5 px-6 py-5"
+            class="retail-card flex flex-col justify-between p-6 sm:p-7 h-full"
           >
             <div>
-              <p
-                class="text-[11px] font-semibold uppercase tracking-[0.22em] text-primary"
-              >
+              <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">
                 {{ item.kicker }}
               </p>
-              <h3
-                class="mt-2 text-xl font-semibold text-slate-900 dark:text-white"
-              >
+              <h3 class="mt-3 font-headline text-[24px] uppercase leading-none text-slate-900 dark:text-white">
                 {{ item.title }}
               </h3>
-              <p
-                class="mt-2 text-sm leading-6 text-slate-600 dark:text-[#cabdae]"
-              >
+              <p class="mt-4 text-sm leading-6 text-slate-600 dark:text-[#cabdae]">
                 {{ item.description }}
               </p>
             </div>
-            <router-link
-              :to="item.to"
-              class="inline-flex size-11 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary transition-colors hover:bg-primary hover:text-white"
-            >
-              <span class="material-symbols-outlined">arrow_forward</span>
-            </router-link>
+            <div class="mt-6">
+              <router-link
+                :to="item.to"
+                class="inline-flex size-11 items-center justify-center rounded-full bg-primary/10 text-primary transition-colors hover:bg-primary hover:text-white"
+              >
+                <span class="material-symbols-outlined">arrow_forward</span>
+              </router-link>
+            </div>
           </article>
         </div>
       </section>
@@ -375,7 +372,7 @@ const heroSlides = ref([
     titleLine2: 'ĐÚNG FORM',
     titleLine3: 'CHO TỪNG NGÀY.',
     description: 'Từ đi làm, đi học đến chạy bộ cuối tuần. Peak Seven sắp sẵn các dòng áo thể thao dễ chọn, chất vải thoáng mát và lên form cực chuẩn để bạn luôn thoải mái vận động.',
-    image: 'https://images.unsplash.com/photo-1538805060514-97d9cc17730c?auto=format&fit=crop&w=1400&q=80',
+    image: 'https://images.unsplash.com/photo-1594938298603-c8148c4dae35?auto=format&fit=crop&w=1400&q=80',
     link: '/shop',
     btnText: 'Mua Ngay Bây Giờ'
   },
@@ -385,7 +382,7 @@ const heroSlides = ref([
     titleLine2: 'TỐI ĐA',
     titleLine3: 'MỌI HOẠT ĐỘNG.',
     description: 'Chất vải co giãn 4 chiều cùng công nghệ thấm hút mồ hôi vượt trội, giúp bạn tự tin vượt qua mọi giới hạn trong mọi bài tập.',
-    image: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=1400&q=80',
+    image: 'https://images.unsplash.com/photo-1520975916090-3105956dac40?auto=format&fit=crop&w=1400&q=80',
     link: '/shop',
     btnText: 'Khám Phá Ngay'
   },
@@ -395,7 +392,7 @@ const heroSlides = ref([
     titleLine2: 'THỂ HIỆN',
     titleLine3: 'CHÍNH MÌNH.',
     description: 'Thiết kế tinh tế, màu sắc basic dễ phối đồ. Không cần quá cầu kỳ, chỉ cần một chiếc áo vừa vặn cũng đủ làm nổi bật khí chất của bạn.',
-    image: 'https://images.unsplash.com/photo-1554284126-aa254a4afb05?auto=format&fit=crop&w=1400&q=80',
+    image: 'https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?auto=format&fit=crop&w=1400&q=80',
     link: '/shop',
     btnText: 'Xem Bộ Sưu Tập'
   }
@@ -408,8 +405,14 @@ const setSlide = (index) => {
   resetInterval();
 };
 
+const prevSlide = () => {
+  currentSlide.value = (currentSlide.value - 1 + heroSlides.value.length) % heroSlides.value.length;
+  resetInterval();
+};
+
 const nextSlide = () => {
   currentSlide.value = (currentSlide.value + 1) % heroSlides.value.length;
+  resetInterval();
 };
 
 const resetInterval = () => {
