@@ -32,14 +32,14 @@ public class OrderController {
     private final CartItemRepository cartItemRepo;
 
     public OrderController(OrderRepository orderRepo,
-                           OrderItemRepository orderItemRepo,
-                           PaymentMethodRepository paymentRepo,
-                           VoucherRepository voucherRepo,
-                           ProductVariantRepository variantRepo,
-                           AccountRepository accountRepo,
-                           AccountVoucherRepository accountVoucherRepo,
-                           CartRepository cartRepo,
-                           CartItemRepository cartItemRepo) {
+            OrderItemRepository orderItemRepo,
+            PaymentMethodRepository paymentRepo,
+            VoucherRepository voucherRepo,
+            ProductVariantRepository variantRepo,
+            AccountRepository accountRepo,
+            AccountVoucherRepository accountVoucherRepo,
+            CartRepository cartRepo,
+            CartItemRepository cartItemRepo) {
         this.orderRepo = orderRepo;
         this.orderItemRepo = orderItemRepo;
         this.paymentRepo = paymentRepo;
@@ -89,7 +89,7 @@ public class OrderController {
         Order order = new Order();
         order.setAccount(account);
         order.setCreatedAt(Instant.now());
-        order.setStatus("PENDING");
+        order.setStatus("NEW");
         order.setFullname(asString(payload.get("fullname")));
         order.setPhone(asString(payload.get("phone")));
         order.setShippingAddress(asString(payload.get("shippingAddress")));
@@ -185,12 +185,12 @@ public class OrderController {
         // trạng thái hoàn hàng nào rồi thì trả lỗi ngay
         if ("RETURN_REQUEST".equals(newStatus)) {
             boolean alreadyReturned = oldStatus != null && (
-                    oldStatus.contains("RETURN") ||
-                            oldStatus.contains("REFUND") ||
-                            oldStatus.equals("HOAN_TRA") ||
-                            oldStatus.equals("HOAN_TIEN") ||
-                            oldStatus.equals("YEU_CAU_TRA") ||
-                            oldStatus.equals("TRA_HANG")
+                oldStatus.contains("RETURN") ||
+                oldStatus.contains("REFUND") ||
+                oldStatus.equals("HOAN_TRA") ||
+                oldStatus.equals("HOAN_TIEN") ||
+                oldStatus.equals("YEU_CAU_TRA") ||
+                oldStatus.equals("TRA_HANG")
             );
             if (alreadyReturned) {
                 throw new BadRequestException("Don hang nay da duoc gui yeu cau hoan tra truoc do, khong the hoan them lan nua!");
@@ -227,17 +227,17 @@ public class OrderController {
         if (fullname != null && !fullname.trim().isEmpty()) {
             order.setFullname(fullname);
         }
-
+        
         String phone = asString(req.get("phone"));
         if (phone != null) {
             order.setPhone(phone);
         }
-
+        
         String email = asString(req.get("email"));
         if (email != null) {
             order.setEmail(email);
         }
-
+        
         String shippingAddress = asString(req.get("shippingAddress"));
         if (shippingAddress == null) {
             shippingAddress = asString(req.get("address"));
