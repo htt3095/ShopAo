@@ -1127,12 +1127,15 @@ function computeVoucherDiscount(voucher, baseAmount) {
   const type = voucher?.discountType || voucher?.discount_type;
   const value = Number(voucher?.discountValue ?? voucher?.discount_value ?? 0) || 0;
   const safeBase = Math.max(0, Number(baseAmount) || 0);
+  const maxCap = Number(voucher?.maxDiscountAmount ?? voucher?.max_discount_amount ?? 0) || 0;
 
   if (type === "AMOUNT") {
     return Math.min(safeBase, value);
   }
   if (type === "PERCENT") {
-    return (safeBase * value) / 100;
+    const raw = (safeBase * value) / 100;
+    // Áp dụng giới hạn giảm tối đa nếu có
+    return maxCap > 0 ? Math.min(raw, maxCap) : raw;
   }
   return Number(voucher?.discountAmount || 0);
 }
@@ -1204,7 +1207,12 @@ const shipping = computed(() =>
 const discountAmount = computed(() => {
   if (!appliedVoucher.value) return 0;
 
-  // Tìm trong danh sách voucher có sẵn để lấy phần trăm hoặc số tiền
+  // Ưu tiên dùng discountAmount từ API (đã áp dụng cap maxDiscountAmount bên backend)
+  if (appliedVoucher.value.discountAmount != null) {
+    return Math.max(0, Number(appliedVoucher.value.discountAmount) || 0);
+  }
+
+  // Fallback: tự tính nếu chưa có discountAmount từ API
   const currentCode = appliedVoucher.value.code || voucherInput.value;
   const found = availableVouchers.value.find(
     (v) => v.code.toUpperCase() === String(currentCode).toUpperCase(),
@@ -1216,15 +1224,23 @@ const discountAmount = computed(() => {
   const val = found
     ? found.discountValue
     : appliedVoucher.value.discountValue || appliedVoucher.value.discount_value;
+  const maxCap = found
+    ? (found.maxDiscountAmount ?? null)
+    : (appliedVoucher.value.maxDiscountAmount ?? null);
 
   const base = Math.max(0, orderTotalBeforeDiscount.value);
   if (type === "AMOUNT") {
     return Math.min(base, Number(val) || 0);
   } else if (type === "PERCENT") {
-    return (base * (Number(val) || 0)) / 100;
+    const raw = (base * (Number(val) || 0)) / 100;
+    // Áp dụng cap maxDiscountAmount nếu có
+    if (maxCap != null && Number(maxCap) > 0) {
+      return Math.min(raw, Number(maxCap));
+    }
+    return raw;
   }
 
-  return Number(appliedVoucher.value.discountAmount) || 0;
+  return 0;
 });
 
 const orderTotalBeforeDiscount = computed(() =>
