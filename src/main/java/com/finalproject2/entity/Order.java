@@ -41,7 +41,8 @@ public class Order {
 
     @NotNull
     @Nationalized
-    @Column(name = "shipping_address", nullable = false, columnDefinition = "nvarchar(max)")
+    @Lob
+    @Column(name = "shipping_address", nullable = false)
     private String shippingAddress;
 
     @NotNull
@@ -62,12 +63,12 @@ public class Order {
     private PaymentMethod paymentMethod;
 
     @Size(max = 20)
-    @ColumnDefault("'PENDING'")
+    @ColumnDefault("PENDING")
     @Column(name = "payment_status", length = 20)
     private String paymentStatus;
 
     @Size(max = 255)
-    @ColumnDefault("'NEW'")
+    @ColumnDefault("NEW")
     @Column(name = "status")
     private String status;
 
@@ -80,8 +81,14 @@ public class Order {
     private String email;
 
     @Nationalized
-    @Column(name = "return_reason", columnDefinition = "nvarchar(max)")
+    @Lob
+    @Column(name = "return_reason")
     private String returnReason;
+
+    @Nationalized
+    @Lob
+    @Column(name = "return_images")
+    private String returnImages;
 
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)

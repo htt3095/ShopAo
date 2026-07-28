@@ -10,6 +10,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import com.cloudinary.Cloudinary;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -30,6 +32,7 @@ public class OrderController {
     private final AccountVoucherRepository accountVoucherRepo;
     private final CartRepository cartRepo;
     private final CartItemRepository cartItemRepo;
+    private final Cloudinary cloudinary;
 
     public OrderController(OrderRepository orderRepo,
             OrderItemRepository orderItemRepo,
@@ -39,7 +42,8 @@ public class OrderController {
             AccountRepository accountRepo,
             AccountVoucherRepository accountVoucherRepo,
             CartRepository cartRepo,
-            CartItemRepository cartItemRepo) {
+            CartItemRepository cartItemRepo,
+            Cloudinary cloudinary) {
         this.orderRepo = orderRepo;
         this.orderItemRepo = orderItemRepo;
         this.paymentRepo = paymentRepo;
@@ -49,6 +53,7 @@ public class OrderController {
         this.accountVoucherRepo = accountVoucherRepo;
         this.cartRepo = cartRepo;
         this.cartItemRepo = cartItemRepo;
+        this.cloudinary = cloudinary;
     }
 
     @PostMapping
@@ -200,7 +205,7 @@ public class OrderController {
 
         // --- VÁ LỖI 3: CỘNG LẠI KHO KHI HỦY/HOÀN ĐƠN ---
         if (oldStatus != null && !oldStatus.equals(newStatus) &&
-                ("CANCELLED".equals(newStatus) || "RETURNED".equals(newStatus))) {
+                ("CANCELLED".equals(newStatus) || "RETURNED".equals(newStatus) || "DAMAGED".equals(newStatus) || "LOST".equals(newStatus))) {
 
             for (OrderItem item : order.getOrderItems()) {
                 ProductVariant variant = item.getVariant();
@@ -218,6 +223,10 @@ public class OrderController {
         String returnReason = asString(req.get("returnReason"));
         if (returnReason != null && !returnReason.isEmpty()) {
             order.setReturnReason(returnReason);
+        }
+        String returnImages = asString(req.get("returnImages"));
+        if (returnImages != null && !returnImages.isBlank()) {
+            order.setReturnImages(returnImages);
         }
         if (pStatus != null)
             order.setPaymentStatus(pStatus);
@@ -248,6 +257,59 @@ public class OrderController {
 
         orderRepo.save(order);
         return ResponseEntity.ok(Map.of("success", true));
+    }
+
+    @PostMapping("/{id}/return-images")
+    @Transactional
+    public ResponseEntity<?> uploadReturnImages(
+            @PathVariable Long id,
+            @RequestParam("files") List<MultipartFile> files) {
+        try {
+            Order order = orderRepo.findById(id)
+                    .orElseThrow(() -> new NotFoundException("Không tìm thấy đơn hàng"));
+
+            List<String> uploadedUrls = new ArrayList<>();
+            // Parse existing return images if any
+            String existing = order.getReturnImages();
+            if (existing != null && !existing.isBlank()) {
+                existing = existing.trim();
+                if (existing.startsWith("[")) {
+                    // Simple JSON array parsing
+                    existing = existing.substring(1, existing.length() - 1);
+                    for (String s : existing.split(",")) {
+                        String url = s.trim().replaceAll("^\"|\"$", "");
+                        if (!url.isEmpty()) uploadedUrls.add(url);
+                    }
+                }
+            }
+
+            for (MultipartFile file : files) {
+                if (file.isEmpty()) continue;
+                Map uploadResult = cloudinary.uploader().upload(file.getBytes(),
+                        com.cloudinary.utils.ObjectUtils.asMap(
+                                "folder", "return_images",
+                                "resource_type", "image"
+                        ));
+                uploadedUrls.add(uploadResult.get("secure_url").toString());
+            }
+
+            // Store as JSON array string
+            StringBuilder sb = new StringBuilder("[");
+            for (int i = 0; i < uploadedUrls.size(); i++) {
+                if (i > 0) sb.append(",");
+                sb.append("\"").append(uploadedUrls.get(i)).append("\"");
+            }
+            sb.append("]");
+            order.setReturnImages(sb.toString());
+            orderRepo.save(order);
+
+            return ResponseEntity.ok(Map.of(
+                    "success", true,
+                    "returnImages", uploadedUrls
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
     }
 
     @GetMapping("/{id}")
@@ -284,6 +346,24 @@ public class OrderController {
         map.put("shippingAddress", order.getShippingAddress());
         map.put("paymentStatus", order.getPaymentStatus());
         map.put("returnReason", order.getReturnReason());
+
+        // Parse returnImages JSON string to List for frontend
+        String returnImagesJson = order.getReturnImages();
+        if (returnImagesJson != null && !returnImagesJson.isBlank()) {
+            List<String> imgList = new ArrayList<>();
+            String trimmed = returnImagesJson.trim();
+            if (trimmed.startsWith("[")) {
+                trimmed = trimmed.substring(1, trimmed.length() - 1);
+                for (String s : trimmed.split(",")) {
+                    String url = s.trim().replaceAll("^\"|\"$", "");
+                    if (!url.isEmpty()) imgList.add(url);
+                }
+            }
+            map.put("returnImages", imgList);
+        } else {
+            map.put("returnImages", new ArrayList<>());
+        }
+
         map.put("createdAt", order.getCreatedAt());
         map.put("accountId", order.getAccount() != null ? order.getAccount().getId() : null);
 
