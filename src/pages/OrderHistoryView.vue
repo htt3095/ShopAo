@@ -604,6 +604,28 @@
                 </article>
 
                 <article
+                  v-if="activeDetailOrder.returnReason"
+                  class="rounded-2xl border border-orange-200/70 bg-orange-50 p-4 dark:border-[#3c342e] dark:bg-[#2a231f]"
+                >
+                  <p class="text-[11px] uppercase tracking-[0.18em] text-orange-600 dark:text-orange-400">
+                    Lý do trả hàng
+                  </p>
+                  <p class="mt-2 text-sm text-slate-700 dark:text-[#cabdae]">
+                    {{ activeDetailOrder.returnReason }}
+                  </p>
+                  <div v-if="activeDetailOrder.returnImages && activeDetailOrder.returnImages.length > 0" class="mt-3">
+                    <p class="mb-1.5 text-xs font-semibold text-slate-500 dark:text-[#b9aa9a]">Ảnh minh chứng</p>
+                    <div class="flex flex-wrap gap-2">
+                      <div v-for="(img, idx) in activeDetailOrder.returnImages" :key="idx"
+                        class="size-16 cursor-pointer overflow-hidden rounded-lg border border-slate-200 dark:border-[#3c342e] transition-transform hover:scale-105"
+                        @click="window.open(img, '_blank')">
+                        <img :src="img" class="h-full w-full object-cover" />
+                      </div>
+                    </div>
+                  </div>
+                </article>
+
+                <article
                   class="rounded-2xl border border-slate-200/70 bg-white p-4 dark:border-[#3c342e] dark:bg-[#241d19]"
                 >
                   <div
@@ -744,6 +766,25 @@
                 placeholder="Vui lòng mô tả chi tiết lý do bạn muốn hoàn hàng..."
                 class="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-700 focus:border-primary focus:outline-none dark:border-[#4c4138] dark:bg-[#2a231f] dark:text-white dark:focus:border-primary"
               ></textarea>
+              <label class="mt-4 mb-2 block text-sm font-semibold text-slate-700 dark:text-white">
+                Ảnh minh chứng <span class="text-xs font-normal text-slate-400">(tùy chọn, tối đa 5 ảnh)</span>
+              </label>
+              <div class="flex flex-wrap gap-2 mb-2">
+                <div v-for="(img, idx) in confirmModal.returnImagePreviews" :key="idx"
+                  class="group relative size-16 overflow-hidden rounded-lg border border-slate-300 dark:border-[#4c4138]">
+                  <img :src="img" class="h-full w-full object-cover" />
+                  <button type="button"
+                    @click="removeReturnImage(idx)"
+                    class="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity group-hover:opacity-100">
+                    <span class="material-symbols-outlined text-white text-base">close</span>
+                  </button>
+                </div>
+                <label v-if="(confirmModal.returnImagePreviews || []).length < 5"
+                  class="flex size-16 cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-slate-300 text-slate-400 transition-colors hover:border-primary hover:text-primary dark:border-[#4c4138] dark:hover:border-primary">
+                  <span class="material-symbols-outlined text-xl">add_photo_alternate</span>
+                  <input type="file" accept="image/*" multiple class="hidden" @change="onReturnImageSelect" />
+                </label>
+              </div>
             </div>
 
             <div class="flex gap-3">
@@ -783,6 +824,9 @@ import { computed, onMounted, reactive, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import MainTopBar from "@/components/MainTopBar.vue";
 import { orderAPI, orderUtils } from "@/services/orders";
+import axios from "axios";
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8080/api";
 
 const route = useRoute();
 const router = useRouter();
@@ -828,6 +872,8 @@ const confirmModal = reactive({
   confirmText: "",
   isLoading: false,
   returnReason: "",
+  returnImageFiles: [],
+  returnImagePreviews: [],
 });
 
 const totalOrders = computed(() => orders.value.length);
@@ -1037,7 +1083,11 @@ function getOrderStatusCategory(status) {
     return "deliveryFailed";
   }
 
-  if (key === "LOST" || key === "THAT_LAC" || key === "PARCEL_LOST") {
+  if (key === "DAMAGED" || key === "HANG_HONG") {
+    return "damaged";
+  }
+
+  if (key === "LOST" || key === "THAT_LAC" || key === "PARCEL_LOST" || key === "HANG_MAT") {
     return "lost";
   }
 
@@ -1113,9 +1163,17 @@ function getStatusMeta(status) {
     };
   }
 
+  if (category === "damaged") {
+    return {
+      label: "Hàng hỏng",
+      className:
+        "bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-300",
+    };
+  }
+
   if (category === "lost") {
     return {
-      label: "Thất lạc",
+      label: "Hàng mất",
       className:
         "bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-300",
     };
@@ -1805,7 +1863,30 @@ function promptReturnOrder() {
   confirmModal.message = `Bạn muốn gửi yêu cầu trả hàng cho ${orderLabel}? Đơn sẽ chuyển về chờ xử lý để admin xác nhận các bước trả hàng.`;
   confirmModal.confirmText = "Xác nhận trả hàng";
   confirmModal.returnReason = ""; // Reset reason
+  confirmModal.returnImageFiles = [];
+  confirmModal.returnImagePreviews = [];
   confirmModal.show = true;
+}
+
+function onReturnImageSelect(event) {
+  const files = Array.from(event.target.files || []);
+  const remaining = 5 - (confirmModal.returnImagePreviews || []).length;
+  const toAdd = files.slice(0, remaining);
+  
+  for (const file of toAdd) {
+    confirmModal.returnImageFiles.push(file);
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      confirmModal.returnImagePreviews.push(e.target.result);
+    };
+    reader.readAsDataURL(file);
+  }
+  event.target.value = '';
+}
+
+function removeReturnImage(idx) {
+  confirmModal.returnImageFiles.splice(idx, 1);
+  confirmModal.returnImagePreviews.splice(idx, 1);
 }
 
 async function executeReturnOrder() {
@@ -1828,6 +1909,22 @@ async function executeReturnOrder() {
       paymentStatus: "PAID",
       returnReason: confirmModal.returnReason.trim(),
     });
+    
+    // Upload ảnh minh chứng nếu có
+    if (confirmModal.returnImageFiles && confirmModal.returnImageFiles.length > 0) {
+      const formData = new FormData();
+      for (const file of confirmModal.returnImageFiles) {
+        formData.append('files', file);
+      }
+      try {
+        await axios.post(`${API_BASE_URL}/orders/${id}/return-images`, formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+      } catch (uploadErr) {
+        console.error('Lỗi upload ảnh hoàn hàng:', uploadErr);
+      }
+    }
+
     const nextStatus = (returnedOrder && returnedOrder.status) || "RETURN_REQUEST";
     const nextPaymentStatus =
       (returnedOrder && returnedOrder.paymentStatus) || "PAID";

@@ -555,6 +555,17 @@
               </div>
             </div>
 
+            <div v-if="form.returnImages && form.returnImages.length > 0" class="md:col-span-2">
+              <label class="mb-1 block text-xs font-medium text-slate-500 dark:text-[#b9aa9a]">Ảnh minh chứng hoàn hàng</label>
+              <div class="flex flex-wrap gap-2">
+                <div v-for="(img, idx) in form.returnImages" :key="idx"
+                  class="group relative size-20 cursor-pointer overflow-hidden rounded-lg border border-slate-200 dark:border-[#3c342e]"
+                  @click="window.open(img, '_blank')">
+                  <img :src="img" class="h-full w-full object-cover transition-transform group-hover:scale-110" />
+                </div>
+              </div>
+            </div>
+
             <div
               class="md:col-span-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs dark:border-[#3c342e] dark:bg-[#2b241f]"
             >
@@ -835,6 +846,8 @@ const statusOptions = [
   { value: "RETURNING", label: "Đang hoàn về" },
   { value: "RETURNED", label: "Đã hoàn trả" },
   { value: "CANCELLED", label: "Đã hủy" },
+  { value: "DAMAGED", label: "Hàng hỏng" },
+  { value: "LOST", label: "Hàng mất" },
 ];
 
 const paymentStatusOptions = [
@@ -1050,6 +1063,13 @@ function resolveManagedOrderState(
     nextPaymentStatus = "REFUNDED";
   }
 
+  if (nextStatus === "DAMAGED") {
+    return { status: "DAMAGED", paymentStatus: "REFUNDED" };
+  }
+  if (nextStatus === "LOST") {
+    return { status: "LOST", paymentStatus: "REFUNDED" };
+  }
+
   // Cancelled orders: prepaid -> refunded (if paid), COD -> pending (customer did not receive item).
   if (nextStatus === "CANCELLED") {
     if (isPrepaid) {
@@ -1203,6 +1223,10 @@ function applyManagedOrderRules(trigger = "") {
 
 function getOrderStatusLabel(status) {
   const value = normalizeOrderStatusValue(status);
+  
+  if (value === "DAMAGED") return "Hàng hỏng";
+  if (value === "LOST") return "Hàng mất";
+
   const found = statusOptions.find((item) => item.value === value);
   return found ? found.label : "Không xác định";
 }
@@ -1360,7 +1384,7 @@ function statusClass(status) {
   if (["RETURN_REQUEST", "RETURNING"].includes(normalized)) {
     return "bg-orange-100 text-orange-700 dark:bg-orange-900/20 dark:text-orange-300";
   }
-  if (["CANCELLED", "RETURNED"].includes(normalized)) {
+  if (["CANCELLED", "RETURNED", "DAMAGED", "LOST"].includes(normalized)) {
     return "bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-400";
   }
   return "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400";
@@ -1456,6 +1480,7 @@ async function openEdit(order) {
     status: normalizeOrderStatusValue(order.status),
     paymentStatus: normalizePaymentStatusValue(order.paymentStatus),
     returnReason: order.returnReason || "",
+    returnImages: order.returnImages || [],
   };
   orderRuleHint.value = "";
   modalError.value = "";
