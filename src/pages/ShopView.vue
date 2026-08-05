@@ -356,7 +356,7 @@
                   <div class="size-8 flex items-center justify-center bg-primary text-white rounded-lg">
                     <span class="material-symbols-outlined text-xl">bolt</span>
                   </div>
-                  <h2 class="text-xl font-bold">Peak Seven</h2>
+                  <h2 class="text-xl font-bold">SportX</h2>
                 </div>
                 <p class="text-slate-500 text-sm text-center">
                   Đồng hành cùng bạn trong những buổi tập, buổi chạy và nhịp sống hằng ngày.
@@ -371,7 +371,7 @@
             <div
               class="mt-8 pt-8 border-t border-slate-200 text-center text-slate-500 text-sm"
             >
-              <p>© 2026 Peak Seven. Mọi quyền được bảo lưu.</p>
+              <p>© 2026 SportX. Mọi quyền được bảo lưu.</p>
             </div>
           </footer>
         </div>
