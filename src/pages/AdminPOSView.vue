@@ -178,7 +178,7 @@
                   >
                   <select
                     v-model.number="activeInvoice.digitalPaymentMethodId"
-                    class="w-full cursor-pointer rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition-colors focus:border-primary "
+                    class="w-full cursor-pointer  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm text-slate-900 outline-none transition-colors focus:border-primary "
                   >
                     <option
                       v-for="method in digitalPaymentMethods"

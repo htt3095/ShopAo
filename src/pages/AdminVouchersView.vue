@@ -21,7 +21,7 @@
 
           <button
             type="button"
-            class="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium hover:border-primary hover:text-primary "
+            class="inline-flex items-center gap-1.5  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-1.5 text-sm font-medium hover:border-primary hover:text-primary "
             @click="loadVouchers"
           >
             <span class="material-symbols-outlined text-[18px]">refresh</span>
@@ -35,7 +35,7 @@
       <section class="retail-card p-3">
         <div class="grid gap-3 md:grid-cols-[1fr_220px]">
           <label
-            class="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-1.5 "
+            class="flex items-center gap-2  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-1.5 "
           >
             <span class="material-symbols-outlined text-[18px] text-slate-400"
               >search</span
@@ -50,7 +50,7 @@
 
           <select
             v-model="statusFilter"
-            class="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm "
+            class=" shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-1.5 text-sm "
           >
             <option value="ALL">Tất cả trạng thái</option>
             <option value="ACTIVE">Đang hoạt động</option>
@@ -120,7 +120,7 @@
             <div
               v-for="voucher in hiddenVouchers"
               :key="voucher.id"
-              class="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 "
+              class="flex flex-wrap items-center justify-between gap-2  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 "
             >
               <div class="text-sm">
                 <span class="font-semibold">#{{ voucher.id }}</span>
@@ -261,7 +261,7 @@
               <input
                 v-model.trim="form.code"
                 type="text"
-                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm uppercase "
+                class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-1.5 text-sm uppercase "
                 placeholder="VD: PEAK10"
               />
             </div>
@@ -272,7 +272,7 @@
               >
               <select
                 v-model="form.discountType"
-                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm "
+                class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm "
               >
                 <option value="PERCENT">PERCENT</option>
                 <option value="AMOUNT">AMOUNT</option>
@@ -287,7 +287,7 @@
                 v-model.number="form.discountValue"
                 type="number"
                 min="0"
-                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm "
+                class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm "
               />
             </div>
 
@@ -299,7 +299,7 @@
                 v-model.number="form.minOrderValue"
                 type="number"
                 min="0"
-                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm "
+                class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm "
               />
             </div>
 
@@ -312,7 +312,7 @@
                 type="number"
                 min="0"
                 placeholder="VD: 50000"
-                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm "
+                class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm "
               />
               <p class="mt-1 text-[11px] text-slate-400">Để trống = không giới hạn</p>
             </div>
@@ -324,7 +324,7 @@
               <input
                 v-model="form.startDate"
                 type="datetime-local"
-                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm "
+                class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm "
               />
             </div>
 
@@ -335,7 +335,7 @@
               <input
                 v-model="form.endDate"
                 type="datetime-local"
-                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm "
+                class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm "
               />
             </div>
 
@@ -347,7 +347,7 @@
                 v-model.number="form.usageLimit"
                 type="number"
                 min="0"
-                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm "
+                class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm "
               />
             </div>
 

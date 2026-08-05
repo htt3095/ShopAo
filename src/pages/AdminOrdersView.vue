@@ -16,7 +16,7 @@
         <div class="flex flex-wrap items-center gap-2">
           <button
             type="button"
-            class="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium hover:border-primary hover:text-primary "
+            class="inline-flex items-center gap-1.5  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-1.5 text-sm font-medium hover:border-primary hover:text-primary "
             @click="loadOrders"
           >
             <span class="material-symbols-outlined text-[18px]">refresh</span>
@@ -30,7 +30,7 @@
       <section class="retail-card p-3">
         <div class="grid gap-3 md:grid-cols-[1fr_240px]">
           <label
-            class="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-1.5 "
+            class="flex items-center gap-2  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-1.5 "
           >
             <span class="material-symbols-outlined text-[18px] text-slate-400"
               >search</span
@@ -44,7 +44,7 @@
           </label>
 
           <label
-            class="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-1.5"
+            class="flex items-center gap-2  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-1.5"
           >
             <span class="material-symbols-outlined text-[18px] text-slate-400"
               >filter_list</span
@@ -114,7 +114,7 @@
         </div>
 
         <!-- Order Progress Tracker -->
-        <div v-if="activeTrackedOrder" class="mb-4 rounded-xl border border-slate-200 bg-white p-4 ">
+        <div v-if="activeTrackedOrder" class="mb-4  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 p-4 ">
           <div class="mb-4 flex items-center justify-between">
             <h3 class="font-bold text-slate-800 flex items-center gap-2">
               <span class="material-symbols-outlined text-primary">local_shipping</span>
@@ -170,7 +170,7 @@
             <div
               v-for="order in hiddenOrders"
               :key="order.id"
-              class="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 "
+              class="flex flex-wrap items-center justify-between gap-2  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 "
             >
               <div class="text-sm">
                 <span class="font-semibold">#{{ order.id }}</span>
@@ -433,7 +433,7 @@
                 v-model.number="form.accountId"
                 type="number"
                 min="1"
-                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm "
+                class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-1.5 text-sm "
               />
             </div>
 
@@ -444,7 +444,7 @@
               <input
                 v-model.trim="form.fullName"
                 type="text"
-                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm "
+                class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm "
               />
             </div>
 
@@ -455,7 +455,7 @@
               <input
                 v-model.trim="form.phone"
                 type="text"
-                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm "
+                class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm "
               />
             </div>
 
@@ -466,7 +466,7 @@
               <input
                 v-model.trim="form.email"
                 type="email"
-                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm "
+                class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm "
               />
             </div>
 
@@ -478,7 +478,7 @@
                 v-model.number="form.totalMoney"
                 type="number"
                 min="0"
-                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm "
+                class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm "
               />
             </div>
 
@@ -490,7 +490,7 @@
                 v-model.number="form.finalAmount"
                 type="number"
                 min="0"
-                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm "
+                class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm "
               />
             </div>
 
@@ -500,7 +500,7 @@
               >
               <select
                 v-model="form.status"
-                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm "
+                class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm "
               >
                 <option
                   v-for="status in statusOptions"
@@ -519,7 +519,7 @@
               >
               <select
                 v-model="form.paymentStatus"
-                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm "
+                class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm "
               >
                 <option
                   v-for="status in paymentStatusOptions"
@@ -598,7 +598,7 @@
               <textarea
                 v-model.trim="form.address"
                 rows="2"
-                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm "
+                class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm "
               />
             </div>
           </div>

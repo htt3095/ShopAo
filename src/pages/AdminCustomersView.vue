@@ -32,7 +32,7 @@
 
           <button
             type="button"
-            class="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium hover:border-primary hover:text-primary "
+            class="inline-flex items-center gap-1.5  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-1.5 text-sm font-medium hover:border-primary hover:text-primary "
             @click="loadAccounts"
           >
             <span class="material-symbols-outlined text-[18px]">refresh</span>
@@ -46,7 +46,7 @@
       <section class="retail-card p-3">
         <div class="grid gap-3 md:grid-cols-[1fr_220px]">
           <label
-            class="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-1.5 "
+            class="flex items-center gap-2  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-1.5 "
           >
             <span class="material-symbols-outlined text-[18px] text-slate-400"
               >search</span
@@ -61,7 +61,7 @@
 
           <select
             v-model="statusFilter"
-            class="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm "
+            class=" shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-1.5 text-sm "
           >
             <option value="ALL">Tất cả trạng thái</option>
             <option value="ACTIVE">Đang hoạt động</option>
@@ -255,7 +255,7 @@
               <input
                 v-model.trim="form.username"
                 type="text"
-                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm "
+                class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-1.5 text-sm "
                 placeholder="Nhập tên đăng nhập"
               />
             </div>
@@ -267,7 +267,7 @@
               <input
                 v-model.trim="form.gmail"
                 type="email"
-                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm "
+                class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm "
                 placeholder="example@email.com"
               />
             </div>
@@ -278,7 +278,7 @@
               >
               <select
                 v-model="form.role"
-                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm "
+                class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm "
               >
                 <option value="USER">Khách hàng</option>
                 <option value="STAFF">Nhân viên</option>
@@ -292,7 +292,7 @@
               <input
                 v-model.trim="form.phone"
                 type="text"
-                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm "
+                class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm "
                 placeholder="09..."
               />
             </div>
@@ -308,7 +308,7 @@
               <input
                 v-model="form.password"
                 type="password"
-                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm "
+                class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm "
                 placeholder="Tối thiểu 6 ký tự"
               />
             </div>
@@ -320,7 +320,7 @@
               <textarea
                 v-model.trim="form.address"
                 rows="3"
-                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm "
+                class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-1.5 text-sm "
                 placeholder="Nhập địa chỉ khách hàng"
               />
             </div>

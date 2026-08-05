@@ -60,7 +60,7 @@
 
 @layer components {
 	.retail-shell {
-		@apply min-h-screen font-sans text-slate-900 bg-background-light;
+		@apply min-h-screen font-sans text-slate-900 bg-slate-300;
 		background-attachment: fixed;
 	}
 
@@ -69,9 +69,8 @@
 	}
 
 	.retail-card {
-		@apply border border-slate-200 backdrop-blur-md bg-white/80 transition-transform duration-300 hover:-translate-y-1 hover:border-primary/50;
+		@apply border border-slate-300 bg-white shadow-md transition-all duration-300 hover:-translate-y-1 hover:border-primary/60 hover:shadow-xl;
 		border-radius: 24px;
-		box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
 	}
 
 	.retail-kicker {
@@ -102,5 +101,17 @@
 	
 	.neon-text {
 		text-shadow: 0 0 10px rgba(255, 107, 53, 0.5);
+	}
+}
+
+@layer components {
+	.sportx-card {
+		@apply border border-slate-300 bg-white transition-all duration-300;
+		box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+	}
+	.sportx-card:hover {
+		@apply border-primary/40;
+		transform: translateY(-2px);
+		box-shadow: 0 10px 30px rgba(255, 107, 53, 0.12);
 	}
 }

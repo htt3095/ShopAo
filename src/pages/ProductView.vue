@@ -24,7 +24,7 @@
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-            <div class="p-4 rounded-xl bg-white dark:bg-surface-dark border border-slate-200 dark:border-border-dark flex items-center gap-4">
+            <div class="p-4 rounded-xl bg-white dark:bg-surface-dark border border-slate-200 dark:border-border-dark flex items-center gap-4 shadow-sm hover:shadow-lg hover:border-primary/40 transition-all duration-300">
               <div class="bg-blue-100 dark:bg-blue-900/30 p-3 rounded-lg text-primary">
                 <span class="material-symbols-outlined">inventory_2</span>
               </div>
@@ -33,7 +33,7 @@
                 <p class="text-slate-900 dark:text-white text-xl font-bold">1,248</p>
               </div>
             </div>
-            <div class="p-4 rounded-xl bg-white dark:bg-surface-dark border border-slate-200 dark:border-border-dark flex items-center gap-4">
+            <div class="p-4 rounded-xl bg-white dark:bg-surface-dark border border-slate-200 dark:border-border-dark flex items-center gap-4 shadow-sm hover:shadow-lg hover:border-primary/40 transition-all duration-300">
               <div class="bg-green-100 dark:bg-green-900/30 p-3 rounded-lg text-green-600 dark:text-green-400">
                 <span class="material-symbols-outlined">check_circle</span>
               </div>
@@ -42,7 +42,7 @@
                 <p class="text-slate-900 dark:text-white text-xl font-bold">1,180</p>
               </div>
             </div>
-            <div class="p-4 rounded-xl bg-white dark:bg-surface-dark border border-slate-200 dark:border-border-dark flex items-center gap-4">
+            <div class="p-4 rounded-xl bg-white dark:bg-surface-dark border border-slate-200 dark:border-border-dark flex items-center gap-4 shadow-sm hover:shadow-lg hover:border-primary/40 transition-all duration-300">
               <div class="bg-red-100 dark:bg-red-900/30 p-3 rounded-lg text-red-600 dark:text-red-400">
                 <span class="material-symbols-outlined">warning</span>
               </div>
@@ -51,7 +51,7 @@
                 <p class="text-slate-900 dark:text-white text-xl font-bold">45</p>
               </div>
             </div>
-            <div class="p-4 rounded-xl bg-white dark:bg-surface-dark border border-slate-200 dark:border-border-dark flex items-center gap-4">
+            <div class="p-4 rounded-xl bg-white dark:bg-surface-dark border border-slate-200 dark:border-border-dark flex items-center gap-4 shadow-sm hover:shadow-lg hover:border-primary/40 transition-all duration-300">
               <div class="bg-purple-100 dark:bg-purple-900/30 p-3 rounded-lg text-purple-600 dark:text-purple-400">
                 <span class="material-symbols-outlined">category</span>
               </div>

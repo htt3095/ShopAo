@@ -21,7 +21,7 @@
 
           <button
             type="button"
-            class="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium hover:border-primary hover:text-primary "
+            class="inline-flex items-center gap-1.5  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-1.5 text-sm font-medium hover:border-primary hover:text-primary "
             @click="fetchCategories"
           >
             <span class="material-symbols-outlined text-[18px]">refresh</span>
@@ -34,7 +34,7 @@
     <div class="space-y-3">
       <section class="retail-card p-3">
         <label
-          class="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-1.5 "
+          class="flex items-center gap-2  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-1.5 "
         >
           <span class="material-symbols-outlined text-[18px] text-slate-400"
             >search</span
@@ -223,7 +223,7 @@
               <input
                 v-model.trim="form.name"
                 type="text"
-                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm "
+                class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-1.5 text-sm "
                 placeholder="VD: Nike, Adidas, Puma..."
                 :class="{ 'border-red-500': errors.name }"
               />

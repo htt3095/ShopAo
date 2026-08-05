@@ -258,7 +258,7 @@
               >
               <select
                 v-model.number="selectedDigitalPayment"
-                class="w-full cursor-pointer rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20  "
+                class="w-full cursor-pointer  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-4 py-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20  "
               >
                 <option
                   v-for="method in digitalPaymentMethods"

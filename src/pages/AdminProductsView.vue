@@ -21,7 +21,7 @@
 
           <button
             type="button"
-            class="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium hover:border-primary hover:text-primary "
+            class="inline-flex items-center gap-1.5  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-1.5 text-sm font-medium hover:border-primary hover:text-primary "
             @click="loadProducts"
           >
             <span class="material-symbols-outlined text-[18px]">refresh</span>
@@ -35,7 +35,7 @@
       <section class="retail-card p-3">
         <div class="grid gap-3 lg:grid-cols-3">
           <label
-            class="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-1.5 "
+            class="flex items-center gap-2  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-1.5 "
           >
             <span class="material-symbols-outlined text-[18px] text-slate-400"
               >search</span
@@ -50,7 +50,7 @@
 
           <select
             v-model.number="filterBrandId"
-            class="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm "
+            class=" shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-1.5 text-sm "
           >
             <option :value="null">Tất cả thương hiệu</option>
             <option
@@ -64,7 +64,7 @@
 
           <select
             v-model.number="filterCategoryId"
-            class="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm "
+            class=" shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-1.5 text-sm "
           >
             <option :value="null">Tất cả danh mục</option>
             <option
@@ -110,7 +110,7 @@
             <div
               v-for="product in hiddenProducts"
               :key="product.id"
-              class="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 "
+              class="flex flex-wrap items-center justify-between gap-2  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 "
             >
               <div class="text-sm">
                 <span class="font-semibold">#{{ product.id }}</span>
@@ -173,15 +173,10 @@
                       class="size-12 overflow-hidden rounded-xl bg-slate-100 "
                     >
                       <img
-                        v-if="product.imageUrl"
-                        :src="product.imageUrl"
+                        :src="getProductImage(product)"
                         alt="Product"
                         class="h-full w-full object-cover"
                       />
-                      <span
-                        v-else
-                        class="flex h-full items-center justify-center text-xs text-slate-400"
-                      ></span>
                     </div>
                     <div>
                       <p class="font-semibold">
@@ -256,7 +251,7 @@
               <input
                 v-model.trim="form.name"
                 type="text"
-                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm "
+                class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-1.5 text-sm "
                 placeholder="Nhập tên sản phẩm"
               />
             </div>
@@ -268,7 +263,7 @@
               <input
                 v-model.trim="form.productCode"
                 type="text"
-                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm "
+                class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-1.5 text-sm "
                 placeholder="VD: SNK-001"
               />
             </div>
@@ -279,7 +274,7 @@
               >
               <select
                 v-model.number="form.brandId"
-                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm "
+                class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-1.5 text-sm "
               >
                 <option :value="null">-- Chọn thương hiệu --</option>
                 <option
@@ -298,7 +293,7 @@
               >
               <select
                 v-model.number="form.categoryId"
-                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm "
+                class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-1.5 text-sm "
               >
                 <option :value="null">-- Chọn danh mục --</option>
                 <option
@@ -450,6 +445,10 @@ import { computed, onMounted, ref } from "vue";
 import axios from "axios";
 import AdminShell from "@/components/admin/AdminShell.vue";
 import { adminApi, brandsApi, categoriesApi } from "@/services/api";
+import { useProductStore } from "@/stores/products";
+import { getProductImageUrl } from "@/utils/productImages";
+
+const productStore = useProductStore();
 
 const loading = ref(false);
 const error = ref("");
@@ -585,6 +584,15 @@ function categoryName(categoryId) {
   const id = Number(categoryId);
   if (!Number.isFinite(id)) return "-";
   return categoryMap.value[id] || `Category #${id}`;
+}
+
+function getProductImage(product) {
+  return getProductImageUrl({
+    product,
+    variants: productStore.variants,
+    width: 200,
+    height: 200,
+  });
 }
 
 function openCreate() {
@@ -757,6 +765,9 @@ async function loadProducts() {
     products.value = toList(productList);
     brands.value = toList(brandList);
     categories.value = toList(categoryList);
+    if (productStore.variants.length === 0) {
+      await productStore.fetchVariants();
+    }
   } catch (err) {
     console.error("Failed to load admin products:", err);
     error.value = "Không thể tải sản phẩm. Vui lòng kiểm tra backend API.";

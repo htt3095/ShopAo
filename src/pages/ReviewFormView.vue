@@ -13,7 +13,7 @@
  <span class="text-slate-700">{{ existingReview ?'Sửa đánh giá':'Viết đánh giá'}}</span>
  </nav>
 
- <div class="bg-white rounded-xl border border-slate-200 p-6 md:p-8 flex flex-col gap-6">
+ <div class="bg-white rounded-xl border border-slate-200 p-6 md:p-8 flex flex-col gap-6 shadow-sm hover:shadow-lg hover:border-primary/40 transition-all duration-300">
  <div class="flex flex-col gap-1">
  <h1 class="text-2xl md:text-3xl font-black tracking-tight">
  {{ existingReview ?'Sửa đánh giá của bạn':'Viết đánh giá'}}

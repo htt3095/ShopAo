@@ -56,22 +56,22 @@
 
         <label class="flex flex-col gap-2">
           <span class="text-sm font-medium">Tên hiển thị</span>
-          <input v-model="form.username" type="text" class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-primary " />
+          <input v-model="form.username" type="text" class=" shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm outline-none focus:border-primary " />
         </label>
 
         <label class="flex flex-col gap-2">
           <span class="text-sm font-medium">Email</span>
-          <input v-model="form.gmail" type="email" class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-primary " />
+          <input v-model="form.gmail" type="email" class=" shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm outline-none focus:border-primary " />
         </label>
 
         <label class="flex flex-col gap-2">
           <span class="text-sm font-medium">Số điện thoại</span>
-          <input v-model="form.phone" type="text" class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-primary " />
+          <input v-model="form.phone" type="text" class=" shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm outline-none focus:border-primary " />
         </label>
 
         <label class="md:col-span-2 flex flex-col gap-2">
           <span class="text-sm font-medium">Địa chỉ</span>
-          <textarea v-model="form.address" rows="3" class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-primary " />
+          <textarea v-model="form.address" rows="3" class=" shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm outline-none focus:border-primary " />
         </label>
 
         <div class="md:col-span-2 rounded-2xl border border-slate-200 p-4 ">
@@ -85,7 +85,7 @@
                 v-model="form.newPassword"
                 type="password"
                 autocomplete="new-password"
-                class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-primary "
+                class=" shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm outline-none focus:border-primary "
               />
             </label>
 
@@ -95,7 +95,7 @@
                 v-model="form.confirmPassword"
                 type="password"
                 autocomplete="new-password"
-                class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-primary "
+                class=" shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm outline-none focus:border-primary "
               />
             </label>
           </div>

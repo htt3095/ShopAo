@@ -77,7 +77,7 @@
  Xem đơn hàng
  </button>
  <button
- class="flex-1 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold transition-colors hover:bg-slate-50"
+ class="flex-1  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-4 py-3 text-sm font-bold transition-colors hover:bg-slate-50"
  @click="$router.push('/')"
  >
  Về trang chủ
@@ -131,7 +131,7 @@
  Thử lại
  </button>
  <button
- class="flex-1 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold transition-colors hover:bg-slate-50"
+ class="flex-1  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-4 py-3 text-sm font-bold transition-colors hover:bg-slate-50"
  @click="$router.push('/orders')"
  >
  Xem đơn hàng

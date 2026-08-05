@@ -109,13 +109,13 @@
             </router-link>
             <router-link
               to="/size-guide"
-              class="group inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-6 py-4 text-sm font-semibold text-slate-800 transition-colors hover:border-primary hover:text-primary  "
+              class="group inline-flex items-center justify-center  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-6 py-4 text-sm font-semibold text-slate-800 transition-colors hover:border-primary hover:text-primary  "
             >
               Bảng size
             </router-link>
             <router-link
               to="/vouchers"
-              class="group inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-6 py-4 text-sm font-semibold text-slate-800 transition-colors hover:border-primary hover:text-primary  "
+              class="group inline-flex items-center justify-center  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-6 py-4 text-sm font-semibold text-slate-800 transition-colors hover:border-primary hover:text-primary  "
             >
               Kiểm tra ưu đãi
             </router-link>
@@ -231,7 +231,7 @@
           <article
             v-for="product in featuredProducts"
             :key="product.id"
-            class="retail-card overflow-hidden p-0 transition-transform hover:-translate-y-1"
+            class="retail-card flex flex-col overflow-hidden p-0 transition-transform hover:-translate-y-1 h-full"
           >
             <router-link :to="`/product/${product.id}`" class="block">
               <div
@@ -244,7 +244,7 @@
                 />
               </div>
             </router-link>
-            <div class="px-5 py-5">
+            <div class="px-5 py-5 flex flex-col flex-1">
               <p
                 class="text-xs font-medium uppercase tracking-[0.16em] text-slate-500 "
               >
@@ -255,7 +255,7 @@
                 class="mt-2 block min-h-[52px] text-lg font-semibold leading-6 text-slate-900 transition-colors hover:text-primary "
                 >{{ product.name }}</router-link
               >
-              <div class="mt-4 flex items-center justify-between">
+              <div class="mt-auto pt-4 flex items-center justify-between">
                 <div>
                   <p
                     class="text-xs uppercase tracking-[0.18em] text-slate-500"

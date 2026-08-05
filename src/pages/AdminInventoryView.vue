@@ -30,7 +30,7 @@
 
           <button
             type="button"
-            class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium hover:border-primary hover:text-primary "
+            class="inline-flex items-center gap-2  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm font-medium hover:border-primary hover:text-primary "
             @click="resetFilters"
           >
             <span class="material-symbols-outlined text-[18px]"
@@ -41,7 +41,7 @@
 
           <button
             type="button"
-            class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium hover:border-primary hover:text-primary "
+            class="inline-flex items-center gap-2  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm font-medium hover:border-primary hover:text-primary "
             @click="loadInventory"
           >
             <span class="material-symbols-outlined text-[18px]">refresh</span>
@@ -56,7 +56,7 @@
       <section class="retail-card p-4">
         <div class="grid gap-3 md:grid-cols-[1fr_auto]">
           <label
-            class="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 "
+            class="flex items-center gap-2  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 "
           >
             <span class="material-symbols-outlined text-[18px] text-slate-400"
               >search</span
@@ -72,7 +72,7 @@
 
           <button
             type="button"
-            class="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium hover:border-primary hover:text-primary "
+            class="inline-flex items-center justify-center gap-2  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-4 py-2 text-sm font-medium hover:border-primary hover:text-primary "
             @click="showFilters = !showFilters"
           >
             <span class="material-symbols-outlined text-[18px]">tune</span>
@@ -90,7 +90,7 @@
             >
             <select
               v-model="filters.productId"
-              class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm "
+              class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm "
               @change="applyFilters"
             >
               <option :value="null">Tất cả sản phẩm</option>
@@ -110,7 +110,7 @@
             >
             <select
               v-model="filters.colorId"
-              class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm "
+              class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm "
               @change="applyFilters"
             >
               <option :value="null">Tất cả màu</option>
@@ -126,7 +126,7 @@
             >
             <select
               v-model="filters.sizeId"
-              class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm "
+              class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm "
               @change="applyFilters"
             >
               <option :value="null">Tất cả size</option>
@@ -142,7 +142,7 @@
             >
             <select
               v-model="filters.stockStatus"
-              class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm "
+              class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm "
               @change="applyFilters"
             >
               <option :value="null">Tất cả</option>
@@ -164,7 +164,7 @@
               min="0"
               step="10000"
               placeholder="0"
-              class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm "
+              class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm "
               @input="applyFilters"
             />
           </div>
@@ -179,7 +179,7 @@
               min="0"
               step="10000"
               placeholder="Không giới hạn"
-              class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm "
+              class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm "
               @input="applyFilters"
             />
           </div>
@@ -193,7 +193,7 @@
               type="number"
               min="1"
               placeholder="1"
-              class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm "
+              class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm "
               @input="applyFilters"
             />
           </div>
@@ -207,7 +207,7 @@
               type="number"
               min="1"
               placeholder="Không giới hạn"
-              class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm "
+              class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm "
               @input="applyFilters"
             />
           </div>
@@ -458,7 +458,7 @@
             <div
               v-for="variant in hiddenVariants"
               :key="variant.id"
-              class="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 "
+              class="flex flex-wrap items-center justify-between gap-2  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 "
             >
               <div class="text-sm">
                 <span class="font-semibold">#{{ variant.id }}</span>
@@ -648,7 +648,7 @@
               >
               <select
                 v-model.number="form.productId"
-                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm "
+                class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-1.5 text-sm "
               >
                 <option :value="null">-- Chọn sản phẩm --</option>
                 <option v-for="p in products" :key="p.id" :value="Number(p.id)">
@@ -663,7 +663,7 @@
               >
               <select
                 v-model.number="form.colorId"
-                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm "
+                class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-1.5 text-sm "
               >
                 <option :value="null">-- Chọn màu --</option>
                 <option v-for="c in availableColorsForForm" :key="c.id" :value="Number(c.id)">
@@ -678,7 +678,7 @@
               >
               <select
                 v-model.number="form.sizeId"
-                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm "
+                class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-1.5 text-sm "
               >
                 <option :value="null">-- Chọn size --</option>
                 <option v-for="s in availableSizesForForm" :key="s.id" :value="Number(s.id)">
@@ -696,7 +696,7 @@
                   v-model.number="form.price"
                   type="number"
                   min="0"
-                  class="w-full rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm "
+                  class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-1.5 text-sm "
                 />
               </div>
               <div>
@@ -707,7 +707,7 @@
                   v-model.number="form.stockQuantity"
                   type="number"
                   min="0"
-                  class="w-full rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm "
+                  class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-1.5 text-sm "
                 />
               </div>
             </div>
@@ -718,7 +718,7 @@
               >
               <select
                 v-model="form.status"
-                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm "
+                class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-1.5 text-sm "
               >
                 <option value="SELLING">Đang bán</option>
                 <option value="OUT_OF_STOCK">Hết hàng</option>
@@ -804,7 +804,7 @@
           <div class="grid gap-4">
             <div>
               <label class="mb-1 block text-sm font-medium text-slate-500">Sản phẩm *</label>
-              <select v-model="bulkForm.productId" class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm ">
+              <select v-model="bulkForm.productId" class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm ">
                 <option :value="null">-- Chọn sản phẩm --</option>
                 <option v-for="p in products" :key="p.id" :value="p.id">{{ p.name }}</option>
               </select>
@@ -835,11 +835,11 @@
             <div class="grid md:grid-cols-2 gap-4">
               <div>
                 <label class="mb-1 block text-sm font-medium text-slate-500">Giá bán chung (VND) *</label>
-                <input v-model.number="bulkForm.price" type="number" min="0" class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm " />
+                <input v-model.number="bulkForm.price" type="number" min="0" class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm " />
               </div>
               <div>
                 <label class="mb-1 block text-sm font-medium text-slate-500">Số lượng tồn kho chung *</label>
-                <input v-model.number="bulkForm.stockQuantity" type="number" min="0" class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm " />
+                <input v-model.number="bulkForm.stockQuantity" type="number" min="0" class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm " />
               </div>
             </div>
             

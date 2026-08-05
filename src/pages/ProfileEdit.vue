@@ -17,7 +17,7 @@
  <div class="md:w-64 shrink-0">
  <div class="sticky top-8">
  <!-- User Info Summary -->
- <div class="bg-white rounded-xl border border-slate-200 p-6 mb-4">
+ <div class="bg-white rounded-xl border border-slate-200 p-6 mb-4 shadow-sm hover:shadow-lg hover:border-primary/40 transition-all duration-300">
  <div class="flex items-center gap-4">
  <div class="size-16 rounded-full bg-slate-100 flex items-center justify-center overflow-hidden">
  <img 
@@ -36,7 +36,7 @@
  </div>
 
  <!-- Navigation Menu -->
- <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
+ <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-lg hover:border-primary/40 transition-all duration-300">
  <router-link 
  to="/profile"
  class="flex items-center gap-3 px-6 py-4 text-slate-600 hover:bg-slate-50 transition-colors border-b border-slate-100"

@@ -65,7 +65,7 @@
           <div class="flex flex-col lg:flex-row gap-6 p-4">
             <aside class="w-full lg:w-64 flex-shrink-0">
               <div
-                class="flex flex-col gap-6 bg-white rounded-xl border border-slate-200 p-5 h-fit sticky top-24"
+                class="flex flex-col gap-6 bg-white rounded-xl border border-slate-200 p-5 h-fit sticky top-24 shadow-sm hover:shadow-lg hover:border-primary/40 transition-all duration-300"
               >
                 <div
                   class="flex items-center justify-between pb-4 border-b border-slate-200"
@@ -177,7 +177,7 @@
                 <div
                   v-for="product in paginatedProducts"
                   :key="product.id"
-                  class="group flex flex-col bg-white rounded-xl overflow-hidden border border-slate-200 transition-all duration-300"
+                  class="group flex flex-col bg-white rounded-xl overflow-hidden border border-slate-200 transition-all duration-300 shadow-sm hover:shadow-lg hover:border-primary/40 transition-all duration-300"
                   :class="isProductOutOfStock(product) ? 'opacity-80 grayscale' : 'hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10'"
                 >
                   <div
@@ -266,7 +266,7 @@
                       </div>
                       <span class="text-xs text-slate-500">(124)</span>
                     </div>
-                    <div class="mt-4 flex items-center justify-between">
+                    <div class="mt-auto pt-4 flex items-center justify-between">
                       <p
                         class="text-xl font-bold text-slate-900"
                       >

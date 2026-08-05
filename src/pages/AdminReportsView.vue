@@ -12,12 +12,12 @@
 
         <div class="flex flex-wrap items-center gap-2">
           <details class="relative">
-            <summary class="list-none inline-flex cursor-pointer items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium hover:border-primary hover:text-primary ">
+            <summary class="list-none inline-flex cursor-pointer items-center gap-2  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm font-medium hover:border-primary hover:text-primary ">
               <span class="material-symbols-outlined text-[18px]">download</span>
               Xuất dữ liệu
               <span class="material-symbols-outlined text-[16px]">expand_more</span>
             </summary>
-            <div class="absolute right-0 z-20 mt-2 w-56 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl ">
+            <div class="absolute right-0 z-20 mt-2 w-56 overflow-hidden  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 shadow-xl ">
               <button type="button" class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-slate-100 dark:hover:bg-white" @click="exportSummaryCsv">
                 <span class="material-symbols-outlined text-[16px]">overview</span>
                 CSV tóm tắt
@@ -35,7 +35,7 @@
 
           <button
             type="button"
-            class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium hover:border-primary hover:text-primary "
+            class="inline-flex items-center gap-2  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm font-medium hover:border-primary hover:text-primary "
             @click="printReport"
           >
             <span class="material-symbols-outlined text-[18px]">print</span>
@@ -44,7 +44,7 @@
 
           <button
             type="button"
-            class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium hover:border-primary hover:text-primary "
+            class="inline-flex items-center gap-2  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm font-medium hover:border-primary hover:text-primary "
             @click="loadReport"
           >
             <span class="material-symbols-outlined text-[18px]">refresh</span>
@@ -63,7 +63,7 @@
         <div class="grid gap-3 xl:grid-cols-5">
           <label class="flex min-w-0 flex-col gap-1 text-xs font-medium uppercase tracking-wide text-slate-500 ">
             Xem theo
-            <select v-model="reportMode" class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-900 ">
+            <select v-model="reportMode" class=" shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm font-medium text-slate-900 ">
               <option value="day">Theo ngày</option>
               <option value="week">Theo tuần</option>
               <option value="month">Theo tháng</option>
@@ -73,17 +73,17 @@
 
           <label class="flex min-w-0 flex-col gap-1 text-xs font-medium uppercase tracking-wide text-slate-500 ">
             Từ ngày
-            <input v-model="startDateInput" type="date" class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-900 " />
+            <input v-model="startDateInput" type="date" class=" shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm font-medium text-slate-900 " />
           </label>
 
           <label class="flex min-w-0 flex-col gap-1 text-xs font-medium uppercase tracking-wide text-slate-500 ">
             Đến ngày
-            <input v-model="endDateInput" type="date" class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-900 " />
+            <input v-model="endDateInput" type="date" class=" shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm font-medium text-slate-900 " />
           </label>
 
           <label class="flex min-w-0 flex-col gap-1 text-xs font-medium uppercase tracking-wide text-slate-500 ">
             Thanh toán
-            <select v-model="paymentFilter" class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-900 ">
+            <select v-model="paymentFilter" class=" shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm font-medium text-slate-900 ">
               <option value="ALL">Tất cả</option>
               <option value="DA_THANH_TOAN">Đã thanh toán</option>
               <option value="HOAN_TIEN">Hoàn tiền</option>
@@ -93,7 +93,7 @@
 
           <label class="flex min-w-0 flex-col gap-1 text-xs font-medium uppercase tracking-wide text-slate-500 ">
             Thứ tự hiển thị
-            <select v-model="bucketSort" class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-900 ">
+            <select v-model="bucketSort" class=" shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm font-medium text-slate-900 ">
               <option value="newest">Mới nhất ở trên</option>
               <option value="oldest">Cũ nhất ở trên</option>
             </select>
@@ -144,7 +144,7 @@
             <p class="text-sm text-slate-500 ">Chi tiết theo chỉ số, có nhiều loại chart nhưng giữ bố cục gọn để đọc nhanh.</p>
           </div>
           <div class="text-right space-y-2">
-            <div class="inline-flex rounded-xl border border-slate-200 bg-white p-1 ">
+            <div class="inline-flex  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 p-1 ">
               <button
                 v-for="item in reportMetricOptions"
                 :key="item.value"
