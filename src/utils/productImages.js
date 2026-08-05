@@ -12,7 +12,7 @@ export function getProductImageUrl({ product, variants, width = 800, height = 60
     const list = Array.isArray(variants) ? variants : []
 
     const variant = list.find(v => v && v.productId === productId)
-    const url = product.imageUrl || variant ? .imageUrl
+    const url = product.imageUrl || (variant && variant.imageUrl)
     if (url) {
         return url
     }

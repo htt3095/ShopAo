@@ -112,7 +112,7 @@
                 />
               </label>
 
-              <label class="flex flex-col gap-2">
+              <label class="hidden flex flex-col gap-2">
                 <span class="text-xs font-semibold uppercase tracking-wide text-slate-500 ">Quận/Huyện</span>
                 <SearchableSelect
                   v-model="selectedDistrict"
