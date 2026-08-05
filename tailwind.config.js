@@ -11,15 +11,16 @@ export default {
     theme: {
         extend: {
             colors: {
-                "primary": "#ff4d00", // Vibrant Neon Orange
-                "primary-hover": "#ff6a2b",
-                "background-light": "#f8f9fa",
-                "background-dark": "#0a0a0b", // Deep Matte Black
-                "surface-light": "#ffffff",
-                "surface-dark": "#18181b", // Zinc 900
-                "surface-dark-highlight": "#27272a", // Zinc 800
-                "text-secondary": "#a1a1aa", // Zinc 400
-                "border-dark": "#3f3f46", // Zinc 700
+                "primary": "#FF6B35",
+                "primary-hover": "#E85A2A",
+                "accent": "#0EA5E9",
+                "background-light": "#F8FAFC",
+                "background-dark": "#0F172A",
+                "surface-light": "#FFFFFF",
+                "surface-dark": "#1E293B",
+                "surface-dark-highlight": "#334155",
+                "text-secondary": "#64748B",
+                "border-dark": "#334155",
             },
             fontFamily: {
                 "display": ['"Inter"', "sans-serif"],
@@ -27,8 +28,9 @@ export default {
                 "sans": ['"Inter"', "sans-serif"],
             },
             boxShadow: {
-                'glass': '0 4px 30px rgba(0, 0, 0, 0.1)',
-                'neon': '0 0 10px rgba(255, 77, 0, 0.3), 0 0 20px rgba(255, 77, 0, 0.2)',
+                'glass': '0 4px 30px rgba(0, 0, 0, 0.08)',
+                'neon': '0 0 10px rgba(255, 107, 53, 0.25), 0 0 20px rgba(255, 107, 53, 0.15)',
+                'sport': '0 4px 20px rgba(14, 165, 233, 0.15)',
             }
         },
     },

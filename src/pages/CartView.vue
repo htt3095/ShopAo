@@ -1,17 +1,17 @@
 ﻿<template>
   <div
-    class="retail-shell flex min-h-screen flex-col text-slate-900 dark:text-white font-display antialiased selection:bg-primary selection:text-white"
+    class="retail-shell flex min-h-screen flex-col text-slate-900  font-display antialiased selection:bg-primary selection:text-white"
   >
     <MainTopBar />
 
     <main class="flex-grow container mx-auto px-4 py-8 lg:px-8 xl:px-40">
       <div class="flex flex-col lg:flex-row gap-12">
         <div class="flex-1 flex flex-col gap-6">
-          <div class="pb-4 border-b border-slate-200 dark:border-slate-800">
+          <div class="pb-4 border-b border-slate-200 ">
             <h1 class="text-3xl font-black tracking-tight mb-2">
               Giỏ hàng của bạn
             </h1>
-            <p class="text-slate-500 dark:text-[#9cabba]">
+            <p class="text-slate-500 ">
               {{ cartCount }} sản phẩm trong giỏ
             </p>
           </div>
@@ -19,11 +19,11 @@
             <div
               v-for="item in cartItems"
               :key="item.id"
-              class="group flex flex-col sm:flex-row gap-5 p-4 rounded-xl bg-white dark:bg-[#18212b] border border-slate-200 dark:border-[#283039] shadow-sm hover:border-primary/50 transition-colors"
+              class="group flex flex-col sm:flex-row gap-5 p-4 rounded-xl bg-white  border border-slate-200  shadow-sm hover:border-primary/50 transition-colors"
             >
               <div class="shrink-0">
                 <div
-                  class="bg-center bg-no-repeat bg-cover rounded-lg w-full sm:w-[120px] aspect-square bg-slate-100 dark:bg-slate-800"
+                  class="bg-center bg-no-repeat bg-cover rounded-lg w-full sm:w-[120px] aspect-square bg-slate-100 "
                   data-alt="Product image"
                   :style="{
                     backgroundImage: item.imageUrl
@@ -36,26 +36,26 @@
                 <div class="flex justify-between items-start gap-4">
                   <div>
                     <h3
-                      class="text-lg font-bold text-slate-900 dark:text-white"
+                      class="text-lg font-bold text-slate-900 "
                     >
                       {{ item.productName }}
                     </h3>
-                    <p class="text-sm text-slate-500 dark:text-[#9cabba] mt-1">
+                    <p class="text-sm text-slate-500  mt-1">
                       Mã SP: {{ item.productCode || "--" }}
                     </p>
                     <div class="flex gap-3 mt-2">
                       <span
-                        class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-slate-100 dark:bg-[#283039] text-slate-800 dark:text-slate-200"
+                        class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-slate-100  text-slate-800 "
                         >Size: {{ getSizeLabel(item) }}</span
                       >
                       <span
-                        class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-slate-100 dark:bg-[#283039] text-slate-800 dark:text-slate-200"
+                        class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-slate-100  text-slate-800 "
                         >Màu: {{ getColorLabel(item) }}</span
                       >
                     </div>
                   </div>
                   <div class="text-right">
-                    <p class="text-lg font-bold text-slate-900 dark:text-white">
+                    <p class="text-lg font-bold text-slate-900 ">
                       {{ formatMoney(item.price * item.quantity) }}
                     </p>
                     <p
@@ -78,10 +78,10 @@
                     Xóa
                   </button>
                   <div
-                    class="flex items-center bg-slate-100 dark:bg-[#283039] rounded-lg p-1"
+                    class="flex items-center bg-slate-100  rounded-lg p-1"
                   >
                     <button
-                      class="size-8 flex items-center justify-center rounded-md hover:bg-white dark:hover:bg-[#111418] text-slate-600 dark:text-white transition-colors disabled:opacity-60"
+                      class="size-8 flex items-center justify-center rounded-md hover:bg-white :bg-[#111418] text-slate-600  transition-colors disabled:opacity-60"
                       :disabled="item.quantity <= 1"
                       type="button"
                       @click="decrement(item)"
@@ -91,14 +91,14 @@
                       >
                     </button>
                     <input
-                      class="w-10 bg-transparent text-center text-sm font-medium text-slate-900 dark:text-white border-none focus:ring-0 p-0"
+                      class="w-10 bg-transparent text-center text-sm font-medium text-slate-900  border-none focus:ring-0 p-0"
                       min="1"
                       type="number"
                       :value="item.quantity"
                       @change="(e) => setQuantity(item, e.target.value)"
                     />
                     <button
-                      class="size-8 flex items-center justify-center rounded-md hover:bg-white dark:hover:bg-[#111418] text-slate-600 dark:text-white transition-colors"
+                      class="size-8 flex items-center justify-center rounded-md hover:bg-white :bg-[#111418] text-slate-600  transition-colors"
                       type="button"
                       @click="increment(item)"
                     >
@@ -113,7 +113,7 @@
 
             <div
               v-if="cartItems.length === 0"
-              class="py-12 text-center text-slate-500 dark:text-[#9cabba]"
+              class="py-12 text-center text-slate-500 "
             >
               Giỏ hàng của bạn đang trống.
             </div>
@@ -122,7 +122,7 @@
         <div class="w-full lg:w-[360px] xl:w-[400px] shrink-0">
           <div class="sticky top-24 flex flex-col gap-6">
             <div
-              class="bg-white dark:bg-[#18212b] rounded-xl border border-slate-200 dark:border-[#283039] shadow-sm p-6"
+              class="bg-white  rounded-xl border border-slate-200  shadow-sm p-6"
             >
               <h2 class="text-xl font-bold mb-6">Tóm tắt đơn hàng</h2>
               <div class="mb-6">
@@ -136,18 +136,18 @@
               </div>
 
               <div
-                class="space-y-3 pb-6 border-b border-slate-200 dark:border-[#283039]"
+                class="space-y-3 pb-6 border-b border-slate-200 "
               >
                 <div
-                  class="flex justify-between text-slate-600 dark:text-[#9cabba]"
+                  class="flex justify-between text-slate-600 "
                 >
                   <span>Tạm tính</span>
-                  <span class="font-medium text-slate-900 dark:text-white">{{
+                  <span class="font-medium text-slate-900 ">{{
                     formatMoney(subtotal)
                   }}</span>
                 </div>
 
-                <div class="rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-500 dark:bg-[#111418] dark:text-[#9cabba]">
+                <div class="rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-500  ">
                   Phí vận chuyển sẽ được hệ thống tính tự động ở bước thanh toán theo địa chỉ nhận hàng.
                 </div>
 
@@ -163,11 +163,11 @@
                 </div>
               </div>
               <div class="flex justify-between items-center py-6">
-                <span class="text-lg font-bold text-slate-900 dark:text-white"
+                <span class="text-lg font-bold text-slate-900 "
                   >Tổng thanh toán</span
                 >
                 <span
-                  class="text-2xl font-black text-slate-900 dark:text-white"
+                  class="text-2xl font-black text-slate-900 "
                   >{{ formatMoney(total) }}</span
                 >
               </div>

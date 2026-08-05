@@ -10,15 +10,15 @@
     </template>
 
     <section class="retail-card p-6">
-      <div v-if="message" class="mb-4 rounded-xl px-3 py-2 text-sm" :class="messageType === 'error' ? 'border border-red-200 bg-red-50 text-red-700 dark:border-red-900/40 dark:bg-red-900/20 dark:text-red-300' : 'border border-green-200 bg-green-50 text-green-700 dark:border-green-900/40 dark:bg-green-900/20 dark:text-green-300'">
+      <div v-if="message" class="mb-4 rounded-xl px-3 py-2 text-sm" :class="messageType === 'error' ? 'border border-red-200 bg-red-50 text-red-700 /40 /20 ' : 'border border-green-200 bg-green-50 text-green-700 /40 /20 '">
         {{ message }}
       </div>
 
       <form class="grid gap-4 md:grid-cols-2" @submit.prevent="saveSettings">
-        <div class="md:col-span-2 flex items-center gap-4 rounded-2xl border border-slate-200 p-4 dark:border-[#3c342e]">
-          <div class="size-20 overflow-hidden rounded-full bg-slate-100 dark:bg-[#2b241f]">
+        <div class="md:col-span-2 flex items-center gap-4 rounded-2xl border border-slate-200 p-4 ">
+          <div class="size-20 overflow-hidden rounded-full bg-slate-100 ">
             <img v-if="resolvedAvatar" :src="resolvedAvatar" alt="Admin avatar" class="h-full w-full object-cover" />
-            <span v-else class="flex h-full items-center justify-center text-xs text-slate-500 dark:text-[#b9aa9a]">ADMIN</span>
+            <span v-else class="flex h-full items-center justify-center text-xs text-slate-500 ">ADMIN</span>
           </div>
 
           <div>
@@ -26,7 +26,7 @@
             <div class="mt-1 flex flex-wrap items-center gap-2">
               <button
                 type="button"
-                class="rounded-xl border border-slate-200 px-3 py-1.5 text-xs font-medium hover:border-primary hover:text-primary dark:border-[#3c342e]"
+                class="rounded-xl border border-slate-200 px-3 py-1.5 text-xs font-medium hover:border-primary hover:text-primary "
                 @click="triggerAvatarUpload"
               >
                 Chọn ảnh
@@ -35,13 +35,13 @@
               <button
                 v-if="resolvedAvatar"
                 type="button"
-                class="rounded-xl border border-red-200 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 dark:border-red-900/40 dark:text-red-400"
+                class="rounded-xl border border-red-200 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 /40 "
                 @click="removeAvatar"
               >
                 Xóa ảnh
               </button>
             </div>
-            <p class="mt-1 text-xs text-slate-500 dark:text-[#b9aa9a]">PNG/JPG, tối đa 2MB.</p>
+            <p class="mt-1 text-xs text-slate-500 ">PNG/JPG, tối đa 2MB.</p>
             <p v-if="uploadError" class="mt-1 text-xs text-red-500">{{ uploadError }}</p>
 
             <input
@@ -56,27 +56,27 @@
 
         <label class="flex flex-col gap-2">
           <span class="text-sm font-medium">Tên hiển thị</span>
-          <input v-model="form.username" type="text" class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-primary dark:border-[#3c342e] dark:bg-[#1f1a17]" />
+          <input v-model="form.username" type="text" class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-primary " />
         </label>
 
         <label class="flex flex-col gap-2">
           <span class="text-sm font-medium">Email</span>
-          <input v-model="form.gmail" type="email" class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-primary dark:border-[#3c342e] dark:bg-[#1f1a17]" />
+          <input v-model="form.gmail" type="email" class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-primary " />
         </label>
 
         <label class="flex flex-col gap-2">
           <span class="text-sm font-medium">Số điện thoại</span>
-          <input v-model="form.phone" type="text" class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-primary dark:border-[#3c342e] dark:bg-[#1f1a17]" />
+          <input v-model="form.phone" type="text" class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-primary " />
         </label>
 
         <label class="md:col-span-2 flex flex-col gap-2">
           <span class="text-sm font-medium">Địa chỉ</span>
-          <textarea v-model="form.address" rows="3" class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-primary dark:border-[#3c342e] dark:bg-[#1f1a17]" />
+          <textarea v-model="form.address" rows="3" class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-primary " />
         </label>
 
-        <div class="md:col-span-2 rounded-2xl border border-slate-200 p-4 dark:border-[#3c342e]">
+        <div class="md:col-span-2 rounded-2xl border border-slate-200 p-4 ">
           <p class="text-sm font-medium">Đổi mật khẩu</p>
-          <p class="mt-1 text-xs text-slate-500 dark:text-[#b9aa9a]">Để trống nếu bạn không muốn thay đổi mật khẩu.</p>
+          <p class="mt-1 text-xs text-slate-500 ">Để trống nếu bạn không muốn thay đổi mật khẩu.</p>
 
           <div class="mt-3 grid gap-4 md:grid-cols-2">
             <label class="flex flex-col gap-2">
@@ -85,7 +85,7 @@
                 v-model="form.newPassword"
                 type="password"
                 autocomplete="new-password"
-                class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-primary dark:border-[#3c342e] dark:bg-[#1f1a17]"
+                class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-primary "
               />
             </label>
 
@@ -95,7 +95,7 @@
                 v-model="form.confirmPassword"
                 type="password"
                 autocomplete="new-password"
-                class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-primary dark:border-[#3c342e] dark:bg-[#1f1a17]"
+                class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-primary "
               />
             </label>
           </div>

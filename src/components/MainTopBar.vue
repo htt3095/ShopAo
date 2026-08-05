@@ -1,23 +1,23 @@
 <template>
-  <header :class="['retail-header z-50 transition-all duration-300', isHome ? 'absolute w-full top-0 bg-transparent' : 'sticky top-0 bg-[#0a0a0b]/80 border-b border-[#27272a] backdrop-blur-xl']">
+  <header :class="['retail-header z-50 transition-all duration-300', isHome ? 'absolute w-full top-0 bg-transparent' : 'sticky top-0 bg-white/90 border-b border-slate-200 backdrop-blur-xl']">
     <div class="mx-auto flex w-full max-w-[1400px] items-center justify-between px-4 py-4 md:px-8 xl:px-10">
       
       <!-- 1. Logo (Left) -->
       <router-link to="/" class="flex items-center gap-3 group shrink-0">
         <div class="hidden sm:block">
-          <p class="text-[10px] font-semibold uppercase tracking-[0.24em] text-primary">Peak Seven</p>
-          <h2 class="font-headline text-[24px] uppercase leading-none tracking-tight text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]">SPORT STORE</h2>
+          <p class="text-[10px] font-semibold uppercase tracking-[0.24em] text-primary">SportX</p>
+          <h2 class="font-headline text-[24px] uppercase leading-none tracking-tight text-slate-900 drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]">SPORT STORE</h2>
         </div>
       </router-link>
 
       <!-- 2. Centered Nav (Middle) -->
       <nav class="hidden flex-1 items-center justify-center xl:flex">
-        <div class="flex items-center gap-8 rounded-full bg-[#18181b]/90 border border-[#27272a] px-8 py-3 shadow-glass text-[12px] font-medium tracking-wide text-[#a1a1aa]">
-          <router-link to="/" class="hover:text-primary hover:drop-shadow-[0_0_8px_rgba(255,77,0,0.6)] transition-all text-white">Trang chủ</router-link>
+        <div class="flex items-center gap-8 rounded-full bg-white/90 border border-slate-200 px-8 py-3 shadow-glass text-[12px] font-medium tracking-wide text-slate-500">
+          <router-link to="/" class="hover:text-primary hover:drop-shadow-[0_0_8px_rgba(255,77,0,0.6)] transition-all text-slate-900">Trang chủ</router-link>
           <router-link to="/shop" class="hover:text-primary hover:drop-shadow-[0_0_8px_rgba(255,77,0,0.6)] transition-all">Cửa Hàng</router-link>
           <router-link to="/brands" class="hover:text-primary hover:drop-shadow-[0_0_8px_rgba(255,77,0,0.6)] transition-all">Thương hiệu</router-link>
           <router-link to="/vouchers" class="hover:text-primary hover:drop-shadow-[0_0_8px_rgba(255,77,0,0.6)] transition-all">Khuyến mãi</router-link>
-          <router-link to="/about" class="hover:text-primary hover:drop-shadow-[0_0_8px_rgba(255,77,0,0.6)] transition-all">Về Peak Seven</router-link>
+          <router-link to="/about" class="hover:text-primary hover:drop-shadow-[0_0_8px_rgba(255,77,0,0.6)] transition-all">Về SportX</router-link>
           <router-link v-if="isAdmin" to="/admin" class="hover:text-primary hover:drop-shadow-[0_0_8px_rgba(255,77,0,0.6)] transition-all text-primary">Quản trị</router-link>
         </div>
       </nav>
@@ -25,7 +25,7 @@
       <!-- 3. Icons & Actions (Right) -->
       <div class="flex shrink-0 items-center justify-end gap-2">
         <!-- Cart Icon -->
-        <router-link to="/cart" class="relative flex size-11 items-center justify-center rounded-full text-slate-300 hover:text-primary hover:bg-[#18181b] transition-colors">
+        <router-link to="/cart" class="relative flex size-11 items-center justify-center rounded-full text-slate-500 hover:text-primary hover:bg-slate-100 transition-colors">
           <span class="material-symbols-outlined">shopping_bag</span>
           <span v-if="cartCount > 0" class="absolute right-1 top-2 flex size-4 items-center justify-center rounded-full bg-primary text-[9px] font-bold text-white shadow-neon">
             {{ cartCount }}
@@ -35,7 +35,7 @@
         <!-- User Menu -->
         <div v-if="isLoggedIn" ref="userMenuRef" class="relative ml-2">
           <button
-            class="flex size-11 items-center justify-center rounded-full border border-[#27272a] bg-[#18181b] text-white hover:border-primary transition-colors"
+            class="flex size-11 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-800 hover:border-primary transition-colors"
             type="button"
             @click="toggleUserMenu"
           >
@@ -54,14 +54,14 @@
 
           <div
             v-if="showUserMenu"
-            class="absolute right-0 mt-3 w-64 rounded-3xl border border-slate-200 bg-[#fffdf8] p-3 shadow-card-warm dark:border-[#3c342e] dark:bg-[#1f1a17]"
+            class="absolute right-0 mt-3 w-64 rounded-3xl border border-slate-200 bg-[#fffdf8] p-3 shadow-card-warm"
           >
-            <div class="rounded-2xl bg-[#f6efe6] px-4 py-3 dark:bg-[#2b241f]">
+            <div class="rounded-2xl bg-[#f6efe6] px-4 py-3">
               <p class="text-[11px] uppercase tracking-[0.22em] text-primary">
                 Tài khoản
               </p>
               <p
-                class="mt-1 truncate text-sm font-semibold text-slate-900 dark:text-white"
+                class="mt-1 truncate text-sm font-semibold text-slate-900"
               >
                 {{ userEmail || "Không có email" }}
               </p>
@@ -75,13 +75,13 @@
               >
               <router-link
                 to="/orders"
-                class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+                class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-100"
               >
                 Đơn hàng của tôi
               </router-link>
               <button
                 type="button"
-                class="rounded-2xl px-4 py-3 text-left font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
+                class="rounded-2xl px-4 py-3 text-left font-medium text-red-600 hover:bg-red-50"
                 @click="handleLogout"
               >
                 Đăng xuất
@@ -117,7 +117,7 @@ const isHome = computed(() => route.name === 'home' || route.path === '/');
 
 const showUserMenu = ref(false);
 const isLoggedIn = ref(false);
-const userName = ref("Khách Peak Seven");
+const userName = ref("Khách SportX");
 const userEmail = ref("");
 const userAvatar = ref("");
 const userMenuRef = ref(null);
@@ -156,7 +156,7 @@ function syncSession() {
 
   if (!rawUser && !token) {
     isLoggedIn.value = false;
-    userName.value = "Khách Peak Seven";
+    userName.value = "Khách SportX";
     userEmail.value = "";
     userAvatar.value = "";
     return;
@@ -168,11 +168,11 @@ function syncSession() {
 
   try {
     const user = JSON.parse(rawUser);
-    userName.value = user.username || "Khách Peak Seven";
+    userName.value = user.username || "Khách SportX";
     userEmail.value = user.gmail || user.email || "";
     userAvatar.value = user.imgUrl || "";
   } catch {
-    userName.value = "Khách Peak Seven";
+    userName.value = "Khách SportX";
     userEmail.value = "";
     userAvatar.value = "";
   }

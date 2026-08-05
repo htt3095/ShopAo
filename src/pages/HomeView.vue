@@ -3,7 +3,7 @@
     <MainTopBar />
 
     <main class="flex-1 pb-16">
-      <section class="w-full relative bg-[#0a0a0b]">
+      <section class="w-full relative bg-white">
         <div class="relative w-full h-[600px] lg:h-[800px] overflow-hidden">
           
           <!-- Background Image Transition -->
@@ -16,9 +16,9 @@
             />
           </transition>
           
-          <!-- Dark Overlay for text readability -->
-          <div class="absolute inset-0 bg-gradient-to-r from-black/90 via-black/50 to-transparent"></div>
-          <div class="absolute inset-0 bg-black/30"></div>
+          <!-- Light Overlay for text readability -->
+          <div class="absolute inset-0 bg-gradient-to-r from-white/90 via-white/50 to-transparent"></div>
+          <div class="absolute inset-0 bg-white/30"></div>
 
           <div class="relative z-10 w-full h-full max-w-[1400px] mx-auto px-4 md:px-8 xl:px-10 flex flex-col justify-center">
             <!-- Left Text Content -->
@@ -27,14 +27,14 @@
                 <span class="inline-flex items-center gap-2 rounded-full border border-primary/40 bg-primary/20 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-primary shadow-neon mb-6 backdrop-blur-sm">
                   {{ heroSlides[currentSlide].kicker }}
                 </span>
-                <h1 class="retail-heading text-[48px] leading-[0.95] text-white sm:text-[68px] lg:text-[76px] drop-shadow-[0_4px_10px_rgba(0,0,0,0.8)]">
+                <h1 class="retail-heading text-[48px] leading-[0.95] text-slate-900 sm:text-[68px] lg:text-[76px]">
                   {{ heroSlides[currentSlide].titleLine1 }}
                   <br />
                   <span class="text-primary neon-text">{{ heroSlides[currentSlide].titleLine2 }}</span>
                   <br />
                   {{ heroSlides[currentSlide].titleLine3 }}
                 </h1>
-                <p class="mt-6 max-w-xl text-base leading-relaxed text-[#d4d4d8] sm:text-lg drop-shadow-lg">
+                <p class="mt-6 max-w-xl text-base leading-relaxed text-slate-600 sm:text-lg">
                   {{ heroSlides[currentSlide].description }}
                 </p>
 
@@ -47,7 +47,7 @@
                   </router-link>
                   <router-link
                     to="/size-guide"
-                    class="inline-flex items-center rounded-full border border-white/30 px-10 py-4 text-sm font-bold text-white transition-all duration-300 hover:border-white bg-white/10 backdrop-blur-md hover:bg-white/20"
+                    class="inline-flex items-center rounded-full border border-slate-300 px-10 py-4 text-sm font-bold text-slate-800 transition-all duration-300 hover:border-slate-500 bg-white/50 backdrop-blur-md hover:bg-white/80"
                   >
                     Xem Bảng Size
                   </router-link>
@@ -59,7 +59,7 @@
             <div class="absolute bottom-12 left-4 md:left-8 xl:left-10 flex gap-4 z-20 items-center">
               <button
                 @click="prevSlide"
-                class="flex size-10 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur-md transition-all hover:bg-primary"
+                class="flex size-10 items-center justify-center rounded-full bg-white/40 text-slate-800 backdrop-blur-md transition-all hover:bg-primary hover:text-white"
               >
                 <span class="material-symbols-outlined">chevron_left</span>
               </button>
@@ -69,13 +69,13 @@
                   v-for="(_, index) in heroSlides" 
                   :key="'dot-'+index"
                   @click="setSlide(index)"
-                  :class="['h-1.5 rounded-full transition-all duration-300', currentSlide === index ? 'w-8 bg-primary shadow-neon' : 'w-2 bg-white/50 hover:bg-white']"
+                  :class="['h-1.5 rounded-full transition-all duration-300', currentSlide === index ? 'w-8 bg-primary shadow-neon' : 'w-2 bg-slate-300 hover:bg-slate-400']"
                 ></button>
               </div>
 
               <button
                 @click="nextSlide"
-                class="flex size-10 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur-md transition-all hover:bg-primary"
+                class="flex size-10 items-center justify-center rounded-full bg-white/40 text-slate-800 backdrop-blur-md transition-all hover:bg-primary hover:text-white"
               >
                 <span class="material-symbols-outlined">chevron_right</span>
               </button>
@@ -91,10 +91,10 @@
             <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">
               Lối vào nhanh
             </p>
-            <h2 class="mt-3 font-headline text-[32px] md:text-[40px] uppercase leading-none text-white ">
+            <h2 class="mt-3 font-headline text-[32px] md:text-[40px] uppercase leading-none text-slate-900 ">
               Mua Theo Nhu Cầu
             </h2>
-            <p class="mt-4 text-sm leading-6 text-[#a1a1aa] ">
+            <p class="mt-4 text-sm leading-6 text-slate-500 ">
               Chọn điểm bắt đầu phù hợp để vào đúng trang bạn cần ngay từ đầu.
             </p>
           </div>
@@ -109,13 +109,13 @@
             </router-link>
             <router-link
               to="/size-guide"
-              class="group inline-flex items-center justify-center rounded-xl border border-[#27272a] bg-[#18181b]/80 px-6 py-4 text-sm font-semibold text-white transition-colors hover:border-primary hover:text-primary  "
+              class="group inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-6 py-4 text-sm font-semibold text-slate-800 transition-colors hover:border-primary hover:text-primary  "
             >
               Bảng size
             </router-link>
             <router-link
               to="/vouchers"
-              class="group inline-flex items-center justify-center rounded-xl border border-[#27272a] bg-[#18181b]/80 px-6 py-4 text-sm font-semibold text-white transition-colors hover:border-primary hover:text-primary  "
+              class="group inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-6 py-4 text-sm font-semibold text-slate-800 transition-colors hover:border-primary hover:text-primary  "
             >
               Kiểm tra ưu đãi
             </router-link>
@@ -135,10 +135,10 @@
               <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">
                 {{ item.kicker }}
               </p>
-              <h3 class="mt-3 font-headline text-[24px] uppercase leading-none text-white ">
+              <h3 class="mt-3 font-headline text-[24px] uppercase leading-none text-slate-900 ">
                 {{ item.title }}
               </h3>
-              <p class="mt-4 text-sm leading-6 text-[#a1a1aa] ">
+              <p class="mt-4 text-sm leading-6 text-slate-500 ">
                 {{ item.description }}
               </p>
             </div>
@@ -163,13 +163,13 @@
           <div>
             <span class="retail-kicker">Danh mục nổi bật</span>
             <h2
-              class="retail-heading mt-4 text-[42px] leading-none text-white "
+              class="retail-heading mt-4 text-[42px] leading-none text-slate-900 "
             >
               Chọn nhanh theo nhu cầu
             </h2>
           </div>
           <p
-            class="max-w-xl text-sm leading-6 text-[#a1a1aa] "
+            class="max-w-xl text-sm leading-6 text-slate-500 "
           >
             Mỗi danh mục dẫn thẳng đến trang mua hàng để bạn lọc và xem giá
             ngay, không mất thêm thao tác vòng.
@@ -196,7 +196,7 @@
                   Danh mục
                 </p>
                 <h3
-                  class="mt-2 text-lg font-semibold text-white "
+                  class="mt-2 text-lg font-semibold text-slate-900 "
                 >
                   {{ cat.name }}
                 </h3>
@@ -215,7 +215,7 @@
           <div>
             <span class="retail-kicker">Sản phẩm nên xem</span>
             <h2
-              class="retail-heading mt-4 text-[42px] leading-none text-white "
+              class="retail-heading mt-4 text-[42px] leading-none text-slate-900 "
             >
               Mẫu đang được quan tâm
             </h2>
@@ -235,7 +235,7 @@
           >
             <router-link :to="`/product/${product.id}`" class="block">
               <div
-                class="aspect-[5/4] overflow-hidden bg-[#ece4da] "
+                class="aspect-[5/4] overflow-hidden bg-slate-100 "
               >
                 <img
                   :src="getProductImage(product)"
@@ -252,18 +252,18 @@
               </p>
               <router-link
                 :to="`/product/${product.id}`"
-                class="mt-2 block min-h-[52px] text-lg font-semibold leading-6 text-white transition-colors hover:text-primary "
+                class="mt-2 block min-h-[52px] text-lg font-semibold leading-6 text-slate-900 transition-colors hover:text-primary "
                 >{{ product.name }}</router-link
               >
               <div class="mt-4 flex items-center justify-between">
                 <div>
                   <p
-                    class="text-xs uppercase tracking-[0.18em] text-slate-400 dark:text-[#a8988a]"
+                    class="text-xs uppercase tracking-[0.18em] text-slate-500"
                   >
                     Giá tham khảo
                   </p>
                   <p
-                    class="mt-1 text-xl font-semibold text-white "
+                    class="mt-1 text-xl font-semibold text-slate-900 "
                   >
                     {{ formatMoney(getProductPrice(product)) }}
                   </p>
@@ -291,7 +291,7 @@
             <div>
               <span class="retail-kicker">Ưu đãi của bạn</span>
               <h2
-                class="retail-heading mt-4 text-[38px] leading-none text-white "
+                class="retail-heading mt-4 text-[38px] leading-none text-slate-900 "
               >
                 Mã giảm giá đang khả dụng
               </h2>
@@ -307,7 +307,7 @@
             <article
               v-for="voucher in activeVouchers.slice(0, 3)"
               :key="voucher.id"
-              class="rounded-[26px] border border-dashed border-primary/30 bg-[#f6efe6] p-5 "
+              class="rounded-[26px] border border-dashed border-primary/30 bg-white p-5 "
             >
               <div class="flex items-start justify-between gap-4">
                 <div>
@@ -317,21 +317,21 @@
                     Mã áp dụng
                   </p>
                   <h3
-                    class="mt-2 text-2xl font-bold text-white "
+                    class="mt-2 text-2xl font-bold text-slate-900 "
                   >
                     {{ voucher.code }}
                   </h3>
                 </div>
                 <button
                   type="button"
-                  class="inline-flex size-10 items-center justify-center rounded-full bg-white text-primary shadow-sm transition-colors hover:bg-primary hover:text-white dark:bg-[#1f1a17]"
+                  class="inline-flex size-10 items-center justify-center rounded-full bg-slate-100 text-primary shadow-sm transition-colors hover:bg-primary hover:text-white"
                   @click="copyCode(voucher.code)"
                 >
                   <span class="material-symbols-outlined">content_copy</span>
                 </button>
               </div>
               <p
-                class="mt-4 text-sm leading-6 text-[#a1a1aa] "
+                class="mt-4 text-sm leading-6 text-slate-500 "
               >
                 Giảm {{ voucher.discountValue
                 }}{{ voucher.discountType === "PERCENT" ? "%" : "đ" }} cho đơn
@@ -370,7 +370,7 @@ const heroSlides = ref([
     titleLine1: 'CHỌN CHIẾC ÁO',
     titleLine2: 'ĐÚNG FORM',
     titleLine3: 'CHO TỪNG NGÀY.',
-    description: 'Từ đi làm, đi học đến chạy bộ cuối tuần. Peak Seven sắp sẵn các dòng áo thể thao dễ chọn, chất vải thoáng mát và lên form cực chuẩn để bạn luôn thoải mái vận động.',
+    description: 'Từ đi làm, đi học đến chạy bộ cuối tuần. SportX sắp sẵn các dòng áo thể thao dễ chọn, chất vải thoáng mát và lên form cực chuẩn để bạn luôn thoải mái vận động.',
     image: '/banners/hero1.png',
     link: '/shop',
     btnText: 'Mua Ngay Bây Giờ'
@@ -495,7 +495,7 @@ const featuredProducts = computed(() => {
 
 function getBrandName(brandId) {
   const brand = productStore.brands.find((item) => item.id === brandId);
-  return brand?.name || "Peak Seven Select";
+  return brand?.name || "SportX Select";
 }
 
 function getProductPrice(product) {
@@ -546,7 +546,7 @@ async function loadUserData() {
   try {
     const user = JSON.parse(rawUser);
     isLoggedIn.value = true;
-    userName.value = user.username || "Khách Peak Seven";
+    userName.value = user.username || "Khách SportX";
     userEmail.value = user.gmail || user.email || "";
     userAvatar.value = user.imgUrl || "";
 

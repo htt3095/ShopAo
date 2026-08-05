@@ -21,7 +21,7 @@
 
           <button
             type="button"
-            class="inline-flex items-center gap-2 rounded-xl bg-orange-500 px-3 py-2 text-sm font-semibold text-white hover:bg-orange-600 dark:bg-orange-600 dark:hover:bg-orange-700"
+            class="inline-flex items-center gap-2 rounded-xl bg-orange-500 px-3 py-2 text-sm font-semibold text-white hover:bg-orange-600 dark:hover:bg-orange-700"
             @click="openBulkCreate"
           >
             <span class="material-symbols-outlined text-[18px]">library_add</span>
@@ -30,7 +30,7 @@
 
           <button
             type="button"
-            class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium hover:border-primary hover:text-primary dark:border-[#3c342e] dark:bg-[#1f1a17]"
+            class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium hover:border-primary hover:text-primary "
             @click="resetFilters"
           >
             <span class="material-symbols-outlined text-[18px]"
@@ -41,7 +41,7 @@
 
           <button
             type="button"
-            class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium hover:border-primary hover:text-primary dark:border-[#3c342e] dark:bg-[#1f1a17]"
+            class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium hover:border-primary hover:text-primary "
             @click="loadInventory"
           >
             <span class="material-symbols-outlined text-[18px]">refresh</span>
@@ -56,7 +56,7 @@
       <section class="retail-card p-4">
         <div class="grid gap-3 md:grid-cols-[1fr_auto]">
           <label
-            class="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 dark:border-[#3c342e] dark:bg-[#1f1a17]"
+            class="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 "
           >
             <span class="material-symbols-outlined text-[18px] text-slate-400"
               >search</span
@@ -72,7 +72,7 @@
 
           <button
             type="button"
-            class="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium hover:border-primary hover:text-primary dark:border-[#3c342e] dark:bg-[#1f1a17]"
+            class="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium hover:border-primary hover:text-primary "
             @click="showFilters = !showFilters"
           >
             <span class="material-symbols-outlined text-[18px]">tune</span>
@@ -90,7 +90,7 @@
             >
             <select
               v-model="filters.productId"
-              class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-[#3c342e] dark:bg-[#1f1a17]"
+              class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm "
               @change="applyFilters"
             >
               <option :value="null">Tất cả sản phẩm</option>
@@ -110,7 +110,7 @@
             >
             <select
               v-model="filters.colorId"
-              class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-[#3c342e] dark:bg-[#1f1a17]"
+              class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm "
               @change="applyFilters"
             >
               <option :value="null">Tất cả màu</option>
@@ -126,7 +126,7 @@
             >
             <select
               v-model="filters.sizeId"
-              class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-[#3c342e] dark:bg-[#1f1a17]"
+              class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm "
               @change="applyFilters"
             >
               <option :value="null">Tất cả size</option>
@@ -142,7 +142,7 @@
             >
             <select
               v-model="filters.stockStatus"
-              class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-[#3c342e] dark:bg-[#1f1a17]"
+              class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm "
               @change="applyFilters"
             >
               <option :value="null">Tất cả</option>
@@ -164,7 +164,7 @@
               min="0"
               step="10000"
               placeholder="0"
-              class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-[#3c342e] dark:bg-[#1f1a17]"
+              class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm "
               @input="applyFilters"
             />
           </div>
@@ -179,7 +179,7 @@
               min="0"
               step="10000"
               placeholder="Không giới hạn"
-              class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-[#3c342e] dark:bg-[#1f1a17]"
+              class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm "
               @input="applyFilters"
             />
           </div>
@@ -193,7 +193,7 @@
               type="number"
               min="1"
               placeholder="1"
-              class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-[#3c342e] dark:bg-[#1f1a17]"
+              class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm "
               @input="applyFilters"
             />
           </div>
@@ -207,17 +207,17 @@
               type="number"
               min="1"
               placeholder="Không giới hạn"
-              class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-[#3c342e] dark:bg-[#1f1a17]"
+              class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm "
               @input="applyFilters"
             />
           </div>
         </div>
 
         <div
-          class="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-slate-200 pt-4 dark:border-[#3c342e]"
+          class="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-slate-200 pt-4 "
         >
-          <div class="text-sm text-slate-500 dark:text-[#b9aa9a]">
-            <span class="font-semibold text-slate-700 dark:text-white">{{
+          <div class="text-sm text-slate-500 ">
+            <span class="font-semibold text-slate-700 ">{{
               filteredVariants.length
             }}</span>
             / {{ variants.length }} biến thể
@@ -225,14 +225,14 @@
           <div class="flex gap-2">
             <button
               type="button"
-              class="rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-200 dark:bg-[#2b241f] dark:text-[#b9aa9a]"
+              class="rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-200 "
               @click="applyFilters"
             >
               Áp dụng
             </button>
             <button
               type="button"
-              class="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium hover:border-primary hover:text-primary dark:border-[#3c342e]"
+              class="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium hover:border-primary hover:text-primary "
               @click="resetFilters"
             >
               Đặt lại
@@ -244,16 +244,16 @@
             <!-- Modal: Cập nhật ảnh theo nhóm màu -->
       <div v-if="showBulkImageModal" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 overflow-y-auto">
         <section class="retail-card p-5 w-full max-w-3xl flex flex-col max-h-[90vh] overflow-y-auto relative animate-[fadeIn_0.2s_ease-out]">
-          <button @click="showBulkImageModal = false" class="absolute top-4 right-4 text-slate-400 hover:text-white">
+          <button @click="showBulkImageModal = false" class="absolute top-4 right-4 text-slate-400 hover:text-slate-800">
             <span class="material-symbols-outlined">close</span>
           </button>
           <div class="mb-4 flex items-center justify-between gap-2">
             <div>
-              <h3 class="text-lg font-bold text-white">Cập nhật ảnh theo nhóm màu</h3>
-            <p class="text-xs text-slate-500 dark:text-[#b9aa9a]">
+              <h3 class="text-lg font-bold text-slate-800">Cập nhật ảnh theo nhóm màu</h3>
+            <p class="text-xs text-slate-500 ">
               1 bộ ảnh áp dụng cho toàn bộ biến thể cùng màu (khác size).
             </p>
-            <p class="text-[11px] text-slate-500 dark:text-[#b9aa9a]">
+            <p class="text-[11px] text-slate-500 ">
               Luôn cố định 5 ảnh: Ảnh chính + 4 ảnh phụ. Upload mới sẽ ghi đè
               đúng slot, không cộng dồn.
             </p>
@@ -262,7 +262,7 @@
 
         <p
           v-if="bulkImageNotice"
-          class="mb-2 rounded-lg border border-amber-200 bg-amber-50 px-2.5 py-1.5 text-[11px] text-amber-700 dark:border-amber-700/50 dark:bg-amber-900/20 dark:text-amber-300"
+          class="mb-2 rounded-lg border border-amber-200 bg-amber-50 px-2.5 py-1.5 text-[11px] text-amber-700 /50 /20 "
         >
           {{ bulkImageNotice }}
         </p>
@@ -274,7 +274,7 @@
             >
             <select
               v-model.number="bulkImageProductId"
-              class="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-sm dark:border-[#4a4038] dark:bg-[#1f1a17]"
+              class="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-sm "
               @change="openBulkImageForGroup(bulkImageProductId, null)"
             >
               <option :value="null">-- Chọn sản phẩm --</option>
@@ -290,7 +290,7 @@
             >
             <select
               v-model.number="bulkImageColorId"
-              class="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-sm dark:border-[#4a4038] dark:bg-[#1f1a17]"
+              class="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-sm "
               :disabled="!bulkImageProductId"
               @change="preloadBulkSlotsFromVariantDetails"
             >
@@ -306,7 +306,7 @@
           </div>
 
           <div
-            class="rounded-lg border border-slate-300 px-2.5 py-1.5 text-sm dark:border-[#4a4038]"
+            class="rounded-lg border border-slate-300 px-2.5 py-1.5 text-sm "
           >
             <div class="text-xs text-slate-500">Biến thể trong nhóm</div>
             <div class="mt-1 font-semibold">
@@ -319,15 +319,15 @@
           <div
             v-for="entry in imageSlotEntries"
             :key="`bulk-${entry.key}`"
-            class="rounded-lg border border-slate-300 p-1.5 dark:border-[#4a4038]"
+            class="rounded-lg border border-slate-300 p-1.5 "
           >
             <div
-              class="mb-1 truncate text-[10px] font-semibold text-slate-600 dark:text-[#d6c7b7]"
+              class="mb-1 truncate text-[10px] font-semibold text-slate-600 "
             >
               {{ entry.label }}
             </div>
             <div
-              class="mb-1.5 aspect-square overflow-hidden rounded-md bg-slate-100 dark:bg-[#2b241f]"
+              class="mb-1.5 aspect-square overflow-hidden rounded-md bg-slate-100 "
             >
               <img
                 v-if="slotSource(bulkImageSlots, entry.key)"
@@ -343,7 +343,7 @@
               </div>
             </div>
             <label
-              class="block cursor-pointer rounded-md border border-slate-300 px-1.5 py-1 text-center text-[10px] font-medium hover:border-primary hover:text-primary dark:border-[#4a4038]"
+              class="block cursor-pointer rounded-md border border-slate-300 px-1.5 py-1 text-center text-[10px] font-medium hover:border-primary hover:text-primary "
             >
               Chọn ảnh thay slot
               <input
@@ -376,7 +376,7 @@
           </button>
           <p
             v-if="bulkImageProductId && bulkImageColorId"
-            class="text-[11px] text-slate-500 dark:text-[#b9aa9a]"
+            class="text-[11px] text-slate-500 "
           >
             Đang đọc ảnh từ {{ bulkTargetVariants.length }} biến thể trong nhóm
             màu đã chọn.
@@ -386,7 +386,7 @@
           </p>
           <p
             v-if="bulkImageSuccess"
-            class="text-xs text-green-600 dark:text-green-400"
+            class="text-xs text-green-600 "
           >
             {{ bulkImageSuccess }}
           </p>
@@ -398,19 +398,19 @@
       <section class="retail-card p-5">
         <div class="mb-4 grid grid-cols-1 gap-3 text-sm md:grid-cols-4">
           <div
-            class="rounded-xl border border-slate-200 px-3 py-2 dark:border-[#3c342e]"
+            class="rounded-xl border border-slate-200 px-3 py-2 "
           >
             Tổng biến thể:
             <span class="font-semibold">{{ variants.length }}</span>
           </div>
           <div
-            class="rounded-xl border border-slate-200 px-3 py-2 dark:border-[#3c342e]"
+            class="rounded-xl border border-slate-200 px-3 py-2 "
           >
             Còn hàng:
             <span class="font-semibold text-green-600">{{ inStockCount }}</span>
           </div>
           <div
-            class="rounded-xl border border-slate-200 px-3 py-2 dark:border-[#3c342e]"
+            class="rounded-xl border border-slate-200 px-3 py-2 "
           >
             Sắp hết:
             <span class="font-semibold text-yellow-600">{{
@@ -418,7 +418,7 @@
             }}</span>
           </div>
           <div
-            class="rounded-xl border border-slate-200 px-3 py-2 dark:border-[#3c342e]"
+            class="rounded-xl border border-slate-200 px-3 py-2 "
           >
             Hết hàng:
             <span class="font-semibold text-red-600">{{
@@ -429,19 +429,19 @@
 
         <div
           v-if="error"
-          class="mb-4 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-900/40 dark:bg-red-900/20 dark:text-red-300"
+          class="mb-4 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 /40 /20 "
         >
           {{ error }}
         </div>
 
         <div
           v-if="hiddenVariants.length > 0"
-          class="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-3 py-3 text-sm text-slate-700 dark:border-amber-900/20 dark:bg-[#3f2e11] dark:text-[#fbe7a1]"
+          class="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-3 py-3 text-sm text-slate-700 /20 "
         >
           <div class="flex flex-wrap items-center justify-between gap-3">
             <div>
               <p class="font-semibold">Biến thể ẩn tạm</p>
-              <p class="text-xs text-slate-500 dark:text-[#e1c797]">
+              <p class="text-xs text-slate-500 ">
                 Những biến thể đã xóa mềm sẽ tạm ẩn khỏi danh sách được dùng.
                 Bạn có thể khôi phục lại khi cần.
               </p>
@@ -458,7 +458,7 @@
             <div
               v-for="variant in hiddenVariants"
               :key="variant.id"
-              class="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 dark:border-[#4c4138] dark:bg-[#1e1812]"
+              class="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 "
             >
               <div class="text-sm">
                 <span class="font-semibold">#{{ variant.id }}</span>
@@ -470,7 +470,7 @@
               </div>
               <button
                 type="button"
-                class="rounded-xl bg-emerald-500 px-3 py-2 text-xs font-semibold text-white hover:bg-emerald-600"
+                class="rounded-xl bg-emerald-500 px-3 py-2 text-xs font-semibold text-slate-800 hover:bg-emerald-600"
                 @click="restoreVariant(variant)"
               >
                 Khôi phục
@@ -481,14 +481,14 @@
 
         <div
           v-if="loading"
-          class="py-10 text-center text-sm text-slate-500 dark:text-[#b9aa9a]"
+          class="py-10 text-center text-sm text-slate-500 "
         >
           Đang tải dữ liệu tồn kho...
         </div>
 
         <div
           v-else-if="filteredVariants.length === 0"
-          class="rounded-2xl border border-dashed border-slate-300 p-8 text-center text-sm text-slate-500 dark:border-[#3c342e] dark:text-[#b9aa9a]"
+          class="rounded-2xl border border-dashed border-slate-300 p-8 text-center text-sm text-slate-500 "
         >
           Không có dữ liệu tồn kho phù hợp.
         </div>
@@ -497,18 +497,18 @@
           <article
             v-for="group in groupedVariants"
             :key="group.productId"
-            class="rounded-xl border-2 border-slate-300 bg-white/70 shadow-sm dark:border-[#4a4038] dark:bg-[#1a1512]"
+            class="rounded-xl border-2 border-slate-300 bg-white/70 shadow-sm "
           >
             <button
               type="button"
-              class="flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-left hover:bg-slate-50 dark:hover:bg-[#2b241f]"
+              class="flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-left hover:bg-slate-50 dark:hover:bg-white"
               @click="toggleProductExpand(group.productId)"
             >
               <div class="min-w-0">
                 <p class="truncate text-sm font-semibold">
                   {{ group.productName }}
                 </p>
-                <p class="text-xs text-slate-500 dark:text-[#b9aa9a]">
+                <p class="text-xs text-slate-500 ">
                   {{ group.variants.length }} biến thể •
                   {{ group.colorCount }} màu • {{ group.sizeCount }} size • Tồn
                   kho {{ group.totalStock }}
@@ -520,7 +520,7 @@
                     <div
                       v-for="(img, idx) in group.previewImages"
                       :key="`${group.productId}-preview-${idx}`"
-                      class="size-8 overflow-hidden rounded-md border border-slate-300 bg-slate-100 ring-2 ring-white dark:border-[#4a4038] dark:bg-[#2b241f] dark:ring-[#1a1512]"
+                      class="size-8 overflow-hidden rounded-md border border-slate-300 bg-slate-100 ring-2 ring-white dark:ring-[#1a1512]"
                     >
                       <img
                         :src="img"
@@ -529,13 +529,13 @@
                       />
                     </div>
                   </div>
-                  <span class="text-[11px] text-slate-500 dark:text-[#b9aa9a]"
+                  <span class="text-[11px] text-slate-500 "
                     >+{{ group.previewCount }}</span
                   >
                 </div>
                 <button
                   type="button"
-                  class="rounded-lg border border-slate-300 px-2 py-1 text-xs font-medium hover:border-primary hover:text-primary dark:border-[#4a4038]"
+                  class="rounded-lg border border-slate-300 px-2 py-1 text-xs font-medium hover:border-primary hover:text-primary "
                   @click.stop="openBulkImageForGroup(group.productId)"
                 >
                   Sửa ảnh theo màu
@@ -554,13 +554,13 @@
 
             <div
               v-if="isExpandedProduct(group.productId)"
-              class="border-t-2 border-slate-300 px-3 py-2 dark:border-[#4a4038]"
+              class="border-t-2 border-slate-300 px-3 py-2 "
             >
               <div class="grid gap-2">
                 <div
                   v-for="v in group.variants"
                   :key="v.id"
-                  class="grid grid-cols-[1fr_auto] items-center gap-2 rounded-lg border-2 border-slate-200 bg-slate-50/80 px-2 py-2 text-xs dark:border-[#3a312b] dark:bg-[#201a16] cursor-pointer hover:border-primary/50 transition-colors"
+                  class="grid grid-cols-[1fr_auto] items-center gap-2 rounded-lg border-2 border-slate-200 bg-slate-50/80 px-2 py-2 text-xs cursor-pointer hover:border-primary/50 transition-colors"
                   @click="setBulkColorFromVariant(v)"
                 >
                   <div class="min-w-0">
@@ -568,7 +568,7 @@
                       #{{ v.id }} • {{ v.colorName || "N/A" }} /
                       {{ v.sizeName || "N/A" }}
                     </p>
-                    <p class="mt-1 text-slate-500 dark:text-[#b9aa9a]">
+                    <p class="mt-1 text-slate-500 ">
                       {{ formatCurrency(v.price) }} • Tồn:
                       {{ v.stockQuantity ?? 0 }} • Ảnh:
                       {{ v.imageUrl ? 1 : 0 }} +
@@ -585,7 +585,7 @@
                   </div>
                   <div class="flex items-center gap-1">
                     <button
-                      class="rounded-lg p-1.5 hover:bg-slate-100 dark:hover:bg-[#2b241f]"
+                      class="rounded-lg p-1.5 hover:bg-slate-100 dark:hover:bg-white"
                       title="Chỉnh sửa"
                       @click.stop="openEdit(v)"
                     >
@@ -621,17 +621,17 @@
         @click.self="closeModal"
       >
         <div
-          class="w-full max-w-md max-h-[88vh] overflow-y-auto rounded-2xl bg-white p-4 shadow-2xl dark:bg-[#1f1a17]"
+          class="w-full max-w-md max-h-[88vh] overflow-y-auto rounded-2xl bg-white p-4 shadow-2xl "
         >
           <h3 class="mb-3 text-base font-bold">
               {{ editingId ? `Sửa biến thể #${editingId}` : "Thêm biến thể mới" }}
             </h3>
             
-            <div v-if="editingId" class="mb-4 flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-[#2b241f] border border-slate-200 dark:border-[#3c342e]">
+            <div v-if="editingId" class="mb-4 flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200 ">
               <div>
-                <p class="text-xs font-medium text-slate-500 dark:text-[#b9aa9a]">Ảnh của nhóm màu này</p>
+                <p class="text-xs font-medium text-slate-500 ">Ảnh của nhóm màu này</p>
                 <div class="flex items-center gap-1 mt-1">
-                  <div v-for="entry in imageSlotEntries" :key="entry.key" class="size-8 rounded-md overflow-hidden bg-slate-200 dark:bg-black/50 border border-slate-300 dark:border-slate-700">
+                  <div v-for="entry in imageSlotEntries" :key="entry.key" class="size-8 rounded-md overflow-hidden bg-slate-200 /50 border border-slate-300 ">
                     <img v-if="slotSource(bulkImageSlots, entry.key)" :src="slotSource(bulkImageSlots, entry.key)" class="w-full h-full object-cover" />
                   </div>
                 </div>
@@ -648,7 +648,7 @@
               >
               <select
                 v-model.number="form.productId"
-                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm dark:border-[#3c342e] dark:bg-[#2b241f]"
+                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm "
               >
                 <option :value="null">-- Chọn sản phẩm --</option>
                 <option v-for="p in products" :key="p.id" :value="Number(p.id)">
@@ -663,7 +663,7 @@
               >
               <select
                 v-model.number="form.colorId"
-                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm dark:border-[#3c342e] dark:bg-[#2b241f]"
+                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm "
               >
                 <option :value="null">-- Chọn màu --</option>
                 <option v-for="c in availableColorsForForm" :key="c.id" :value="Number(c.id)">
@@ -678,7 +678,7 @@
               >
               <select
                 v-model.number="form.sizeId"
-                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm dark:border-[#3c342e] dark:bg-[#2b241f]"
+                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm "
               >
                 <option :value="null">-- Chọn size --</option>
                 <option v-for="s in availableSizesForForm" :key="s.id" :value="Number(s.id)">
@@ -696,7 +696,7 @@
                   v-model.number="form.price"
                   type="number"
                   min="0"
-                  class="w-full rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm dark:border-[#3c342e] dark:bg-[#2b241f]"
+                  class="w-full rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm "
                 />
               </div>
               <div>
@@ -707,7 +707,7 @@
                   v-model.number="form.stockQuantity"
                   type="number"
                   min="0"
-                  class="w-full rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm dark:border-[#3c342e] dark:bg-[#2b241f]"
+                  class="w-full rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm "
                 />
               </div>
             </div>
@@ -718,7 +718,7 @@
               >
               <select
                 v-model="form.status"
-                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm dark:border-[#3c342e] dark:bg-[#2b241f]"
+                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm "
               >
                 <option value="SELLING">Đang bán</option>
                 <option value="OUT_OF_STOCK">Hết hàng</option>
@@ -727,7 +727,7 @@
             </div>
 
             <p
-              class="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-700 dark:border-amber-700/50 dark:bg-amber-900/20 dark:text-amber-300"
+              class="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-700 /50 /20 "
             >
               Ảnh biến thể được quản lý tập trung theo nhóm màu ở mục "Cập nhật
               ảnh theo nhóm màu" phía trên.
@@ -741,7 +741,7 @@
           <div class="mt-4 flex justify-end gap-2">
             <button
               type="button"
-              class="rounded-xl border border-slate-200 px-3 py-1.5 text-sm font-medium hover:border-slate-400 dark:border-[#3c342e]"
+              class="rounded-xl border border-slate-200 px-3 py-1.5 text-sm font-medium hover:border-slate-400 "
               @click="closeModal"
             >
               Hủy
@@ -767,10 +767,10 @@
         @click.self="deleteTarget = null"
       >
         <div
-          class="w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl dark:bg-[#1f1a17]"
+          class="w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl "
         >
           <h3 class="mb-2 text-base font-bold">Xác nhận xóa</h3>
-          <p class="text-sm text-slate-500 dark:text-[#b9aa9a]">
+          <p class="text-sm text-slate-500 ">
             Bạn chắc chắn muốn xóa biến thể
             <strong>#{{ deleteTarget.id }}</strong>
             ({{ deleteTarget.productName }} - {{ deleteTarget.colorName }} /
@@ -778,7 +778,7 @@
           </p>
           <div class="mt-5 flex justify-end gap-3">
             <button
-              class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium dark:border-[#3c342e]"
+              class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium "
               @click="deleteTarget = null"
             >
               Hủy
@@ -798,33 +798,33 @@
         <!-- Modal Sinh Biến Thể Hàng Loạt -->
     <Teleport to="body">
       <div v-if="showBulkModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" @click.self="closeBulkModal">
-        <div class="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl dark:bg-[#1f1a17]">
+        <div class="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl ">
           <h3 class="mb-4 text-lg font-bold">Sinh Biến Thể Hàng Loạt</h3>
           
           <div class="grid gap-4">
             <div>
               <label class="mb-1 block text-sm font-medium text-slate-500">Sản phẩm *</label>
-              <select v-model="bulkForm.productId" class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-[#3c342e] dark:bg-[#2b241f]">
+              <select v-model="bulkForm.productId" class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm ">
                 <option :value="null">-- Chọn sản phẩm --</option>
                 <option v-for="p in products" :key="p.id" :value="p.id">{{ p.name }}</option>
               </select>
             </div>
 
             <div class="grid md:grid-cols-2 gap-4">
-              <div class="border rounded-xl p-3 border-slate-200 dark:border-[#3c342e]">
+              <div class="border rounded-xl p-3 border-slate-200 ">
                 <label class="mb-2 block text-sm font-medium text-slate-500">Chọn Màu Sắc *</label>
                 <div class="max-h-40 overflow-y-auto space-y-1">
-                  <label v-for="c in availableColorsForBulk" :key="c.id" class="flex items-center gap-2 text-sm cursor-pointer hover:bg-slate-50 p-1 rounded dark:hover:bg-[#2b241f]">
+                  <label v-for="c in availableColorsForBulk" :key="c.id" class="flex items-center gap-2 text-sm cursor-pointer hover:bg-slate-50 p-1 rounded dark:hover:bg-white">
                     <input type="checkbox" :value="c.id" v-model="bulkForm.selectedColors" class="rounded border-slate-300" />
                     {{ c.name }}
                   </label>
                 </div>
               </div>
 
-              <div class="border rounded-xl p-3 border-slate-200 dark:border-[#3c342e]">
+              <div class="border rounded-xl p-3 border-slate-200 ">
                 <label class="mb-2 block text-sm font-medium text-slate-500">Chọn Kích Cỡ *</label>
                 <div class="max-h-40 overflow-y-auto space-y-1">
-                  <label v-for="s in availableSizesForBulk" :key="s.id" class="flex items-center gap-2 text-sm cursor-pointer hover:bg-slate-50 p-1 rounded dark:hover:bg-[#2b241f]">
+                  <label v-for="s in availableSizesForBulk" :key="s.id" class="flex items-center gap-2 text-sm cursor-pointer hover:bg-slate-50 p-1 rounded dark:hover:bg-white">
                     <input type="checkbox" :value="s.id" v-model="bulkForm.selectedSizes" class="rounded border-slate-300" />
                     {{ s.name }}
                   </label>
@@ -835,23 +835,23 @@
             <div class="grid md:grid-cols-2 gap-4">
               <div>
                 <label class="mb-1 block text-sm font-medium text-slate-500">Giá bán chung (VND) *</label>
-                <input v-model.number="bulkForm.price" type="number" min="0" class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-[#3c342e] dark:bg-[#2b241f]" />
+                <input v-model.number="bulkForm.price" type="number" min="0" class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm " />
               </div>
               <div>
                 <label class="mb-1 block text-sm font-medium text-slate-500">Số lượng tồn kho chung *</label>
-                <input v-model.number="bulkForm.stockQuantity" type="number" min="0" class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-[#3c342e] dark:bg-[#2b241f]" />
+                <input v-model.number="bulkForm.stockQuantity" type="number" min="0" class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm " />
               </div>
             </div>
             
-            <div class="rounded-lg bg-blue-50 p-3 text-sm text-blue-700 dark:bg-blue-900/20 dark:text-blue-300">
+            <div class="rounded-lg bg-blue-50 p-3 text-sm text-blue-700 /20 ">
               Sẽ tạo ra: <strong>{{ newCombinationsCount }}</strong> biến thể.
             </div>
 
             <p v-if="bulkError" class="text-sm text-red-500 font-medium">{{ bulkError }}</p>
           </div>
 
-          <div class="mt-6 flex justify-end gap-3 border-t border-slate-200 pt-4 dark:border-[#3c342e]">
-            <button type="button" class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium hover:bg-slate-50 dark:border-[#3c342e] dark:hover:bg-[#2b241f]" @click="closeBulkModal">Hủy</button>
+          <div class="mt-6 flex justify-end gap-3 border-t border-slate-200 pt-4 ">
+            <button type="button" class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium hover:bg-slate-50 dark:hover:bg-white" @click="closeBulkModal">Hủy</button>
             <button type="button" :disabled="bulkGenerating || !bulkForm.productId || newCombinationsCount === 0" class="rounded-xl bg-orange-500 px-4 py-2 text-sm font-medium text-white hover:bg-orange-600 disabled:opacity-50" @click="doBulkCreate">
               {{ bulkGenerating ? "Đang xử lý..." : "Bắt đầu tạo" }}
             </button>
@@ -1614,12 +1614,12 @@ function variantStatusLabel(status, stockQuantity = null) {
 function variantStatusClass(status, stockQuantity = null) {
   const normalized = normalizeVariantStatus(status, stockQuantity);
   if (normalized === "HIDDEN") {
-    return "bg-slate-100 text-slate-700 dark:bg-slate-900/30 dark:text-slate-300";
+    return "bg-slate-100 text-slate-700 /30 ";
   }
   if (normalized === "OUT_OF_STOCK") {
-    return "bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-400";
+    return "bg-red-100 text-red-700 /20 ";
   }
-  return "bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400";
+  return "bg-green-100 text-green-700 /20 ";
 }
 
 function toMap(rows, idKey = "id") {
@@ -1740,12 +1740,12 @@ function formatCurrency(value) {
 function stockClass(stock) {
   const q = Number(stock);
   if (!Number.isFinite(q) || q <= 0) {
-    return "bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-400";
+    return "bg-red-100 text-red-700 /20 ";
   }
   if (q < 10) {
-    return "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400";
+    return "bg-yellow-100 text-yellow-700 /20 ";
   }
-  return "bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400";
+  return "bg-green-100 text-green-700 /20 ";
 }
 
 const imageSlotEntries = computed(() => {

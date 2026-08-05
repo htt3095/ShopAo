@@ -1,6 +1,6 @@
 <template>
   <div
-    class="retail-shell text-[#111418] dark:text-white font-display overflow-x-hidden antialiased"
+    class="retail-shell text-[#111418]  font-display overflow-x-hidden antialiased"
   >
     <div class="relative flex h-auto min-h-screen w-full flex-col">
       <MainTopBar />
@@ -18,13 +18,13 @@
           />
 
           <article
-            class="relative w-full max-w-md rounded-2xl border border-[#e5e7eb] bg-white p-6 shadow-2xl dark:border-[#283039] dark:bg-[#111418]"
+            class="relative w-full max-w-md rounded-2xl border border-[#e5e7eb] bg-white p-6 shadow-2xl  "
           >
-            <h3 class="text-xl font-bold text-[#111418] dark:text-white">
+            <h3 class="text-xl font-bold text-[#111418] ">
               Bạn cần đăng nhập để mua hàng
             </h3>
             <p
-              class="mt-3 text-sm leading-6 text-[#4f5b69] dark:text-[#9cabba]"
+              class="mt-3 text-sm leading-6 text-[#4f5b69] "
             >
               Bạn phải có tài khoản để thêm sản phẩm vào giỏ và tiến hành thanh
               toán.
@@ -33,7 +33,7 @@
             <div class="mt-6 flex flex-wrap gap-3">
               <button
                 type="button"
-                class="flex-1 rounded-lg border border-[#d1d5db] px-4 py-2.5 text-sm font-semibold text-[#111418] transition-colors hover:bg-[#f3f4f6] dark:border-[#3b4754] dark:text-white dark:hover:bg-[#283039]"
+                class="flex-1 rounded-lg border border-[#d1d5db] px-4 py-2.5 text-sm font-semibold text-[#111418] transition-colors hover:bg-[#f3f4f6]   :bg-[#283039]"
                 @click="closeAuthRequiredPopup"
               >
                 Hủy
@@ -89,7 +89,7 @@
                 >/</span
               >
               <span
-                class="text-[#111418] dark:text-white text-sm font-medium leading-normal"
+                class="text-[#111418]  text-sm font-medium leading-normal"
                 >{{ productName }}</span
               >
             </div>
@@ -97,7 +97,7 @@
             <div class="flex flex-col lg:flex-row gap-10 px-4 py-6">
               <div class="flex flex-col gap-4 flex-1 lg:max-w-[60%]">
                 <div
-                  class="w-full bg-slate-100 dark:bg-[#1b2127] aspect-[4/3] rounded-xl border border-[#e5e7eb] dark:border-[#283039] overflow-hidden"
+                  class="w-full bg-slate-100  aspect-[4/3] rounded-xl border border-[#e5e7eb]  overflow-hidden"
                 >
                   <img
                     :alt="productName"
@@ -114,7 +114,7 @@
                     :class="
                       idx === activeImageIndex
                         ? 'border-2 border-primary'
-                        : 'border border-[#e5e7eb] dark:border-[#283039] opacity-70 hover:opacity-100'
+                        : 'border border-[#e5e7eb]  opacity-70 hover:opacity-100'
                     "
                     data-alt="Product thumbnail"
                     :style="{ backgroundImage: `url('${url}')` }"
@@ -131,8 +131,8 @@
                       class="px-2 py-1 rounded text-xs font-bold uppercase tracking-wider"
                       :class="
                         inStock
-                          ? 'bg-green-500/20 text-green-600 dark:text-green-400'
-                          : 'bg-red-500/20 text-red-600 dark:text-red-400'
+                          ? 'bg-green-500/20 text-green-600 '
+                          : 'bg-red-500/20 text-red-600 '
                       "
                       >{{ inStock ? "Còn hàng" : "Hết hàng" }}</span
                     >
@@ -151,49 +151,49 @@
                     </span>
                   </div>
                   <h1
-                    class="text-[#111418] dark:text-white tracking-tight text-3xl md:text-4xl font-black leading-tight"
+                    class="text-[#111418]  tracking-tight text-3xl md:text-4xl font-black leading-tight"
                   >
                     {{ productName }}
                   </h1>
-                  <p class="text-[#111418] dark:text-white text-2xl font-bold">
+                  <p class="text-[#111418]  text-2xl font-bold">
                     {{ displayPrice }}
                   </p>
-                  <p class="text-sm font-semibold text-slate-600 dark:text-[#9cabba]">
+                  <p class="text-sm font-semibold text-slate-600 ">
                     Số lượng:
                     <span
-                      :class="inStock ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'"
+                      :class="inStock ? 'text-green-600 ' : 'text-red-600 '"
                     >
                       {{ selectedStockQuantity === null ? 'Không rõ' : selectedStockQuantity }}
                     </span>
                   </p>
-                  <p class="text-sm font-semibold text-slate-600 dark:text-[#9cabba]">
+                  <p class="text-sm font-semibold text-slate-600 ">
                     Biến thể:
                     <span
-                      :class="inStock ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'"
+                      :class="inStock ? 'text-green-600 ' : 'text-red-600 '"
                     >
                       {{ selectedVariantStatusLabel }}
                     </span>
                   </p>
                 </div>
                 <p
-                  class="text-[#4f5b69] dark:text-[#9cabba] text-base font-normal leading-normal"
+                  class="text-[#4f5b69]  text-base font-normal leading-normal"
                 >
                   {{ productDescription }}
                 </p>
-                <hr class="border-[#e5e7eb] dark:border-[#283039]" />
+                <hr class="border-[#e5e7eb] " />
 
                 <div class="flex flex-col gap-4">
                   <div class="grid grid-cols-2 gap-4">
                     <label class="flex flex-col flex-1 gap-2">
                       <p
-                        class="text-[#111418] dark:text-white text-sm font-bold"
+                        class="text-[#111418]  text-sm font-bold"
                       >
                         Màu sắc
                       </p>
                       <div class="relative">
                         <select
                           v-model="selectedColorId"
-                          class="appearance-none w-full cursor-pointer rounded-lg border border-[#d1d5db] dark:border-[#3b4754] bg-[#f9fafb] dark:bg-[#1b2127] text-[#111418] dark:text-white h-12 px-4 pr-10 text-base focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none"
+                          class="appearance-none w-full cursor-pointer rounded-lg border border-[#d1d5db]  bg-[#f9fafb]  text-[#111418]  h-12 px-4 pr-10 text-base focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none"
                         >
                           <option
                             v-if="colorOptions.length === 0"
@@ -221,14 +221,14 @@
                     </label>
                     <label class="flex flex-col flex-1 gap-2">
                       <p
-                        class="text-[#111418] dark:text-white text-sm font-bold"
+                        class="text-[#111418]  text-sm font-bold"
                       >
                         Size (US)
                       </p>
                       <div class="relative">
                         <select
                           v-model="selectedSizeId"
-                          class="appearance-none w-full cursor-pointer rounded-lg border border-[#d1d5db] dark:border-[#3b4754] bg-[#f9fafb] dark:bg-[#1b2127] text-[#111418] dark:text-white h-12 px-4 pr-10 text-base focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none"
+                          class="appearance-none w-full cursor-pointer rounded-lg border border-[#d1d5db]  bg-[#f9fafb]  text-[#111418]  h-12 px-4 pr-10 text-base focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none"
                         >
                           <option
                             v-if="sizeOptions.length === 0"
@@ -273,10 +273,10 @@
                   </button>
 
                   <button
-                    class="flex-1 flex items-center justify-center gap-2 rounded-lg h-12 px-5 bg-transparent border-2 border-[#d1d5db] dark:border-[#3b4754] text-[#111418] dark:text-white hover:bg-gray-100 dark:hover:bg-[#283039] text-base font-bold transition-colors"
+                    class="flex-1 flex items-center justify-center gap-2 rounded-lg h-12 px-5 bg-transparent border-2 border-[#d1d5db]  text-[#111418]  hover:bg-gray-100 :bg-[#283039] text-base font-bold transition-colors"
                     :class="
                       isCompared
-                        ? 'border-primary text-primary dark:text-primary'
+                        ? 'border-primary text-primary '
                         : ''
                     "
                     type="button"
@@ -291,7 +291,7 @@
 
                 <div class="flex gap-6 mt-2">
                   <div
-                    class="flex items-center gap-2 text-[#4f5b69] dark:text-[#9cabba]"
+                    class="flex items-center gap-2 text-[#4f5b69] "
                   >
                     <span class="material-symbols-outlined text-[20px]"
                       >local_shipping</span
@@ -299,7 +299,7 @@
                     <span class="text-sm">Miễn phí vận chuyển</span>
                   </div>
                   <div
-                    class="flex items-center gap-2 text-[#4f5b69] dark:text-[#9cabba]"
+                    class="flex items-center gap-2 text-[#4f5b69] "
                   >
                     <span class="material-symbols-outlined text-[20px]"
                       >sync</span
@@ -311,20 +311,20 @@
             </div>
 
             <div
-              class="px-4 py-10 mt-10 border-t border-[#e5e7eb] dark:border-[#283039]"
+              class="px-4 py-10 mt-10 border-t border-[#e5e7eb] "
             >
               <h2
-                class="text-[#111418] dark:text-white text-2xl font-bold mb-6"
+                class="text-[#111418]  text-2xl font-bold mb-6"
               >
                 Đánh giá sản phẩm
               </h2>
               <div class="grid md:grid-cols-[300px_1fr] gap-10">
                 <div class="flex flex-col gap-4">
                   <div
-                    class="flex flex-col p-6 rounded-xl bg-[#f0f2f5] dark:bg-[#1b2127]"
+                    class="flex flex-col p-6 rounded-xl bg-[#f0f2f5] "
                   >
                     <span
-                      class="text-5xl font-black text-[#111418] dark:text-white"
+                      class="text-5xl font-black text-[#111418] "
                     >
                       {{
                         averageRating !== null ? averageRating.toFixed(1) : "--"
@@ -347,7 +347,7 @@
                         >star_half</span
                       >
                     </div>
-                    <span class="text-[#4f5b69] dark:text-[#9cabba] text-sm">
+                    <span class="text-[#4f5b69]  text-sm">
                       {{
                         reviewCount > 0
                           ? `Được tổng hợp từ ${reviewCount} đánh giá`
@@ -355,7 +355,7 @@
                       }}
                     </span>
                     <router-link
-                      class="mt-6 w-full py-2 px-4 border border-[#d1d5db] dark:border-[#3b4754] rounded-lg text-center text-[#111418] dark:text-white font-medium hover:bg-gray-200 dark:hover:bg-[#283039] transition-colors"
+                      class="mt-6 w-full py-2 px-4 border border-[#d1d5db]  rounded-lg text-center text-[#111418]  font-medium hover:bg-gray-200 :bg-[#283039] transition-colors"
                       :to="
                         isLoggedIn ? `/product/${productId}/review` : '/login'
                       "
@@ -368,12 +368,12 @@
                   <div
                     v-for="review in reviews"
                     :key="review.id"
-                    class="rounded-xl border border-[#e5e7eb] bg-white p-5 shadow-sm dark:border-[#283039] dark:bg-[#111418]"
+                    class="rounded-xl border border-[#e5e7eb] bg-white p-5 shadow-sm  "
                   >
                     <div class="flex justify-between items-start">
                       <div>
                         <p
-                          class="text-[#111418] dark:text-white font-bold text-sm"
+                          class="text-[#111418]  font-bold text-sm"
                         >
                           {{ getReviewAuthorName(review) }}
                         </p>
@@ -385,7 +385,7 @@
                             :class="
                               n <= review.rating
                                 ? 'fill-current text-[16px]'
-                                : 'text-[#d1d5db] dark:text-[#3b4754] text-[16px]'
+                                : 'text-[#d1d5db]  text-[16px]'
                             "
                             >star</span
                           >
@@ -397,19 +397,19 @@
                     </div>
                     <p
                       v-if="review.title"
-                      class="text-[#111418] dark:text-white font-semibold text-sm"
+                      class="text-[#111418]  font-semibold text-sm"
                     >
                       {{ review.title }}
                     </p>
                     <p
-                      class="text-[#4f5b69] dark:text-[#d0d6dc] text-sm leading-relaxed"
+                      class="text-[#4f5b69]  text-sm leading-relaxed"
                     >
                       {{ review.comment }}
                     </p>
                   </div>
                   <div
                     v-if="reviews.length === 0"
-                    class="text-sm text-[#4f5b69] dark:text-[#9cabba]"
+                    class="text-sm text-[#4f5b69] "
                   >
                     Chưa có đánh giá nào cho sản phẩm này. Bạn có thể là người
                     đầu tiên viết đánh giá.

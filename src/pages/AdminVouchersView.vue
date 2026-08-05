@@ -21,7 +21,7 @@
 
           <button
             type="button"
-            class="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium hover:border-primary hover:text-primary dark:border-[#3c342e] dark:bg-[#1f1a17]"
+            class="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium hover:border-primary hover:text-primary "
             @click="loadVouchers"
           >
             <span class="material-symbols-outlined text-[18px]">refresh</span>
@@ -35,7 +35,7 @@
       <section class="retail-card p-3">
         <div class="grid gap-3 md:grid-cols-[1fr_220px]">
           <label
-            class="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-1.5 dark:border-[#3c342e] dark:bg-[#1f1a17]"
+            class="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-1.5 "
           >
             <span class="material-symbols-outlined text-[18px] text-slate-400"
               >search</span
@@ -50,7 +50,7 @@
 
           <select
             v-model="statusFilter"
-            class="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm dark:border-[#3c342e] dark:bg-[#1f1a17]"
+            class="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm "
           >
             <option value="ALL">Tất cả trạng thái</option>
             <option value="ACTIVE">Đang hoạt động</option>
@@ -65,24 +65,24 @@
       <section class="retail-card p-3">
         <div class="mb-3 grid grid-cols-1 gap-2 text-xs md:grid-cols-4">
           <div
-            class="rounded-xl border border-slate-200 px-3 py-2 dark:border-[#3c342e]"
+            class="rounded-xl border border-slate-200 px-3 py-2 "
           >
             Tổng voucher:
             <span class="font-semibold">{{ vouchers.length }}</span>
           </div>
           <div
-            class="rounded-xl border border-slate-200 px-3 py-2 dark:border-[#3c342e]"
+            class="rounded-xl border border-slate-200 px-3 py-2 "
           >
             Đang hoạt động: <span class="font-semibold">{{ activeCount }}</span>
           </div>
           <div
-            class="rounded-xl border border-slate-200 px-3 py-2 dark:border-[#3c342e]"
+            class="rounded-xl border border-slate-200 px-3 py-2 "
           >
             Hết hạn/hết lượt:
             <span class="font-semibold">{{ inactiveCount }}</span>
           </div>
           <div
-            class="rounded-xl border border-slate-200 px-3 py-2 dark:border-[#3c342e]"
+            class="rounded-xl border border-slate-200 px-3 py-2 "
           >
             Đang hiển thị:
             <span class="font-semibold">{{ filteredVouchers.length }}</span>
@@ -91,19 +91,19 @@
 
         <div
           v-if="error"
-          class="mb-4 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-900/40 dark:bg-red-900/20 dark:text-red-300"
+          class="mb-4 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 /40 /20 "
         >
           {{ error }}
         </div>
 
         <div
           v-if="hiddenVouchers.length > 0"
-          class="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-3 py-3 text-sm text-slate-700 dark:border-amber-900/20 dark:bg-[#3f2e11] dark:text-[#fbe7a1]"
+          class="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-3 py-3 text-sm text-slate-700 /20 "
         >
           <div class="flex flex-wrap items-center justify-between gap-3">
             <div>
               <p class="font-semibold">Voucher ẩn tạm</p>
-              <p class="text-xs text-slate-500 dark:text-[#e1c797]">
+              <p class="text-xs text-slate-500 ">
                 Những voucher đã xóa mềm sẽ tạm ẩn khỏi danh sách được dùng. Bạn
                 có thể khôi phục lại khi cần.
               </p>
@@ -120,7 +120,7 @@
             <div
               v-for="voucher in hiddenVouchers"
               :key="voucher.id"
-              class="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 dark:border-[#4c4138] dark:bg-[#1e1812]"
+              class="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 "
             >
               <div class="text-sm">
                 <span class="font-semibold">#{{ voucher.id }}</span>
@@ -128,7 +128,7 @@
               </div>
               <button
                 type="button"
-                class="rounded-xl bg-emerald-500 px-3 py-2 text-xs font-semibold text-white hover:bg-emerald-600"
+                class="rounded-xl bg-emerald-500 px-3 py-2 text-xs font-semibold text-slate-800 hover:bg-emerald-600"
                 @click="restoreVoucher(voucher)"
               >
                 Khôi phục
@@ -139,14 +139,14 @@
 
         <div
           v-if="loading"
-          class="py-8 text-center text-sm text-slate-500 dark:text-[#b9aa9a]"
+          class="py-8 text-center text-sm text-slate-500 "
         >
           Đang tải danh sách voucher...
         </div>
 
         <div
           v-else-if="filteredVouchers.length === 0"
-          class="rounded-2xl border border-dashed border-slate-300 p-6 text-center text-sm text-slate-500 dark:border-[#3c342e] dark:text-[#b9aa9a]"
+          class="rounded-2xl border border-dashed border-slate-300 p-6 text-center text-sm text-slate-500 "
         >
           Không có voucher phù hợp.
         </div>
@@ -155,7 +155,7 @@
           <table class="w-full min-w-[1080px] text-left text-xs">
             <thead>
               <tr
-                class="border-b border-slate-200 text-slate-500 dark:border-[#3c342e] dark:text-[#b9aa9a]"
+                class="border-b border-slate-200 text-slate-500 "
               >
                 <th class="px-2 py-2 font-medium">STT</th>
                 <th class="px-2 py-2 font-medium">Mã</th>
@@ -172,10 +172,10 @@
               <tr
                 v-for="(voucher, index) in filteredVouchers"
                 :key="voucher.id"
-                class="border-b border-slate-100 last:border-none dark:border-[#2b241f]"
+                class="border-b border-slate-100 last:border-none "
               >
                 <td
-                  class="px-2 py-2 font-semibold text-slate-500 dark:text-[#b9aa9a]"
+                  class="px-2 py-2 font-semibold text-slate-500 "
                 >
                   {{ index + 1 }}
                 </td>
@@ -187,7 +187,7 @@
                 <td class="px-2 py-2">
                   {{ formatMoney(voucher.minOrderValue) }}
                 </td>
-                <td class="px-2 py-2 text-slate-500 dark:text-[#b9aa9a]">
+                <td class="px-2 py-2 text-slate-500 ">
                   <p>{{ formatDate(voucher.startDate) }}</p>
                   <p>{{ formatDate(voucher.endDate) }}</p>
                 </td>
@@ -208,7 +208,7 @@
                 <td class="px-2 py-2 text-right">
                   <div class="flex items-center justify-end gap-1">
                     <button
-                      class="rounded-lg p-1.5 hover:bg-slate-100 dark:hover:bg-[#2b241f]"
+                      class="rounded-lg p-1.5 hover:bg-slate-100 dark:hover:bg-white"
                       title="Chỉnh sửa"
                       @click="openEdit(voucher)"
                     >
@@ -243,7 +243,7 @@
         @click.self="closeModal"
       >
         <div
-          class="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl bg-white p-4 shadow-2xl dark:bg-[#1f1a17]"
+          class="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl bg-white p-4 shadow-2xl "
         >
           <h3 class="mb-4 text-base font-bold">
             {{
@@ -261,7 +261,7 @@
               <input
                 v-model.trim="form.code"
                 type="text"
-                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm uppercase dark:border-[#3c342e] dark:bg-[#2b241f]"
+                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm uppercase "
                 placeholder="VD: PEAK10"
               />
             </div>
@@ -272,7 +272,7 @@
               >
               <select
                 v-model="form.discountType"
-                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-[#3c342e] dark:bg-[#2b241f]"
+                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm "
               >
                 <option value="PERCENT">PERCENT</option>
                 <option value="AMOUNT">AMOUNT</option>
@@ -287,7 +287,7 @@
                 v-model.number="form.discountValue"
                 type="number"
                 min="0"
-                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-[#3c342e] dark:bg-[#2b241f]"
+                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm "
               />
             </div>
 
@@ -299,7 +299,7 @@
                 v-model.number="form.minOrderValue"
                 type="number"
                 min="0"
-                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-[#3c342e] dark:bg-[#2b241f]"
+                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm "
               />
             </div>
 
@@ -312,7 +312,7 @@
                 type="number"
                 min="0"
                 placeholder="VD: 50000"
-                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-[#3c342e] dark:bg-[#2b241f]"
+                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm "
               />
               <p class="mt-1 text-[11px] text-slate-400">Để trống = không giới hạn</p>
             </div>
@@ -324,7 +324,7 @@
               <input
                 v-model="form.startDate"
                 type="datetime-local"
-                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-[#3c342e] dark:bg-[#2b241f]"
+                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm "
               />
             </div>
 
@@ -335,7 +335,7 @@
               <input
                 v-model="form.endDate"
                 type="datetime-local"
-                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-[#3c342e] dark:bg-[#2b241f]"
+                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm "
               />
             </div>
 
@@ -347,7 +347,7 @@
                 v-model.number="form.usageLimit"
                 type="number"
                 min="0"
-                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-[#3c342e] dark:bg-[#2b241f]"
+                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm "
               />
             </div>
 
@@ -364,7 +364,7 @@
           <div class="mt-4 flex justify-end gap-2">
             <button
               type="button"
-              class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium hover:border-slate-400 dark:border-[#3c342e]"
+              class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium hover:border-slate-400 "
               @click="closeModal"
             >
               Hủy
@@ -396,10 +396,10 @@
         @click.self="deleteTarget = null"
       >
         <div
-          class="w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl dark:bg-[#1f1a17]"
+          class="w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl "
         >
           <h3 class="mb-2 text-base font-bold">Xác nhận xóa</h3>
-          <p class="text-sm text-slate-500 dark:text-[#b9aa9a]">
+          <p class="text-sm text-slate-500 ">
             Bạn chắc chắn muốn xóa voucher
             <strong>{{ deleteTarget.code }}</strong
             >?
@@ -407,7 +407,7 @@
 
           <div class="mt-5 flex justify-end gap-3">
             <button
-              class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium dark:border-[#3c342e]"
+              class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium "
               @click="deleteTarget = null"
             >
               Hủy
@@ -574,18 +574,18 @@ function toDatetimeLocal(value) {
 function statusClass(status) {
   const normalized = normalizeVoucherStatusValue(status);
   if (normalized === "ACTIVE") {
-    return "bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400";
+    return "bg-green-100 text-green-700 /20 ";
   }
   if (normalized === "USED") {
-    return "bg-slate-100 text-slate-700 dark:bg-slate-700/50 dark:text-slate-300";
+    return "bg-slate-100 text-slate-700 /50 ";
   }
   if (normalized === "SCHEDULED") {
-    return "bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400";
+    return "bg-blue-100 text-blue-700 /20 ";
   }
   if (normalized === "INACTIVE") {
-    return "bg-amber-100 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400";
+    return "bg-amber-100 text-amber-700 /20 ";
   }
-  return "bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-400";
+  return "bg-red-100 text-red-700 /20 ";
 }
 
 function openCreate() {

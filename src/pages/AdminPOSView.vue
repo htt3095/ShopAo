@@ -6,22 +6,22 @@
         class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 backdrop-blur-sm transition-opacity print:hidden"
       >
         <div
-          class="w-[450px] animate-fade-in-up rounded-3xl bg-white p-8 text-center shadow-2xl dark:bg-[#1f1a17]"
+          class="w-[450px] animate-fade-in-up rounded-3xl bg-white p-8 text-center shadow-2xl "
         >
           <span class="material-symbols-outlined mb-4 text-7xl text-green-500"
             >check_circle</span
           >
-          <h3 class="mb-2 text-2xl font-bold text-slate-900 dark:text-white">
+          <h3 class="mb-2 text-2xl font-bold text-slate-900 ">
             Thanh toán thành công!
           </h3>
-          <p class="mb-6 text-slate-500 dark:text-[#b9aa9a]">
+          <p class="mb-6 text-slate-500 ">
             Hóa đơn của bạn đã được lưu vào hệ thống.
           </p>
 
           <div class="mt-6 flex gap-3">
             <button
               @click="printInvoice"
-              class="flex flex-1 items-center justify-center gap-2 rounded-xl bg-slate-100 py-3 font-bold text-slate-700 transition-colors hover:bg-slate-200 dark:bg-[#2b241f] dark:text-white dark:hover:bg-[#3c342e]"
+              class="flex flex-1 items-center justify-center gap-2 rounded-xl bg-slate-100 py-3 font-bold text-slate-700 transition-colors hover:bg-slate-200 dark:hover:bg-[#3c342e]"
             >
               <span class="material-symbols-outlined">print</span> In hóa đơn
             </button>
@@ -37,7 +37,7 @@
 
       <div class="flex h-[calc(100vh-100px)] flex-col overflow-hidden">
         <div
-          class="flex items-center gap-2 overflow-x-auto border-b border-slate-200 pb-2 dark:border-[#3c342e]"
+          class="flex items-center gap-2 overflow-x-auto border-b border-slate-200 pb-2 "
         >
           <button
             v-for="invoice in invoices"
@@ -46,8 +46,8 @@
             class="group relative flex items-center gap-2 rounded-t-xl border-x border-t px-4 py-2 text-sm font-semibold transition-colors"
             :class="
               activeInvoiceId === invoice.id
-                ? 'border-slate-200 bg-white text-primary dark:border-[#3c342e] dark:bg-[#1f1a17]'
-                : 'border-transparent bg-slate-100 text-slate-500 hover:bg-slate-200 dark:bg-[#2b241f] dark:text-[#b9aa9a]'
+                ? 'border-slate-200 bg-white text-primary '
+                : 'border-transparent bg-slate-100 text-slate-500 hover:bg-slate-200 '
             "
           >
             <span class="material-symbols-outlined text-[16px]"
@@ -67,8 +67,8 @@
             :title="invoices.length >= MAX_INVOICES ? 'Đã đạt giới hạn hóa đơn' : 'Thêm hóa đơn mới'"
             class="flex size-9 items-center justify-center rounded-full transition-colors"
             :class="invoices.length >= MAX_INVOICES
-              ? 'bg-slate-200 text-slate-400 cursor-not-allowed dark:bg-[#26221f] dark:text-[#5a524d]'
-              : 'bg-slate-100 text-slate-600 hover:bg-primary hover:text-white dark:bg-[#2b241f] dark:text-[#b9aa9a]'"
+              ? 'bg-slate-200 text-slate-400 cursor-not-allowed '
+              : 'bg-slate-100 text-slate-600 hover:bg-primary hover:text-white '"
           >
             <span class="material-symbols-outlined text-[20px]">add</span>
           </button>
@@ -80,13 +80,13 @@
         >
           <section class="flex flex-col gap-4 overflow-hidden">
             <div
-              class="flex h-[45%] flex-col rounded-2xl border border-slate-200 bg-white dark:border-[#3c342e] dark:bg-[#1f1a17]"
+              class="flex h-[45%] flex-col rounded-2xl border border-slate-200 bg-white "
             >
               <div
-                class="border-b border-slate-200 bg-slate-50 p-3 dark:border-[#3c342e] dark:bg-[#2b241f]"
+                class="border-b border-slate-200 bg-slate-50 p-3 "
               >
                 <div
-                  class="flex items-center overflow-hidden rounded-xl border border-slate-300 bg-white focus-within:border-primary focus-within:ring-1 focus-within:ring-primary dark:border-[#4c4138] dark:bg-[#151311]"
+                  class="flex items-center overflow-hidden rounded-xl border border-slate-300 bg-white focus-within:border-primary focus-within:ring-1 focus-within:ring-primary "
                 >
                   <span class="pl-3 text-slate-400"
                     ><span class="material-symbols-outlined">search</span></span
@@ -99,7 +99,7 @@
                         ? 'Đang tải dữ liệu...'
                         : `Tìm kiếm trong ${inventoryVariants.length} sản phẩm...`
                     "
-                    class="w-full bg-transparent px-3 py-2 text-sm text-slate-900 outline-none dark:text-white"
+                    class="w-full bg-transparent px-3 py-2 text-sm text-slate-900 outline-none "
                     :disabled="inventoryVariants.length === 0"
                   />
                   <button
@@ -120,10 +120,10 @@
                     v-for="product in filteredVariants"
                     :key="product.productId"
                     @click="addToCart(product)"
-                    class="group flex cursor-pointer gap-3 rounded-xl border border-slate-200 p-2 transition-all hover:border-primary hover:bg-slate-50 dark:border-[#4c4138] dark:hover:border-primary dark:hover:bg-[#2b241f]"
+                    class="group flex cursor-pointer gap-3 rounded-xl border border-slate-200 p-2 transition-all hover:border-primary hover:bg-slate-50 dark:hover:border-primary dark:hover:bg-white"
                   >
                     <div
-                      class="size-16 shrink-0 overflow-hidden rounded-lg bg-slate-100 dark:bg-[#151311]"
+                      class="size-16 shrink-0 overflow-hidden rounded-lg bg-slate-100 "
                     >
                       <img
                         v-if="product.imageUrl"
@@ -140,12 +140,12 @@
                       class="flex flex-1 flex-col justify-center overflow-hidden"
                     >
                       <p
-                        class="truncate text-sm font-bold text-slate-900 dark:text-white"
+                        class="truncate text-sm font-bold text-slate-900 "
                         :title="product.productName"
                       >
                         {{ product.productName }}
                       </p>
-                      <p class="text-[11px] text-slate-500 dark:text-[#b9aa9a]">
+                      <p class="text-[11px] text-slate-500 ">
                         {{ product.variants.length }} biến thể
                       </p>
                       <div class="mt-1 flex items-center justify-between">
@@ -170,7 +170,7 @@
 
                 <div
                   v-if="activeInvoice.paymentMethodId === 2"
-                  class="rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-[#4c4138] dark:bg-[#151311]"
+                  class="rounded-xl border border-slate-200 bg-slate-50 p-3 "
                 >
                   <label
                     class="mb-2 block text-xs font-bold uppercase text-slate-500"
@@ -178,7 +178,7 @@
                   >
                   <select
                     v-model.number="activeInvoice.digitalPaymentMethodId"
-                    class="w-full cursor-pointer rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition-colors focus:border-primary dark:border-[#4c4138] dark:bg-[#2b241f] dark:text-white"
+                    class="w-full cursor-pointer rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition-colors focus:border-primary "
                   >
                     <option
                       v-for="method in digitalPaymentMethods"
@@ -193,24 +193,24 @@
             </div>
 
             <div
-              class="flex h-[55%] flex-col rounded-2xl border border-slate-200 bg-white dark:border-[#3c342e] dark:bg-[#1f1a17]"
+              class="flex h-[55%] flex-col rounded-2xl border border-slate-200 bg-white "
             >
               <div
-                class="flex items-center gap-2 border-b border-slate-200 bg-slate-50 px-4 py-3 dark:border-[#3c342e] dark:bg-[#2b241f]"
+                class="flex items-center gap-2 border-b border-slate-200 bg-slate-50 px-4 py-3 "
               >
                 <span class="material-symbols-outlined text-primary"
                   >shopping_cart</span
                 >
-                <h3 class="font-bold text-slate-900 dark:text-white">
+                <h3 class="font-bold text-slate-900 ">
                   Sản phẩm đã chọn
                 </h3>
               </div>
               <div class="flex-1 overflow-y-auto p-0">
                 <table class="w-full text-left text-sm">
                   <thead
-                    class="sticky top-0 z-10 border-b border-slate-200 bg-slate-50 dark:border-[#3c342e] dark:bg-[#2b241f]"
+                    class="sticky top-0 z-10 border-b border-slate-200 bg-slate-50 "
                   >
-                    <tr class="text-slate-500 dark:text-[#b9aa9a]">
+                    <tr class="text-slate-500 ">
                       <th class="w-12 px-4 py-3 font-semibold">STT</th>
                       <th class="px-2 py-3 font-semibold">Sản phẩm</th>
                       <th class="w-32 px-2 py-3 font-semibold">Số lượng</th>
@@ -226,19 +226,19 @@
                     <tr
                       v-for="(item, index) in activeInvoice.cart"
                       :key="item.cartItemId"
-                      class="hover:bg-slate-50 dark:hover:bg-[#2b241f]/50"
+                      class="hover:bg-slate-50 dark:hover:bg-white/50"
                     >
                       <td class="px-4 py-3 font-bold text-slate-400">
                         {{ index + 1 }}
                       </td>
                       <td class="px-2 py-3">
-                        <p class="font-bold text-slate-900 dark:text-white">
+                        <p class="font-bold text-slate-900 ">
                           {{ item.product.productName }}
                         </p>
                         <select
                           v-model="item.variantId"
                           @change="validateQuantity(item)"
-                          class="mt-1 block w-[180px] rounded-md border-slate-300 py-1 text-xs dark:bg-[#1f1a17] dark:border-[#4c4138] text-slate-700 dark:text-white"
+                          class="mt-1 block w-[180px] rounded-md border-slate-300 py-1 text-xs text-slate-700 "
                         >
                           <option v-for="v in item.product.variants" :key="v.variantId" :value="v.variantId">
                             {{ v.colorName }} / Size {{ v.sizeName }} (Kho: {{ v.stockQuantity }})
@@ -247,11 +247,11 @@
                       </td>
                       <td class="px-2 py-3">
                         <div
-                          class="flex w-fit items-center overflow-hidden rounded-lg border border-slate-200 dark:border-[#4c4138]"
+                          class="flex w-fit items-center overflow-hidden rounded-lg border border-slate-200 "
                         >
                           <button
                             @click="updateQuantity(item, -1)"
-                            class="px-2 py-1 text-slate-700 hover:bg-slate-100 dark:text-white dark:hover:bg-[#3c342e]"
+                            class="px-2 py-1 text-slate-700 hover:bg-slate-100 dark:hover:bg-[#3c342e]"
                           >
                             -
                           </button>
@@ -259,19 +259,19 @@
                             v-model.number="item.quantity"
                             type="number"
                             min="1"
-                            class="w-10 border-none bg-transparent p-0 text-center text-sm text-slate-900 focus:ring-0 dark:text-white"
+                            class="w-10 border-none bg-transparent p-0 text-center text-sm text-slate-900 focus:ring-0 "
                             @change="validateQuantity(item)"
                           />
                           <button
                             @click="updateQuantity(item, 1)"
-                            class="px-2 py-1 text-slate-700 hover:bg-slate-100 dark:text-white dark:hover:bg-[#3c342e]"
+                            class="px-2 py-1 text-slate-700 hover:bg-slate-100 dark:hover:bg-[#3c342e]"
                           >
                             +
                           </button>
                         </div>
                       </td>
                       <td
-                        class="px-2 py-3 text-right font-bold text-slate-900 dark:text-white"
+                        class="px-2 py-3 text-right font-bold text-slate-900 "
                       >
                         {{ formatMoney(getVariant(item).price * item.quantity) }}
                       </td>
@@ -299,21 +299,21 @@
 
           <section class="flex flex-col gap-4 overflow-y-auto pr-1">
             <article
-              class="rounded-2xl border border-slate-200 bg-white p-5 dark:border-[#3c342e] dark:bg-[#1f1a17]"
+              class="rounded-2xl border border-slate-200 bg-white p-5 "
             >
               <div
-                class="mb-4 flex items-center gap-2 border-b border-slate-100 pb-3 dark:border-[#3c342e]"
+                class="mb-4 flex items-center gap-2 border-b border-slate-100 pb-3 "
               >
                 <span class="material-symbols-outlined text-primary"
                   >person</span
                 >
-                <h3 class="text-lg font-bold text-slate-900 dark:text-white">
+                <h3 class="text-lg font-bold text-slate-900 ">
                   Khách hàng <span class="text-red-500">*</span>
                 </h3>
               </div>
               <div class="space-y-3">
                 <div
-                  class="flex items-center rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 focus-within:border-primary dark:border-[#4c4138] dark:bg-[#151311]"
+                  class="flex items-center rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 focus-within:border-primary "
                 >
                   <span
                     class="material-symbols-outlined mr-2 text-[18px] text-slate-400"
@@ -323,11 +323,11 @@
                     v-model="activeInvoice.customer.fullname"
                     type="text"
                     placeholder="Nhập tên khách hàng..."
-                    class="w-full bg-transparent text-sm text-slate-900 outline-none dark:text-white"
+                    class="w-full bg-transparent text-sm text-slate-900 outline-none "
                   />
                 </div>
                 <div
-                  class="flex items-center rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 focus-within:border-primary dark:border-[#4c4138] dark:bg-[#151311]"
+                  class="flex items-center rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 focus-within:border-primary "
                 >
                   <span
                     class="material-symbols-outlined mr-2 text-[18px] text-slate-400"
@@ -337,23 +337,23 @@
                     v-model="activeInvoice.customer.phone"
                     type="text"
                     placeholder="Nhập số điện thoại..."
-                    class="w-full bg-transparent text-sm text-slate-900 outline-none dark:text-white"
+                    class="w-full bg-transparent text-sm text-slate-900 outline-none "
                   />
                 </div>
               </div>
             </article>
 
             <article
-              class="rounded-2xl border border-slate-200 bg-white p-5 dark:border-[#3c342e] dark:bg-[#1f1a17]"
+              class="rounded-2xl border border-slate-200 bg-white p-5 "
             >
               <div
-                class="mb-4 flex items-center justify-between border-b border-slate-100 pb-3 dark:border-[#3c342e]"
+                class="mb-4 flex items-center justify-between border-b border-slate-100 pb-3 "
               >
                 <div class="flex items-center gap-2">
                   <span class="material-symbols-outlined text-primary"
                     >local_activity</span
                   >
-                  <h3 class="text-lg font-bold text-slate-900 dark:text-white">
+                  <h3 class="text-lg font-bold text-slate-900 ">
                     Mã Giảm Giá
                   </h3>
                 </div>
@@ -361,19 +361,19 @@
 
               <div class="flex gap-2">
                 <div
-                  class="flex flex-1 items-center rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 focus-within:border-primary dark:border-[#4c4138] dark:bg-[#151311]"
+                  class="flex flex-1 items-center rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 focus-within:border-primary "
                 >
                   <input
                     v-model="activeInvoice.voucherInput"
                     @keyup.enter="applyVoucherByInput"
                     type="text"
                     placeholder="Nhập mã voucher..."
-                    class="w-full bg-transparent text-sm font-semibold text-slate-900 outline-none uppercase dark:text-white"
+                    class="w-full bg-transparent text-sm font-semibold text-slate-900 outline-none uppercase "
                   />
                 </div>
                 <button
                   @click="applyVoucherByInput"
-                  class="rounded-xl bg-slate-700 px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-slate-800 dark:bg-[#2b241f] dark:hover:bg-[#3c342e]"
+                  class="rounded-xl bg-slate-700 px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-slate-800 dark:hover:bg-[#3c342e]"
                 >
                   Áp dụng
                 </button>
@@ -381,7 +381,7 @@
 
               <div class="mt-4">
                 <p
-                  class="mb-2 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-[#b9aa9a]"
+                  class="mb-2 text-[11px] font-bold uppercase tracking-wider text-slate-500 "
                 >
                   Voucher khả dụng ({{ processedVouchers.length }})
                 </p>
@@ -392,20 +392,20 @@
                     class="flex items-center justify-between rounded-xl border p-3 transition-colors"
                     :class="[
                       v.isApplied
-                        ? 'border-primary bg-primary/5 dark:border-primary/50'
-                        : 'border-slate-200 dark:border-[#4c4138]',
+                        ? 'border-primary bg-primary/5 /50'
+                        : 'border-slate-200 ',
                       !v.isEligible ? 'opacity-60 grayscale' : '',
                     ]"
                   >
                     <div>
                       <p
-                        class="font-black text-slate-900 dark:text-white"
+                        class="font-black text-slate-900 "
                         :class="v.isApplied ? 'text-primary' : ''"
                       >
                         {{ v.code }}
                       </p>
                       <p
-                        class="mt-0.5 text-xs text-slate-500 dark:text-[#b9aa9a]"
+                        class="mt-0.5 text-xs text-slate-500 "
                       >
                         Giảm {{ formatDiscountLabel(v) }}, đơn tối thiểu
                         {{ formatMoney(v.minOrder) }}
@@ -428,7 +428,7 @@
                     </button>
                     <span
                       v-else
-                      class="rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-bold text-slate-500 dark:bg-[#2b241f]"
+                      class="rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-bold text-slate-500 "
                     >
                       Chưa đủ ĐK
                     </span>
@@ -445,32 +445,32 @@
             </article>
 
             <article
-              class="flex flex-1 flex-col rounded-2xl border border-slate-200 bg-white p-5 dark:border-[#3c342e] dark:bg-[#1f1a17] sticky-actions mt-4"
+              class="flex flex-1 flex-col rounded-2xl border border-slate-200 bg-white p-5 sticky-actions mt-4"
             >
               <div
-                class="mb-4 flex items-center gap-2 border-b border-slate-100 pb-3 dark:border-[#3c342e]"
+                class="mb-4 flex items-center gap-2 border-b border-slate-100 pb-3 "
               >
                 <span class="material-symbols-outlined text-primary"
                   >payments</span
                 >
-                <h3 class="text-lg font-bold text-slate-900 dark:text-white">
+                <h3 class="text-lg font-bold text-slate-900 ">
                   Thanh toán
                 </h3>
               </div>
 
               <div class="flex-1 space-y-3 text-sm">
                 <div
-                  class="flex items-center justify-between text-slate-600 dark:text-[#b9aa9a]"
+                  class="flex items-center justify-between text-slate-600 "
                 >
                   <span>Tạm tính:</span>
-                  <span class="font-bold text-slate-900 dark:text-white">{{
+                  <span class="font-bold text-slate-900 ">{{
                     formatMoney(activeSubtotal)
                   }}</span>
                 </div>
 
                 <div
                   v-if="activeDiscount > 0"
-                  class="flex items-center justify-between text-green-600 dark:text-green-400"
+                  class="flex items-center justify-between text-green-600 "
                 >
                   <span>Giảm giá:</span>
                   <span class="font-bold"
@@ -479,10 +479,10 @@
                 </div>
 
                 <div
-                  class="mt-2 flex items-center justify-between border-t border-slate-100 pt-3 dark:border-[#3c342e]"
+                  class="mt-2 flex items-center justify-between border-t border-slate-100 pt-3 "
                 >
                   <span
-                    class="text-base font-bold text-slate-900 dark:text-white"
+                    class="text-base font-bold text-slate-900 "
                     >Khách Cần Trả:</span
                   >
                   <span class="text-2xl font-black text-primary">{{
@@ -501,7 +501,7 @@
                       :class="
                         activeInvoice.paymentMethodId === 1
                           ? 'border-primary bg-primary/10 text-primary'
-                          : 'border-slate-200 bg-slate-50 text-slate-600 dark:border-[#4c4138] dark:bg-[#2b241f] dark:text-[#b9aa9a]'
+                          : 'border-slate-200 bg-slate-50 text-slate-600 '
                       "
                     >
                       <span class="material-symbols-outlined text-[18px]"
@@ -515,7 +515,7 @@
                       :class="
                         activeInvoice.paymentMethodId === 2
                           ? 'border-primary bg-primary/10 text-primary'
-                          : 'border-slate-200 bg-slate-50 text-slate-600 dark:border-[#4c4138] dark:bg-[#2b241f] dark:text-[#b9aa9a]'
+                          : 'border-slate-200 bg-slate-50 text-slate-600 '
                       "
                     >
                       <span class="material-symbols-outlined text-[18px]"
@@ -528,13 +528,13 @@
 
                 <div v-if="activeInvoice.paymentMethodId === 1" class="pt-2">
                   <div
-                    class="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 dark:border-[#4c4138] dark:bg-[#151311]"
+                    class="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 "
                   >
                     <span class="text-slate-500">Khách đưa:</span>
                     <input
                       v-model.number="activeInvoice.customerPaid"
                       type="number"
-                      class="w-32 border-none bg-transparent p-0 text-right text-lg font-bold text-slate-900 outline-none focus:ring-0 dark:text-white"
+                      class="w-32 border-none bg-transparent p-0 text-right text-lg font-bold text-slate-900 outline-none focus:ring-0 "
                     />
                   </div>
                   <div class="mt-2 flex items-center justify-between px-1">

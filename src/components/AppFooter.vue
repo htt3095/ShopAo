@@ -2,10 +2,10 @@
   <footer class="footer-shell">
     <div class="footer-grid">
       <div>
-        <p class="footer-kicker">Peak Seven</p>
+        <p class="footer-kicker">SportX</p>
         <h3 class="footer-title">Áo thể thao chọn kỹ cho nhịp sống thật.</h3>
         <p class="footer-copy">
-          Từ Áo chạy bộ, Áo tập gym đến mẫu mang hằng ngày, Peak Seven tập trung
+          Từ Áo chạy bộ, Áo tập gym đến mẫu mang hằng ngày, SportX tập trung
           vào form vừa chân, phối màu dễ mặc và trải nghiệm mua sắm rõ ràng.
         </p>
       </div>
@@ -23,10 +23,10 @@
       <div>
         <h4 class="footer-heading">Chăm sóc khách hàng</h4>
         <div class="footer-links">
-          <a href="/about">Về Peak Seven</a>
+          <a href="/about">Về SportX</a>
           <a href="/profile">Tài khoản của tôi</a>
           <a href="/cart">Giỏ hàng</a>
-          <a href="mailto:support@peakseven.vn">support@peakseven.vn</a>
+          <a href="mailto:support@sportx.vn">support@sportx.vn</a>
         </div>
       </div>
 
@@ -49,7 +49,7 @@
     </div>
 
     <div class="footer-meta">
-      <span>&copy; {{ new Date().getFullYear() }} Peak Seven. Mọi quyền được bảo lưu.</span>
+      <span>&copy; {{ new Date().getFullYear() }} SportX. Mọi quyền được bảo lưu.</span>
       <span>Giao diện đã được Việt hóa và tinh chỉnh theo phong cách retail thực tế.</span>
     </div>
   </footer>
@@ -82,8 +82,8 @@
 
 <style scoped lang="sass">
   .footer-shell
-    background: linear-gradient(180deg, rgba(255, 253, 248, 0.92) 0%, rgba(246, 238, 228, 0.98) 100%)
-    border-top: 1px solid rgba(198, 98, 49, 0.12)
+    background: #F8FAFC
+    border-top: 1px solid #E2E8F0
     padding: 32px 24px 18px
 
   .footer-grid
@@ -94,7 +94,7 @@
     gap: 28px
 
   .footer-kicker
-    color: #c66231
+    color: #FF6B35
     font-size: 11px
     font-weight: 800
     letter-spacing: .22em
@@ -102,19 +102,19 @@
     margin-bottom: 12px
 
   .footer-title
-    color: #1f1712
+    color: #1E293B
     font-size: 32px
     line-height: 1
     font-weight: 800
     margin-bottom: 12px
 
   .footer-copy
-    color: #6f6458
+    color: #64748b
     font-size: 14px
     line-height: 1.7
 
   .footer-heading
-    color: #1f1712
+    color: #1E293B
     font-size: 13px
     font-weight: 800
     letter-spacing: .12em
@@ -126,12 +126,12 @@
     gap: 10px
 
     a
-      color: #6f6458
+      color: #64748b
       text-decoration: none
       transition: color .2s ease
 
       &:hover
-        color: #c66231
+        color: #FF6B35
 
   .social-links
     display: flex
@@ -145,25 +145,26 @@
     align-items: center
     justify-content: center
     border-radius: 999px
-    background: rgba(198, 98, 49, 0.08)
+    background: #F8FAFC
+    border: 1px solid #E2E8F0
     transition: background .2s ease, transform .2s ease
 
     &:hover
-      background: rgba(198, 98, 49, 0.18)
+      background: #f1f5f9
       transform: translateY(-1px)
 
     :deep(.v-icon)
-      color: #1f1712
+      color: #1E293B
 
   .footer-meta
     max-width: 1200px
     margin: 24px auto 0
     padding-top: 16px
-    border-top: 1px solid rgba(198, 98, 49, 0.12)
+    border-top: 1px solid #E2E8F0
     display: flex
     justify-content: space-between
     gap: 12px
-    color: #8f8477
+    color: #64748b
     font-size: 12px
 
   @media (max-width: 960px)

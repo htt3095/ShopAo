@@ -7,7 +7,7 @@
             Quản lý đơn hàng
           </p>
           <h2 class="mt-1 text-xl font-bold">Quản lý đơn hàng</h2>
-          <p class="mt-1 text-sm text-slate-500 dark:text-[#b9aa9a]">
+          <p class="mt-1 text-sm text-slate-500 ">
             Lợi nhuận được tính theo trạng thái thanh toán: đã thanh toán cộng,
             hoàn tiền trừ.
           </p>
@@ -16,7 +16,7 @@
         <div class="flex flex-wrap items-center gap-2">
           <button
             type="button"
-            class="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium hover:border-primary hover:text-primary dark:border-[#3c342e] dark:bg-[#1f1a17]"
+            class="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium hover:border-primary hover:text-primary "
             @click="loadOrders"
           >
             <span class="material-symbols-outlined text-[18px]">refresh</span>
@@ -30,7 +30,7 @@
       <section class="retail-card p-3">
         <div class="grid gap-3 md:grid-cols-[1fr_240px]">
           <label
-            class="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-1.5 dark:border-[#3c342e] dark:bg-[#1f1a17]"
+            class="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-1.5 "
           >
             <span class="material-symbols-outlined text-[18px] text-slate-400"
               >search</span
@@ -44,7 +44,7 @@
           </label>
 
           <label
-            class="flex items-center gap-2 rounded-xl border border-[#3c342e] bg-[#1f1a17] px-3 py-1.5"
+            class="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-1.5"
           >
             <span class="material-symbols-outlined text-[18px] text-slate-400"
               >filter_list</span
@@ -53,12 +53,12 @@
               v-model="statusFilter"
               class="w-full cursor-pointer bg-transparent text-sm text-[#eadfd3] outline-none"
             >
-              <option value="ALL" class="bg-[#1f1a17] text-[#eadfd3]">Tất cả trạng thái</option>
+              <option value="ALL" class="bg-white text-[#eadfd3]">Tất cả trạng thái</option>
               <option
                 v-for="status in statusOptions"
                 :key="status.value"
                 :value="status.value"
-                class="bg-[#1f1a17] text-[#eadfd3]"
+                class="bg-white text-[#eadfd3]"
               >
                 {{ status.label }}
               </option>
@@ -69,7 +69,7 @@
         <div class="hidden">
           <button
             class="rounded-full px-4 py-1.5 text-sm font-medium transition-colors"
-            :class="statusFilter === 'ALL' ? 'bg-primary text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-[#2b241f] dark:text-[#b9aa9a] dark:hover:bg-[#3c342e]'"
+            :class="statusFilter === 'ALL' ? 'bg-primary text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:hover:bg-[#3c342e]'"
             @click="statusFilter = 'ALL'"
           >
             Tất cả
@@ -78,7 +78,7 @@
             v-for="status in statusOptions"
             :key="status.value"
             class="rounded-full px-4 py-1.5 text-sm font-medium transition-colors"
-            :class="statusFilter === status.value ? 'bg-primary text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-[#2b241f] dark:text-[#b9aa9a] dark:hover:bg-[#3c342e]'"
+            :class="statusFilter === status.value ? 'bg-primary text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:hover:bg-[#3c342e]'"
             @click="statusFilter = status.value"
           >
             {{ status.label }}
@@ -89,24 +89,24 @@
       <section class="retail-card p-3">
         <div class="mb-3 grid grid-cols-1 gap-2 text-xs md:grid-cols-4">
           <div
-            class="rounded-xl border border-slate-200 px-3 py-2 dark:border-[#3c342e]"
+            class="rounded-xl border border-slate-200 px-3 py-2 "
           >
             Tổng đơn: <span class="font-semibold">{{ orders.length }}</span>
           </div>
           <div
-            class="rounded-xl border border-slate-200 px-3 py-2 dark:border-[#3c342e]"
+            class="rounded-xl border border-slate-200 px-3 py-2 "
           >
             Đơn ghi nhận doanh thu:
             <span class="font-semibold">{{ profitableOrdersCount }}</span>
           </div>
           <div
-            class="rounded-xl border border-slate-200 px-3 py-2 dark:border-[#3c342e]"
+            class="rounded-xl border border-slate-200 px-3 py-2 "
           >
             Đơn hoàn tiền:
             <span class="font-semibold">{{ deductedOrdersCount }}</span>
           </div>
           <div
-            class="rounded-xl border border-slate-200 px-3 py-2 dark:border-[#3c342e]"
+            class="rounded-xl border border-slate-200 px-3 py-2 "
           >
             Lợi nhuận ròng:
             <span class="font-semibold">{{ formatCurrency(netRevenue) }}</span>
@@ -114,24 +114,24 @@
         </div>
 
         <!-- Order Progress Tracker -->
-        <div v-if="activeTrackedOrder" class="mb-4 rounded-xl border border-slate-200 bg-white p-4 dark:border-[#3c342e] dark:bg-[#1f1a17]">
+        <div v-if="activeTrackedOrder" class="mb-4 rounded-xl border border-slate-200 bg-white p-4 ">
           <div class="mb-4 flex items-center justify-between">
-            <h3 class="font-bold text-slate-800 dark:text-white flex items-center gap-2">
+            <h3 class="font-bold text-slate-800 flex items-center gap-2">
               <span class="material-symbols-outlined text-primary">local_shipping</span>
               Theo dõi tiến độ đơn hàng <span class="text-primary">#{{ activeTrackedOrder.id }}</span>
             </h3>
-            <span class="text-xs text-slate-500 dark:text-[#b9aa9a]">Khách hàng: {{ activeTrackedOrder.fullName || activeTrackedOrder.fullname || 'Khách hàng' }}</span>
+            <span class="text-xs text-slate-500 ">Khách hàng: {{ activeTrackedOrder.fullName || activeTrackedOrder.fullname || 'Khách hàng' }}</span>
           </div>
           
           <div class="relative flex items-center justify-between w-full mt-6 px-4">
-            <div class="absolute left-4 right-4 top-1/2 h-1 -translate-y-1/2 bg-slate-100 dark:bg-[#2b241f] rounded-full"></div>
+            <div class="absolute left-4 right-4 top-1/2 h-1 -translate-y-1/2 bg-slate-100 rounded-full"></div>
             <div class="absolute left-4 top-1/2 h-1 -translate-y-1/2 rounded-full transition-all duration-500" 
                  :class="trackingSteps.some(s => s.isError) ? 'bg-red-500' : (trackingSteps.some(s => s.isWarning) ? 'bg-amber-500' : 'bg-primary')"
                  :style="{ width: `calc(${(Math.max(0, trackingSteps.map(s => s.isActive).lastIndexOf(true)) / (trackingSteps.length - 1 || 1) * 100)}% - 32px)` }"></div>
             
-            <div v-for="(step, idx) in trackingSteps" :key="idx" class="relative flex flex-col items-center gap-2" :class="step.isActive ? (step.isError ? 'text-red-500' : step.isWarning ? 'text-amber-500' : 'text-primary') : 'text-slate-400 dark:text-slate-600'">
-              <div class="flex h-8 w-8 items-center justify-center rounded-full border-2 bg-white dark:bg-[#1f1a17] transition-colors" 
-                   :class="step.isActive ? (step.isError ? 'border-red-500 shadow-[0_0_10px_rgba(239,68,68,0.3)]' : step.isWarning ? 'border-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.3)]' : 'border-primary shadow-[0_0_10px_rgba(198,98,49,0.3)]') : 'border-slate-200 dark:border-[#3c342e]'">
+            <div v-for="(step, idx) in trackingSteps" :key="idx" class="relative flex flex-col items-center gap-2" :class="step.isActive ? (step.isError ? 'text-red-500' : step.isWarning ? 'text-amber-500' : 'text-primary') : 'text-slate-400 '">
+              <div class="flex h-8 w-8 items-center justify-center rounded-full border-2 bg-white transition-colors" 
+                   :class="step.isActive ? (step.isError ? 'border-red-500 shadow-[0_0_10px_rgba(239,68,68,0.3)]' : step.isWarning ? 'border-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.3)]' : 'border-primary shadow-[0_0_10px_rgba(198,98,49,0.3)]') : 'border-slate-200 '">
                 <span class="material-symbols-outlined text-[16px]">{{ step.icon }}</span>
               </div>
               <span class="text-xs font-semibold whitespace-nowrap">{{ step.label }}</span>
@@ -141,19 +141,19 @@
 
         <div
           v-if="error"
-          class="mb-4 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-900/40 dark:bg-red-900/20 dark:text-red-300"
+          class="mb-4 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 /40 /20 "
         >
           {{ error }}
         </div>
 
         <div
           v-if="hiddenOrders.length > 0"
-          class="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-3 py-3 text-sm text-slate-700 dark:border-amber-900/20 dark:bg-[#3f2e11] dark:text-[#fbe7a1]"
+          class="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-3 py-3 text-sm text-slate-700 /20 "
         >
           <div class="flex flex-wrap items-center justify-between gap-3">
             <div>
               <p class="font-semibold">Đơn hàng ẩn tạm</p>
-              <p class="text-xs text-slate-500 dark:text-[#e1c797]">
+              <p class="text-xs text-slate-500 ">
                 Những đơn hàng đã xóa mềm sẽ tạm ẩn khỏi danh sách được dùng.
                 Bạn có thể khôi phục lại khi cần.
               </p>
@@ -170,7 +170,7 @@
             <div
               v-for="order in hiddenOrders"
               :key="order.id"
-              class="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 dark:border-[#4c4138] dark:bg-[#1e1812]"
+              class="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 "
             >
               <div class="text-sm">
                 <span class="font-semibold">#{{ order.id }}</span>
@@ -178,7 +178,7 @@
               </div>
               <button
                 type="button"
-                class="rounded-xl bg-emerald-500 px-3 py-2 text-xs font-semibold text-white hover:bg-emerald-600"
+                class="rounded-xl bg-emerald-500 px-3 py-2 text-xs font-semibold text-slate-800 hover:bg-emerald-600"
                 @click="restoreOrder(order)"
               >
                 Khôi phục
@@ -189,14 +189,14 @@
 
         <div
           v-if="loading"
-          class="py-8 text-center text-sm text-slate-500 dark:text-[#b9aa9a]"
+          class="py-8 text-center text-sm text-slate-500 "
         >
           Đang tải danh sách đơn hàng...
         </div>
 
         <div
           v-else-if="filteredOrders.length === 0"
-          class="rounded-2xl border border-dashed border-slate-300 p-6 text-center text-sm text-slate-500 dark:border-[#3c342e] dark:text-[#b9aa9a]"
+          class="rounded-2xl border border-dashed border-slate-300 p-6 text-center text-sm text-slate-500 "
         >
           Không tìm thấy đơn hàng phù hợp.
         </div>
@@ -217,9 +217,9 @@
             </colgroup>
             <thead>
               <tr
-                class="border-b border-slate-200 text-slate-500 dark:border-[#3c342e] dark:text-[#b9aa9a]"
+                class="border-b border-slate-200 text-slate-500 "
               >
-                <th class="sticky left-0 z-20 bg-[#1f1a17] px-2 py-2 font-medium shadow-[1px_0_0_rgba(60,52,46,0.9)]">ID</th>
+                <th class="sticky left-0 z-20 bg-white px-2 py-2 font-medium shadow-[1px_0_0_rgba(60,52,46,0.9)]">ID</th>
                 <th class="px-2 py-2 font-medium">Khách hàng</th>
                 <th class="px-2 py-2 font-medium">Sản phẩm</th>
                 <th class="px-2 py-2 font-medium">Liên hệ</th>
@@ -230,24 +230,24 @@
                 <th class="px-2 py-2 font-medium">Thanh toán</th>
                 <th class="px-2 py-2 font-medium whitespace-nowrap">Trạng thái</th>
                 <th class="px-2 py-2 font-medium">Ngày tạo</th>
-                <th class="sticky right-0 z-20 bg-[#1f1a17] px-2 py-2 text-right font-medium shadow-[-1px_0_0_rgba(60,52,46,0.9)]">Thao tác</th>
+                <th class="sticky right-0 z-20 bg-white px-2 py-2 text-right font-medium shadow-[-1px_0_0_rgba(60,52,46,0.9)]">Thao tác</th>
               </tr>
             </thead>
             <tbody>
               <tr
                 v-for="order in filteredOrders"
                 :key="order.id"
-                class="border-b border-slate-100 last:border-none dark:border-[#2b241f] cursor-pointer transition-colors hover:bg-slate-50 dark:hover:bg-[#2b241f]/80"
-                :class="{ 'bg-primary/5 dark:bg-primary/10 border-l-2 border-l-primary': activeTrackedOrder?.id === order.id }"
+                class="border-b border-slate-100 last:border-none cursor-pointer transition-colors hover:bg-slate-50 dark:hover:bg-white/80"
+                :class="{ 'bg-primary/5 /10 border-l-2 border-l-primary': activeTrackedOrder?.id === order.id }"
                 @click="selectOrderToTrack(order)"
               >
-                <td class="sticky left-0 z-10 bg-[#1f1a17] px-2 py-2 font-semibold shadow-[1px_0_0_rgba(60,52,46,0.75)]">#{{ order.id || "-" }}</td>
+                <td class="sticky left-0 z-10 bg-white px-2 py-2 font-semibold shadow-[1px_0_0_rgba(60,52,46,0.75)]">#{{ order.id || "-" }}</td>
                 <td class="px-2 py-2">
                   <p class="truncate" :title="order.fullName || 'Khách hàng'">
                     {{ order.fullName || "Khách hàng" }}
                   </p>
                 </td>
-                <td class="px-2 py-2 text-slate-600 dark:text-[#b9aa9a]">
+                <td class="px-2 py-2 text-slate-600 ">
                   <p
                     v-for="(itemText, idx) in getOrderItemsPreview(order)"
                     :key="`${order.id || 'order'}-item-${idx}`"
@@ -256,12 +256,12 @@
                     {{ itemText }}
                   </p>
                 </td>
-                <td class="px-2 py-2 text-slate-500 dark:text-[#b9aa9a]">
+                <td class="px-2 py-2 text-slate-500 ">
                   <p class="truncate" :title="order.phone || '-'">{{ order.phone || "-" }}</p>
                   <p class="truncate" :title="order.email || '-'">{{ order.email || "-" }}</p>
                 </td>
                 <td
-                  class="px-2 py-2 text-xs text-slate-600 dark:text-[#b9aa9a]"
+                  class="px-2 py-2 text-xs text-slate-600 "
                 >
                   <p
                     class="line-clamp-2"
@@ -283,7 +283,7 @@
                   {{ formatCurrency(order.finalAmount || order.totalMoney) }}
                 </td>
                 <td class="px-2 py-2">
-                  <div class="truncate font-medium text-slate-700 dark:text-[#e6d7c8]" :title="getPaymentMethodLabel(order)">{{ getPaymentMethodLabel(order) }}</div>
+                  <div class="truncate font-medium text-slate-700 " :title="getPaymentMethodLabel(order)">{{ getPaymentMethodLabel(order) }}</div>
                   <div class="mt-0.5 text-[11px] text-slate-500">{{ getPaymentStatusLabel(order.paymentStatus) }}</div>
                 </td>
                 <td class="px-2 py-2 whitespace-nowrap">
@@ -294,13 +294,13 @@
                     {{ getOrderStatusLabel(order.status) }}
                   </span>
                 </td>
-                <td class="px-2 py-2 text-slate-500 dark:text-[#b9aa9a] whitespace-nowrap">
+                <td class="px-2 py-2 text-slate-500 whitespace-nowrap">
                   {{ formatDate(order.createdAt) }}
                 </td>
-                <td class="sticky right-0 z-10 bg-[#1f1a17] px-2 py-2 text-right shadow-[-1px_0_0_rgba(60,52,46,0.75)]">
+                <td class="sticky right-0 z-10 bg-white px-2 py-2 text-right shadow-[-1px_0_0_rgba(60,52,46,0.75)]">
                   <div class="flex items-center justify-end gap-1">
                     <button
-                      class="rounded-lg p-1.5 hover:bg-slate-100 dark:hover:bg-[#2b241f]"
+                      class="rounded-lg p-1.5 hover:bg-slate-100 dark:hover:bg-white"
                       title="Chỉnh sửa"
                       @click="openEdit(order)"
                     >
@@ -411,7 +411,7 @@
         @click.self="closeModal"
       >
         <div
-          class="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl bg-white p-4 shadow-2xl dark:bg-[#1f1a17]"
+          class="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl bg-white p-4 shadow-2xl "
         >
           <h3 class="mb-4 text-base font-bold">
             {{
@@ -433,7 +433,7 @@
                 v-model.number="form.accountId"
                 type="number"
                 min="1"
-                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm dark:border-[#3c342e] dark:bg-[#2b241f]"
+                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm "
               />
             </div>
 
@@ -444,7 +444,7 @@
               <input
                 v-model.trim="form.fullName"
                 type="text"
-                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-[#3c342e] dark:bg-[#2b241f]"
+                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm "
               />
             </div>
 
@@ -455,7 +455,7 @@
               <input
                 v-model.trim="form.phone"
                 type="text"
-                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-[#3c342e] dark:bg-[#2b241f]"
+                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm "
               />
             </div>
 
@@ -466,7 +466,7 @@
               <input
                 v-model.trim="form.email"
                 type="email"
-                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-[#3c342e] dark:bg-[#2b241f]"
+                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm "
               />
             </div>
 
@@ -478,7 +478,7 @@
                 v-model.number="form.totalMoney"
                 type="number"
                 min="0"
-                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-[#3c342e] dark:bg-[#2b241f]"
+                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm "
               />
             </div>
 
@@ -490,7 +490,7 @@
                 v-model.number="form.finalAmount"
                 type="number"
                 min="0"
-                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-[#3c342e] dark:bg-[#2b241f]"
+                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm "
               />
             </div>
 
@@ -500,7 +500,7 @@
               >
               <select
                 v-model="form.status"
-                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-[#3c342e] dark:bg-[#2b241f]"
+                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm "
               >
                 <option
                   v-for="status in statusOptions"
@@ -519,7 +519,7 @@
               >
               <select
                 v-model="form.paymentStatus"
-                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-[#3c342e] dark:bg-[#2b241f]"
+                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm "
               >
                 <option
                   v-for="status in paymentStatusOptions"
@@ -540,7 +540,7 @@
                 :value="getPaymentMethodLabel(form)"
                 readonly
                 title="Phương thức thanh toán (chỉ hiển thị)"
-                class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 dark:border-[#3c342e] dark:bg-[#2b241f] dark:text-[#e6d7c8]"
+                class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 "
               />
             </div>
 
@@ -549,17 +549,17 @@
                 >Lý do yêu cầu trả hàng</label
               >
               <div
-                class="w-full rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-[#3c342e] dark:bg-red-900/20 dark:text-red-300 whitespace-pre-wrap"
+                class="w-full rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 /20 whitespace-pre-wrap"
               >
                 {{ form.returnReason }}
               </div>
             </div>
 
             <div v-if="form.returnImages && form.returnImages.length > 0" class="md:col-span-2">
-              <label class="mb-1 block text-xs font-medium text-slate-500 dark:text-[#b9aa9a]">Ảnh minh chứng hoàn hàng</label>
+              <label class="mb-1 block text-xs font-medium text-slate-500 ">Ảnh minh chứng hoàn hàng</label>
               <div class="flex flex-wrap gap-2">
                 <div v-for="(img, idx) in form.returnImages" :key="idx"
-                  class="group relative size-20 cursor-pointer overflow-hidden rounded-lg border border-slate-200 dark:border-[#3c342e]"
+                  class="group relative size-20 cursor-pointer overflow-hidden rounded-lg border border-slate-200 "
                   @click="window.open(img, '_blank')">
                   <img :src="img" class="h-full w-full object-cover transition-transform group-hover:scale-110" />
                 </div>
@@ -567,20 +567,20 @@
             </div>
 
             <div
-              class="md:col-span-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs dark:border-[#3c342e] dark:bg-[#2b241f]"
+              class="md:col-span-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs "
             >
-              <p class="mb-2 font-semibold text-slate-700 dark:text-[#eadfd3]">
+              <p class="mb-2 font-semibold text-slate-700 ">
                 Sản phẩm trong đơn
               </p>
 
               <div
                 v-if="selectedOrderItems.length === 0"
-                class="text-slate-500 dark:text-[#b9aa9a]"
+                class="text-slate-500 "
               >
                 Chưa có dữ liệu sản phẩm cho đơn hàng này.
               </div>
 
-              <div v-else class="space-y-1 text-slate-600 dark:text-[#b9aa9a]">
+              <div v-else class="space-y-1 text-slate-600 ">
                 <p
                   v-for="(itemText, idx) in selectedOrderItems"
                   :key="`modal-item-${idx}`"
@@ -598,7 +598,7 @@
               <textarea
                 v-model.trim="form.address"
                 rows="2"
-                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-[#3c342e] dark:bg-[#2b241f]"
+                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm "
               />
             </div>
           </div>
@@ -610,7 +610,7 @@
           <div class="mt-4 flex justify-end gap-2">
             <button
               type="button"
-              class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium hover:border-slate-400 dark:border-[#3c342e]"
+              class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium hover:border-slate-400 "
               @click="closeModal"
             >
               Hủy
@@ -638,10 +638,10 @@
         @click.self="deleteTarget = null"
       >
         <div
-          class="w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl dark:bg-[#1f1a17]"
+          class="w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl "
         >
           <h3 class="mb-2 text-base font-bold">Xác nhận xóa</h3>
-          <p class="text-sm text-slate-500 dark:text-[#b9aa9a]">
+          <p class="text-sm text-slate-500 ">
             Bạn chắc chắn muốn xóa đơn hàng
             <strong>#{{ deleteTarget.id }}</strong
             >?
@@ -649,7 +649,7 @@
 
           <div class="mt-5 flex justify-end gap-3">
             <button
-              class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium dark:border-[#3c342e]"
+              class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium "
               @click="deleteTarget = null"
             >
               Hủy
@@ -669,13 +669,13 @@
     <!-- Toast Notification -->
     <Teleport to="body">
       <div v-if="newOrderToast" class="fixed bottom-4 right-4 z-50 animate-slide-in-up">
-        <div class="flex items-center gap-3 rounded-xl border border-primary/20 bg-white p-4 shadow-xl dark:border-primary/20 dark:bg-[#1f1a17]">
+        <div class="flex items-center gap-3 rounded-xl border border-primary/20 bg-white p-4 shadow-xl /20 ">
           <div class="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
             <span class="material-symbols-outlined">notifications_active</span>
           </div>
           <div>
-            <h4 class="font-bold text-slate-800 dark:text-white">{{ newOrderToast.title }}</h4>
-            <p class="text-sm text-slate-500 dark:text-[#b9aa9a]">{{ newOrderToast.message }}</p>
+            <h4 class="font-bold text-slate-800 ">{{ newOrderToast.title }}</h4>
+            <p class="text-sm text-slate-500 ">{{ newOrderToast.message }}</p>
           </div>
           <button class="ml-4 text-slate-400 hover:text-slate-600" @click="newOrderToast = null">
             <span class="material-symbols-outlined text-lg">close</span>
@@ -1376,18 +1376,18 @@ function getOrderItemsPreview(orderLike) {
 function statusClass(status) {
   const normalized = normalizeOrderStatusValue(status);
   if (["SUCCESS"].includes(normalized)) {
-    return "bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400";
+    return "bg-green-100 text-green-700 /20 ";
   }
   if (["PROCESSING", "SHIPPING"].includes(normalized)) {
-    return "bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400";
+    return "bg-blue-100 text-blue-700 /20 ";
   }
   if (["RETURN_REQUEST", "RETURNING"].includes(normalized)) {
-    return "bg-orange-100 text-orange-700 dark:bg-orange-900/20 dark:text-orange-300";
+    return "bg-orange-100 text-orange-700 /20 ";
   }
   if (["CANCELLED", "RETURNED", "DAMAGED", "LOST"].includes(normalized)) {
-    return "bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-400";
+    return "bg-red-100 text-red-700 /20 ";
   }
-  return "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400";
+  return "bg-yellow-100 text-yellow-700 /20 ";
 }
 
 const accountLookupLoading = ref(false);

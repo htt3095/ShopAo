@@ -1,6 +1,6 @@
 <template>
   <div
-    class="retail-shell flex min-h-screen flex-col text-slate-900 dark:text-white font-display antialiased selection:bg-primary selection:text-white"
+    class="retail-shell flex min-h-screen flex-col text-slate-900  font-display antialiased selection:bg-primary selection:text-white"
   >
     <transition name="fade-scale">
       <div
@@ -12,14 +12,14 @@
           @click="modal.show = false"
         />
         <div
-          class="relative w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-2xl dark:border-[#334455] dark:bg-[#18212b]"
+          class="relative w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-2xl  "
         >
           <div
             class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl"
             :class="
               modal.type === 'success'
-                ? 'bg-green-500/15 text-green-600 dark:text-green-400'
-                : 'bg-red-500/15 text-red-600 dark:text-red-400'
+                ? 'bg-green-500/15 text-green-600 '
+                : 'bg-red-500/15 text-red-600 '
             "
           >
             <span class="material-symbols-outlined text-3xl">{{
@@ -29,7 +29,7 @@
           <h3 class="mb-2 text-xl font-black tracking-tight">
             {{ modal.title }}
           </h3>
-          <p class="mb-6 text-sm text-slate-500 dark:text-[#9cabba]">
+          <p class="mb-6 text-sm text-slate-500 ">
             {{ modal.message }}
           </p>
           <button
@@ -45,9 +45,9 @@
     <MainTopBar />
 
     <main class="flex-grow container mx-auto px-4 py-8 lg:px-8 xl:px-40">
-      <div class="mb-6 border-b border-slate-200 pb-4 dark:border-[#283039]">
+      <div class="mb-6 border-b border-slate-200 pb-4 ">
         <h1 class="text-3xl font-black tracking-tight">Thanh toán</h1>
-        <p class="mt-1 text-sm text-slate-500 dark:text-[#9cabba]">
+        <p class="mt-1 text-sm text-slate-500 ">
           Hoàn tất thông tin để xác nhận đơn hàng của bạn.
         </p>
       </div>
@@ -55,7 +55,7 @@
       <div class="grid grid-cols-1 gap-8 lg:grid-cols-12">
         <section class="space-y-6 lg:col-span-7">
           <article
-            class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-[#283039] dark:bg-[#18212b]"
+            class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm  "
           >
             <h2 class="mb-5 flex items-center gap-2 text-xl font-bold">
               <span class="material-symbols-outlined text-primary">person</span>
@@ -65,45 +65,45 @@
             <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
               <label class="flex flex-col gap-2 md:col-span-2">
                 <span
-                  class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-[#9cabba]"
+                  class="text-xs font-semibold uppercase tracking-wide text-slate-500 "
                   >Email liên hệ</span
                 >
                 <input
                   v-model.trim="shippingForm.gmail"
                   type="email"
-                  class="rounded-xl border bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:ring-2 focus:border-primary dark:bg-[#1b2127] dark:text-white dark:border-[#3b4754]"
+                  class="rounded-xl border bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:ring-2 focus:border-primary   "
                   placeholder="peak@example.com"
                 />
               </label>
 
               <label class="flex flex-col gap-2">
                 <span
-                  class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-[#9cabba]"
+                  class="text-xs font-semibold uppercase tracking-wide text-slate-500 "
                   >Họ và tên</span
                 >
                 <input
                   v-model.trim="shippingForm.fullname"
                   type="text"
-                  class="rounded-xl border bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:border-primary dark:bg-[#1b2127] dark:text-white dark:border-[#3b4754]"
+                  class="rounded-xl border bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:border-primary   "
                   placeholder="Nguyen Van A"
                 />
               </label>
 
               <label class="flex flex-col gap-2">
                 <span
-                  class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-[#9cabba]"
+                  class="text-xs font-semibold uppercase tracking-wide text-slate-500 "
                   >Số điện thoại</span
                 >
                 <input
                   v-model.trim="shippingForm.phone"
                   type="text"
-                  class="rounded-xl border bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:border-primary dark:bg-[#1b2127] dark:text-white dark:border-[#3b4754]"
+                  class="rounded-xl border bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:border-primary   "
                   placeholder="09xxxxxxxx"
                 />
               </label>
 
               <label class="flex flex-col gap-2">
-                <span class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-[#9cabba]">Tỉnh/Thành phố</span>
+                <span class="text-xs font-semibold uppercase tracking-wide text-slate-500 ">Tỉnh/Thành phố</span>
                 <SearchableSelect
                   v-model="selectedProvince"
                   :options="provinces"
@@ -113,7 +113,7 @@
               </label>
 
               <label class="flex flex-col gap-2">
-                <span class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-[#9cabba]">Quận/Huyện</span>
+                <span class="text-xs font-semibold uppercase tracking-wide text-slate-500 ">Quận/Huyện</span>
                 <SearchableSelect
                   v-model="selectedDistrict"
                   :options="selectedProvince?.districts || []"
@@ -124,7 +124,7 @@
               </label>
 
               <label class="flex flex-col gap-2">
-                <span class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-[#9cabba]">Phường/Xã</span>
+                <span class="text-xs font-semibold uppercase tracking-wide text-slate-500 ">Phường/Xã</span>
                 <SearchableSelect
                   v-model="selectedWard"
                   :options="selectedDistrict?.wards || []"
@@ -134,11 +134,11 @@
               </label>
 
               <label class="flex flex-col gap-2 md:col-span-2">
-                <span class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-[#9cabba]">Địa chỉ chi tiết</span>
+                <span class="text-xs font-semibold uppercase tracking-wide text-slate-500 ">Địa chỉ chi tiết</span>
                 <input
                   v-model.trim="streetAddress"
                   type="text"
-                  class="rounded-xl border bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:border-primary dark:bg-[#1b2127] dark:text-white dark:border-[#3b4754]"
+                  class="rounded-xl border bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:border-primary   "
                   placeholder="Ví dụ: 42 Kim Giang"
                   @blur="checkAndCalculateRoute(true)"
                   @keyup.enter="checkAndCalculateRoute(true)"
@@ -146,18 +146,18 @@
               </label>
 
               <label class="flex flex-col gap-2 md:col-span-2">
-                <span class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-[#9cabba]">Hoặc chọn trên bản đồ</span>
-                <div id="checkout-map" class="h-64 w-full rounded-xl border border-slate-200 dark:border-[#3b4754] z-10 relative overflow-hidden"></div>
+                <span class="text-xs font-semibold uppercase tracking-wide text-slate-500 ">Hoặc chọn trên bản đồ</span>
+                <div id="checkout-map" class="h-64 w-full rounded-xl border border-slate-200  z-10 relative overflow-hidden"></div>
                 <p class="text-[11px] text-slate-500">Bấm vào bản đồ để chọn vị trí giao hàng.</p>
               </label>
             </div>
 
             <div
               v-show="isRouteCalculated"
-              class="mt-6 rounded-xl border border-green-500/30 bg-green-50/50 p-5 dark:border-green-500/20 dark:bg-green-900/10"
+              class="mt-6 rounded-xl border border-green-500/30 bg-green-50/50 p-5 /20 /10"
             >
               <h3
-                class="mb-4 flex items-center gap-2 text-base font-bold text-green-700 dark:text-green-400"
+                class="mb-4 flex items-center gap-2 text-base font-bold text-green-700 "
               >
                 <span class="material-symbols-outlined">local_shipping</span>
                 Thông tin giao hàng đã xác nhận
@@ -166,7 +166,7 @@
                 <div
                   class="flex items-start justify-between border-b border-green-500/20 pb-3"
                 >
-                  <span class="font-semibold text-slate-600 dark:text-slate-400"
+                  <span class="font-semibold text-slate-600 "
                     >Kho hàng:</span
                   >
                   <span class="text-right font-medium"
@@ -176,7 +176,7 @@
                 <div
                   class="flex items-start justify-between border-b border-green-500/20 pb-3"
                 >
-                  <span class="font-semibold text-slate-600 dark:text-slate-400"
+                  <span class="font-semibold text-slate-600 "
                     >Giao đến:</span
                   >
                   <span class="text-right font-medium max-w-[70%]">{{
@@ -184,19 +184,19 @@
                   }}</span>
                 </div>
                 <div class="flex items-center justify-between">
-                  <span class="font-semibold text-slate-600 dark:text-slate-400"
+                  <span class="font-semibold text-slate-600 "
                     >Khoảng cách:</span
                   >
                   <span class="font-bold">{{ distanceKm }} km</span>
                 </div>
                 <div class="flex items-center justify-between">
-                  <span class="font-semibold text-slate-600 dark:text-slate-400"
+                  <span class="font-semibold text-slate-600 "
                     >Dự kiến giao:</span
                   >
                   <span class="font-bold">{{ estimatedDays }} ngày</span>
                 </div>
                 <div class="flex items-center justify-between pt-2">
-                  <span class="font-semibold text-slate-600 dark:text-slate-400"
+                  <span class="font-semibold text-slate-600 "
                     >Phí vận chuyển:</span
                   >
                   <span class="text-lg font-black text-red-500">{{
@@ -215,7 +215,7 @@
           </article>
 
           <article
-            class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-[#283039] dark:bg-[#18212b]"
+            class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm  "
           >
             <h2 class="mb-5 flex items-center gap-2 text-xl font-bold">
               <span class="material-symbols-outlined text-primary">wallet</span>
@@ -230,7 +230,7 @@
                 :class="
                   selectedPayment === method.id
                     ? 'border-primary bg-primary/10 text-primary'
-                    : 'border-slate-200 bg-white text-slate-700 dark:border-[#3b4754] dark:bg-[#1b2127] dark:text-white'
+                    : 'border-slate-200 bg-white text-slate-700   '
                 "
               >
                 <span class="flex items-center gap-3">
@@ -250,15 +250,15 @@
 
             <div
               v-if="selectedPayment === 2"
-              class="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-[#3b4754] dark:bg-[#1b2127]"
+              class="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-4  "
             >
               <label
-                class="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-[#9cabba]"
+                class="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500 "
                 >Chọn kênh thanh toán online</label
               >
               <select
                 v-model.number="selectedDigitalPayment"
-                class="w-full cursor-pointer rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-[#3b4754] dark:bg-[#111418]"
+                class="w-full cursor-pointer rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20  "
               >
                 <option
                   v-for="method in digitalPaymentMethods"
@@ -275,7 +275,7 @@
         <aside class="lg:col-span-5">
           <div class="sticky top-24 space-y-6">
             <article
-              class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-[#283039] dark:bg-[#18212b]"
+              class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm  "
             >
               <h2 class="mb-5 text-xl font-bold">Tóm tắt đơn hàng</h2>
 
@@ -296,7 +296,7 @@
                     class="flex items-center gap-3"
                   >
                     <div
-                      class="h-16 w-16 overflow-hidden rounded-lg bg-slate-100 dark:bg-[#1b2127]"
+                      class="h-16 w-16 overflow-hidden rounded-lg bg-slate-100 "
                     >
                       <img
                         :src="getItemImage(item)"
@@ -308,20 +308,20 @@
                       <p class="truncate text-sm font-semibold">
                         {{ getItemName(item) }}
                       </p>
-                      <p class="text-xs text-slate-500 dark:text-[#9cabba]">
+                      <p class="text-xs text-slate-500 ">
                         {{ getSizeLabel(item) }} • {{ getColorLabel(item) }} •
                         x{{ item.quantity }}
                       </p>
                     </div>
-                    <p class="text-sm font-bold text-slate-900 dark:text-white">
+                    <p class="text-sm font-bold text-slate-900 ">
                       {{ formatMoney(item.price * item.quantity) }}
                     </p>
                   </div>
                 </div>
 
-                <div class="mt-6 rounded-xl bg-slate-50 p-4 dark:bg-[#1b2127]">
+                <div class="mt-6 rounded-xl bg-slate-50 p-4 ">
                   <label
-                    class="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-[#9cabba]"
+                    class="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500 "
                     >Mã giảm giá</label
                   >
                   <div class="flex gap-2">
@@ -329,11 +329,11 @@
                       v-model.trim="voucherInput"
                       type="text"
                       placeholder="Nhập mã voucher"
-                      class="flex-1 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-primary dark:border-[#3b4754] dark:bg-[#111418]"
+                      class="flex-1 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-primary  "
                     />
                     <button
                       type="button"
-                      class="rounded-lg bg-slate-100 px-4 py-2 text-sm font-semibold hover:bg-slate-200 disabled:opacity-60 dark:bg-[#283039]"
+                      class="rounded-lg bg-slate-100 px-4 py-2 text-sm font-semibold hover:bg-slate-200 disabled:opacity-60 "
                       :disabled="isApplyingVoucher"
                       @click="applyVoucher"
                     >
@@ -347,7 +347,7 @@
                       class="mt-2 flex items-center justify-between rounded-lg border border-green-500/40 bg-green-500/10 px-3 py-2 text-xs"
                     >
                       <span
-                        class="font-semibold text-green-600 dark:text-green-400"
+                        class="font-semibold text-green-600 "
                         >Đang dùng mã: {{ appliedVoucher.code }}</span
                       >
                       <button
@@ -359,7 +359,7 @@
                       </button>
                     </div>
                     <p
-                      class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-[#9cabba] mt-3"
+                      class="text-xs font-semibold uppercase tracking-wide text-slate-500  mt-3"
                     >
                       Voucher khả dụng
                     </p>
@@ -374,7 +374,7 @@
                         v-for="voucher in processedAvailableVouchers"
                         :key="voucher.id || voucher.code"
                         class="rounded-lg border px-3 py-2"
-                        :class="voucher.isEligible ? 'border-slate-200 bg-white dark:border-[#3b4754] dark:bg-[#111418]' : 'border-slate-200 bg-slate-50 opacity-70 dark:border-[#3b4754] dark:bg-[#1b2127]'"
+                        :class="voucher.isEligible ? 'border-slate-200 bg-white  ' : 'border-slate-200 bg-slate-50 opacity-70  '"
                       >
                         <div class="flex items-start justify-between gap-3">
                           <div>
@@ -382,14 +382,14 @@
                             <p class="text-xs text-slate-500">
                               {{ voucher.description }}
                             </p>
-                            <p v-if="!voucher.isEligible" class="mt-1 text-[11px] font-semibold text-amber-600 dark:text-amber-400">
+                            <p v-if="!voucher.isEligible" class="mt-1 text-[11px] font-semibold text-amber-600 ">
                               Cần tối thiểu {{ formatMoney(voucher.minOrderValue || voucher.min_order_value || 0) }}
                             </p>
                           </div>
                           <button
                             type="button"
                             class="rounded-md px-3 py-1 text-xs font-semibold"
-                            :class="voucher.isEligible ? 'bg-primary text-white hover:bg-blue-600' : 'bg-slate-200 text-slate-500 cursor-not-allowed dark:bg-[#283039]'"
+                            :class="voucher.isEligible ? 'bg-primary text-white hover:bg-blue-600' : 'bg-slate-200 text-slate-500 cursor-not-allowed '"
                             :disabled="!voucher.isEligible"
                             @click="applySuggestedVoucher(voucher)"
                           >
@@ -402,29 +402,29 @@
                 </div>
 
                 <div
-                  class="mt-6 space-y-3 border-t border-slate-200 pt-4 dark:border-[#283039]"
+                  class="mt-6 space-y-3 border-t border-slate-200 pt-4 "
                 >
                   <div
-                    class="flex items-center justify-between text-sm text-slate-600 dark:text-[#9cabba]"
+                    class="flex items-center justify-between text-sm text-slate-600 "
                   >
                     <span>Tạm tính</span>
                     <span
-                      class="font-semibold text-slate-900 dark:text-white"
+                      class="font-semibold text-slate-900 "
                       >{{ formatMoney(subtotal) }}</span
                     >
                   </div>
                   <div
-                    class="flex items-center justify-between text-sm text-slate-600 dark:text-[#9cabba]"
+                    class="flex items-center justify-between text-sm text-slate-600 "
                   >
                     <span>Phí vận chuyển</span>
                     <span
-                      class="font-semibold text-slate-900 dark:text-white"
+                      class="font-semibold text-slate-900 "
                       >{{ formatMoney(shipping) }}</span
                     >
                   </div>
                   <div
                     v-if="discountAmount > 0"
-                    class="flex items-center justify-between text-sm text-green-600 dark:text-green-400"
+                    class="flex items-center justify-between text-sm text-green-600 "
                   >
                     <span>Giảm giá</span>
                     <span class="font-bold"
@@ -432,7 +432,7 @@
                     >
                   </div>
                   <div
-                    class="flex items-center justify-between border-t border-slate-200 pt-4 text-lg dark:border-[#283039]"
+                    class="flex items-center justify-between border-t border-slate-200 pt-4 text-lg "
                   >
                     <span class="font-bold">Tổng thanh toán</span>
                     <span class="font-black text-primary">{{

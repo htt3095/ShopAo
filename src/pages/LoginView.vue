@@ -1,6 +1,6 @@
-﻿<template>
+<template>
   <div
-    class="retail-shell text-slate-900 dark:text-white overflow-x-hidden antialiased flex flex-col min-h-screen"
+    class="retail-shell text-slate-900  overflow-x-hidden antialiased flex flex-col min-h-screen"
   >
     <MainTopBar />
 
@@ -13,17 +13,17 @@
         <div class="relative flex w-full items-end">
           <img
             class="absolute inset-0 h-full w-full object-cover"
-            alt="Athletic runner sprinting on a modern track wearing Peak Seven shoes"
+            alt="Athletic runner sprinting on a modern track wearing SportX sportswear"
             src="https://images.unsplash.com/photo-1460353581641-37baddab0fa2?auto=format&fit=crop&w=1400&q=80"
           />
           <div
             class="absolute inset-0 bg-gradient-to-t from-[#14100d]/90 via-[#14100d]/45 to-transparent"
           />
 
-          <div class="relative z-10 flex w-full flex-col gap-6 p-10 text-white">
+          <div class="relative z-10 flex w-full flex-col gap-6 p-10 text-slate-800">
             <span
-              class="retail-kicker w-fit border-white/30 bg-white/15 text-white"
-              >Tài khoản Peak Seven</span
+              class="retail-kicker w-fit border-white/30 bg-white/15 text-slate-800"
+              >Tài khoản SportX</span
             >
             <div>
               <h1 class="text-[42px] font-black leading-[1.02] tracking-tight">
@@ -64,26 +64,26 @@
         <div class="retail-card w-full max-w-[500px] px-6 py-7 sm:px-8">
           <div class="text-center lg:text-left">
             <h1
-              class="text-slate-900 dark:text-white tracking-tight text-[32px] font-bold leading-tight pb-2"
+              class="text-slate-900  tracking-tight text-[32px] font-bold leading-tight pb-2"
             >
               Chào mừng quay lại
             </h1>
-            <p class="text-slate-500 dark:text-[#b7a999] text-base">
+            <p class="text-slate-500  text-base">
               Nhập thông tin để tiếp tục mua sắm và theo dõi tài khoản.
             </p>
           </div>
 
           <div class="w-full py-3">
             <div
-              class="flex h-12 w-full items-center justify-center rounded-xl bg-[#f2e9dd] dark:bg-[#2b241f] p-1"
+              class="flex h-12 w-full items-center justify-center rounded-xl bg-[#f2e9dd]  p-1"
             >
               <div
-                class="flex flex-1 cursor-default h-full items-center justify-center overflow-hidden rounded-lg px-2 bg-white dark:bg-[#111418] shadow-sm text-slate-900 dark:text-white text-sm font-medium transition-all"
+                class="flex flex-1 cursor-default h-full items-center justify-center overflow-hidden rounded-lg px-2 bg-white  shadow-sm text-slate-900  text-sm font-medium transition-all"
               >
                 <span class="truncate">Đăng nhập</span>
               </div>
               <router-link
-                class="flex flex-1 cursor-pointer h-full items-center justify-center overflow-hidden rounded-lg px-2 text-slate-500 dark:text-[#b7a999] text-sm font-medium transition-all hover:text-slate-800 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5"
+                class="flex flex-1 cursor-pointer h-full items-center justify-center overflow-hidden rounded-lg px-2 text-slate-500  text-sm font-medium transition-all hover:text-slate-800 :text-slate-800 hover:bg-black/5 :bg-white/5"
                 to="/register"
               >
                 <span class="truncate">Đăng ký</span>
@@ -93,14 +93,14 @@
 
           <div
             v-if="errorMessage"
-            class="bg-red-100 dark:bg-red-900/20 border border-red-400 dark:border-red-800 text-red-700 dark:text-red-300 px-4 py-3 rounded-lg text-sm font-medium text-center"
+            class="bg-red-100 /20 border border-red-400  text-red-700  px-4 py-3 rounded-lg text-sm font-medium text-center"
           >
             {{ errorMessage }}
           </div>
 
           <div
             v-if="successMessage"
-            class="mt-3 bg-green-100 dark:bg-green-900/20 border border-green-400 dark:border-green-800 text-green-700 dark:text-green-300 px-4 py-3 rounded-lg text-sm font-medium text-center"
+            class="mt-3 bg-green-100 /20 border border-green-400  text-green-700  px-4 py-3 rounded-lg text-sm font-medium text-center"
           >
             {{ successMessage }}
           </div>
@@ -108,20 +108,20 @@
           <form class="mt-4 flex flex-col gap-4" @submit.prevent="handleLogin">
             <label class="flex flex-col gap-1.5">
               <span
-                class="text-slate-900 dark:text-white text-sm font-medium leading-normal"
+                class="text-slate-900  text-sm font-medium leading-normal"
                 >Email liên hệ <span class="text-red-500">*</span></span
               >
               <div
-                class="flex items-center rounded-xl border border-slate-300 dark:border-[#3b4754] bg-white dark:bg-[#1b2127] overflow-hidden focus-within:border-primary focus-within:ring-1 focus-within:ring-primary transition-all"
+                class="flex items-center rounded-xl border border-slate-300  bg-white  overflow-hidden focus-within:border-primary focus-within:ring-1 focus-within:ring-primary transition-all"
               >
-                <span class="pl-4 text-slate-400 dark:text-[#9cabba]"
+                <span class="pl-4 text-slate-400 "
                   ><span class="material-symbols-outlined text-[20px]"
                     >mail</span
                   ></span
                 >
                 <input
                   v-model="formData.gmail"
-                  class="w-full border-none bg-transparent p-3.5 text-base text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-[#9cabba] focus:ring-0 outline-none"
+                  class="w-full border-none bg-transparent p-3.5 text-base text-slate-900  placeholder:text-slate-400 :text-[#9cabba] focus:ring-0 outline-none"
                   placeholder="you@gmail.com"
                   required
                   type="email"
@@ -131,26 +131,26 @@
 
             <label class="flex flex-col gap-1.5">
               <span
-                class="text-slate-900 dark:text-white text-sm font-medium leading-normal"
+                class="text-slate-900  text-sm font-medium leading-normal"
                 >Mật khẩu <span class="text-red-500">*</span></span
               >
               <div
-                class="flex items-center rounded-xl border border-slate-300 dark:border-[#3b4754] bg-white dark:bg-[#1b2127] overflow-hidden focus-within:border-primary focus-within:ring-1 focus-within:ring-primary transition-all"
+                class="flex items-center rounded-xl border border-slate-300  bg-white  overflow-hidden focus-within:border-primary focus-within:ring-1 focus-within:ring-primary transition-all"
               >
-                <span class="pl-4 text-slate-400 dark:text-[#9cabba]"
+                <span class="pl-4 text-slate-400 "
                   ><span class="material-symbols-outlined text-[20px]"
                     >lock</span
                   ></span
                 >
                 <input
                   v-model="formData.password"
-                  class="w-full border-none bg-transparent p-3.5 text-base text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-[#9cabba] focus:ring-0 outline-none"
+                  class="w-full border-none bg-transparent p-3.5 text-base text-slate-900  placeholder:text-slate-400 :text-[#9cabba] focus:ring-0 outline-none"
                   placeholder="••••••••"
                   required
                   :type="showPassword ? 'text' : 'password'"
                 />
                 <button
-                  class="pr-4 text-slate-400 dark:text-[#9cabba] hover:text-primary transition-colors cursor-pointer"
+                  class="pr-4 text-slate-400  hover:text-primary transition-colors cursor-pointer"
                   type="button"
                   @click="showPassword = !showPassword"
                 >
@@ -176,7 +176,7 @@
             >
               <span v-if="isLoading" class="mr-2">
                 <svg
-                  class="animate-spin h-5 w-5 text-white"
+                  class="animate-spin h-5 w-5 text-slate-800"
                   fill="none"
                   viewBox="0 0 24 24"
                   xmlns="http://www.w3.org/2000/svg"
@@ -201,14 +201,14 @@
 
             <div class="relative flex items-center py-4">
               <div
-                class="flex-grow border-t border-slate-200 dark:border-[#3b4754]"
+                class="flex-grow border-t border-slate-200 "
               ></div>
               <span
                 class="flex-shrink-0 mx-4 text-slate-400 text-xs uppercase tracking-wider font-semibold"
                 >Hoặc tiếp tục với</span
               >
               <div
-                class="flex-grow border-t border-slate-200 dark:border-[#3b4754]"
+                class="flex-grow border-t border-slate-200 "
               ></div>
             </div>
 

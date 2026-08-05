@@ -9,7 +9,7 @@
           <h2 class="mt-1 text-xl font-bold">
             Quản lý khách hàng và nhân viên
           </h2>
-          <p class="mt-1 text-sm text-slate-500 dark:text-[#b9aa9a]">
+          <p class="mt-1 text-sm text-slate-500 ">
             {{
               isAdmin
                 ? "ADMIN xem tất cả khách hàng và nhân viên."
@@ -32,7 +32,7 @@
 
           <button
             type="button"
-            class="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium hover:border-primary hover:text-primary dark:border-[#3c342e] dark:bg-[#1f1a17]"
+            class="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium hover:border-primary hover:text-primary "
             @click="loadAccounts"
           >
             <span class="material-symbols-outlined text-[18px]">refresh</span>
@@ -46,7 +46,7 @@
       <section class="retail-card p-3">
         <div class="grid gap-3 md:grid-cols-[1fr_220px]">
           <label
-            class="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-1.5 dark:border-[#3c342e] dark:bg-[#1f1a17]"
+            class="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-1.5 "
           >
             <span class="material-symbols-outlined text-[18px] text-slate-400"
               >search</span
@@ -61,7 +61,7 @@
 
           <select
             v-model="statusFilter"
-            class="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm dark:border-[#3c342e] dark:bg-[#1f1a17]"
+            class="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm "
           >
             <option value="ALL">Tất cả trạng thái</option>
             <option value="ACTIVE">Đang hoạt động</option>
@@ -71,35 +71,35 @@
       </section>
 
       <section class="retail-card p-3">
-        <div class="mb-4 text-sm text-slate-500 dark:text-[#b9aa9a]">
+        <div class="mb-4 text-sm text-slate-500 ">
           Tổng người dùng:
-          <span class="font-semibold text-slate-900 dark:text-white">{{
+          <span class="font-semibold text-slate-900 ">{{
             filteredAccounts.length
           }}</span>
           <span class="mx-2">/</span>
           Tổng dữ liệu:
-          <span class="font-semibold text-slate-900 dark:text-white">{{
+          <span class="font-semibold text-slate-900 ">{{
             accounts.length
           }}</span>
         </div>
 
         <div
           v-if="error"
-          class="mb-4 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-900/40 dark:bg-red-900/20 dark:text-red-300"
+          class="mb-4 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 /40 /20 "
         >
           {{ error }}
         </div>
 
         <div
           v-if="loading"
-          class="py-8 text-center text-sm text-slate-500 dark:text-[#b9aa9a]"
+          class="py-8 text-center text-sm text-slate-500 "
         >
           Đang tải danh sách người dùng...
         </div>
 
         <div
           v-else-if="filteredAccounts.length === 0"
-          class="rounded-2xl border border-dashed border-slate-300 p-6 text-center text-sm text-slate-500 dark:border-[#3c342e] dark:text-[#b9aa9a]"
+          class="rounded-2xl border border-dashed border-slate-300 p-6 text-center text-sm text-slate-500 "
         >
           Không tìm thấy khách hàng phù hợp.
         </div>
@@ -108,7 +108,7 @@
           <table class="w-full min-w-[920px] text-left text-xs">
             <thead>
               <tr
-                class="border-b border-slate-200 text-slate-500 dark:border-[#3c342e] dark:text-[#b9aa9a]"
+                class="border-b border-slate-200 text-slate-500 "
               >
                 <th class="px-2 py-2 font-medium">STT</th>
                 <th class="px-2 py-2 font-medium">Khách hàng</th>
@@ -123,10 +123,10 @@
               <tr
                 v-for="(account, index) in filteredAccounts"
                 :key="account.id"
-                class="border-b border-slate-100 last:border-none dark:border-[#2b241f]"
+                class="border-b border-slate-100 last:border-none "
               >
                 <td
-                  class="px-2 py-2 font-semibold text-slate-500 dark:text-[#b9aa9a]"
+                  class="px-2 py-2 font-semibold text-slate-500 "
                 >
                   {{ index + 1 }}
                 </td>
@@ -134,7 +134,7 @@
                 <td class="px-2 py-2">
                   <div class="flex items-center gap-3">
                     <div
-                      class="size-10 overflow-hidden rounded-full bg-slate-100 dark:bg-[#2b241f]"
+                      class="size-10 overflow-hidden rounded-full bg-slate-100 "
                     >
                       <img
                         v-if="account.imgUrl"
@@ -144,7 +144,7 @@
                       />
                       <span
                         v-else
-                        class="flex h-full items-center justify-center text-xs text-slate-500 dark:text-[#b9aa9a]"
+                        class="flex h-full items-center justify-center text-xs text-slate-500 "
                       >
                         {{ getInitials(account.username) }}
                       </span>
@@ -153,7 +153,7 @@
                       <p class="font-semibold">
                         {{ account.username || "Khách hàng" }}
                       </p>
-                      <p class="text-xs text-slate-500 dark:text-[#b9aa9a]">
+                      <p class="text-xs text-slate-500 ">
                         ID: {{ account.id }}
                       </p>
                     </div>
@@ -169,7 +169,7 @@
                   </span>
                 </td>
 
-                <td class="px-2 py-2 text-slate-500 dark:text-[#b9aa9a]">
+                <td class="px-2 py-2 text-slate-500 ">
                   <p>{{ account.gmail || "-" }}</p>
                   <p>{{ account.phone || "-" }}</p>
                 </td>
@@ -179,22 +179,22 @@
                     class="rounded-full px-2 py-1 text-xs font-semibold"
                     :class="
                       account.isActive
-                        ? 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400'
-                        : 'bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-400'
+                        ? 'bg-green-100 text-green-700 /20 '
+                        : 'bg-red-100 text-red-700 /20 '
                     "
                   >
                     {{ account.isActive ? "Hoạt động" : "Tạm khóa" }}
                   </span>
                 </td>
 
-                <td class="px-2 py-2 text-slate-500 dark:text-[#b9aa9a]">
+                <td class="px-2 py-2 text-slate-500 ">
                   {{ account.address || "-" }}
                 </td>
 
                 <td class="px-2 py-2 text-right">
                   <div class="flex items-center justify-end gap-1">
                     <button
-                      class="rounded-lg p-1.5 hover:bg-slate-100 dark:hover:bg-[#2b241f]"
+                      class="rounded-lg p-1.5 hover:bg-slate-100 dark:hover:bg-white"
                       title="Chỉnh sửa"
                       @click="openEdit(account)"
                     >
@@ -237,7 +237,7 @@
         @click.self="closeModal"
       >
         <div
-          class="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl bg-white p-4 shadow-2xl dark:bg-[#1f1a17]"
+          class="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl bg-white p-4 shadow-2xl "
         >
           <h3 class="mb-4 text-base font-bold">
             {{
@@ -255,7 +255,7 @@
               <input
                 v-model.trim="form.username"
                 type="text"
-                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm dark:border-[#3c342e] dark:bg-[#2b241f]"
+                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm "
                 placeholder="Nhập tên đăng nhập"
               />
             </div>
@@ -267,7 +267,7 @@
               <input
                 v-model.trim="form.gmail"
                 type="email"
-                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-[#3c342e] dark:bg-[#2b241f]"
+                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm "
                 placeholder="example@email.com"
               />
             </div>
@@ -278,7 +278,7 @@
               >
               <select
                 v-model="form.role"
-                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-[#3c342e] dark:bg-[#2b241f]"
+                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm "
               >
                 <option value="USER">Khách hàng</option>
                 <option value="STAFF">Nhân viên</option>
@@ -292,7 +292,7 @@
               <input
                 v-model.trim="form.phone"
                 type="text"
-                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-[#3c342e] dark:bg-[#2b241f]"
+                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm "
                 placeholder="09..."
               />
             </div>
@@ -308,7 +308,7 @@
               <input
                 v-model="form.password"
                 type="password"
-                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-[#3c342e] dark:bg-[#2b241f]"
+                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm "
                 placeholder="Tối thiểu 6 ký tự"
               />
             </div>
@@ -320,7 +320,7 @@
               <textarea
                 v-model.trim="form.address"
                 rows="3"
-                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm dark:border-[#3c342e] dark:bg-[#2b241f]"
+                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm "
                 placeholder="Nhập địa chỉ khách hàng"
               />
             </div>
@@ -338,7 +338,7 @@
           <div class="mt-4 flex justify-end gap-2">
             <button
               type="button"
-              class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium hover:border-slate-400 dark:border-[#3c342e]"
+              class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium hover:border-slate-400 "
               @click="closeModal"
             >
               Hủy
@@ -439,12 +439,12 @@ function getRoleBadgeClasses(role) {
     .trim()
     .toUpperCase();
   if (normalized === "STAFF") {
-    return "bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400";
+    return "bg-blue-100 text-blue-700 /20 ";
   }
   if (normalized === "CUSTOMER" || normalized === "USER") {
-    return "bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400";
+    return "bg-green-100 text-green-700 /20 ";
   }
-  return "bg-slate-100 text-slate-700 dark:bg-slate-900/20 dark:text-slate-300";
+  return "bg-slate-100 text-slate-700 /20 ";
 }
 
 function isCustomerOnlyRole(account) {

@@ -13,21 +13,21 @@
         >
           <div class="flex flex-wrap gap-2 px-4 py-2">
             <router-link
-              class="text-slate-500 dark:text-[#9cabba] text-sm font-medium leading-normal hover:text-primary transition-colors"
+              class="text-slate-500 text-sm font-medium leading-normal hover:text-primary transition-colors"
               to="/"
             >Trang chủ</router-link>
             <span
-              class="text-slate-500 dark:text-[#9cabba] text-sm font-medium leading-normal"
+              class="text-slate-500 text-sm font-medium leading-normal"
             >/</span>
             <router-link
-              class="text-slate-500 dark:text-[#9cabba] text-sm font-medium leading-normal hover:text-primary transition-colors"
+              class="text-slate-500 text-sm font-medium leading-normal hover:text-primary transition-colors"
               to="/shop"
             >Cửa hàng</router-link>
             <span
-              class="text-slate-500 dark:text-[#9cabba] text-sm font-medium leading-normal"
+              class="text-slate-500 text-sm font-medium leading-normal"
             >/</span>
             <span
-              class="text-slate-900 dark:text-white text-sm font-medium leading-normal"
+              class="text-slate-900 text-sm font-medium leading-normal"
             >Tất cả áo</span>
           </div>
 
@@ -36,23 +36,23 @@
           >
             <div class="flex flex-col gap-2">
               <h1
-                class="text-slate-900 dark:text-white text-3xl md:text-4xl font-black leading-tight tracking-[-0.033em]"
+                class="text-slate-900 text-3xl md:text-4xl font-black leading-tight tracking-[-0.033em]"
               >
                 Tất cả sản phẩm áo
               </h1>
               <p
-                class="text-slate-500 dark:text-[#9cabba] text-base font-normal leading-normal"
+                class="text-slate-500 text-base font-normal leading-normal"
               >
                 Tìm đôi áo hợp chân trong bộ sưu tập đang có tại cửa hàng.
               </p>
             </div>
             <div class="flex items-center gap-2">
               <span
-                class="text-sm font-medium text-slate-500 dark:text-[#9cabba]"
+                class="text-sm font-medium text-slate-500"
               >Sắp xếp:</span>
               <select
                 v-model="sortBy"
-                class="bg-transparent border border-slate-300 dark:border-[#283039] text-slate-900 dark:text-white text-sm rounded-lg focus:ring-primary focus:border-primary block w-full p-2.5"
+                class="bg-transparent border border-slate-300 text-slate-900 text-sm rounded-lg focus:ring-primary focus:border-primary block w-full p-2.5"
               >
                 <option value="newest">Mới nhất</option>
                 <option value="price-asc">Giá: thấp đến cao</option>
@@ -65,12 +65,12 @@
           <div class="flex flex-col lg:flex-row gap-6 p-4">
             <aside class="w-full lg:w-64 flex-shrink-0">
               <div
-                class="flex flex-col gap-6 bg-white dark:bg-[#111418] rounded-xl border border-slate-200 dark:border-[#283039] p-5 h-fit sticky top-24"
+                class="flex flex-col gap-6 bg-white rounded-xl border border-slate-200 p-5 h-fit sticky top-24"
               >
                 <div
-                  class="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-[#283039]"
+                  class="flex items-center justify-between pb-4 border-b border-slate-200"
                 >
-                  <h3 class="text-lg font-bold text-slate-900 dark:text-white">
+                  <h3 class="text-lg font-bold text-slate-900">
                     Bộ lọc
                   </h3>
                   <button
@@ -84,7 +84,7 @@
                   <button
                     class="flex items-center justify-between w-full group"
                   >
-                    <span class="font-medium text-slate-900 dark:text-white">Danh mục</span>
+                    <span class="font-medium text-slate-900">Danh mục</span>
                     <span
                       class="material-symbols-outlined text-slate-400 text-sm group-hover:text-primary"
                     >expand_less</span>
@@ -93,23 +93,23 @@
                     <label v-for="category in filterCategories" :key="category.id" class="flex items-center gap-3 cursor-pointer">
                       <input
                         :checked="selectedCategories.includes(category.id)"
-                        class="w-4 h-4 rounded border-slate-300 text-primary focus:ring-primary bg-slate-100 dark:bg-[#283039] dark:border-[#3e4a56]"
+                        class="w-4 h-4 rounded border-slate-300 text-primary focus:ring-primary bg-slate-100"
                         type="checkbox"
                         @change="toggleCategoryFilter(category.id, $event.target.checked)"
                       >
-                      <span class="text-slate-600 dark:text-[#9cabba] text-sm">
+                      <span class="text-slate-600 text-sm">
                         {{ normalizeFilterLabel(category.name) }}
                       </span>
                     </label>
                   </div>
                 </div>
                 <div
-                  class="flex flex-col gap-3 border-t border-slate-200 dark:border-[#283039] pt-4"
+                  class="flex flex-col gap-3 border-t border-slate-200 pt-4"
                 >
                   <button
                     class="flex items-center justify-between w-full group"
                   >
-                    <span class="font-medium text-slate-900 dark:text-white">Thương hiệu</span>
+                    <span class="font-medium text-slate-900">Thương hiệu</span>
                     <span
                       class="material-symbols-outlined text-slate-400 text-sm group-hover:text-primary"
                     >expand_less</span>
@@ -118,11 +118,11 @@
                     <label v-for="brand in filterBrands" :key="brand.id" class="flex items-center gap-3 cursor-pointer">
                       <input
                         :checked="selectedBrands.includes(brand.id)"
-                        class="w-4 h-4 rounded border-slate-300 text-primary focus:ring-primary bg-slate-100 dark:bg-[#283039] dark:border-[#3e4a56]"
+                        class="w-4 h-4 rounded border-slate-300 text-primary focus:ring-primary bg-slate-100"
                         type="checkbox"
                         @change="toggleBrandFilter(brand.id, $event.target.checked)"
                       >
-                      <span class="text-slate-600 dark:text-[#9cabba] text-sm">
+                      <span class="text-slate-600 text-sm">
                         {{ normalizeFilterLabel(brand.name) }}
                       </span>
                     </label>
@@ -133,13 +133,13 @@
 
             <main class="flex-1 flex flex-col gap-6">
               <div class="flex gap-3 flex-wrap items-center">
-                <span class="text-sm text-slate-500 dark:text-[#9cabba]">Bộ lọc đang dùng:</span>
+                <span class="text-sm text-slate-500">Bộ lọc đang dùng:</span>
                 <template v-for="categoryId in selectedCategories" :key="`cat-${categoryId}`">
                   <div
-                    class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full bg-slate-200 dark:bg-[#283039] pl-3 pr-2 transition-colors hover:bg-slate-300 dark:hover:bg-[#3e4a56] cursor-pointer group"
+                    class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full bg-slate-200 pl-3 pr-2 transition-colors hover:bg-slate-300 cursor-pointer group"
                   >
                     <p
-                      class="text-slate-900 dark:text-white text-xs font-medium leading-normal"
+                      class="text-slate-900 text-xs font-medium leading-normal"
                     >
                       {{ getCategoryName(categoryId) }}
                     </p>
@@ -151,10 +151,10 @@
                 </template>
                 <template v-for="brandId in selectedBrands" :key="`brand-${brandId}`">
                   <div
-                    class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full bg-slate-200 dark:bg-[#283039] pl-3 pr-2 transition-colors hover:bg-slate-300 dark:hover:bg-[#3e4a56] cursor-pointer group"
+                    class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full bg-slate-200 pl-3 pr-2 transition-colors hover:bg-slate-300 cursor-pointer group"
                   >
                     <p
-                      class="text-slate-900 dark:text-white text-xs font-medium leading-normal"
+                      class="text-slate-900 text-xs font-medium leading-normal"
                     >
                       {{ getBrandName(brandId) }}
                     </p>
@@ -177,11 +177,11 @@
                 <div
                   v-for="product in paginatedProducts"
                   :key="product.id"
-                  class="group flex flex-col bg-white dark:bg-[#111418] rounded-xl overflow-hidden border border-slate-200 dark:border-[#283039] transition-all duration-300"
+                  class="group flex flex-col bg-white rounded-xl overflow-hidden border border-slate-200 transition-all duration-300"
                   :class="isProductOutOfStock(product) ? 'opacity-80 grayscale' : 'hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10'"
                 >
                   <div
-                    class="relative aspect-[4/3] bg-slate-100 dark:bg-[#1a2027] overflow-hidden"
+                    class="relative aspect-[4/3] bg-slate-100 overflow-hidden"
                   >
                     <div
                       class="absolute top-3 right-3 z-10 flex flex-col gap-2"
@@ -237,13 +237,13 @@
                   </div>
                   <div class="p-4 flex flex-col flex-1">
                     <p
-                      class="text-sm font-medium text-slate-500 dark:text-[#9cabba]"
+                      class="text-sm font-medium text-slate-500"
                     >
                       {{ getBrandName(product.brandId) }}
                     </p>
                     <router-link
-                      class="text-lg font-bold text-slate-900 dark:text-white mt-1 transition-colors line-clamp-2"
-                      :class="isProductOutOfStock(product) ? 'pointer-events-none text-slate-500 dark:text-[#9cabba]' : 'group-hover:text-primary'"
+                      class="text-lg font-bold text-slate-900 mt-1 transition-colors line-clamp-2"
+                      :class="isProductOutOfStock(product) ? 'pointer-events-none text-slate-500' : 'group-hover:text-primary'"
                       :to="`/product/${product.id}`"
                     >{{ product.name }}</router-link>
                     <div class="flex items-center gap-2 mt-2">
@@ -264,19 +264,19 @@
                           class="material-symbols-outlined text-[16px] fill-current"
                         >star_half</span>
                       </div>
-                      <span class="text-xs text-slate-500 dark:text-[#9cabba]">(124)</span>
+                      <span class="text-xs text-slate-500">(124)</span>
                     </div>
                     <div class="mt-4 flex items-center justify-between">
                       <p
-                        class="text-xl font-bold text-slate-900 dark:text-white"
+                        class="text-xl font-bold text-slate-900"
                       >
                         đ{{ getProductPrice(product) && getProductPrice(product) !== 'N/A' ? new Intl.NumberFormat('vi-VN').format(getProductPrice(product)) : 'N/A' }}
                       </p>
                     </div>
-                    <p class="mt-2 text-sm font-medium text-slate-600 dark:text-[#9cabba]">
+                    <p class="mt-2 text-sm font-medium text-slate-600">
                       Số lượng:
                       <span
-                        :class="isProductOutOfStock(product) ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'"
+                        :class="isProductOutOfStock(product) ? 'text-red-600' : 'text-green-600'"
                       >
                         {{ getProductStockDisplay(product) }}
                       </span>
@@ -293,7 +293,7 @@
                       v-else
                       type="button"
                       disabled
-                      class="mt-4 w-full cursor-not-allowed rounded-lg bg-slate-300 py-2 px-4 font-medium text-slate-600 dark:bg-[#2b3340] dark:text-[#9cabba]"
+                      class="mt-4 w-full cursor-not-allowed rounded-lg bg-slate-300 py-2 px-4 font-medium text-slate-600"
                     >
                       Đã hết hàng
                     </button>
@@ -301,14 +301,14 @@
                 </div>
 
                 <div v-if="paginatedProducts.length === 0" class="col-span-full py-12 text-center">
-                  <p class="text-slate-500 dark:text-[#9cabba] text-lg">Không tìm thấy sản phẩm phù hợp với bộ lọc hiện tại.</p>
+                  <p class="text-slate-500 text-lg">Không tìm thấy sản phẩm phù hợp với bộ lọc hiện tại.</p>
                 </div>
               </div>
 
               <div class="flex justify-center mt-8">
                 <nav class="flex items-center gap-1">
                   <button
-                    class="flex items-center justify-center w-10 h-10 rounded-lg border border-slate-200 dark:border-[#283039] bg-white dark:bg-[#111418] text-slate-500 dark:text-[#9cabba] hover:bg-slate-100 dark:hover:bg-[#3e4a56] disabled:opacity-50"
+                    class="flex items-center justify-center w-10 h-10 rounded-lg border border-slate-200 bg-white text-slate-500 hover:bg-slate-100 disabled:opacity-50"
                     :disabled="currentPage === 1"
                     @click="previousPage"
                   >
@@ -317,7 +317,7 @@
                   <template v-for="page in visiblePages" :key="page">
                     <button
                       v-if="page === '...'"
-                      class="px-2 text-slate-500 dark:text-[#9cabba]"
+                      class="px-2 text-slate-500"
                       disabled
                     >
                       ...
@@ -328,7 +328,7 @@
                         'flex items-center justify-center w-10 h-10 rounded-lg font-medium',
                         page === currentPage
                           ? 'bg-primary text-white'
-                          : 'border border-slate-200 dark:border-[#283039] bg-white dark:bg-[#111418] text-slate-500 dark:text-[#9cabba] hover:bg-slate-100 dark:hover:bg-[#3e4a56]'
+                          : 'border border-slate-200 bg-white text-slate-500 hover:bg-slate-100'
                       ]"
                       @click="goToPage(page)"
                     >
@@ -336,7 +336,7 @@
                     </button>
                   </template>
                   <button
-                    class="flex items-center justify-center w-10 h-10 rounded-lg border border-slate-200 dark:border-[#283039] bg-white dark:bg-[#111418] text-slate-500 dark:text-[#9cabba] hover:bg-slate-100 dark:hover:bg-[#3e4a56] disabled:opacity-50"
+                    class="flex items-center justify-center w-10 h-10 rounded-lg border border-slate-200 bg-white text-slate-500 hover:bg-slate-100 disabled:opacity-50"
                     :disabled="currentPage === totalPages"
                     @click="nextPage"
                   >
@@ -348,28 +348,28 @@
           </div>
 
           <footer
-            class="mt-12 border-t border-slate-200 dark:border-[#283039] py-12 px-4"
+            class="mt-12 border-t border-slate-200 py-12 px-4"
           >
             <div class="max-w-3xl mx-auto">
               <div class="flex flex-col items-center gap-6 mb-8">
-                <div class="flex items-center gap-3 text-slate-900 dark:text-white">
+                <div class="flex items-center gap-3 text-slate-900">
                   <div class="size-8 flex items-center justify-center bg-primary text-white rounded-lg">
                     <span class="material-symbols-outlined text-xl">bolt</span>
                   </div>
                   <h2 class="text-xl font-bold">Peak Seven</h2>
                 </div>
-                <p class="text-slate-500 dark:text-[#9cabba] text-sm text-center">
+                <p class="text-slate-500 text-sm text-center">
                   Đồng hành cùng bạn trong những buổi tập, buổi chạy và nhịp sống hằng ngày.
                 </p>
               </div>
               <nav class="flex flex-wrap justify-center items-center gap-8">
-                <router-link class="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors font-medium" to="/shop">Xem tất cả</router-link>
-                <router-link class="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors font-medium" to="/size-guide">Bảng size</router-link>
-                <router-link class="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors font-medium" to="/about">Giới thiệu</router-link>
+                <router-link class="text-slate-600 hover:text-primary transition-colors font-medium" to="/shop">Xem tất cả</router-link>
+                <router-link class="text-slate-600 hover:text-primary transition-colors font-medium" to="/size-guide">Bảng size</router-link>
+                <router-link class="text-slate-600 hover:text-primary transition-colors font-medium" to="/about">Giới thiệu</router-link>
               </nav>
             </div>
             <div
-              class="mt-8 pt-8 border-t border-slate-200 dark:border-[#283039] text-center text-slate-500 dark:text-[#9cabba] text-sm"
+              class="mt-8 pt-8 border-t border-slate-200 text-center text-slate-500 text-sm"
             >
               <p>© 2026 Peak Seven. Mọi quyền được bảo lưu.</p>
             </div>

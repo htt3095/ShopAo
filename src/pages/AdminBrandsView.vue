@@ -21,7 +21,7 @@
 
           <button
             type="button"
-            class="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium hover:border-primary hover:text-primary dark:border-[#3c342e] dark:bg-[#1f1a17]"
+            class="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium hover:border-primary hover:text-primary "
             @click="fetchBrands"
           >
             <span class="material-symbols-outlined text-[18px]">refresh</span>
@@ -34,7 +34,7 @@
     <div class="space-y-3">
       <section class="retail-card p-3">
         <label
-          class="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-1.5 dark:border-[#3c342e] dark:bg-[#1f1a17]"
+          class="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-1.5 "
         >
           <span class="material-symbols-outlined text-[18px] text-slate-400"
             >search</span
@@ -51,19 +51,19 @@
       <section class="retail-card p-3">
         <div
           v-if="error"
-          class="mb-4 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-900/40 dark:bg-red-900/20 dark:text-red-300"
+          class="mb-4 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 /40 /20 "
         >
           {{ error }}
         </div>
 
         <div
           v-if="hiddenBrands.length > 0"
-          class="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-3 py-3 text-sm text-slate-700 dark:border-amber-900/20 dark:bg-[#3f2e11] dark:text-[#fbe7a1]"
+          class="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-3 py-3 text-sm text-slate-700 /20 "
         >
           <div class="flex flex-wrap items-center justify-between gap-3">
             <div>
               <p class="font-semibold">Thương hiệu ẩn tạm</p>
-              <p class="text-xs text-slate-500 dark:text-[#e1c797]">
+              <p class="text-xs text-slate-500 ">
                 Những thương hiệu đã xóa mềm sẽ tạm ẩn khỏi danh sách được dùng.
                 Bạn có thể khôi phục lại khi cần.
               </p>
@@ -75,14 +75,14 @@
 
         <div
           v-if="loading"
-          class="py-8 text-center text-sm text-slate-500 dark:text-[#b9aa9a]"
+          class="py-8 text-center text-sm text-slate-500 "
         >
           Đang tải danh sách thương hiệu...
         </div>
 
         <div
           v-else-if="filteredBrands.length === 0"
-          class="rounded-2xl border border-dashed border-slate-300 p-6 text-center text-sm text-slate-500 dark:border-[#3c342e] dark:text-[#b9aa9a]"
+          class="rounded-2xl border border-dashed border-slate-300 p-6 text-center text-sm text-slate-500 "
         >
           Không tìm thấy thương hiệu.
         </div>
@@ -91,7 +91,7 @@
           <table class="w-full min-w-[680px] text-left text-xs">
             <thead>
               <tr
-                class="border-b border-slate-200 text-slate-500 dark:border-[#3c342e] dark:text-[#b9aa9a]"
+                class="border-b border-slate-200 text-slate-500 "
               >
                 <th class="px-2 py-2 font-medium">STT</th>
                 <th class="px-2 py-2 font-medium">Logo</th>
@@ -104,16 +104,16 @@
               <tr
                 v-for="(brand, index) in paginatedBrands"
                 :key="brand.id"
-                class="border-b border-slate-100 last:border-none dark:border-[#2b241f]"
+                class="border-b border-slate-100 last:border-none "
               >
                 <td
-                  class="px-2 py-2 font-semibold text-slate-500 dark:text-[#b9aa9a]"
+                  class="px-2 py-2 font-semibold text-slate-500 "
                 >
                   {{ (currentPage - 1) * pageSize + index + 1 }}
                 </td>
                 <td class="px-2 py-2">
                   <div
-                    class="flex h-12 w-12 items-center justify-center overflow-hidden rounded-xl bg-slate-100 dark:bg-[#2b241f]"
+                    class="flex h-12 w-12 items-center justify-center overflow-hidden rounded-xl bg-slate-100 "
                   >
                     <img
                       v-if="brand.logoUrl"
@@ -131,13 +131,13 @@
                   </div>
                 </td>
                 <td class="px-2 py-2 font-semibold">{{ brand.name }}</td>
-                <td class="px-2 py-2 text-slate-500 dark:text-[#b9aa9a]">
+                <td class="px-2 py-2 text-slate-500 ">
                   {{ brand.slugDisplay || "—" }}
                 </td>
                 <td class="px-2 py-2 text-right">
                   <div class="flex items-center justify-end gap-1">
                     <button
-                      class="rounded-lg p-1.5 hover:bg-slate-100 dark:hover:bg-[#2b241f]"
+                      class="rounded-lg p-1.5 hover:bg-slate-100 dark:hover:bg-white"
                       title="Chỉnh sửa"
                       @click="openEditModal(brand)"
                     >
@@ -167,9 +167,9 @@
         <!-- Phân trang -->
         <div
           v-if="filteredBrands.length > 0"
-          class="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-slate-200 pt-3 dark:border-[#3c342e]"
+          class="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-slate-200 pt-3 "
         >
-          <p class="text-xs text-slate-500 dark:text-[#b9aa9a]">
+          <p class="text-xs text-slate-500 ">
             Hiển thị {{ (currentPage - 1) * pageSize + 1 }} đến
             {{ Math.min(currentPage * pageSize, filteredBrands.length) }} /
             {{ filteredBrands.length }} thương hiệu
@@ -178,7 +178,7 @@
             <button
               @click="currentPage--"
               :disabled="currentPage === 1"
-              class="rounded-lg border border-slate-200 px-2.5 py-1 text-xs transition-colors hover:bg-slate-50 disabled:opacity-50 dark:border-[#3c342e] dark:hover:bg-[#2b241f]"
+              class="rounded-lg border border-slate-200 px-2.5 py-1 text-xs transition-colors hover:bg-slate-50 disabled:opacity-50 dark:hover:bg-white"
             >
               Trước
             </button>
@@ -188,7 +188,7 @@
             <button
               @click="currentPage++"
               :disabled="currentPage === totalPages"
-              class="rounded-lg border border-slate-200 px-2.5 py-1 text-xs transition-colors hover:bg-slate-50 disabled:opacity-50 dark:border-[#3c342e] dark:hover:bg-[#2b241f]"
+              class="rounded-lg border border-slate-200 px-2.5 py-1 text-xs transition-colors hover:bg-slate-50 disabled:opacity-50 dark:hover:bg-white"
             >
               Sau
             </button>
@@ -205,7 +205,7 @@
         @click.self="closeModal"
       >
         <div
-          class="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl bg-white p-4 shadow-2xl dark:bg-[#1f1a17]"
+          class="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl bg-white p-4 shadow-2xl "
         >
           <h3 class="mb-4 text-base font-bold">
             {{
@@ -223,7 +223,7 @@
               <input
                 v-model.trim="form.name"
                 type="text"
-                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm dark:border-[#3c342e] dark:bg-[#2b241f]"
+                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm "
                 placeholder="VD: Nike, Adidas, Puma..."
                 :class="{ 'border-red-500': errors.name }"
               />
@@ -236,7 +236,7 @@
             <div>
               <label class="mb-1 block text-xs font-medium text-slate-500">Ảnh thương hiệu</label>
               <input ref="imageInput" type="file" accept="image/*" class="hidden" @change="handleImageUpload" />
-              <button type="button" class="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-slate-300 bg-slate-50 px-3 py-2 text-sm font-medium text-slate-600 transition-colors hover:border-primary hover:text-primary dark:border-[#3c342e] dark:bg-[#2b241f] dark:text-[#b9aa9a]" @click="$refs.imageInput?.click()">
+              <button type="button" class="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-slate-300 bg-slate-50 px-3 py-2 text-sm font-medium text-slate-600 transition-colors hover:border-primary hover:text-primary " @click="$refs.imageInput?.click()">
                 <span class="material-symbols-outlined text-[18px]">upload</span>
                 Chọn ảnh từ máy tính
               </button>
@@ -245,7 +245,7 @@
             <!-- Preview logo -->
             <div
               v-if="form.logoUrl"
-              class="rounded-xl bg-slate-50 p-3 dark:bg-[#2b241f]"
+              class="rounded-xl bg-slate-50 p-3 "
             >
               <label class="mb-2 block text-xs font-medium text-slate-500"
                 >Xem trước logo</label
@@ -275,7 +275,7 @@
           <div class="mt-4 flex justify-end gap-2">
             <button
               type="button"
-              class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium hover:border-slate-400 dark:border-[#3c342e]"
+              class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium hover:border-slate-400 "
               @click="closeModal"
             >
               Hủy
@@ -308,10 +308,10 @@
         @click.self="deleteTarget = null"
       >
         <div
-          class="w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl dark:bg-[#1f1a17]"
+          class="w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl "
         >
           <h3 class="mb-2 text-base font-bold">Xác nhận xóa</h3>
-          <p class="text-sm text-slate-500 dark:text-[#b9aa9a]">
+          <p class="text-sm text-slate-500 ">
             Bạn chắc chắn muốn xóa thương hiệu
             <strong>#{{ deleteTarget.id }}</strong> ({{
               deleteTarget.name || "Thương hiệu"
@@ -324,7 +324,7 @@
 
           <div class="mt-5 flex justify-end gap-3">
             <button
-              class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium dark:border-[#3c342e]"
+              class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium "
               @click="deleteTarget = null"
             >
               Hủy

@@ -21,7 +21,7 @@
 
           <button
             type="button"
-            class="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium hover:border-primary hover:text-primary dark:border-[#3c342e] dark:bg-[#1f1a17]"
+            class="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium hover:border-primary hover:text-primary "
             @click="loadProducts"
           >
             <span class="material-symbols-outlined text-[18px]">refresh</span>
@@ -35,7 +35,7 @@
       <section class="retail-card p-3">
         <div class="grid gap-3 lg:grid-cols-3">
           <label
-            class="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-1.5 dark:border-[#3c342e] dark:bg-[#1f1a17]"
+            class="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-1.5 "
           >
             <span class="material-symbols-outlined text-[18px] text-slate-400"
               >search</span
@@ -50,7 +50,7 @@
 
           <select
             v-model.number="filterBrandId"
-            class="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm dark:border-[#3c342e] dark:bg-[#1f1a17]"
+            class="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm "
           >
             <option :value="null">Tất cả thương hiệu</option>
             <option
@@ -64,7 +64,7 @@
 
           <select
             v-model.number="filterCategoryId"
-            class="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm dark:border-[#3c342e] dark:bg-[#1f1a17]"
+            class="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm "
           >
             <option :value="null">Tất cả danh mục</option>
             <option
@@ -81,19 +81,19 @@
       <section class="retail-card p-3">
         <div
           v-if="error"
-          class="mb-4 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-900/40 dark:bg-red-900/20 dark:text-red-300"
+          class="mb-4 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 /40 /20 "
         >
           {{ error }}
         </div>
 
         <div
           v-if="hiddenProducts.length > 0"
-          class="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-3 py-3 text-sm text-slate-700 dark:border-amber-900/20 dark:bg-[#3f2e11] dark:text-[#fbe7a1]"
+          class="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-3 py-3 text-sm text-slate-700 /20 "
         >
           <div class="flex flex-wrap items-center justify-between gap-3">
             <div>
               <p class="font-semibold">Sản phẩm ẩn tạm</p>
-              <p class="text-xs text-slate-500 dark:text-[#e1c797]">
+              <p class="text-xs text-slate-500 ">
                 Những sản phẩm đã xóa mềm sẽ tạm ẩn khỏi danh sách được dùng.
                 Bạn có thể khôi phục lại khi cần.
               </p>
@@ -110,7 +110,7 @@
             <div
               v-for="product in hiddenProducts"
               :key="product.id"
-              class="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 dark:border-[#4c4138] dark:bg-[#1e1812]"
+              class="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 "
             >
               <div class="text-sm">
                 <span class="font-semibold">#{{ product.id }}</span>
@@ -118,7 +118,7 @@
               </div>
               <button
                 type="button"
-                class="rounded-xl bg-emerald-500 px-3 py-2 text-xs font-semibold text-white hover:bg-emerald-600"
+                class="rounded-xl bg-emerald-500 px-3 py-2 text-xs font-semibold text-slate-800 hover:bg-emerald-600"
                 @click="restoreProduct(product)"
               >
                 Khôi phục
@@ -129,14 +129,14 @@
 
         <div
           v-if="loading"
-          class="py-8 text-center text-sm text-slate-500 dark:text-[#b9aa9a]"
+          class="py-8 text-center text-sm text-slate-500 "
         >
           Đang tải danh sách sản phẩm...
         </div>
 
         <div
           v-else-if="filteredProducts.length === 0"
-          class="rounded-2xl border border-dashed border-slate-300 p-6 text-center text-sm text-slate-500 dark:border-[#3c342e] dark:text-[#b9aa9a]"
+          class="rounded-2xl border border-dashed border-slate-300 p-6 text-center text-sm text-slate-500 "
         >
           Không tìm thấy sản phẩm.
         </div>
@@ -145,7 +145,7 @@
           <table class="w-full min-w-[900px] text-left text-xs">
             <thead>
               <tr
-                class="border-b border-slate-200 text-slate-500 dark:border-[#3c342e] dark:text-[#b9aa9a]"
+                class="border-b border-slate-200 text-slate-500 "
               >
                 <th class="px-2 py-2 font-medium">STT</th>
                 <th class="px-2 py-2 font-medium">Sản phẩm</th>
@@ -159,10 +159,10 @@
               <tr
                 v-for="(product, index) in filteredProducts"
                 :key="product.id"
-                class="border-b border-slate-100 last:border-none dark:border-[#2b241f]"
+                class="border-b border-slate-100 last:border-none "
               >
                 <td
-                  class="px-2 py-2 font-semibold text-slate-500 dark:text-[#b9aa9a]"
+                  class="px-2 py-2 font-semibold text-slate-500 "
                 >
                   {{ index + 1 }}
                 </td>
@@ -170,7 +170,7 @@
                 <td class="px-2 py-2">
                   <div class="flex items-center gap-3">
                     <div
-                      class="size-12 overflow-hidden rounded-xl bg-slate-100 dark:bg-[#2b241f]"
+                      class="size-12 overflow-hidden rounded-xl bg-slate-100 "
                     >
                       <img
                         v-if="product.imageUrl"
@@ -187,7 +187,7 @@
                       <p class="font-semibold">
                         {{ product.name || "Sản phẩm" }}
                       </p>
-                      <p class="text-xs text-slate-500 dark:text-[#b9aa9a]">
+                      <p class="text-xs text-slate-500 ">
                         ID: {{ product.id }}
                       </p>
                     </div>
@@ -202,7 +202,7 @@
                 <td class="px-2 py-2 text-right">
                   <div class="flex items-center justify-end gap-1">
                     <button
-                      class="rounded-lg p-1.5 hover:bg-slate-100 dark:hover:bg-[#2b241f]"
+                      class="rounded-lg p-1.5 hover:bg-slate-100 dark:hover:bg-white"
                       title="Chỉnh sửa"
                       @click="openEdit(product)"
                     >
@@ -238,7 +238,7 @@
         @click.self="closeModal"
       >
         <div
-          class="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl bg-white p-4 shadow-2xl dark:bg-[#1f1a17]"
+          class="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl bg-white p-4 shadow-2xl "
         >
           <h3 class="mb-4 text-base font-bold">
             {{
@@ -256,7 +256,7 @@
               <input
                 v-model.trim="form.name"
                 type="text"
-                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm dark:border-[#3c342e] dark:bg-[#2b241f]"
+                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm "
                 placeholder="Nhập tên sản phẩm"
               />
             </div>
@@ -268,7 +268,7 @@
               <input
                 v-model.trim="form.productCode"
                 type="text"
-                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm dark:border-[#3c342e] dark:bg-[#2b241f]"
+                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm "
                 placeholder="VD: SNK-001"
               />
             </div>
@@ -279,7 +279,7 @@
               >
               <select
                 v-model.number="form.brandId"
-                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm dark:border-[#3c342e] dark:bg-[#2b241f]"
+                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm "
               >
                 <option :value="null">-- Chọn thương hiệu --</option>
                 <option
@@ -298,7 +298,7 @@
               >
               <select
                 v-model.number="form.categoryId"
-                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm dark:border-[#3c342e] dark:bg-[#2b241f]"
+                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm "
               >
                 <option :value="null">-- Chọn danh mục --</option>
                 <option
@@ -319,7 +319,7 @@
               <!-- Image Preview -->
               <div v-if="form.imageUrl" class="mb-4 flex items-end gap-3">
                 <div
-                  class="size-20 overflow-hidden rounded-lg border border-slate-200 dark:border-[#3c342e]"
+                  class="size-20 overflow-hidden rounded-lg border border-slate-200 "
                 >
                   <img
                     :src="form.imageUrl"
@@ -329,7 +329,7 @@
                 </div>
                 <button
                   type="button"
-                  class="rounded-lg bg-red-100 px-2.5 py-1.5 text-xs font-medium text-red-600 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400"
+                  class="rounded-lg bg-red-100 px-2.5 py-1.5 text-xs font-medium text-red-600 hover:bg-red-200 /30 "
                   @click="clearProductImage"
                 >
                   Xóa ảnh
@@ -339,7 +339,7 @@
               <!-- Upload Status -->
               <div
                 v-if="productUploadStatus === 'uploading'"
-                class="mb-4 flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400"
+                class="mb-4 flex items-center gap-2 text-sm text-blue-600 "
               >
                 <span
                   class="h-4 w-4 animate-spin rounded-full border-2 border-blue-600 border-t-transparent"
@@ -348,7 +348,7 @@
               </div>
               <div
                 v-else-if="productUploadError"
-                class="mb-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600 dark:border-red-900/40 dark:bg-red-900/20 dark:text-red-400"
+                class="mb-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600 /40 /20 "
               >
                 {{ productUploadError }}
               </div>
@@ -366,7 +366,7 @@
               <button
                 type="button"
                 :disabled="productUploadStatus === 'uploading'"
-                class="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 px-3 py-2 text-sm font-medium text-slate-600 transition-colors hover:border-primary hover:bg-primary/5 hover:text-primary disabled:opacity-50 disabled:cursor-not-allowed dark:border-[#3c342e] dark:bg-[#0f0d0a] dark:text-[#b9aa9a]"
+                class="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 px-3 py-2 text-sm font-medium text-slate-600 transition-colors hover:border-primary hover:bg-primary/5 hover:text-primary disabled:opacity-50 disabled:cursor-not-allowed "
                 @click="$refs.productImageInput?.click()"
               >
                 <span class="material-symbols-outlined text-[20px]">image</span>
@@ -382,7 +382,7 @@
           <div class="mt-4 flex justify-end gap-2">
             <button
               type="button"
-              class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium hover:border-slate-400 dark:border-[#3c342e]"
+              class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium hover:border-slate-400 "
               @click="closeModal"
             >
               Hủy
@@ -414,10 +414,10 @@
         @click.self="deleteTarget = null"
       >
         <div
-          class="w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl dark:bg-[#1f1a17]"
+          class="w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl "
         >
           <h3 class="mb-2 text-base font-bold">Xác nhận xóa</h3>
-          <p class="text-sm text-slate-500 dark:text-[#b9aa9a]">
+          <p class="text-sm text-slate-500 ">
             Bạn chắc chắn muốn xóa sản phẩm
             <strong>#{{ deleteTarget.id }}</strong> ({{
               deleteTarget.name || "Sản phẩm"
@@ -426,7 +426,7 @@
 
           <div class="mt-5 flex justify-end gap-3">
             <button
-              class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium dark:border-[#3c342e]"
+              class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium "
               @click="deleteTarget = null"
             >
               Hủy

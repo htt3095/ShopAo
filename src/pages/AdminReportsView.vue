@@ -5,28 +5,28 @@
         <div>
           <p class="text-xs uppercase tracking-[0.18em] text-primary">Phân tích quản trị</p>
           <h2 class="mt-1 text-2xl font-bold">Báo cáo doanh thu kế toán</h2>
-          <p class="mt-1 text-sm text-slate-500 dark:text-[#b9aa9a]">
+          <p class="mt-1 text-sm text-slate-500 ">
             Tổng quan đơn giản, rõ số liệu và in theo đúng bộ lọc hiện tại.
           </p>
         </div>
 
         <div class="flex flex-wrap items-center gap-2">
           <details class="relative">
-            <summary class="list-none inline-flex cursor-pointer items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium hover:border-primary hover:text-primary dark:border-[#3c342e] dark:bg-[#1f1a17]">
+            <summary class="list-none inline-flex cursor-pointer items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium hover:border-primary hover:text-primary ">
               <span class="material-symbols-outlined text-[18px]">download</span>
               Xuất dữ liệu
               <span class="material-symbols-outlined text-[16px]">expand_more</span>
             </summary>
-            <div class="absolute right-0 z-20 mt-2 w-56 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl dark:border-[#3c342e] dark:bg-[#1f1a17]">
-              <button type="button" class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-slate-100 dark:hover:bg-[#2b241f]" @click="exportSummaryCsv">
+            <div class="absolute right-0 z-20 mt-2 w-56 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl ">
+              <button type="button" class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-slate-100 dark:hover:bg-white" @click="exportSummaryCsv">
                 <span class="material-symbols-outlined text-[16px]">overview</span>
                 CSV tóm tắt
               </button>
-              <button type="button" class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-slate-100 dark:hover:bg-[#2b241f]" @click="exportCurrentCsv">
+              <button type="button" class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-slate-100 dark:hover:bg-white" @click="exportCurrentCsv">
                 <span class="material-symbols-outlined text-[16px]">table_chart</span>
                 CSV chi tiết
               </button>
-              <button type="button" class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-slate-100 dark:hover:bg-[#2b241f]" @click="exportAuditCsv">
+              <button type="button" class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-slate-100 dark:hover:bg-white" @click="exportAuditCsv">
                 <span class="material-symbols-outlined text-[16px]">fact_check</span>
                 CSV kiểm toán
               </button>
@@ -35,7 +35,7 @@
 
           <button
             type="button"
-            class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium hover:border-primary hover:text-primary dark:border-[#3c342e] dark:bg-[#1f1a17]"
+            class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium hover:border-primary hover:text-primary "
             @click="printReport"
           >
             <span class="material-symbols-outlined text-[18px]">print</span>
@@ -44,7 +44,7 @@
 
           <button
             type="button"
-            class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium hover:border-primary hover:text-primary dark:border-[#3c342e] dark:bg-[#1f1a17]"
+            class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium hover:border-primary hover:text-primary "
             @click="loadReport"
           >
             <span class="material-symbols-outlined text-[18px]">refresh</span>
@@ -55,15 +55,15 @@
     </template>
 
     <div class="space-y-6">
-      <div v-if="error" class="retail-card border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-900/40 dark:bg-red-900/20 dark:text-red-300">
+      <div v-if="error" class="retail-card border-red-200 bg-red-50 p-4 text-sm text-red-700 /40 /20 ">
         {{ error }}
       </div>
 
       <section class="retail-card p-4">
         <div class="grid gap-3 xl:grid-cols-5">
-          <label class="flex min-w-0 flex-col gap-1 text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-[#b9aa9a]">
+          <label class="flex min-w-0 flex-col gap-1 text-xs font-medium uppercase tracking-wide text-slate-500 ">
             Xem theo
-            <select v-model="reportMode" class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-900 dark:border-[#3c342e] dark:bg-[#1f1a17] dark:text-white">
+            <select v-model="reportMode" class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-900 ">
               <option value="day">Theo ngày</option>
               <option value="week">Theo tuần</option>
               <option value="month">Theo tháng</option>
@@ -71,19 +71,19 @@
             </select>
           </label>
 
-          <label class="flex min-w-0 flex-col gap-1 text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-[#b9aa9a]">
+          <label class="flex min-w-0 flex-col gap-1 text-xs font-medium uppercase tracking-wide text-slate-500 ">
             Từ ngày
-            <input v-model="startDateInput" type="date" class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-900 dark:border-[#3c342e] dark:bg-[#1f1a17] dark:text-white" />
+            <input v-model="startDateInput" type="date" class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-900 " />
           </label>
 
-          <label class="flex min-w-0 flex-col gap-1 text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-[#b9aa9a]">
+          <label class="flex min-w-0 flex-col gap-1 text-xs font-medium uppercase tracking-wide text-slate-500 ">
             Đến ngày
-            <input v-model="endDateInput" type="date" class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-900 dark:border-[#3c342e] dark:bg-[#1f1a17] dark:text-white" />
+            <input v-model="endDateInput" type="date" class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-900 " />
           </label>
 
-          <label class="flex min-w-0 flex-col gap-1 text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-[#b9aa9a]">
+          <label class="flex min-w-0 flex-col gap-1 text-xs font-medium uppercase tracking-wide text-slate-500 ">
             Thanh toán
-            <select v-model="paymentFilter" class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-900 dark:border-[#3c342e] dark:bg-[#1f1a17] dark:text-white">
+            <select v-model="paymentFilter" class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-900 ">
               <option value="ALL">Tất cả</option>
               <option value="DA_THANH_TOAN">Đã thanh toán</option>
               <option value="HOAN_TIEN">Hoàn tiền</option>
@@ -91,9 +91,9 @@
             </select>
           </label>
 
-          <label class="flex min-w-0 flex-col gap-1 text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-[#b9aa9a]">
+          <label class="flex min-w-0 flex-col gap-1 text-xs font-medium uppercase tracking-wide text-slate-500 ">
             Thứ tự hiển thị
-            <select v-model="bucketSort" class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-900 dark:border-[#3c342e] dark:bg-[#1f1a17] dark:text-white">
+            <select v-model="bucketSort" class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-900 ">
               <option value="newest">Mới nhất ở trên</option>
               <option value="oldest">Cũ nhất ở trên</option>
             </select>
@@ -101,13 +101,13 @@
         </div>
 
         <div class="mt-3 flex flex-wrap items-center gap-2">
-          <span class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-[#b9aa9a]">Khoảng nhanh</span>
+          <span class="text-xs font-semibold uppercase tracking-wide text-slate-500 ">Khoảng nhanh</span>
           <button
             v-for="preset in reportPresets"
             :key="preset.value"
             type="button"
             class="rounded-lg border px-2.5 py-1 text-xs font-semibold transition"
-            :class="reportPreset === preset.value ? 'border-primary bg-primary text-white' : 'border-slate-200 bg-white text-slate-600 hover:border-primary hover:text-primary dark:border-[#3c342e] dark:bg-[#1f1a17] dark:text-[#b9aa9a]'"
+            :class="reportPreset === preset.value ? 'border-primary bg-primary text-white' : 'border-slate-200 bg-white text-slate-600 hover:border-primary hover:text-primary '"
             @click="applyReportPreset(preset.value)"
           >
             {{ preset.label }}
@@ -118,20 +118,20 @@
       <section class="retail-card p-5">
         <div class="mb-4 flex items-center justify-between">
           <h3 class="text-lg font-semibold">Tổng quan</h3>
-          <span class="text-xs uppercase tracking-wide text-slate-500 dark:text-[#b9aa9a]">{{ selectedRangeText }}</span>
+          <span class="text-xs uppercase tracking-wide text-slate-500 ">{{ selectedRangeText }}</span>
         </div>
 
-        <div class="overflow-hidden rounded-2xl border border-slate-200 dark:border-[#3c342e]">
+        <div class="overflow-hidden rounded-2xl border border-slate-200 ">
           <table class="w-full text-sm">
             <tbody>
-              <tr class="border-b border-slate-200 dark:border-[#3c342e]"><td class="px-4 py-3 text-slate-500 dark:text-[#b9aa9a]">Tổng đơn</td><td class="px-4 py-3 text-right font-semibold">{{ filteredOrders.length }}</td></tr>
-              <tr class="border-b border-slate-200 dark:border-[#3c342e]"><td class="px-4 py-3 text-slate-500 dark:text-[#b9aa9a]">Đơn đã thanh toán</td><td class="px-4 py-3 text-right font-semibold">{{ paidOrdersCount }}</td></tr>
-              <tr class="border-b border-slate-200 dark:border-[#3c342e]"><td class="px-4 py-3 text-slate-500 dark:text-[#b9aa9a]">Đơn chưa thanh toán</td><td class="px-4 py-3 text-right font-semibold">{{ unpaidOrdersCount }}</td></tr>
-              <tr class="border-b border-slate-200 dark:border-[#3c342e]"><td class="px-4 py-3 text-slate-500 dark:text-[#b9aa9a]">Đơn hoàn tiền</td><td class="px-4 py-3 text-right font-semibold">{{ refundedOrdersCount }}</td></tr>
-              <tr class="border-b border-slate-200 dark:border-[#3c342e]"><td class="px-4 py-3 text-slate-500 dark:text-[#b9aa9a]">Doanh thu vào</td><td class="px-4 py-3 text-right font-semibold">{{ formatCurrency(filteredProfitRevenue) }}</td></tr>
-              <tr class="border-b border-slate-200 dark:border-[#3c342e]"><td class="px-4 py-3 text-slate-500 dark:text-[#b9aa9a]">Hoàn tiền</td><td class="px-4 py-3 text-right font-semibold text-red-500 dark:text-red-400">-{{ formatCurrency(filteredRefundRevenue) }}</td></tr>
-              <tr class="border-b border-slate-200 bg-slate-50 dark:border-[#3c342e] dark:bg-[#181310]"><td class="px-4 py-3 font-semibold">Doanh thu ròng</td><td class="px-4 py-3 text-right font-bold" :class="filteredNetRevenue >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-500 dark:text-red-400'">{{ formatCurrency(filteredNetRevenue) }}</td></tr>
-              <tr><td class="px-4 py-3 text-slate-500 dark:text-[#b9aa9a]">Trung bình mỗi đơn</td><td class="px-4 py-3 text-right font-semibold">{{ formatCurrency(averageOrderValue) }}</td></tr>
+              <tr class="border-b border-slate-200 "><td class="px-4 py-3 text-slate-500 ">Tổng đơn</td><td class="px-4 py-3 text-right font-semibold">{{ filteredOrders.length }}</td></tr>
+              <tr class="border-b border-slate-200 "><td class="px-4 py-3 text-slate-500 ">Đơn đã thanh toán</td><td class="px-4 py-3 text-right font-semibold">{{ paidOrdersCount }}</td></tr>
+              <tr class="border-b border-slate-200 "><td class="px-4 py-3 text-slate-500 ">Đơn chưa thanh toán</td><td class="px-4 py-3 text-right font-semibold">{{ unpaidOrdersCount }}</td></tr>
+              <tr class="border-b border-slate-200 "><td class="px-4 py-3 text-slate-500 ">Đơn hoàn tiền</td><td class="px-4 py-3 text-right font-semibold">{{ refundedOrdersCount }}</td></tr>
+              <tr class="border-b border-slate-200 "><td class="px-4 py-3 text-slate-500 ">Doanh thu vào</td><td class="px-4 py-3 text-right font-semibold">{{ formatCurrency(filteredProfitRevenue) }}</td></tr>
+              <tr class="border-b border-slate-200 "><td class="px-4 py-3 text-slate-500 ">Hoàn tiền</td><td class="px-4 py-3 text-right font-semibold text-red-500 ">-{{ formatCurrency(filteredRefundRevenue) }}</td></tr>
+              <tr class="border-b border-slate-200 bg-slate-50 "><td class="px-4 py-3 font-semibold">Doanh thu ròng</td><td class="px-4 py-3 text-right font-bold" :class="filteredNetRevenue >= 0 ? 'text-green-600 ' : 'text-red-500 '">{{ formatCurrency(filteredNetRevenue) }}</td></tr>
+              <tr><td class="px-4 py-3 text-slate-500 ">Trung bình mỗi đơn</td><td class="px-4 py-3 text-right font-semibold">{{ formatCurrency(averageOrderValue) }}</td></tr>
             </tbody>
           </table>
         </div>
@@ -141,29 +141,29 @@
         <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
           <div>
             <h3 class="text-lg font-semibold">Phân tích trực quan</h3>
-            <p class="text-sm text-slate-500 dark:text-[#b9aa9a]">Chi tiết theo chỉ số, có nhiều loại chart nhưng giữ bố cục gọn để đọc nhanh.</p>
+            <p class="text-sm text-slate-500 ">Chi tiết theo chỉ số, có nhiều loại chart nhưng giữ bố cục gọn để đọc nhanh.</p>
           </div>
           <div class="text-right space-y-2">
-            <div class="inline-flex rounded-xl border border-slate-200 bg-white p-1 dark:border-[#3c342e] dark:bg-[#1f1a17]">
+            <div class="inline-flex rounded-xl border border-slate-200 bg-white p-1 ">
               <button
                 v-for="item in reportMetricOptions"
                 :key="item.value"
                 type="button"
                 class="rounded-lg px-2.5 py-1 text-xs font-semibold transition"
-                :class="reportChartMetric === item.value ? 'bg-primary text-white' : 'text-slate-600 hover:bg-slate-100 dark:text-[#b9aa9a] dark:hover:bg-[#2b241f]'"
+                :class="reportChartMetric === item.value ? 'bg-primary text-white' : 'text-slate-600 hover:bg-slate-100 dark:hover:bg-white'"
                 @click="reportChartMetric = item.value"
               >
                 {{ item.label }}
               </button>
             </div>
-            <p class="text-xs text-slate-500 dark:text-[#b9aa9a]">Tổng chỉ số đang xem</p>
+            <p class="text-xs text-slate-500 ">Tổng chỉ số đang xem</p>
             <p class="font-semibold" :style="{ color: reportMetricColor }">{{ reportMetricTotalFormatted }}</p>
           </div>
         </div>
 
         <div class="grid grid-cols-1 gap-6 xl:grid-cols-[1.4fr_0.9fr]">
           <div class="space-y-4">
-            <div class="overflow-x-auto rounded-2xl border border-slate-200 bg-gradient-to-b from-white to-slate-50 p-4 dark:border-[#3c342e] dark:from-[#1f1a17] dark:to-[#181310]">
+            <div class="overflow-x-auto rounded-2xl border border-slate-200 bg-gradient-to-b from-white to-slate-50 p-4 dark:from-[#1f1a17] dark:to-[#181310]">
               <svg viewBox="0 0 640 240" class="h-full min-h-[250px] w-full" preserveAspectRatio="none">
                 <line x1="24" y1="200" x2="616" y2="200" stroke="rgba(148,163,184,0.35)" stroke-width="1" />
                 <line x1="24" y1="24" x2="24" y2="200" stroke="rgba(148,163,184,0.2)" stroke-width="1" />
@@ -181,29 +181,29 @@
             </div>
 
             <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
-              <div v-for="bucket in reportHighlights" :key="bucket.key" class="min-w-0 rounded-xl border border-slate-200 px-3 py-3 dark:border-[#3c342e]">
-                <p class="truncate text-xs uppercase tracking-wide text-slate-500 dark:text-[#b9aa9a]">{{ bucket.sublabel }}</p>
+              <div v-for="bucket in reportHighlights" :key="bucket.key" class="min-w-0 rounded-xl border border-slate-200 px-3 py-3 ">
+                <p class="truncate text-xs uppercase tracking-wide text-slate-500 ">{{ bucket.sublabel }}</p>
                 <p class="mt-2 break-words text-sm font-semibold">{{ formatCurrency(bucket.netRevenue) }}</p>
-                <p class="mt-1 text-xs text-slate-500 dark:text-[#b9aa9a]">{{ bucket.orderCount }} đơn | Đã thanh toán {{ bucket.paidCount }} | Hoàn {{ bucket.refundedCount }}</p>
+                <p class="mt-1 text-xs text-slate-500 ">{{ bucket.orderCount }} đơn | Đã thanh toán {{ bucket.paidCount }} | Hoàn {{ bucket.refundedCount }}</p>
               </div>
             </div>
           </div>
 
           <div class="space-y-4">
-            <div class="rounded-2xl border border-slate-200 p-4 dark:border-[#3c342e]">
+            <div class="rounded-2xl border border-slate-200 p-4 ">
               <div class="mb-3 flex items-center justify-between">
                 <h4 class="font-semibold">Donut thanh toán</h4>
-                <span class="text-xs text-slate-500 dark:text-[#b9aa9a]">{{ filteredOrders.length }} đơn</span>
+                <span class="text-xs text-slate-500 ">{{ filteredOrders.length }} đơn</span>
               </div>
               <div class="mx-auto flex h-40 w-40 items-center justify-center rounded-full" :style="paymentPieStyle">
-                <div class="flex h-20 w-20 flex-col items-center justify-center rounded-full bg-white text-center dark:bg-[#1f1a17]">
-                  <span class="text-[10px] uppercase tracking-wide text-slate-500 dark:text-[#b9aa9a]">Tổng</span>
+                <div class="flex h-20 w-20 flex-col items-center justify-center rounded-full bg-white text-center ">
+                  <span class="text-[10px] uppercase tracking-wide text-slate-500 ">Tổng</span>
                   <span class="mt-1 text-xl font-bold">{{ filteredOrders.length }}</span>
                 </div>
               </div>
             </div>
 
-            <div class="rounded-2xl border border-slate-200 p-4 dark:border-[#3c342e]">
+            <div class="rounded-2xl border border-slate-200 p-4 ">
               <h4 class="mb-3 font-semibold">Phân bố trạng thái đơn</h4>
               <div class="space-y-3">
                 <div v-for="item in statusRowsWithShare" :key="item.status" class="space-y-1">
@@ -211,7 +211,7 @@
                     <span>{{ item.label }}</span>
                     <span class="font-medium">{{ item.count }} ({{ item.share }}%)</span>
                   </div>
-                  <div class="h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-[#2b241f]">
+                  <div class="h-2 overflow-hidden rounded-full bg-slate-100 ">
                     <div class="h-full rounded-full bg-primary/80" :style="{ width: `${item.share}%` }" />
                   </div>
                 </div>
@@ -225,13 +225,13 @@
         <section class="retail-card min-w-0 p-5">
           <div class="mb-4 flex items-center justify-between">
             <h3 class="text-lg font-semibold">Bảng doanh thu {{ reportModeText }}</h3>
-            <span class="text-xs uppercase tracking-wide text-slate-500 dark:text-[#b9aa9a]">{{ selectedRangeText }}</span>
+            <span class="text-xs uppercase tracking-wide text-slate-500 ">{{ selectedRangeText }}</span>
           </div>
 
           <div class="overflow-x-auto">
             <table class="w-full min-w-[760px] text-left text-sm">
               <thead>
-                <tr class="border-b border-slate-200 text-slate-500 dark:border-[#3c342e] dark:text-[#b9aa9a]">
+                <tr class="border-b border-slate-200 text-slate-500 ">
                   <th class="px-2 py-3 font-medium">{{ reportColumnLabel }}</th>
                   <th class="px-2 py-3 font-medium">Từ ngày</th>
                   <th class="px-2 py-3 font-medium">Đến ngày</th>
@@ -244,7 +244,7 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="row in sortedActiveBuckets" :key="row.key" class="border-b border-slate-100 last:border-none dark:border-[#2b241f]">
+                <tr v-for="row in sortedActiveBuckets" :key="row.key" class="border-b border-slate-100 last:border-none ">
                   <td class="px-2 py-3 font-medium">{{ row.sublabel }}</td>
                   <td class="px-2 py-3">{{ formatDateCell(row.startDate) }}</td>
                   <td class="px-2 py-3">{{ formatDateCell(row.endDate) }}</td>
@@ -253,7 +253,7 @@
                   <td class="px-2 py-3">{{ row.refundedCount }}</td>
                   <td class="px-2 py-3">{{ formatCurrency(row.grossRevenue) }}</td>
                   <td class="px-2 py-3">{{ formatCurrency(row.refundedRevenue) }}</td>
-                  <td class="px-2 py-3 font-semibold" :class="row.netRevenue >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-500 dark:text-red-400'">{{ formatCurrency(row.netRevenue) }}</td>
+                  <td class="px-2 py-3 font-semibold" :class="row.netRevenue >= 0 ? 'text-green-600 ' : 'text-red-500 '">{{ formatCurrency(row.netRevenue) }}</td>
                 </tr>
               </tbody>
             </table>
@@ -263,19 +263,19 @@
         <section class="retail-card min-w-0 p-5">
           <div class="mb-4 flex items-center justify-between">
             <h3 class="text-lg font-semibold">Phân bố thanh toán</h3>
-            <span class="text-xs uppercase tracking-wide text-slate-500 dark:text-[#b9aa9a]">{{ filteredOrders.length }} đơn</span>
+            <span class="text-xs uppercase tracking-wide text-slate-500 ">{{ filteredOrders.length }} đơn</span>
           </div>
 
           <table class="w-full text-sm">
             <thead>
-              <tr class="border-b border-slate-200 text-slate-500 dark:border-[#3c342e] dark:text-[#b9aa9a]">
+              <tr class="border-b border-slate-200 text-slate-500 ">
                 <th class="px-2 py-3 font-medium text-left">Nhóm</th>
                 <th class="px-2 py-3 font-medium text-right">Số đơn</th>
                 <th class="px-2 py-3 font-medium text-right">Tỷ lệ</th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="item in paymentBreakdownWithShare" :key="item.label" class="border-b border-slate-100 last:border-none dark:border-[#2b241f]">
+              <tr v-for="item in paymentBreakdownWithShare" :key="item.label" class="border-b border-slate-100 last:border-none ">
                 <td class="px-2 py-3">{{ item.label }}</td>
                 <td class="px-2 py-3 text-right">{{ item.count }}</td>
                 <td class="px-2 py-3 text-right">{{ item.share }}%</td>
@@ -283,14 +283,14 @@
             </tbody>
           </table>
 
-          <div class="mt-4 overflow-hidden rounded-2xl border border-slate-200 dark:border-[#3c342e]">
+          <div class="mt-4 overflow-hidden rounded-2xl border border-slate-200 ">
             <table class="w-full text-sm">
               <tbody>
-                <tr class="border-b border-slate-200 dark:border-[#3c342e]"><td class="px-4 py-3 text-slate-500 dark:text-[#b9aa9a]">Khoảng báo cáo</td><td class="px-4 py-3 text-right font-semibold">{{ selectedRangeText }}</td></tr>
-                <tr class="border-b border-slate-200 dark:border-[#3c342e]"><td class="px-4 py-3 text-slate-500 dark:text-[#b9aa9a]">Doanh thu vào</td><td class="px-4 py-3 text-right font-semibold">{{ formatCurrency(filteredProfitRevenue) }}</td></tr>
-                <tr class="border-b border-slate-200 dark:border-[#3c342e]"><td class="px-4 py-3 text-slate-500 dark:text-[#b9aa9a]">Hoàn tiền</td><td class="px-4 py-3 text-right font-semibold text-red-500 dark:text-red-400">-{{ formatCurrency(filteredRefundRevenue) }}</td></tr>
-                <tr class="border-b border-slate-200 bg-slate-50 dark:border-[#3c342e] dark:bg-[#181310]"><td class="px-4 py-3 font-semibold">Lợi nhuận ròng kế toán</td><td class="px-4 py-3 text-right font-bold" :class="filteredNetRevenue >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-500 dark:text-red-400'">{{ formatCurrency(filteredNetRevenue) }}</td></tr>
-                <tr><td class="px-4 py-3 text-slate-500 dark:text-[#b9aa9a]">Tỷ lệ hoàn tiền</td><td class="px-4 py-3 text-right font-semibold">{{ refundRate }}%</td></tr>
+                <tr class="border-b border-slate-200 "><td class="px-4 py-3 text-slate-500 ">Khoảng báo cáo</td><td class="px-4 py-3 text-right font-semibold">{{ selectedRangeText }}</td></tr>
+                <tr class="border-b border-slate-200 "><td class="px-4 py-3 text-slate-500 ">Doanh thu vào</td><td class="px-4 py-3 text-right font-semibold">{{ formatCurrency(filteredProfitRevenue) }}</td></tr>
+                <tr class="border-b border-slate-200 "><td class="px-4 py-3 text-slate-500 ">Hoàn tiền</td><td class="px-4 py-3 text-right font-semibold text-red-500 ">-{{ formatCurrency(filteredRefundRevenue) }}</td></tr>
+                <tr class="border-b border-slate-200 bg-slate-50 "><td class="px-4 py-3 font-semibold">Lợi nhuận ròng kế toán</td><td class="px-4 py-3 text-right font-bold" :class="filteredNetRevenue >= 0 ? 'text-green-600 ' : 'text-red-500 '">{{ formatCurrency(filteredNetRevenue) }}</td></tr>
+                <tr><td class="px-4 py-3 text-slate-500 ">Tỷ lệ hoàn tiền</td><td class="px-4 py-3 text-right font-semibold">{{ refundRate }}%</td></tr>
               </tbody>
             </table>
           </div>
