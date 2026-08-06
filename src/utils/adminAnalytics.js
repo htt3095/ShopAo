@@ -402,6 +402,54 @@ export function getPaymentBreakdown(orders) {
     return [...map.entries()].map(([label, count]) => ({ label, count }));
 }
 
+const PAYMENT_METHOD_LABELS = {
+    1: "Tiền mặt",
+    2: "VNPay",
+    3: "Momo",
+    4: "Chuyển khoản ngân hàng",
+    5: "ZaloPay",
+};
+
+export function resolvePaymentMethodLabel(order) {
+    const id = Number(order?.paymentMethodId);
+    if (Number.isFinite(id) && PAYMENT_METHOD_LABELS[id]) {
+        return PAYMENT_METHOD_LABELS[id];
+    }
+
+    const name = String(order?.paymentMethodName || "").trim();
+    if (name) return name;
+
+    return "Không rõ";
+}
+
+export function getPaymentMethodBreakdown(orders) {
+    const map = new Map();
+
+    for (const order of orders || []) {
+        const paymentStatus = normalizePaymentStatusValue(order?.paymentStatus);
+        if (!profitablePaymentStatuses.includes(paymentStatus)) continue;
+
+        const label = resolvePaymentMethodLabel(order);
+        const amount = getOrderAmount(order);
+
+        if (!map.has(label)) {
+            map.set(label, { label, count: 0, revenue: 0 });
+        }
+
+        const entry = map.get(label);
+        entry.count += 1;
+        entry.revenue += amount;
+    }
+
+    const result = [...map.values()].sort((a, b) => b.revenue - a.revenue);
+    const totalRevenue = result.reduce((sum, r) => sum + r.revenue, 0);
+
+    return result.map((entry) => ({
+        ...entry,
+        share: totalRevenue > 0 ? ((entry.revenue / totalRevenue) * 100).toFixed(1) : "0.0",
+    }));
+}
+
 export function sumNetRevenue(orders) {
     return (orders || []).reduce((sum, order) => sum + getOrderPaymentImpact(order), 0);
 }

@@ -772,8 +772,13 @@ const processedVouchers = computed(() => {
       if (isEligible) {
         const val = v.discountValue || v.discount_value || 0;
         const type = v.discountType || v.discount_type;
-        calculatedDiscount =
-          type === "PERCENT" ? (activeSubtotal.value * val) / 100 : val;
+        const maxCap = Number(v.maxDiscountAmount || v.max_discount_amount || 0);
+        if (type === "PERCENT") {
+          const raw = (activeSubtotal.value * val) / 100;
+          calculatedDiscount = maxCap > 0 ? Math.min(raw, maxCap) : raw;
+        } else {
+          calculatedDiscount = Math.min(val, activeSubtotal.value);
+        }
       }
 
       const isApplied =
@@ -789,7 +794,11 @@ const processedVouchers = computed(() => {
 const formatDiscountLabel = (v) => {
   const type = v.discountType || v.discount_type;
   const val = v.discountValue || v.discount_value || 0;
-  return type === "PERCENT" ? `${val}%` : formatMoney(val);
+  const maxCap = Number(v.maxDiscountAmount || v.max_discount_amount || 0);
+  if (type === "PERCENT") {
+    return maxCap > 0 ? `${val}% (tối đa ${formatMoney(maxCap)})` : `${val}%`;
+  }
+  return formatMoney(val);
 };
 
 const activeDiscount = computed(() => {
@@ -797,7 +806,12 @@ const activeDiscount = computed(() => {
   const v = activeInvoice.value.appliedVoucher;
   const val = v.discountValue || v.discount_value || 0;
   const type = v.discountType || v.discount_type;
-  return type === "PERCENT" ? (activeSubtotal.value * val) / 100 : val;
+  const maxCap = Number(v.maxDiscountAmount || v.max_discount_amount || 0);
+  if (type === "PERCENT") {
+    const raw = (activeSubtotal.value * val) / 100;
+    return maxCap > 0 ? Math.min(raw, maxCap) : raw;
+  }
+  return Math.min(val, activeSubtotal.value);
 });
 
 const activeTotal = computed(() => {
@@ -1084,13 +1098,12 @@ const handlePlaceOrder = async () => {
   inv.customer.fullname = String(inv.customer.fullname || "").trim();
   inv.customer.phone = normalizePhone(inv.customer.phone);
 
-  // Kiểm tra tiền thừa
+  // Kiểm tra tiền khách đưa (tiền mặt)
   if (
     inv.paymentMethodId === 1 &&
-    inv.customerPaid > 0 &&
     inv.customerPaid < activeTotal.value
   ) {
-    alert("Tiền khách đưa không đủ!");
+    alert("Tiền khách đưa không đủ! Vui lòng nhập số tiền khách trả.");
     return;
   }
 
