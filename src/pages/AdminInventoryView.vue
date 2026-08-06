@@ -400,8 +400,8 @@
           <div
             class="rounded-xl border border-slate-200 px-3 py-2 "
           >
-            Tổng biến thể:
-            <span class="font-semibold">{{ variants.length }}</span>
+            Tổng sản phẩm:
+            <span class="font-semibold">{{ totalProductsCount }}</span>
           </div>
           <div
             class="rounded-xl border border-slate-200 px-3 py-2 "
@@ -1254,19 +1254,41 @@ const bulkTargetVariants = computed(() => {
 });
 
 // Stock statistics
+const totalProductsCount = computed(() => {
+  return new Set(variants.value.map(v => v.productId)).size;
+});
+
+const productStockMap = computed(() => {
+  const map = new Map();
+  for (const v of variants.value) {
+    const current = map.get(v.productId) || 0;
+    map.set(v.productId, current + (Number(v.stockQuantity) || 0));
+  }
+  return map;
+});
+
 const inStockCount = computed(() => {
-  return variants.value.filter((v) => normalizeVariantStatus(v.status, v.stockQuantity) === "SELLING").length;
+  let count = 0;
+  for (const stock of productStockMap.value.values()) {
+    if (stock >= 10) count++;
+  }
+  return count;
 });
 
 const lowStockCount = computed(() => {
-  return variants.value.filter((v) => {
-    const stock = v.stockQuantity || 0;
-    return stock > 0 && stock < 10;
-  }).length;
+  let count = 0;
+  for (const stock of productStockMap.value.values()) {
+    if (stock > 0 && stock < 10) count++;
+  }
+  return count;
 });
 
 const outOfStockCount = computed(() => {
-  return variants.value.filter((v) => normalizeVariantStatus(v.status, v.stockQuantity) === "OUT_OF_STOCK").length;
+  let count = 0;
+  for (const stock of productStockMap.value.values()) {
+    if (stock === 0) count++;
+  }
+  return count;
 });
 
 // Reset filters

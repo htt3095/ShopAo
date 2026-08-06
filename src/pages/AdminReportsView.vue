@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <AdminShell>
     <template #header>
       <div class="flex flex-wrap items-center justify-between gap-3">
@@ -283,14 +283,41 @@
             </tbody>
           </table>
 
-          <div class="mt-4 overflow-hidden rounded-2xl border border-slate-200 ">
+          <div class="mt-8 mb-4 flex items-center justify-between">
+            <h3 class="text-lg font-semibold">Doanh thu theo PT thanh toán</h3>
+          </div>
+
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="border-b border-slate-200 text-slate-500 dark:border-[#3c342e] dark:text-[#b9aa9a]">
+                <th class="px-2 py-3 font-medium text-left">Phương thức</th>
+                <th class="px-2 py-3 font-medium text-right">Doanh thu</th>
+                <th class="px-2 py-3 font-medium text-right">Tỷ lệ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="method in paymentMethodBreakdown" :key="method.label" class="border-b border-slate-100 last:border-none dark:border-[#2b241f]">
+                <td class="px-2 py-3">{{ method.label }}</td>
+                <td class="px-2 py-3 text-right">
+                  <div class="font-semibold">{{ formatCurrency(method.revenue) }}</div>
+                  <div class="text-xs text-slate-500 dark:text-[#b9aa9a]">{{ method.count }} đơn</div>
+                </td>
+                <td class="px-2 py-3 text-right">{{ method.share }}%</td>
+              </tr>
+              <tr v-if="paymentMethodBreakdown.length === 0">
+                <td class="px-2 py-3 text-center text-slate-500 dark:text-[#b9aa9a]" colspan="3">Chưa có dữ liệu</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="mt-4 overflow-hidden rounded-2xl border border-slate-200 dark:border-[#3c342e]">
             <table class="w-full text-sm">
               <tbody>
-                <tr class="border-b border-slate-200 "><td class="px-4 py-3 text-slate-500 ">Khoảng báo cáo</td><td class="px-4 py-3 text-right font-semibold">{{ selectedRangeText }}</td></tr>
-                <tr class="border-b border-slate-200 "><td class="px-4 py-3 text-slate-500 ">Doanh thu vào</td><td class="px-4 py-3 text-right font-semibold">{{ formatCurrency(filteredProfitRevenue) }}</td></tr>
-                <tr class="border-b border-slate-200 "><td class="px-4 py-3 text-slate-500 ">Hoàn tiền</td><td class="px-4 py-3 text-right font-semibold text-red-500 ">-{{ formatCurrency(filteredRefundRevenue) }}</td></tr>
-                <tr class="border-b border-slate-200 bg-slate-50 "><td class="px-4 py-3 font-semibold">Lợi nhuận ròng kế toán</td><td class="px-4 py-3 text-right font-bold" :class="filteredNetRevenue >= 0 ? 'text-green-600 ' : 'text-red-500 '">{{ formatCurrency(filteredNetRevenue) }}</td></tr>
-                <tr><td class="px-4 py-3 text-slate-500 ">Tỷ lệ hoàn tiền</td><td class="px-4 py-3 text-right font-semibold">{{ refundRate }}%</td></tr>
+                <tr class="border-b border-slate-200 dark:border-[#3c342e]"><td class="px-4 py-3 text-slate-500 dark:text-[#b9aa9a]">Khoảng báo cáo</td><td class="px-4 py-3 text-right font-semibold">{{ selectedRangeText }}</td></tr>
+                <tr class="border-b border-slate-200 dark:border-[#3c342e]"><td class="px-4 py-3 text-slate-500 dark:text-[#b9aa9a]">Doanh thu vào</td><td class="px-4 py-3 text-right font-semibold">{{ formatCurrency(filteredProfitRevenue) }}</td></tr>
+                <tr class="border-b border-slate-200 dark:border-[#3c342e]"><td class="px-4 py-3 text-slate-500 dark:text-[#b9aa9a]">Hoàn tiền</td><td class="px-4 py-3 text-right font-semibold text-red-500 dark:text-red-400">-{{ formatCurrency(filteredRefundRevenue) }}</td></tr>
+                <tr class="border-b border-slate-200 bg-slate-50 dark:border-[#3c342e] dark:bg-[#181310]"><td class="px-4 py-3 font-semibold">Lợi nhuận ròng kế toán</td><td class="px-4 py-3 text-right font-bold" :class="filteredNetRevenue >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-500 dark:text-red-400'">{{ formatCurrency(filteredNetRevenue) }}</td></tr>
+                <tr><td class="px-4 py-3 text-slate-500 dark:text-[#b9aa9a]">Tỷ lệ hoàn tiền</td><td class="px-4 py-3 text-right font-semibold">{{ refundRate }}%</td></tr>
               </tbody>
             </table>
           </div>
@@ -318,6 +345,7 @@ import {
   sumNetRevenue,
   sumPositiveRevenue,
   sumRefundRevenue,
+  getPaymentMethodBreakdown,
 } from "@/utils/adminAnalytics";
 
 const loading = ref(false);
@@ -579,6 +607,10 @@ const statusRowsWithShare = computed(() => {
     ...item,
     share: Math.round((item.count / total) * 100),
   }));
+});
+
+const paymentMethodBreakdown = computed(() => {
+  return getPaymentMethodBreakdown(filteredOrders.value);
 });
 
 const selectedRangeText = computed(() => `${formatDateCell(selectedStartDate.value)} đến ${formatDateCell(selectedEndDate.value)}`);

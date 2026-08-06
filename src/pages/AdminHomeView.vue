@@ -371,12 +371,46 @@
                 <tr>
                   <td class="px-4 py-3 text-slate-500">Tổng đơn trong kỳ</td>
                   <td class="px-4 py-3 text-right font-semibold">
-                    {{ filteredOverviewOrders.length }}
+                    {{
+                      overviewBuckets.reduce(
+                        (sum, item) => sum + item.orderCount,
+                        0,
+                      )
+                    }}
+                    đơn
                   </td>
                 </tr>
               </tbody>
             </table>
           </div>
+
+          <div class="mt-6 mb-4">
+            <h3 class="text-lg font-semibold text-white">Doanh thu theo PT thanh toán</h3>
+            <p class="text-sm text-[#a1a1aa]">
+              Tỷ trọng doanh thu theo từng phương thức (chỉ tính đơn đã thanh toán).
+            </p>
+          </div>
+          <div class="overflow-hidden rounded-2xl border border-[#27272a]">
+            <table class="w-full text-sm">
+              <tbody>
+                <tr
+                  v-for="method in paymentMethodBreakdown"
+                  :key="method.label"
+                  class="border-b border-[#27272a] last:border-none"
+                >
+                  <td class="px-4 py-3 text-[#a1a1aa]">{{ method.label }}</td>
+                  <td class="px-4 py-3 text-right">
+                    <div class="font-semibold text-white">{{ formatCurrency(method.revenue) }}</div>
+                    <div class="text-xs text-[#a1a1aa]">{{ method.count }} đơn ({{ method.share }}%)</div>
+                  </td>
+                </tr>
+                <tr v-if="paymentMethodBreakdown.length === 0">
+                  <td class="px-4 py-3 text-center text-[#a1a1aa]" colspan="2">Chưa có dữ liệu</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
           <div
             class="mt-3 rounded-xl border border-slate-300 bg-[#F8FAFC]/40 px-4 py-3 text-sm"
           >
@@ -403,6 +437,7 @@ import {
   formatCurrency,
   formatLongDateTime,
   getOrderPaymentImpact,
+  getPaymentMethodBreakdown,
   paymentStatusLabel,
   sortRevenueBuckets,
 } from "@/utils/adminAnalytics";
@@ -520,6 +555,9 @@ const overviewBuckets = computed(() => {
 const sortedOverviewBuckets = computed(() =>
   sortRevenueBuckets(overviewBuckets.value, overviewSort.value),
 );
+const paymentMethodBreakdown = computed(() => {
+  return getPaymentMethodBreakdown(filteredOverviewOrders.value);
+});
 const overviewNetRevenue = computed(() => {
   return overviewBuckets.value.reduce((sum, item) => sum + item.netRevenue, 0);
 });
