@@ -51,14 +51,14 @@
             >
             <select
               v-model="statusFilter"
-              class="w-full cursor-pointer bg-transparent text-sm text-[#eadfd3] outline-none"
+              class="w-full cursor-pointer bg-white text-slate-700 dark:bg-transparent dark:text-[#eadfd3] outline-none"
             >
-              <option value="ALL" class="bg-white text-[#eadfd3]">Tất cả trạng thái</option>
+              <option value="ALL" class="bg-white text-slate-700 dark:bg-[#1f1a17] dark:text-[#eadfd3]">Tất cả trạng thái</option>
               <option
                 v-for="status in statusOptions"
                 :key="status.value"
                 :value="status.value"
-                class="bg-white text-[#eadfd3]"
+                class="bg-white text-slate-700 dark:bg-[#1f1a17] dark:text-[#eadfd3]"
               >
                 {{ status.label }}
               </option>
@@ -237,8 +237,8 @@
               <tr
                 v-for="order in filteredOrders"
                 :key="order.id"
-                class="border-b border-slate-100 last:border-none cursor-pointer transition-colors hover:bg-slate-50 dark:hover:bg-white/80"
-                :class="{ 'bg-primary/5 /10 border-l-2 border-l-primary': activeTrackedOrder?.id === order.id }"
+                class="border-b border-slate-100 last:border-none dark:border-[#2b241f] cursor-pointer transition-colors hover:bg-slate-50 dark:hover:bg-white/5"
+                :class="{ 'bg-primary/5 dark:bg-primary/10 border-l-2 border-l-primary': activeTrackedOrder?.id === order.id }"
                 @click="selectOrderToTrack(order)"
               >
                 <td class="sticky left-0 z-10 bg-white px-2 py-2 font-semibold shadow-[1px_0_0_rgba(60,52,46,0.75)]">#{{ order.id || "-" }}</td>

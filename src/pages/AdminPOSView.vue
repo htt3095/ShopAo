@@ -297,7 +297,8 @@
             </div>
           </section>
 
-          <section class="flex flex-col gap-4 overflow-y-auto pr-1">
+          <section class="flex flex-col gap-4 h-full">
+            <div class="flex-1 overflow-y-auto flex flex-col gap-4 pr-1">
             <article
               class="rounded-2xl border border-slate-200 bg-white p-5 "
             >
@@ -444,8 +445,10 @@
               </div>
             </article>
 
+            </div>
+
             <article
-              class="flex flex-1 flex-col rounded-2xl border border-slate-200 bg-white p-5 sticky-actions mt-4"
+              class="shrink-0 flex flex-col rounded-2xl border border-slate-200 bg-white p-5 dark:border-[#3c342e] dark:bg-[#1f1a17] sticky bottom-0"
             >
               <div
                 class="mb-4 flex items-center gap-2 border-b border-slate-100 pb-3 "

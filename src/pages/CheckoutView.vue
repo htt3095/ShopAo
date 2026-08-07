@@ -203,6 +203,9 @@
                     formatMoney(calculatedShippingFee)
                   }}</span>
                 </div>
+                <div class="text-[10px] text-slate-500 italic mt-1 text-right border-t border-green-500/10 pt-2">
+                  *Nội thành Hà Nội: &lt;5km (15k), &lt;10km (25k), trên 10km (35k). Ngoại thành/Tỉnh khác: 40k.
+                </div>
               </div>
             </div>
 
@@ -1397,10 +1400,10 @@ async function handlePlaceOrder() {
       ship_fee: effectiveShippingFee,
       feeShip: effectiveShippingFee,
       fee_ship: effectiveShippingFee,
-      totalMoney: effectiveTotalBeforeDiscount,
-      total_money: effectiveTotalBeforeDiscount,
-      totalAmount: effectiveTotalBeforeDiscount,
-      total_amount: effectiveTotalBeforeDiscount,
+      totalMoney: effectiveFinalAmount,
+      total_money: effectiveFinalAmount,
+      totalAmount: effectiveFinalAmount,
+      total_amount: effectiveFinalAmount,
       discountAmount: discountAmount.value,
       discount_amount: discountAmount.value,
       finalAmount: effectiveFinalAmount,
