@@ -38,6 +38,8 @@
 			#0a0a0b;
 		color: #ffffff;
 		background-attachment: fixed;
+		background-size: 100vw 100vh;
+		background-repeat: no-repeat;
 	}
 
 	a {
@@ -71,6 +73,8 @@
 			radial-gradient(circle at 50% 50%, rgba(30, 30, 40, 0.8), transparent 100%),
 			#0a0a0b;
 		background-attachment: fixed;
+		background-size: 100vw 100vh;
+		background-repeat: no-repeat;
 	}
 
 	.retail-header {

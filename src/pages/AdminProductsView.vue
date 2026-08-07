@@ -752,7 +752,7 @@ async function loadProducts() {
       adminApi.getProducts({ page: 0, size: 300 }),
       brandsApi.getAll().catch(() => []),
       categoriesApi.getAll().catch(() => []),
-      variantsApi.getAll({ page: 0, size: 1000 }).catch(() => []),
+      variantsApi.getAll(0, 1000).catch(() => []),
     ]);
 
     const productsData = toList(productList);

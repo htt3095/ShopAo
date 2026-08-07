@@ -51,14 +51,14 @@
             >
             <select
               v-model="statusFilter"
-              class="w-full cursor-pointer bg-transparent text-sm text-[#eadfd3] outline-none"
+              class="w-full cursor-pointer bg-white text-slate-700 dark:bg-transparent dark:text-[#eadfd3] outline-none"
             >
-              <option value="ALL" class="bg-[#1f1a17] text-[#eadfd3]">Tất cả trạng thái</option>
+              <option value="ALL" class="bg-white text-slate-700 dark:bg-[#1f1a17] dark:text-[#eadfd3]">Tất cả trạng thái</option>
               <option
                 v-for="status in statusOptions"
                 :key="status.value"
                 :value="status.value"
-                class="bg-[#1f1a17] text-[#eadfd3]"
+                class="bg-white text-slate-700 dark:bg-[#1f1a17] dark:text-[#eadfd3]"
               >
                 {{ status.label }}
               </option>
@@ -237,7 +237,7 @@
               <tr
                 v-for="order in filteredOrders"
                 :key="order.id"
-                class="border-b border-slate-100 last:border-none dark:border-[#2b241f] cursor-pointer transition-colors hover:bg-slate-50 dark:hover:bg-[#2b241f]/80"
+                class="border-b border-slate-100 last:border-none dark:border-[#2b241f] cursor-pointer transition-colors hover:bg-slate-50 dark:hover:bg-white/5"
                 :class="{ 'bg-primary/5 dark:bg-primary/10 border-l-2 border-l-primary': activeTrackedOrder?.id === order.id }"
                 @click="selectOrderToTrack(order)"
               >

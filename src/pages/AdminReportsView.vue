@@ -129,7 +129,7 @@
               <tr class="border-b border-slate-200 dark:border-[#3c342e]"><td class="px-4 py-3 text-slate-500 dark:text-[#b9aa9a]">Đơn chưa thanh toán</td><td class="px-4 py-3 text-right font-semibold">{{ unpaidOrdersCount }}</td></tr>
               <tr class="border-b border-slate-200 dark:border-[#3c342e]"><td class="px-4 py-3 text-slate-500 dark:text-[#b9aa9a]">Đơn hoàn tiền</td><td class="px-4 py-3 text-right font-semibold">{{ refundedOrdersCount }}</td></tr>
               <tr class="border-b border-slate-200 dark:border-[#3c342e]"><td class="px-4 py-3 text-slate-500 dark:text-[#b9aa9a]">Doanh thu vào</td><td class="px-4 py-3 text-right font-semibold">{{ formatCurrency(filteredProfitRevenue) }}</td></tr>
-              <tr class="border-b border-slate-200 dark:border-[#3c342e]"><td class="px-4 py-3 text-slate-500 dark:text-[#b9aa9a]">Hoàn tiền</td><td class="px-4 py-3 text-right font-semibold text-red-500 dark:text-red-400">-{{ formatCurrency(filteredRefundRevenue) }}</td></tr>
+              <tr class="border-b border-slate-200 dark:border-[#3c342e]"><td class="px-4 py-3 text-slate-500 dark:text-[#b9aa9a]">Hoàn tiền</td><td class="px-4 py-3 text-right font-semibold text-red-500 dark:text-red-400">{{ formatCurrency(Math.abs(filteredRefundRevenue)) }}</td></tr>
               <tr class="border-b border-slate-200 bg-slate-50 dark:border-[#3c342e] dark:bg-[#181310]"><td class="px-4 py-3 font-semibold">Doanh thu ròng</td><td class="px-4 py-3 text-right font-bold" :class="filteredNetRevenue >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-500 dark:text-red-400'">{{ formatCurrency(filteredNetRevenue) }}</td></tr>
               <tr><td class="px-4 py-3 text-slate-500 dark:text-[#b9aa9a]">Trung bình mỗi đơn</td><td class="px-4 py-3 text-right font-semibold">{{ formatCurrency(averageOrderValue) }}</td></tr>
             </tbody>
@@ -213,6 +213,18 @@
                   </div>
                   <div class="h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-[#2b241f]">
                     <div class="h-full rounded-full bg-primary/80" :style="{ width: `${item.share}%` }" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="rounded-2xl border border-slate-200 p-4 dark:border-[#3c342e]" v-if="refundBreakdown.length > 0">
+              <h4 class="mb-3 font-semibold text-red-500 dark:text-red-400">Chi tiết Hoàn tiền</h4>
+              <div class="space-y-3">
+                <div v-for="item in refundBreakdown" :key="item.method" class="space-y-1">
+                  <div class="flex items-center justify-between text-sm">
+                    <span class="text-slate-600 dark:text-[#b9aa9a]">{{ item.method }}</span>
+                    <span class="font-medium text-red-500">{{ formatCurrency(item.amount) }}</span>
                   </div>
                 </div>
               </div>
@@ -315,7 +327,7 @@
               <tbody>
                 <tr class="border-b border-slate-200 dark:border-[#3c342e]"><td class="px-4 py-3 text-slate-500 dark:text-[#b9aa9a]">Khoảng báo cáo</td><td class="px-4 py-3 text-right font-semibold">{{ selectedRangeText }}</td></tr>
                 <tr class="border-b border-slate-200 dark:border-[#3c342e]"><td class="px-4 py-3 text-slate-500 dark:text-[#b9aa9a]">Doanh thu vào</td><td class="px-4 py-3 text-right font-semibold">{{ formatCurrency(filteredProfitRevenue) }}</td></tr>
-                <tr class="border-b border-slate-200 dark:border-[#3c342e]"><td class="px-4 py-3 text-slate-500 dark:text-[#b9aa9a]">Hoàn tiền</td><td class="px-4 py-3 text-right font-semibold text-red-500 dark:text-red-400">-{{ formatCurrency(filteredRefundRevenue) }}</td></tr>
+                <tr class="border-b border-slate-200 dark:border-[#3c342e]"><td class="px-4 py-3 text-slate-500 dark:text-[#b9aa9a]">Hoàn tiền</td><td class="px-4 py-3 text-right font-semibold text-red-500 dark:text-red-400">{{ formatCurrency(Math.abs(filteredRefundRevenue)) }}</td></tr>
                 <tr class="border-b border-slate-200 bg-slate-50 dark:border-[#3c342e] dark:bg-[#181310]"><td class="px-4 py-3 font-semibold">Lợi nhuận ròng kế toán</td><td class="px-4 py-3 text-right font-bold" :class="filteredNetRevenue >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-500 dark:text-red-400'">{{ formatCurrency(filteredNetRevenue) }}</td></tr>
                 <tr><td class="px-4 py-3 text-slate-500 dark:text-[#b9aa9a]">Tỷ lệ hoàn tiền</td><td class="px-4 py-3 text-right font-semibold">{{ refundRate }}%</td></tr>
               </tbody>
@@ -494,6 +506,22 @@ const paymentBreakdownWithShare = computed(() => {
 });
 
 const statusBreakdown = computed(() => getStatusBreakdown(filteredOrders.value));
+
+const refundBreakdown = computed(() => {
+  const refunds = filteredOrders.value.filter(o => {
+    const st = normalizePaymentStatusValue(o?.paymentStatus || null);
+    return ["HOAN_TIEN", "REFUNDED", "REFUND", "CHARGEBACK", "REVERSED"].includes(st);
+  });
+  
+  const groups = {};
+  for (const r of refunds) {
+    const method = r.paymentMethodName || r.paymentMethod || "Khác";
+    const amount = Math.abs(Number(r.finalAmount ?? r.totalMoney ?? 0));
+    groups[method] = (groups[method] || 0) + amount;
+  }
+  
+  return Object.entries(groups).map(([method, amount]) => ({ method, amount })).sort((a,b) => b.amount - a.amount);
+});
 
 const reportMetricOptions = [
   { value: "net", label: "Ròng" },
@@ -927,7 +955,7 @@ function printReport() {
             <tr><td>Đơn chưa thanh toán</td><td class="right">${escaped(unpaidOrdersCount.value)}</td></tr>
             <tr><td>Đơn hoàn tiền</td><td class="right">${escaped(refundedOrdersCount.value)}</td></tr>
             <tr><td>Doanh thu vào</td><td class="right">${escaped(formatCurrency(filteredProfitRevenue.value))}</td></tr>
-            <tr><td>Hoàn tiền</td><td class="right">-${escaped(formatCurrency(filteredRefundRevenue.value))}</td></tr>
+            <tr><td>Hoàn tiền</td><td class="right">${escaped(formatCurrency(Math.abs(filteredRefundRevenue.value)))}</td></tr>
             <tr><td>Doanh thu ròng</td><td class="right">${escaped(formatCurrency(filteredNetRevenue.value))}</td></tr>
             <tr><td>Trung bình mỗi đơn</td><td class="right">${escaped(formatCurrency(averageOrderValue.value))}</td></tr>
             <tr><td>Tỷ lệ hoàn tiền</td><td class="right">${escaped(refundRate.value)}%</td></tr>
