@@ -173,8 +173,8 @@
                       class="size-12 overflow-hidden rounded-xl bg-slate-100 dark:bg-[#2b241f]"
                     >
                       <img
-                        v-if="product.imageUrl"
-                        :src="product.imageUrl"
+                        v-if="product._imageUrl || product.imageUrl"
+                        :src="product._imageUrl || product.imageUrl"
                         alt="Product"
                         class="h-full w-full object-cover"
                       />
@@ -449,7 +449,7 @@
 import { computed, onMounted, ref } from "vue";
 import axios from "axios";
 import AdminShell from "@/components/admin/AdminShell.vue";
-import { adminApi, brandsApi, categoriesApi } from "@/services/api";
+import { adminApi, brandsApi, categoriesApi, variantsApi } from "@/services/api";
 
 const loading = ref(false);
 const error = ref("");
@@ -748,13 +748,31 @@ async function loadProducts() {
   error.value = "";
 
   try {
-    const [productList, brandList, categoryList] = await Promise.all([
+    const [productList, brandList, categoryList, variantList] = await Promise.all([
       adminApi.getProducts({ page: 0, size: 300 }),
       brandsApi.getAll().catch(() => []),
       categoriesApi.getAll().catch(() => []),
+      variantsApi.getAll({ page: 0, size: 1000 }).catch(() => []),
     ]);
 
-    products.value = toList(productList);
+    const productsData = toList(productList);
+    const variantsData = toList(variantList);
+    
+    // Build image map from variants
+    const variantImageMap = new Map();
+    for (const v of variantsData) {
+      const pid = Number(v.productId || v.product_id);
+      const img = v.imageUrl || v.image_url || v.imgUrl;
+      if (pid && img && !variantImageMap.has(pid)) {
+        variantImageMap.set(pid, img);
+      }
+    }
+
+    products.value = productsData.map((p) => ({
+      ...p,
+      _imageUrl: p.imageUrl || p.image_url || variantImageMap.get(Number(p.id)) || null,
+    }));
+    
     brands.value = toList(brandList);
     categories.value = toList(categoryList);
   } catch (err) {

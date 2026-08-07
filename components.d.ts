@@ -12,7 +12,9 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     AdminShell: typeof import('./src/components/admin/AdminShell.vue')['default']
+    AIChatbot: typeof import('./src/components/AIChatbot.vue')['default']
     AppFooter: typeof import('./src/components/AppFooter.vue')['default']
+    ChatProductCard: typeof import('./src/components/ChatProductCard.vue')['default']
     HelloWorld: typeof import('./src/components/HelloWorld.vue')['default']
     MainTopBar: typeof import('./src/components/MainTopBar.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
