@@ -22,7 +22,7 @@ public class FinalProject2Application {
     @Bean
     public CommandLineRunner initAdmin(AccountRepository accountRepo, RoleRepository roleRepo, PasswordEncoder passwordEncoder) {
         return args -> {
-            if (accountRepo.findByGmail("phianhduy2007@gmail.com").isEmpty()) {
+            if (accountRepo.findByGmail("hhtt3095@gmail.com").isEmpty()) {
                 Role adminRole = roleRepo.findByName("ADMIN").orElseGet(() -> {
                     Role r = new Role();
                     r.setName("ADMIN");
@@ -30,10 +30,10 @@ public class FinalProject2Application {
                 });
                 
                 Account admin = new Account();
-                admin.setUsername("phianhduy");
-                admin.setGmail("phianhduy2007@gmail.com");
+                admin.setUsername("Admin");
+                admin.setGmail("hhtt3095@gmail.com");
                 admin.setPasswordHash(passwordEncoder.encode("123456"));
-                admin.setAccountCode("ACC-ADMIN-1");
+                admin.setAccountCode("ACC-ADMIN-2");
                 admin.setIsActive(true);
                 
                 Set<Role> roles = new HashSet<>();
