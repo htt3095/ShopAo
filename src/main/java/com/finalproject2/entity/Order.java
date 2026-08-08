@@ -63,12 +63,12 @@ public class Order {
     private PaymentMethod paymentMethod;
 
     @Size(max = 20)
-    @ColumnDefault("PENDING")
+    @ColumnDefault("'PENDING'") // Đã thêm dấu nháy ' '
     @Column(name = "payment_status", length = 20)
     private String paymentStatus;
 
     @Size(max = 255)
-    @ColumnDefault("NEW")
+    @ColumnDefault("'NEW'") // Đã thêm dấu nháy ' '
     @Column(name = "status")
     private String status;
 
@@ -89,7 +89,6 @@ public class Order {
     @Lob
     @Column(name = "return_images")
     private String returnImages;
-
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<OrderItem> orderItems = new LinkedHashSet<>();
