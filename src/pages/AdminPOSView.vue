@@ -1,803 +1,635 @@
-<template>
-  <div>
-    <AdminShell class="print:hidden">
-      <div
-        v-if="showSuccessModal"
-        class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 backdrop-blur-sm transition-opacity print:hidden"
-      >
-        <div
-          class="w-[450px] animate-fade-in-up rounded-3xl bg-white p-8 text-center shadow-2xl "
-        >
-          <span class="material-symbols-outlined mb-4 text-7xl text-green-500"
-            >check_circle</span
-          >
-          <h3 class="mb-2 text-2xl font-bold text-slate-900 ">
-            Thanh toán thành công!
-          </h3>
-          <p class="mb-6 text-slate-500 ">
-            Hóa đơn của bạn đã được lưu vào hệ thống.
-          </p>
+﻿<template>
+  <AdminShell>
+    <template #header>
+      <div class="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <p class="text-xs uppercase tracking-[0.18em] text-primary">Bán hàng POS</p>
+          <h2 class="mt-1 text-2xl font-bold">Điểm bán hàng</h2>
+        </div>
 
-          <div class="mt-6 flex gap-3">
+        <div class="flex flex-wrap items-center gap-2">
+          <div class="inline-flex items-center overflow-hidden rounded-full border border-slate-200 bg-slate-50 text-sm text-slate-700">
+            <div class="inline-flex items-center gap-1.5 px-3 py-1.5">
+              <span class="material-symbols-outlined text-[17px] text-primary">receipt_long</span>
+              <span class="font-semibold">{{ activeInvoiceTitle }}</span>
+            </div>
+            <div class="h-5 w-px bg-slate-200"></div>
+            <div class="px-3 py-1.5 text-slate-500">
+              {{ activeInvoice?.cart?.length || 0 }} sản phẩm
+            </div>
             <button
-              @click="printInvoice"
-              class="flex flex-1 items-center justify-center gap-2 rounded-xl bg-slate-100 py-3 font-bold text-slate-700 transition-colors hover:bg-slate-200 dark:hover:bg-[#3c342e]"
+              type="button"
+              class="inline-flex size-8 items-center justify-center border-l border-slate-200 text-slate-500 transition hover:bg-white hover:text-primary disabled:cursor-not-allowed disabled:opacity-40"
+              title="Tạo hóa đơn mới"
+              aria-label="Tạo hóa đơn mới"
+              @click="addInvoice"
+              :disabled="invoices.length >= MAX_INVOICES"
             >
-              <span class="material-symbols-outlined">print</span> In hóa đơn
+              <span class="material-symbols-outlined text-[19px]">add</span>
+            </button>
+          </div>
+          <button
+            type="button"
+            class="inline-flex size-9 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 transition hover:border-primary hover:text-primary"
+            title="Làm mới hóa đơn hiện tại"
+            aria-label="Làm mới hóa đơn hiện tại"
+            @click="resetInvoice"
+          >
+            <span class="material-symbols-outlined text-[18px]">refresh</span>
+          </button>
+        </div>
+      </div>
+    </template>
+
+    <div class="space-y-4">
+      <div v-if="invoices.length > 1" class="rounded-2xl border border-slate-200 bg-white px-3 py-2">
+        <div class="flex flex-wrap items-center gap-1.5">
+          <span class="mr-1 text-xs font-semibold uppercase tracking-wide text-slate-400">Hóa đơn</span>
+          <div
+            v-for="invoice in invoices"
+            :key="invoice.id"
+            class="inline-flex items-center overflow-hidden rounded-full border text-xs font-semibold transition"
+            :class="invoice.id === activeInvoiceId ? 'border-primary bg-primary/10 text-primary' : 'border-transparent bg-slate-50 text-slate-600 hover:bg-slate-100'"
+          >
+            <button
+              type="button"
+              class="inline-flex items-center gap-1.5 px-2.5 py-1.5 transition"
+              @click="activeInvoiceId = invoice.id"
+            >
+              <span class="material-symbols-outlined text-[15px]">receipt_long</span>
+              {{ invoice.orderId ? `#${invoice.orderId}` : `Tạm ${invoice.number}` }}
             </button>
             <button
-              @click="closeSuccessModal"
-              class="flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary py-3 font-bold text-white transition-transform hover:scale-[1.02] active:scale-[0.98]"
+              v-if="!invoice.orderId"
+              type="button"
+              class="inline-flex size-7 items-center justify-center border-l border-white/60 text-slate-400 transition hover:bg-red-100 hover:text-red-600"
+              title="Xóa hóa đơn chờ"
+              aria-label="Xóa hóa đơn chờ"
+              @click.stop="requestRemoveInvoice(invoice)"
             >
-              <span class="material-symbols-outlined">done_all</span> Hoàn tất
+              <span class="material-symbols-outlined text-[12px]">close</span>
             </button>
+          </div>
+          <button
+            type="button"
+            class="inline-flex size-7 items-center justify-center rounded-full border border-dashed border-slate-300 text-slate-500 transition hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-40"
+            title="Tạo hóa đơn mới"
+            aria-label="Tạo hóa đơn mới"
+            @click="addInvoice"
+            :disabled="invoices.length >= MAX_INVOICES"
+          >
+            <span class="material-symbols-outlined text-[17px]">add</span>
+          </button>
+        </div>
+      </div>
+
+      <div
+        v-if="invoiceRemovalTarget"
+        class="rounded-2xl border border-rose-200 bg-white p-4 shadow-sm"
+      >
+        <div class="flex flex-wrap items-start justify-between gap-4">
+          <div class="flex items-start gap-3">
+            <div class="flex size-11 items-center justify-center rounded-2xl bg-rose-100 text-rose-600">
+              <span class="material-symbols-outlined text-[22px]">warning</span>
+            </div>
+            <div>
+              <p class="text-xs uppercase tracking-[0.18em] text-rose-500">Xác nhận xóa</p>
+              <h3 class="mt-1 text-base font-bold text-slate-900">Xóa hóa đơn chờ?</h3>
+              <p class="mt-1 text-sm text-slate-600">
+                Bạn có muốn tiếp tục và xóa {{ invoiceRemovalLabel }} không?
+              </p>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-400"
+              @click="cancelRemoveInvoice"
+            >
+              Hủy
+            </button>
+            <button
+              type="button"
+              class="rounded-xl bg-rose-600 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-rose-200 transition hover:bg-rose-700"
+              @click="confirmRemoveInvoice"
+            >
+              Tiếp tục xóa
+            </button>
+          </div>
+        </div>
+
+        <div class="mt-4 grid gap-3 sm:grid-cols-2">
+          <div class="rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700">
+            <div class="flex items-center justify-between gap-3">
+              <span class="text-slate-500">Hóa đơn</span>
+              <span class="font-semibold text-slate-900">{{ invoiceRemovalTarget.orderId ? `#${invoiceRemovalTarget.orderId}` : `Tạm ${invoiceRemovalTarget.number}` }}</span>
+            </div>
+          </div>
+          <div class="rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700">
+            <div class="flex items-center justify-between gap-3">
+              <span class="text-slate-500">Số sản phẩm</span>
+              <span class="font-semibold text-slate-900">{{ invoiceRemovalTarget.cart?.length || 0 }}</span>
+            </div>
           </div>
         </div>
       </div>
 
-      <div class="flex h-[calc(100vh-100px)] flex-col overflow-hidden">
-        <div
-          class="flex items-center gap-2 overflow-x-auto border-b border-slate-200 pb-2 "
-        >
-          <button
-            v-for="invoice in invoices"
-            :key="invoice.id"
-            @click="activeInvoiceId = invoice.id"
-            class="group relative flex items-center gap-2 rounded-t-xl border-x border-t px-4 py-2 text-sm font-semibold transition-colors"
-            :class="
-              activeInvoiceId === invoice.id
-                ? 'border-slate-200 bg-white text-primary '
-                : 'border-transparent bg-slate-100 text-slate-500 hover:bg-slate-200 '
-            "
-          >
-            <span class="material-symbols-outlined text-[16px]"
-              >receipt_long</span
-            >
-            {{ invoice.name }}
-            <span
-              v-if="invoices.length > 1"
-              @click.stop="removeInvoice(invoice.id)"
-              class="material-symbols-outlined ml-2 rounded-full text-[16px] opacity-0 transition-all hover:bg-red-50 hover:text-red-500 group-hover:opacity-100"
-              >close</span
-            >
-          </button>
-          <button
-            @click="addInvoice"
-            :disabled="invoices.length >= MAX_INVOICES"
-            :title="invoices.length >= MAX_INVOICES ? 'Đã đạt giới hạn hóa đơn' : 'Thêm hóa đơn mới'"
-            class="flex size-9 items-center justify-center rounded-full transition-colors"
-            :class="invoices.length >= MAX_INVOICES
-              ? 'bg-slate-200 text-slate-400 cursor-not-allowed '
-              : 'bg-slate-100 text-slate-600 hover:bg-primary hover:text-white '"
-          >
-            <span class="material-symbols-outlined text-[20px]">add</span>
-          </button>
-        </div>
-
-        <div
-          v-if="activeInvoice"
-          class="mt-4 flex min-h-0 flex-1 grid-cols-1 flex-col gap-6 lg:grid lg:grid-cols-[1.3fr_0.7fr]"
-        >
-          <section class="flex flex-col gap-4 overflow-hidden">
-            <div
-              class="flex h-[45%] flex-col rounded-2xl border border-slate-200 bg-white "
-            >
-              <div
-                class="border-b border-slate-200 bg-slate-50 p-3 "
-              >
-                <div
-                  class="flex items-center overflow-hidden rounded-xl border border-slate-300 bg-white focus-within:border-primary focus-within:ring-1 focus-within:ring-primary "
-                >
-                  <span class="pl-3 text-slate-400"
-                    ><span class="material-symbols-outlined">search</span></span
-                  >
-                  <input
-                    v-model="searchQuery"
-                    type="text"
-                    :placeholder="
-                      inventoryVariants.length === 0
-                        ? 'Đang tải dữ liệu...'
-                        : `Tìm kiếm trong ${inventoryVariants.length} sản phẩm...`
-                    "
-                    class="w-full bg-transparent px-3 py-2 text-sm text-slate-900 outline-none "
-                    :disabled="inventoryVariants.length === 0"
-                  />
-                  <button
-                    v-if="searchQuery"
-                    @click="searchQuery = ''"
-                    class="pr-3 text-slate-400 hover:text-slate-600"
-                  >
-                    <span class="material-symbols-outlined text-[18px]"
-                      >close</span
-                    >
-                  </button>
+      <div class="grid gap-3 lg:grid-cols-[1.8fr_0.85fr]">
+        <section class="space-y-3">
+          <div class="rounded-xl border border-slate-200 bg-white p-3">
+            <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-[20px] text-primary">search</span>
+                <div>
+                  <p class="text-[13px] font-semibold text-slate-900">Tìm sản phẩm</p>
+                  <p class="text-xs text-slate-500">Tìm theo tên hoặc mã sản phẩm.</p>
                 </div>
               </div>
+              <div class="w-full sm:w-[320px]">
+                <input
+                  v-model="searchQuery"
+                  type="text"
+                  placeholder="Nhập từ khóa..."
+                  class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-sm text-slate-900 outline-none focus:border-primary"
+                />
+              </div>
+            </div>
 
-              <div class="flex-1 overflow-y-auto p-3">
-                <div class="grid grid-cols-2 gap-3 xl:grid-cols-3">
-                  <div
-                    v-for="product in filteredVariants"
-                    :key="product.productId"
-                    @click="addToCart(product)"
-                    class="group flex cursor-pointer gap-3 rounded-xl border border-slate-200 p-2 transition-all hover:border-primary hover:bg-slate-50 dark:hover:border-primary dark:hover:bg-white"
-                  >
-                    <div
-                      class="size-16 shrink-0 overflow-hidden rounded-lg bg-slate-100 "
-                    >
-                      <img
-                        v-if="product.imageUrl"
-                        :src="product.imageUrl"
-                        class="h-full w-full object-cover transition-transform group-hover:scale-110"
-                      />
-                      <span
-                        v-else
-                        class="material-symbols-outlined flex h-full items-center justify-center text-slate-400"
-                        >inventory_2</span
-                      >
-                    </div>
-                    <div
-                      class="flex flex-1 flex-col justify-center overflow-hidden"
-                    >
-                      <p
-                        class="truncate text-sm font-bold text-slate-900 "
-                        :title="product.productName"
-                      >
-                        {{ product.productName }}
-                      </p>
-                      <p class="text-[11px] text-slate-500 ">
-                        {{ product.variants.length }} biến thể
-                      </p>
-                      <div class="mt-1 flex items-center justify-between">
-                        <p class="text-xs font-bold text-primary">
-                          {{ formatMoney(product.price) }}
-                        </p>
-                        <span
-                          class="text-[10px] font-semibold text-slate-500"
-                        >
-                          Kho: {{ product.variants.reduce((sum, v) => sum + v.stockQuantity, 0) }}
-                        </span>
-                      </div>
-                    </div>
+            <div class="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+              <div
+                v-for="product in filteredVariants"
+                :key="product.productId"
+                @click="addToCart(product)"
+                class="group flex cursor-pointer gap-2 rounded-xl border border-slate-200 p-2.5 transition hover:border-primary hover:bg-slate-50"
+              >
+                <div class="aspect-square w-12 overflow-hidden rounded-lg bg-slate-100">
+                  <img v-if="product.imageUrl" :src="product.imageUrl" class="h-full w-full object-cover" />
+                  <span v-else class="material-symbols-outlined flex h-full items-center justify-center text-slate-400">inventory_2</span>
+                </div>
+                <div class="flex flex-1 flex-col justify-between overflow-hidden">
+                  <div>
+                    <p class="truncate text-[13px] font-bold text-slate-900" :title="product.productName">{{ product.productName }}</p>
+                    <p class="mt-0.5 text-[11px] text-slate-500">{{ product.variants.length }} biến thể</p>
+                  </div>
+                  <div class="mt-2 flex items-center justify-between text-[11px] text-slate-500">
+                    <span class="font-semibold text-primary">{{ formatMoney(product.price) }}</span>
+                    <span class="font-semibold">Kho: {{ product.variants.reduce((sum, variant) => sum + Number(variant.stockQuantity || variant.stock_quantity || 0), 0) }}</span>
                   </div>
                 </div>
-                <div
-                  v-if="filteredVariants.length === 0"
-                  class="flex h-full items-center justify-center text-sm text-slate-500"
-                >
-                  Không tìm thấy sản phẩm.
-                </div>
+              </div>
+              <div v-if="filteredVariants.length === 0" class="col-span-full rounded-xl border border-dashed border-slate-200 bg-slate-50 p-5 text-center text-sm text-slate-500">
+                Không tìm thấy sản phẩm.
+              </div>
+            </div>
+          </div>
 
-                <div
-                  v-if="activeInvoice.paymentMethodId === 2"
-                  class="rounded-xl border border-slate-200 bg-slate-50 p-3 "
-                >
-                  <label
-                    class="mb-2 block text-xs font-bold uppercase text-slate-500"
-                    >Kênh thanh toán online</label
-                  >
-                  <select
-                    v-model.number="activeInvoice.digitalPaymentMethodId"
-                    class="w-full cursor-pointer  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm text-slate-900 outline-none transition-colors focus:border-primary "
-                  >
-                    <option
-                      v-for="method in digitalPaymentMethods"
-                      :key="method.id"
-                      :value="method.id"
-                    >
-                      {{ method.name }}
-                    </option>
-                  </select>
+          <div class="overflow-hidden rounded-xl border border-slate-200 bg-white">
+            <div class="border-b border-slate-200 bg-slate-50 px-3 py-2">
+              <h3 class="text-sm font-bold text-slate-900">Sản phẩm trong giỏ hàng</h3>
+            </div>
+            <div class="max-h-[520px] overflow-y-auto">
+              <table class="w-full text-left text-xs">
+                <thead class="sticky top-0 z-10 border-b border-slate-200 bg-slate-50">
+                  <tr class="text-slate-500">
+                    <th class="w-10 px-3 py-2 font-semibold">STT</th>
+                    <th class="px-2 py-2 font-semibold">Sản phẩm</th>
+                    <th class="w-28 px-2 py-2 font-semibold">Số lượng</th>
+                    <th class="px-2 py-2 text-right font-semibold">Thành tiền</th>
+                    <th class="w-10 px-3 py-2 text-center font-semibold"></th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                  <tr v-for="(item, index) in activeInvoice.cart" :key="item.cartItemId" class="hover:bg-slate-50">
+                    <td class="px-3 py-2 font-bold text-slate-400">{{ index + 1 }}</td>
+                    <td class="px-2 py-2">
+                      <p class="font-bold text-slate-900">{{ item.product.productName }}</p>
+                      <select v-model="item.variantId" @change="validateQuantity(item)" class="mt-1 block w-full rounded-md border border-slate-300 py-1 text-[11px] text-slate-700">
+                        <option v-for="variant in item.product.variants" :key="variant.variantId" :value="variant.variantId">
+                          {{ variant.colorName }} / Size {{ variant.sizeName }} (Kho: {{ variant.stockQuantity }})
+                        </option>
+                      </select>
+                    </td>
+                    <td class="px-2 py-2">
+                      <div class="flex w-fit items-center overflow-hidden rounded-lg border border-slate-200">
+                        <button @click="updateQuantity(item, -1)" class="px-2 py-0.5 text-slate-700 hover:bg-slate-100">-</button>
+                        <input v-model.number="item.quantity" type="number" min="1" class="w-10 border-none bg-transparent p-0 text-center text-xs text-slate-900 focus:ring-0" @change="validateQuantity(item)" />
+                        <button @click="updateQuantity(item, 1)" class="px-2 py-0.5 text-slate-700 hover:bg-slate-100">+</button>
+                      </div>
+                    </td>
+                    <td class="px-2 py-2 text-right font-bold text-slate-900">{{ formatMoney(getVariant(item).price * item.quantity) }}</td>
+                    <td class="px-3 py-2 text-center">
+                      <button @click="removeFromCart(item.cartItemId)" class="rounded-lg p-1 text-red-500 transition-colors hover:bg-red-50">
+                        <span class="material-symbols-outlined text-[17px]">delete</span>
+                      </button>
+                    </td>
+                  </tr>
+                  <tr v-if="activeInvoice.cart.length === 0">
+                    <td colspan="5" class="py-10 text-center text-slate-400">Chưa có sản phẩm nào trong giỏ hàng.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <aside class="space-y-3">
+          <div class="sticky top-6 space-y-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
+            <div class="space-y-2">
+              <div>
+                <p class="text-[13px] font-semibold text-slate-900">Khách hàng</p>
+              </div>
+              <div class="space-y-2">
+                <div class="flex items-center rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 focus-within:border-primary">
+                  <span class="material-symbols-outlined mr-2 text-[17px] text-slate-400">badge</span>
+                  <input v-model="activeInvoice.customer.fullname" type="text" placeholder="Nhập tên khách hàng..." class="w-full bg-transparent text-sm text-slate-900 outline-none" />
+                </div>
+                <div class="flex items-center rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 focus-within:border-primary">
+                  <span class="material-symbols-outlined mr-2 text-[17px] text-slate-400">call</span>
+                  <input v-model="activeInvoice.customer.phone" type="text" placeholder="Nhập số điện thoại..." class="w-full bg-transparent text-sm text-slate-900 outline-none" />
                 </div>
               </div>
             </div>
 
-            <div
-              class="flex h-[55%] flex-col rounded-2xl border border-slate-200 bg-white "
-            >
-              <div
-                class="flex items-center gap-2 border-b border-slate-200 bg-slate-50 px-4 py-3 "
-              >
-                <span class="material-symbols-outlined text-primary"
-                  >shopping_cart</span
-                >
-                <h3 class="font-bold text-slate-900 ">
-                  Sản phẩm đã chọn
-                </h3>
+            <div class="space-y-3 rounded-xl border border-slate-200 bg-slate-50 p-3">
+              <div>
+                <p class="text-[13px] font-semibold text-slate-900">Áp dụng voucher</p>
               </div>
-              <div class="flex-1 overflow-y-auto p-0">
-                <table class="w-full text-left text-sm">
-                  <thead
-                    class="sticky top-0 z-10 border-b border-slate-200 bg-slate-50 "
-                  >
-                    <tr class="text-slate-500 ">
-                      <th class="w-12 px-4 py-3 font-semibold">STT</th>
-                      <th class="px-2 py-3 font-semibold">Sản phẩm</th>
-                      <th class="w-32 px-2 py-3 font-semibold">Số lượng</th>
-                      <th class="px-2 py-3 text-right font-semibold">
-                        Thành tiền
-                      </th>
-                      <th class="w-12 px-4 py-3 text-center font-semibold"></th>
-                    </tr>
-                  </thead>
-                  <tbody
-                    class="divide-y divide-slate-100 dark:divide-[#3c342e]"
-                  >
-                    <tr
-                      v-for="(item, index) in activeInvoice.cart"
-                      :key="item.cartItemId"
-                      class="hover:bg-slate-50 dark:hover:bg-white/50"
-                    >
-                      <td class="px-4 py-3 font-bold text-slate-400">
-                        {{ index + 1 }}
-                      </td>
-                      <td class="px-2 py-3">
-                        <p class="font-bold text-slate-900 ">
-                          {{ item.product.productName }}
-                        </p>
-                        <select
-                          v-model="item.variantId"
-                          @change="validateQuantity(item)"
-                          class="mt-1 block w-[180px] rounded-md border-slate-300 py-1 text-xs text-slate-700 "
-                        >
-                          <option v-for="v in item.product.variants" :key="v.variantId" :value="v.variantId">
-                            {{ v.colorName }} / Size {{ v.sizeName }} (Kho: {{ v.stockQuantity }})
-                          </option>
-                        </select>
-                      </td>
-                      <td class="px-2 py-3">
-                        <div
-                          class="flex w-fit items-center overflow-hidden rounded-lg border border-slate-200 "
-                        >
-                          <button
-                            @click="updateQuantity(item, -1)"
-                            class="px-2 py-1 text-slate-700 hover:bg-slate-100 dark:hover:bg-[#3c342e]"
-                          >
-                            -
-                          </button>
-                          <input
-                            v-model.number="item.quantity"
-                            type="number"
-                            min="1"
-                            class="w-10 border-none bg-transparent p-0 text-center text-sm text-slate-900 focus:ring-0 "
-                            @change="validateQuantity(item)"
-                          />
-                          <button
-                            @click="updateQuantity(item, 1)"
-                            class="px-2 py-1 text-slate-700 hover:bg-slate-100 dark:hover:bg-[#3c342e]"
-                          >
-                            +
-                          </button>
-                        </div>
-                      </td>
-                      <td
-                        class="px-2 py-3 text-right font-bold text-slate-900 "
-                      >
-                        {{ formatMoney(getVariant(item).price * item.quantity) }}
-                      </td>
-                      <td class="px-4 py-3 text-center">
-                        <button
-                          @click="removeFromCart(item.cartItemId)"
-                          class="rounded-lg p-1.5 text-red-500 transition-colors hover:bg-red-50 dark:hover:bg-red-900/20"
-                        >
-                          <span class="material-symbols-outlined text-[18px]"
-                            >delete</span
-                          >
-                        </button>
-                      </td>
-                    </tr>
-                    <tr v-if="activeInvoice.cart.length === 0">
-                      <td colspan="5" class="py-12 text-center text-slate-400">
-                        Chưa có sản phẩm nào trong giỏ hàng.
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </section>
-
-          <section class="flex flex-col gap-4 h-full">
-            <div class="flex-1 overflow-y-auto flex flex-col gap-4 pr-1">
-            <article
-              class="rounded-2xl border border-slate-200 bg-white p-5 "
-            >
-              <div
-                class="mb-4 flex items-center gap-2 border-b border-slate-100 pb-3 "
-              >
-                <span class="material-symbols-outlined text-primary"
-                  >person</span
-                >
-                <h3 class="text-lg font-bold text-slate-900 ">
-                  Khách hàng <span class="text-red-500">*</span>
-                </h3>
-              </div>
-              <div class="space-y-3">
-                <div
-                  class="flex items-center rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 focus-within:border-primary "
-                >
-                  <span
-                    class="material-symbols-outlined mr-2 text-[18px] text-slate-400"
-                    >badge</span
-                  >
-                  <input
-                    v-model="activeInvoice.customer.fullname"
-                    type="text"
-                    placeholder="Nhập tên khách hàng..."
-                    class="w-full bg-transparent text-sm text-slate-900 outline-none "
-                  />
-                </div>
-                <div
-                  class="flex items-center rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 focus-within:border-primary "
-                >
-                  <span
-                    class="material-symbols-outlined mr-2 text-[18px] text-slate-400"
-                    >call</span
-                  >
-                  <input
-                    v-model="activeInvoice.customer.phone"
-                    type="text"
-                    placeholder="Nhập số điện thoại..."
-                    class="w-full bg-transparent text-sm text-slate-900 outline-none "
-                  />
-                </div>
-              </div>
-            </article>
-
-            <article
-              class="rounded-2xl border border-slate-200 bg-white p-5 "
-            >
-              <div
-                class="mb-4 flex items-center justify-between border-b border-slate-100 pb-3 "
-              >
-                <div class="flex items-center gap-2">
-                  <span class="material-symbols-outlined text-primary"
-                    >local_activity</span
-                  >
-                  <h3 class="text-lg font-bold text-slate-900 ">
-                    Mã Giảm Giá
-                  </h3>
-                </div>
-              </div>
-
               <div class="flex gap-2">
-                <div
-                  class="flex flex-1 items-center rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 focus-within:border-primary "
-                >
-                  <input
-                    v-model="activeInvoice.voucherInput"
-                    @keyup.enter="applyVoucherByInput"
-                    type="text"
-                    placeholder="Nhập mã voucher..."
-                    class="w-full bg-transparent text-sm font-semibold text-slate-900 outline-none uppercase "
-                  />
+                <div class="flex flex-1 items-center rounded-lg border border-slate-200 bg-white px-2.5 py-1.5">
+                  <input v-model="activeInvoice.voucherInput" @keyup.enter="applyVoucherByInput" type="text" placeholder="Nhập mã voucher..." class="w-full bg-transparent text-sm font-semibold text-slate-900 outline-none uppercase" />
+                </div>
+                <button @click="applyVoucherByInput" class="rounded-lg bg-slate-700 px-3 py-1.5 text-xs font-bold text-white transition-colors hover:bg-slate-800">Áp dụng</button>
+              </div>
+              <div class="max-h-48 space-y-2 overflow-y-auto pr-1">
+                <div v-for="voucher in processedVouchers" :key="voucher.id || voucher.code" class="flex items-center justify-between gap-2 rounded-lg border p-2.5" :class="[voucher.isApplied ? 'border-primary bg-primary/5' : 'border-slate-200', !voucher.isEligible ? 'opacity-60 grayscale' : '']">
+                  <div class="min-w-0">
+                    <p class="truncate text-sm font-black text-slate-900" :class="voucher.isApplied ? 'text-primary' : ''">{{ voucher.code }}</p>
+                    <p class="mt-0.5 text-xs text-slate-500">Giảm {{ formatDiscountLabel(voucher) }}, tối thiểu {{ formatMoney(voucher.minOrder) }}</p>
+                  </div>
+                  <div class="shrink-0">
+                    <button v-if="voucher.isApplied" @click="removeVoucher" class="rounded-md bg-primary/10 px-2 py-1 text-[11px] font-bold text-primary transition-colors hover:bg-primary hover:text-white">Bỏ mã</button>
+                    <button v-else-if="voucher.isEligible" @click="applySpecificVoucher(voucher)" class="rounded-md bg-primary/10 px-2 py-1 text-[11px] font-bold text-primary transition-colors hover:bg-primary hover:text-white">Dùng mã</button>
+                    <span v-else class="rounded-md bg-slate-100 px-2 py-1 text-[11px] font-bold text-slate-500">Chưa đủ</span>
+                  </div>
+                </div>
+                <div v-if="processedVouchers.length === 0" class="text-center text-sm text-slate-500">Không có mã giảm giá khả dụng.</div>
+              </div>
+            </div>
+
+            <div class="rounded-xl border border-slate-200 bg-slate-50 p-3">
+              <div class="flex items-center justify-between text-sm text-slate-600">
+                <span>Tạm tính</span>
+                <span class="font-bold text-slate-900">{{ formatMoney(activeSubtotal) }}</span>
+              </div>
+              <div v-if="activeDiscount > 0" class="mt-2 flex items-center justify-between text-sm text-green-600">
+                <span>Giảm giá</span>
+                <span class="font-bold">- {{ formatMoney(activeDiscount) }}</span>
+              </div>
+              <div class="mt-3 flex items-center justify-between border-t border-slate-200 pt-2">
+                <span class="text-sm font-bold text-slate-900">Cần thanh toán</span>
+                <span class="text-xl font-black text-primary">{{ formatMoney(activeTotal) }}</span>
+              </div>
+            </div>
+
+            <div class="rounded-xl border border-slate-200 bg-slate-50 p-3">
+              <p class="text-[13px] font-semibold text-slate-900">Phương thức thanh toán</p>
+              <div class="mt-2 grid gap-2 sm:grid-cols-2">
+                <button @click="activeInvoice.paymentMethodId = 1" type="button" :class="activeInvoice.paymentMethodId === 1 ? 'border-primary bg-primary/10 text-primary' : 'border-slate-200 bg-white text-slate-700'" class="rounded-lg border px-3 py-1.5 text-xs font-semibold transition">Tiền mặt</button>
+                <button @click="activeInvoice.paymentMethodId = 2" type="button" :class="activeInvoice.paymentMethodId === 2 ? 'border-primary bg-primary/10 text-primary' : 'border-slate-200 bg-white text-slate-700'" class="rounded-lg border px-3 py-1.5 text-xs font-semibold transition">Chuyển khoản</button>
+              </div>
+              <div v-if="activeInvoice.paymentMethodId === 2" class="mt-2 rounded-lg border border-slate-200 bg-white p-2.5">
+                <label class="mb-2 block text-xs font-bold uppercase text-slate-500">Kênh trực tuyến</label>
+                <select v-model.number="activeInvoice.digitalPaymentMethodId" class="w-full rounded-lg border border-slate-200 px-3 py-1.5 text-sm text-slate-900 outline-none">
+                  <option v-for="method in digitalPaymentMethods" :key="method.id" :value="method.id">{{ method.name }}</option>
+                </select>
+              </div>
+              <div v-if="activeInvoice.paymentMethodId === 1" class="mt-2 rounded-lg border border-slate-200 bg-white p-2.5">
+                <div class="flex items-center justify-between text-sm text-slate-600">
+                  <span>Khách đưa</span>
+                  <input v-model.number="activeInvoice.customerPaid" type="number" class="w-28 rounded-lg border border-slate-200 bg-slate-50 px-2 py-1.5 text-right text-base font-bold text-slate-900 outline-none" />
+                </div>
+                <div class="mt-2 flex items-center justify-between text-sm text-slate-500">
+                  <span>Tiền thừa</span>
+                  <span class="font-bold text-orange-500">{{ formatMoney(Math.max(0, activeInvoice.customerPaid - activeTotal)) }}</span>
+                </div>
+              </div>
+            </div>
+
+            <button @click="handlePlaceOrder" :disabled="activeInvoice.cart.length === 0 || isProcessing" class="w-full rounded-lg bg-primary py-2.5 text-sm font-black text-white shadow-lg shadow-primary/30 transition hover:bg-blue-600 disabled:cursor-not-allowed disabled:opacity-50">
+              <span v-if="isProcessing" class="material-symbols-outlined animate-spin">sync</span>
+              <span v-else class="material-symbols-outlined">check_circle</span>
+              <span class="ml-2">{{ isProcessing ? 'ĐANG XỬ LÝ...' : 'XÁC NHẬN THANH TOÁN' }}</span>
+            </button>
+          </div>
+        </aside>
+      </div>
+
+      <Teleport to="body">
+        <div
+          v-if="showReceipt && lastReceipt"
+          class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+          @click.self="closeReceipt"
+        >
+          <div class="w-full max-w-2xl overflow-hidden rounded-2xl bg-white shadow-2xl">
+            <div class="border-b border-slate-200 px-4 py-3">
+              <div class="flex items-start justify-between gap-3">
+                <div>
+                  <p class="text-xs uppercase tracking-[0.18em] text-primary">Hóa đơn</p>
+                  <h3 class="mt-1 text-lg font-bold">
+                    {{ lastReceipt.orderCode || (lastReceipt.orderId ? `Hóa đơn #${lastReceipt.orderId}` : "Hóa đơn POS") }}
+                  </h3>
+                  <p class="text-sm text-slate-500">Sẵn sàng in hóa đơn cho giao dịch vừa hoàn tất.</p>
                 </div>
                 <button
-                  @click="applyVoucherByInput"
-                  class="rounded-xl bg-slate-700 px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-slate-800 dark:hover:bg-[#3c342e]"
+                  type="button"
+                  class="inline-flex size-8 items-center justify-center rounded-full border border-slate-200 text-slate-500 transition hover:border-primary hover:text-primary"
+                  aria-label="Đóng biên lai"
+                  @click="closeReceipt"
                 >
-                  Áp dụng
+                  <span class="material-symbols-outlined text-[18px]">close</span>
                 </button>
               </div>
-
-              <div class="mt-4">
-                <p
-                  class="mb-2 text-[11px] font-bold uppercase tracking-wider text-slate-500 "
-                >
-                  Voucher khả dụng ({{ processedVouchers.length }})
-                </p>
-                <div class="max-h-[220px] space-y-2 overflow-y-auto pr-1">
-                  <div
-                    v-for="v in processedVouchers"
-                    :key="v.id"
-                    class="flex items-center justify-between rounded-xl border p-3 transition-colors"
-                    :class="[
-                      v.isApplied
-                        ? 'border-primary bg-primary/5 /50'
-                        : 'border-slate-200 ',
-                      !v.isEligible ? 'opacity-60 grayscale' : '',
-                    ]"
-                  >
-                    <div>
-                      <p
-                        class="font-black text-slate-900 "
-                        :class="v.isApplied ? 'text-primary' : ''"
-                      >
-                        {{ v.code }}
-                      </p>
-                      <p
-                        class="mt-0.5 text-xs text-slate-500 "
-                      >
-                        Giảm {{ formatDiscountLabel(v) }}, đơn tối thiểu
-                        {{ formatMoney(v.minOrder) }}
-                      </p>
-                    </div>
-
-                    <button
-                      v-if="v.isApplied"
-                      @click="removeVoucher"
-                      class="rounded-lg bg-green-500 px-3 py-1.5 text-xs font-bold text-white"
-                    >
-                      Đang dùng
-                    </button>
-                    <button
-                      v-else-if="v.isEligible"
-                      @click="applySpecificVoucher(v)"
-                      class="rounded-lg bg-primary/10 px-3 py-1.5 text-xs font-bold text-primary transition-colors hover:bg-primary hover:text-white"
-                    >
-                      Dùng mã
-                    </button>
-                    <span
-                      v-else
-                      class="rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-bold text-slate-500 "
-                    >
-                      Chưa đủ ĐK
-                    </span>
-                  </div>
-
-                  <div
-                    v-if="processedVouchers.length === 0"
-                    class="text-center text-sm text-slate-500"
-                  >
-                    Không có mã giảm giá khả dụng.
-                  </div>
-                </div>
-              </div>
-            </article>
-
             </div>
 
-            <article
-              class="shrink-0 flex flex-col rounded-2xl border border-slate-200 bg-white p-5 dark:border-[#3c342e] dark:bg-[#1f1a17] sticky bottom-0"
-            >
-              <div
-                class="mb-4 flex items-center gap-2 border-b border-slate-100 pb-3 "
-              >
-                <span class="material-symbols-outlined text-primary"
-                  >payments</span
-                >
-                <h3 class="text-lg font-bold text-slate-900 ">
-                  Thanh toán
-                </h3>
-              </div>
-
-              <div class="flex-1 space-y-3 text-sm">
-                <div
-                  class="flex items-center justify-between text-slate-600 "
-                >
-                  <span>Tạm tính:</span>
-                  <span class="font-bold text-slate-900 ">{{
-                    formatMoney(activeSubtotal)
-                  }}</span>
-                </div>
-
-                <div
-                  v-if="activeDiscount > 0"
-                  class="flex items-center justify-between text-green-600 "
-                >
-                  <span>Giảm giá:</span>
-                  <span class="font-bold"
-                    >- {{ formatMoney(activeDiscount) }}</span
-                  >
-                </div>
-
-                <div
-                  class="mt-2 flex items-center justify-between border-t border-slate-100 pt-3 "
-                >
-                  <span
-                    class="text-base font-bold text-slate-900 "
-                    >Khách Cần Trả:</span
-                  >
-                  <span class="text-2xl font-black text-primary">{{
-                    formatMoney(activeTotal)
-                  }}</span>
-                </div>
-
-                <div class="space-y-2 pt-4">
-                  <label class="text-xs font-bold uppercase text-slate-500"
-                    >Thanh toán bằng</label
-                  >
-                  <div class="flex gap-2">
-                    <button
-                      @click="activeInvoice.paymentMethodId = 1"
-                      class="flex flex-1 items-center justify-center gap-1 rounded-xl border py-2 font-bold transition-colors"
-                      :class="
-                        activeInvoice.paymentMethodId === 1
-                          ? 'border-primary bg-primary/10 text-primary'
-                          : 'border-slate-200 bg-slate-50 text-slate-600 '
-                      "
-                    >
-                      <span class="material-symbols-outlined text-[18px]"
-                        >payments</span
-                      >
-                      Tiền mặt
-                    </button>
-                    <button
-                      @click="activeInvoice.paymentMethodId = 2"
-                      class="flex flex-1 items-center justify-center gap-1 rounded-xl border py-2 font-bold transition-colors"
-                      :class="
-                        activeInvoice.paymentMethodId === 2
-                          ? 'border-primary bg-primary/10 text-primary'
-                          : 'border-slate-200 bg-slate-50 text-slate-600 '
-                      "
-                    >
-                      <span class="material-symbols-outlined text-[18px]"
-                        >qr_code_2</span
-                      >
-                      Chuyển khoản
-                    </button>
+            <div class="max-h-[75vh] overflow-y-auto p-4">
+              <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                <div class="flex flex-wrap items-start justify-between gap-3 border-b border-dashed border-slate-300 pb-3">
+                  <div>
+                    <p class="text-sm font-black text-slate-900">SportX</p>
+                    <p class="text-xs text-slate-500">Hóa đơn thanh toán</p>
+                  </div>
+                  <div class="text-right text-xs text-slate-500">
+                    <p>Mã: <span class="font-semibold text-slate-900">{{ lastReceipt.orderCode || `#${lastReceipt.orderId || '-'}` }}</span></p>
+                    <p>{{ new Date(lastReceipt.createdAt).toLocaleString("vi-VN") }}</p>
                   </div>
                 </div>
 
-                <div v-if="activeInvoice.paymentMethodId === 1" class="pt-2">
-                  <div
-                    class="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 "
-                  >
-                    <span class="text-slate-500">Khách đưa:</span>
-                    <input
-                      v-model.number="activeInvoice.customerPaid"
-                      type="number"
-                      class="w-32 border-none bg-transparent p-0 text-right text-lg font-bold text-slate-900 outline-none focus:ring-0 "
-                    />
+                <div class="mt-3 grid gap-3 text-sm md:grid-cols-2">
+                  <div>
+                    <p class="text-xs uppercase tracking-wide text-slate-400">Khách hàng</p>
+                    <p class="mt-1 font-semibold text-slate-900">{{ lastReceipt.customer.fullname }}</p>
+                    <p class="text-slate-600">{{ lastReceipt.customer.phone }}</p>
+                    <p v-if="lastReceipt.customer.email" class="text-slate-600">{{ lastReceipt.customer.email }}</p>
                   </div>
-                  <div class="mt-2 flex items-center justify-between px-1">
-                    <span class="text-slate-500">Tiền thừa:</span>
-                    <span class="font-bold text-orange-500">{{
-                      formatMoney(
-                        Math.max(0, activeInvoice.customerPaid - activeTotal),
-                      )
-                    }}</span>
+                  <div class="md:text-right">
+                    <p class="text-xs uppercase tracking-wide text-slate-400">Thanh toán</p>
+                    <p class="mt-1 font-semibold text-slate-900">{{ lastReceipt.paymentMethodLabel }}</p>
+                    <p class="text-slate-600">{{ lastReceipt.shippingAddress }}</p>
+                    <p v-if="lastReceipt.voucherCode" class="text-slate-600">Voucher: {{ lastReceipt.voucherCode }}</p>
+                  </div>
+                </div>
+
+                <div class="mt-4 overflow-hidden rounded-xl border border-slate-200 bg-white">
+                  <table class="w-full text-left text-xs">
+                    <thead class="border-b border-slate-200 bg-slate-50 text-slate-500">
+                      <tr>
+                        <th class="px-3 py-2 font-semibold">Sản phẩm</th>
+                        <th class="px-3 py-2 font-semibold">SL</th>
+                        <th class="px-3 py-2 text-right font-semibold">Đơn giá</th>
+                        <th class="px-3 py-2 text-right font-semibold">Thành tiền</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                      <tr v-for="item in lastReceipt.items" :key="item.key">
+                        <td class="px-3 py-2">
+                          <p class="font-semibold text-slate-900">{{ item.productName }}</p>
+                          <p class="text-[11px] text-slate-500">{{ item.variantName }}</p>
+                        </td>
+                        <td class="px-3 py-2 text-slate-700">{{ item.quantity }}</td>
+                        <td class="px-3 py-2 text-right text-slate-700">{{ formatMoney(item.price) }}</td>
+                        <td class="px-3 py-2 text-right font-semibold text-slate-900">{{ formatMoney(item.lineTotal) }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <div class="mt-4 grid gap-3 md:grid-cols-[1fr_280px]">
+                  <div class="rounded-xl border border-dashed border-slate-300 bg-white p-3 text-sm text-slate-600">
+                    <div class="flex justify-between gap-3">
+                      <span>Tạm tính</span>
+                      <span class="font-semibold text-slate-900">{{ formatMoney(lastReceipt.subtotal) }}</span>
+                    </div>
+                    <div class="mt-1 flex justify-between gap-3">
+                      <span>Giảm giá</span>
+                      <span class="font-semibold text-green-600">- {{ formatMoney(lastReceipt.discount) }}</span>
+                    </div>
+                    <div class="mt-1 flex justify-between gap-3">
+                      <span>Phải thanh toán</span>
+                      <span class="font-semibold text-slate-900">{{ formatMoney(lastReceipt.total) }}</span>
+                    </div>
+                  </div>
+                  <div class="rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700">
+                    <div class="flex justify-between gap-3">
+                      <span>Khách đưa</span>
+                      <span class="font-semibold text-slate-900">{{ formatMoney(lastReceipt.customerPaid) }}</span>
+                    </div>
+                    <div class="mt-1 flex justify-between gap-3">
+                      <span>Tiền thừa</span>
+                      <span class="font-semibold text-orange-500">{{ formatMoney(lastReceipt.changeDue) }}</span>
+                    </div>
                   </div>
                 </div>
               </div>
+            </div>
 
+            <div class="flex flex-wrap justify-end gap-2 border-t border-slate-200 bg-slate-50 px-4 py-3">
               <button
-                @click="handlePlaceOrder"
-                :disabled="activeInvoice.cart.length === 0 || isProcessing"
-                class="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-4 text-lg font-black text-white shadow-lg shadow-primary/30 transition-all hover:bg-blue-600 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
+                type="button"
+                class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:border-slate-400"
+                @click="closeReceipt"
               >
-                <span
-                  v-if="isProcessing"
-                  class="material-symbols-outlined animate-spin"
-                  >sync</span
-                >
-                <span v-else class="material-symbols-outlined"
-                  >check_circle</span
-                >
-                {{ isProcessing ? "ĐANG XỬ LÝ..." : "XÁC NHẬN THANH TOÁN" }}
+                Đóng
               </button>
-            </article>
-          </section>
+              <button
+                type="button"
+                class="rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-blue-600"
+                @click="printReceipt(lastReceipt)"
+              >
+                In hóa đơn
+              </button>
+            </div>
+          </div>
         </div>
-      </div>
-    </AdminShell>
+      </Teleport>
 
-    <div
-      id="print-section"
-      class="hidden print:block print:bg-white print:text-black print:p-8 print:font-sans"
-      v-if="completedOrderInfo"
-    >
-      <div class="text-center border-b-2 border-black pb-4 mb-4">
-        <h1 class="text-3xl font-black uppercase tracking-widest">
-          PEAK SEVEN — Invoice
-        </h1>
-        <p class="text-sm">Email: admin@peakseven.com</p>
-      </div>
+      <Teleport to="body">
+        <div
+          v-if="paymentDialog"
+          class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/55 p-4 backdrop-blur-sm"
+          @click.self="closePaymentDialog"
+        >
+          <div class="w-full max-w-lg overflow-hidden rounded-3xl border border-white/60 bg-white shadow-2xl">
+            <div
+              class="border-b border-slate-200 px-5 py-4"
+              :class="paymentDialog.type === 'success' ? 'bg-gradient-to-r from-emerald-50 via-white to-sky-50' : paymentDialog.type === 'confirm' ? 'bg-gradient-to-r from-amber-50 via-white to-orange-50' : 'bg-gradient-to-r from-rose-50 via-white to-amber-50'"
+            >
+              <div class="flex items-start gap-3">
+                <div
+                  class="flex size-11 items-center justify-center rounded-2xl"
+                  :class="paymentDialog.type === 'success' ? 'bg-emerald-100 text-emerald-600' : paymentDialog.type === 'confirm' ? 'bg-amber-100 text-amber-600' : 'bg-rose-100 text-rose-600'"
+                >
+                  <span class="material-symbols-outlined text-[22px]">
+                    {{ paymentDialog.type === 'success' ? 'check_circle' : paymentDialog.type === 'confirm' ? 'shopping_cart_checkout' : 'warning' }}
+                  </span>
+                </div>
+                <div class="min-w-0 flex-1">
+                  <p class="text-xs uppercase tracking-[0.18em]" :class="paymentDialog.type === 'success' ? 'text-emerald-500' : paymentDialog.type === 'confirm' ? 'text-amber-600' : 'text-rose-500'">
+                    {{ paymentDialog.type === 'success' ? 'Thanh toán thành công' : paymentDialog.type === 'confirm' ? 'Xác nhận tạo hóa đơn' : 'Thanh toán thất bại' }}
+                  </p>
+                  <h3 class="mt-1 text-lg font-bold text-slate-900">
+                    {{ paymentDialog.title }}
+                  </h3>
+                  <p class="mt-1 text-sm text-slate-600">
+                    {{ paymentDialog.message }}
+                  </p>
+                </div>
+              </div>
+            </div>
 
-      <h2 class="text-2xl font-bold uppercase text-center mb-6">
-        HÓA ĐƠN BÁN HÀNG
-      </h2>
+            <div class="px-5 py-4">
+              <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                <div v-if="paymentDialog.details?.itemCount != null" class="flex items-center justify-between gap-3 text-sm">
+                  <span class="text-slate-500">Số dòng hàng</span>
+                  <span class="font-semibold text-slate-900">{{ paymentDialog.details.itemCount }}</span>
+                </div>
+                <div v-if="paymentDialog.details?.orderCode" class="flex items-center justify-between gap-3 text-sm">
+                  <span class="text-slate-500">Hóa đơn</span>
+                  <span class="font-semibold text-slate-900">{{ paymentDialog.details.orderCode }}</span>
+                </div>
+                <div v-if="paymentDialog.details?.total != null" class="mt-2 flex items-center justify-between gap-3 text-sm">
+                  <span class="text-slate-500">Tổng thanh toán</span>
+                  <span class="font-semibold text-slate-900">{{ formatMoney(paymentDialog.details.total) }}</span>
+                </div>
+              </div>
 
-      <div class="flex justify-between text-sm mb-6">
-        <div>
-          <p>
-            <strong>Tên khách hàng:</strong>
-            {{ completedOrderInfo.customer.fullname }}
-          </p>
-          <p>
-            <strong>Số điện thoại:</strong>
-            {{ completedOrderInfo.customer.phone }}
-          </p>
-          <p>
-            <strong>Phương thức:</strong>
-            {{
-              completedOrderInfo.paymentMethodId === 1
-                ? "Tiền mặt"
-                : "Chuyển khoản"
-            }}
-          </p>
+              <div class="mt-4 flex flex-wrap justify-end gap-2">
+                <button
+                  type="button"
+                  class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-400"
+                  @click="closePaymentDialog"
+                >
+                  {{ paymentDialog.secondaryLabel || 'Đóng' }}
+                </button>
+                <button
+                  type="button"
+                  class="rounded-xl px-4 py-2 text-sm font-semibold text-white shadow-lg transition"
+                  :class="paymentDialog.type === 'success' ? 'bg-emerald-600 shadow-emerald-200 hover:bg-emerald-700' : paymentDialog.type === 'confirm' ? 'bg-amber-600 shadow-amber-200 hover:bg-amber-700' : 'bg-primary shadow-primary/30 hover:bg-blue-600'"
+                  @click="handlePaymentDialogPrimary"
+                >
+                  {{ paymentDialog.primaryLabel || 'Tiếp tục' }}
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="text-right">
-          <p><strong>Mã hóa đơn:</strong> {{ completedOrderInfo.orderCode }}</p>
-          <p>
-            <strong>Ngày tạo:</strong> {{ new Date().toLocaleString("vi-VN") }}
-          </p>
-        </div>
-      </div>
-
-      <h3 class="text-center font-bold text-lg mb-2 uppercase">
-        Danh sách sản phẩm
-      </h3>
-
-      <table class="w-full text-sm border-collapse mb-4">
-        <thead>
-          <tr class="border-y border-gray-300">
-            <th class="py-2 text-center w-12">STT</th>
-            <th class="py-2 text-left">Tên sản phẩm</th>
-            <th class="py-2 text-center w-24">Số lượng</th>
-            <th class="py-2 text-right w-32">Đơn giá</th>
-            <th class="py-2 text-right w-32">Thành tiền</th>
-          </tr>
-        </thead>
-        <tbody class="border-b border-gray-300">
-          <tr
-            v-for="(item, idx) in completedOrderInfo.cart"
-            :key="idx"
-            class="border-b border-gray-100 last:border-0"
-          >
-            <td class="py-3 text-center align-top">{{ idx + 1 }}</td>
-            <td class="py-3 pr-2">
-              <p class="font-bold">{{ item.productName }}</p>
-              <p class="text-xs text-gray-500">
-                {{ item.colorName }} / Size {{ item.sizeName }}
-              </p>
-              <p class="text-xs text-gray-500">Mã SP: {{ item.productCode }}</p>
-            </td>
-            <td class="py-3 text-center align-top">{{ item.quantity }}</td>
-            <td class="py-3 text-right align-top">
-              {{ formatMoney(item.price) }}
-            </td>
-            <td class="py-3 text-right align-top">
-              {{ formatMoney(item.price * item.quantity) }}
-            </td>
-          </tr>
-        </tbody>
-      </table>
-
-      <div class="flex justify-between text-sm py-1">
-        <span>Tổng tiền hàng:</span>
-        <span>{{ formatMoney(completedOrderInfo.subtotal) }}</span>
-      </div>
-      <div
-        v-if="completedOrderInfo.discount > 0"
-        class="flex justify-between text-sm py-1"
-      >
-        <span>Giảm giá (Voucher: {{ completedOrderInfo.voucherCode }}):</span>
-        <span>-{{ formatMoney(completedOrderInfo.discount) }}</span>
-      </div>
-      <div
-        class="flex justify-between text-lg font-bold border-y border-gray-300 py-2 mt-2"
-      >
-        <span>Tổng tiền cần thanh toán:</span>
-        <span>{{ formatMoney(completedOrderInfo.total) }}</span>
-      </div>
-      <div class="flex justify-between text-sm py-2">
-        <span>Khách đã thanh toán:</span>
-        <span>{{ formatMoney(completedOrderInfo.customerPaid) }}</span>
-      </div>
-
-      <div class="text-center mt-12 text-xs text-gray-500">
-        <p>Cảm ơn quý khách! — PEAK SEVEN STORE</p>
-      </div>
+      </Teleport>
     </div>
-  </div>
+  </AdminShell>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import axios from "axios";
-import { adminApi, colorsApi, sizesApi } from "@/services/api";
 import AdminShell from "@/components/admin/AdminShell.vue";
+import { adminApi, colorsApi, sizesApi } from "@/services/api";
+import { voucherAPI } from "@/services/orders";
 
-function toList(data) {
-  if (!data) return [];
-  if (Array.isArray(data)) return data;
-  if (data.content && Array.isArray(data.content)) return data.content;
-  if (data.data) {
-    if (Array.isArray(data.data)) return data.data;
-    if (data.data.content && Array.isArray(data.data.content))
-      return data.data.content;
-  }
-  return [];
-}
-
-const inventoryVariants = ref([]);
-const systemVouchers = ref([]);
+const MAX_INVOICES = 5;
+let nextInvoiceNumber = 1;
 const searchQuery = ref("");
+const systemVouchers = ref([]);
+const inventoryVariants = ref([]);
+const lastReceipt = ref(null);
+const showReceipt = ref(false);
+const paymentDialog = ref(null);
+const invoiceRemovalTarget = ref(null);
+const invoices = ref([createNewInvoice()]);
+const activeInvoiceId = ref(invoices.value[0].id);
 const isProcessing = ref(false);
 
-const showSuccessModal = ref(false);
-const completedOrderInfo = ref(null);
-
-let invoiceCounter = 1;
-const MAX_INVOICES = 5;
-const createNewInvoice = () => ({
-  id: invoiceCounter++,
-  name: `Hóa đơn ${invoiceCounter - 1}`,
-  cart: [],
-  customer: { fullname: "", phone: "", email: "" },
-  paymentMethodId: 1,
-  digitalPaymentMethodId: 4,
-  customerPaid: 0,
-  voucherInput: "",
-  appliedVoucher: null,
+const activeInvoice = computed(() => invoices.value.find((invoice) => invoice.id === activeInvoiceId.value) || invoices.value[0]);
+const activeInvoiceTitle = computed(() => {
+  const invoice = activeInvoice.value;
+  if (!invoice) return "Hóa đơn POS";
+  if (invoice.orderCode) return `Hóa đơn ${invoice.orderCode}`;
+  if (invoice.orderId) return `Hóa đơn #${invoice.orderId}`;
+  return `Hóa đơn tạm ${invoice.number}`;
 });
-
-const digitalPaymentMethods = [
-  { id: 2, name: "VNPay" },
-  { id: 3, name: "Momo" },
-  { id: 4, name: "Chuyển khoản ngân hàng" },
-  { id: 5, name: "ZaloPay" },
-];
-
-const resolveEffectivePaymentMethodId = (invoice) => {
-  if (!invoice || invoice.paymentMethodId === 1) {
-    return 1;
-  }
-
-  const selected = Number(invoice.digitalPaymentMethodId || 4);
-  return Number.isFinite(selected) ? selected : 4;
-};
-
-const invoices = ref([createNewInvoice()]);
-const activeInvoiceId = ref(1);
-
-const activeInvoice = computed(() =>
-  invoices.value.find((i) => i.id === activeInvoiceId.value),
-);
 
 const activeSubtotal = computed(() => {
   if (!activeInvoice.value) return 0;
   return activeInvoice.value.cart.reduce((sum, item) => {
-    const variant = item.product.variants.find(v => v.variantId === item.variantId);
-    return sum + (variant ? variant.price : 0) * item.quantity;
+    const variant = item.product.variants.find((variant) => variant.variantId === item.variantId);
+    return sum + (variant ? Number(variant.price || 0) : 0) * Number(item.quantity || 0);
   }, 0);
 });
 
-// ✅ LOGIC ĐÃ ĐƯỢC SỬA: Lọc bỏ những voucher quá hạn sử dụng hoặc hết số lượng
+const getVoucherMinOrder = (voucher) =>
+  Number(voucher?.minOrderValue ?? voucher?.min_order_value ?? voucher?.min_order ?? 0) || 0;
+
+const getVoucherDiscountValue = (voucher) =>
+  Number(voucher?.discountValue ?? voucher?.discount_value ?? voucher?.value ?? 0) || 0;
+
+const getVoucherDiscountType = (voucher) =>
+  String(voucher?.discountType ?? voucher?.discount_type ?? "FIXED").toUpperCase();
+
+const getVoucherMaxDiscount = (voucher) =>
+  Number(voucher?.maxDiscountAmount ?? voucher?.max_discount_amount ?? voucher?.max_discount ?? 0) || 0;
+
+const isVoucherActive = (voucher) => {
+  if (!voucher) return false;
+  const status = String(voucher.status || voucher.state || "").trim().toUpperCase();
+  if (["INACTIVE", "DISABLED", "EXPIRED", "DELETED"].includes(status)) return false;
+  if (voucher.isActive === false || voucher.is_active === false) return false;
+
+  const endDateRaw = voucher.endDate || voucher.end_date || voucher.expiryDate || voucher.expire_date;
+  if (endDateRaw) {
+    const endTime = new Date(endDateRaw).getTime();
+    if (Number.isFinite(endTime) && endTime < Date.now()) return false;
+  }
+
+  const limit = Number(voucher.usageLimit ?? voucher.usage_limit ?? voucher.limit ?? 0) || 0;
+  const used = Number(voucher.usedCount ?? voucher.used_count ?? voucher.used ?? 0) || 0;
+  return limit <= 0 || used < limit;
+};
+
+const computeVoucherDiscount = (voucher, baseAmount) => {
+  const base = Math.max(0, Number(baseAmount) || 0);
+  const val = getVoucherDiscountValue(voucher);
+  const type = getVoucherDiscountType(voucher);
+  const maxCap = getVoucherMaxDiscount(voucher);
+  if (type === "PERCENT") {
+    const raw = (base * val) / 100;
+    return Math.max(0, maxCap > 0 ? Math.min(raw, maxCap) : raw);
+  }
+  return Math.max(0, Math.min(val, base));
+};
+
 const processedVouchers = computed(() => {
   if (!systemVouchers.value) return [];
-  const now = new Date();
 
   return systemVouchers.value
-    .filter((v) => {
-      const endDate = new Date(v.endDate || v.end_date);
-      const limit = v.usageLimit || v.usage_limit || 0;
-      const used = v.usedCount || v.used_count || 0;
-      // TRẢ VỀ TRUE NẾU: Hạn > Hiện tại VÀ Còn lượt dùng
-      return endDate > now && limit > used;
-    })
-    .map((v) => {
-      const minOrder = v.minOrderValue || v.min_order_value || 0;
+    .filter((voucher) => isVoucherActive(voucher))
+    .map((voucher) => {
+      const minOrder = getVoucherMinOrder(voucher);
       const isEligible = activeSubtotal.value >= minOrder;
-
-      let calculatedDiscount = 0;
-      if (isEligible) {
-        const val = v.discountValue || v.discount_value || 0;
-        const type = v.discountType || v.discount_type;
-        const maxCap = Number(v.maxDiscountAmount || v.max_discount_amount || 0);
-        if (type === "PERCENT") {
-          const raw = (activeSubtotal.value * val) / 100;
-          calculatedDiscount = maxCap > 0 ? Math.min(raw, maxCap) : raw;
-        } else {
-          calculatedDiscount = Math.min(val, activeSubtotal.value);
-        }
-      }
+      const calculatedDiscount = isEligible ? computeVoucherDiscount(voucher, activeSubtotal.value) : 0;
 
       const isApplied =
         activeInvoice.value &&
         activeInvoice.value.appliedVoucher &&
-        activeInvoice.value.appliedVoucher.id === v.id;
+        String(activeInvoice.value.appliedVoucher.code || "").toUpperCase() === String(voucher.code || "").toUpperCase();
 
-      return { ...v, minOrder, isEligible, calculatedDiscount, isApplied };
+      return { ...voucher, minOrder, isEligible, calculatedDiscount, isApplied };
     })
-    .sort((a, b) => b.calculatedDiscount - a.calculatedDiscount); // Sắp xếp mã giảm nhiều nhất lên đầu
+    .sort((a, b) => b.calculatedDiscount - a.calculatedDiscount);
 });
 
-const formatDiscountLabel = (v) => {
-  const type = v.discountType || v.discount_type;
-  const val = v.discountValue || v.discount_value || 0;
-  const maxCap = Number(v.maxDiscountAmount || v.max_discount_amount || 0);
+const formatDiscountLabel = (voucher) => {
+  const type = getVoucherDiscountType(voucher);
+  const val = getVoucherDiscountValue(voucher);
+  const maxCap = getVoucherMaxDiscount(voucher);
   if (type === "PERCENT") {
     return maxCap > 0 ? `${val}% (tối đa ${formatMoney(maxCap)})` : `${val}%`;
   }
@@ -806,66 +638,62 @@ const formatDiscountLabel = (v) => {
 
 const activeDiscount = computed(() => {
   if (!activeInvoice.value || !activeInvoice.value.appliedVoucher) return 0;
-  const v = activeInvoice.value.appliedVoucher;
-  const val = v.discountValue || v.discount_value || 0;
-  const type = v.discountType || v.discount_type;
-  const maxCap = Number(v.maxDiscountAmount || v.max_discount_amount || 0);
-  if (type === "PERCENT") {
-    const raw = (activeSubtotal.value * val) / 100;
-    return maxCap > 0 ? Math.min(raw, maxCap) : raw;
+  if (activeInvoice.value.appliedVoucher.discountAmount != null) {
+    return Math.min(
+      Math.max(0, activeSubtotal.value),
+      Math.max(0, Number(activeInvoice.value.appliedVoucher.discountAmount) || 0),
+    );
   }
-  return Math.min(val, activeSubtotal.value);
+  return computeVoucherDiscount(activeInvoice.value.appliedVoucher, activeSubtotal.value);
 });
 
-const activeTotal = computed(() => {
-  return Math.max(0, activeSubtotal.value - activeDiscount.value);
-});
+const activeTotal = computed(() => Math.max(0, activeSubtotal.value - activeDiscount.value));
 
-// THEO DÕI TỔNG TIỀN VÀ TỰ ĐỘNG ÁP DỤNG VOUCHER TỐT NHẤT
-watch(activeSubtotal, (newVal) => {
-  const inv = activeInvoice.value;
-  if (!inv) return;
+const autoPickBestEligibleVoucher = () => {
+  const invoice = activeInvoice.value;
+  if (!invoice || invoice.voucherPreference === "none" || invoice.appliedVoucher || activeSubtotal.value <= 0) return;
 
-  if (inv.appliedVoucher) {
-    const minOrder =
-      inv.appliedVoucher.minOrderValue ||
-      inv.appliedVoucher.min_order_value ||
-      0;
-    if (newVal < minOrder) {
-      inv.appliedVoucher = null;
-      inv.voucherInput = ""; // Xóa input khi voucher bị remove
+  const bestVoucher = processedVouchers.value.find((voucher) => voucher.isEligible);
+  if (!bestVoucher) return;
+
+  invoice.appliedVoucher = bestVoucher;
+  invoice.voucherInput = bestVoucher.code || "";
+};
+
+watch(activeSubtotal, (newSubtotal) => {
+  const invoice = activeInvoice.value;
+  if (!invoice) return;
+
+  if (invoice.appliedVoucher) {
+    const minOrder = getVoucherMinOrder(invoice.appliedVoucher);
+    if (newSubtotal < minOrder) {
+      invoice.appliedVoucher = null;
+      invoice.voucherInput = "";
     }
   }
 
-  if (!inv.appliedVoucher && newVal > 0) {
-    const bestVoucher = processedVouchers.value.find((v) => v.isEligible);
-    if (bestVoucher) {
-      inv.appliedVoucher = bestVoucher;
-      inv.voucherInput = bestVoucher.code;
-    }
-  }
+  autoPickBestEligibleVoucher();
+});
+
+watch(processedVouchers, () => {
+  autoPickBestEligibleVoucher();
 });
 
 onMounted(async () => {
   try {
     try {
-      const resVoucher = await axios.get("http://localhost:8080/api/vouchers");
-      systemVouchers.value = toList(resVoucher.data).filter(
-        (v) => v.status !== "INACTIVE" && v.is_active !== false,
-      );
-    } catch (err) {
-      console.warn("Không tải được danh sách voucher", err);
+      const voucherResponse = await voucherAPI.getAllVouchers(0, 100, "createdAt", "DESC");
+      systemVouchers.value = toList(voucherResponse).filter((voucher) => isVoucherActive(voucher));
+    } catch (error) {
+      console.warn("Không tải được danh sách voucher", error);
+      systemVouchers.value = [];
     }
 
     const [variantData, productData, colorData, sizeData] = await Promise.all([
       adminApi.getVariants({ page: 0, size: 1000 }).catch(() => []),
       adminApi.getProducts({ page: 0, size: 1000 }).catch(() => []),
-      colorsApi?.getAll
-        ? colorsApi.getAll().catch(() => [])
-        : Promise.resolve([]),
-      sizesApi?.getAll
-        ? sizesApi.getAll().catch(() => [])
-        : Promise.resolve([]),
+      colorsApi?.getAll ? colorsApi.getAll().catch(() => []) : Promise.resolve([]),
+      sizesApi?.getAll ? sizesApi.getAll().catch(() => []) : Promise.resolve([]),
     ]);
 
     const rawVariants = toList(variantData);
@@ -874,154 +702,209 @@ onMounted(async () => {
     const rawSizes = toList(sizeData);
 
     const productMap = new Map();
-    rawProducts.forEach((p) => {
-      if (p && p.id) productMap.set(Number(p.id), p);
+    rawProducts.forEach((product) => {
+      if (product && product.id != null) productMap.set(Number(product.id), product);
     });
 
     const colorMap = new Map();
-    rawColors.forEach((c) => {
-      if (c && c.id) colorMap.set(Number(c.id), c);
+    rawColors.forEach((color) => {
+      if (color && color.id != null) colorMap.set(Number(color.id), color);
     });
 
     const sizeMap = new Map();
-    rawSizes.forEach((s) => {
-      if (s && s.id) sizeMap.set(Number(s.id), s);
+    rawSizes.forEach((size) => {
+      if (size && size.id != null) sizeMap.set(Number(size.id), size);
     });
 
-    // Group into products
-    const pMap = new Map();
-    rawVariants.forEach((v) => {
-      const pId = Number(v.productId || v.product_id);
-      const cId = Number(v.colorId || v.color_id);
-      const sId = Number(v.sizeId || v.size_id);
+    const productGroup = new Map();
+    rawVariants.forEach((variant) => {
+      const productId = Number(variant.productId || variant.product_id || 0);
+      const colorId = Number(variant.colorId || variant.color_id || 0);
+      const sizeId = Number(variant.sizeId || variant.size_id || 0);
 
-      const product = productMap.get(pId) || {};
-      const color = colorMap.get(cId) || {};
-      const size = sizeMap.get(sId) || {};
+      const product = productMap.get(productId) || {};
+      const color = colorMap.get(colorId) || {};
+      const size = sizeMap.get(sizeId) || {};
 
-      let pName = v.productName || v.product_name || product.name;
-      if (!pName || pName === "undefined")
-        pName = `Sản phẩm #${pId || v.id || "?"}`;
-
-      const variant = {
-        ...v,
-        variantId: v.id || Math.random(),
-        productName: pName,
-        productCode:
-          v.productCode ||
-          v.product_code ||
-          product.productCode ||
-          product.product_code ||
-          "N/A",
-        colorName: v.colorName || color.name || "Mặc định",
-        sizeName: v.sizeName || size.name || "Mặc định",
-        price: Number(v.price) || 0,
-        stockQuantity: Number(v.stockQuantity || v.stock_quantity) || 0,
-        status: v.status || v.variantStatus || v.variant_status || null,
-        imageUrl: v.imageUrl || product.imageUrl || null,
+      const productName = variant.productName || variant.product_name || product.name || `Sản phẩm #${productId || "?"}`;
+      const variantModel = {
+        ...variant,
+        variantId: variant.id || variant.variantId || `${productId}-${colorId}-${sizeId}-${Math.random()}`,
+        productName,
+        colorName: variant.colorName || variant.color_name || color.name || "Mặc định",
+        sizeName: variant.sizeName || variant.size_name || size.name || "Mặc định",
+        price: Number(variant.price || 0),
+        stockQuantity: Number(variant.stockQuantity || variant.stock_quantity || 0),
+        imageUrl: variant.imageUrl || variant.image_url || product.imageUrl || product.image_url || null,
       };
 
-      if (!pMap.has(pId)) {
-        pMap.set(pId, {
-          productId: pId,
-          productName: pName,
-          imageUrl: variant.imageUrl,
-          price: variant.price, // base price
-          variants: []
+      if (!productGroup.has(productId)) {
+        productGroup.set(productId, {
+          productId,
+          productName,
+          imageUrl: variantModel.imageUrl,
+          price: variantModel.price,
+          variants: [],
         });
       }
-      pMap.get(pId).variants.push(variant);
+      productGroup.get(productId).variants.push(variantModel);
     });
 
-    inventoryVariants.value = Array.from(pMap.values());
+    inventoryVariants.value = Array.from(productGroup.values());
   } catch (error) {
-    console.error("Lỗi tải kho hàng POS", error);
+    console.error("Lỗi tải dữ liệu POS:", error);
   }
 });
 
 const filteredVariants = computed(() => {
-  try {
-    const q = searchQuery.value.toLowerCase().trim();
-    if (!q) return inventoryVariants.value;
+  const query = String(searchQuery.value || "").toLowerCase().trim();
+  if (!query) return inventoryVariants.value;
 
-    return inventoryVariants.value.filter((p) => {
-      const name = String(p.productName || "").toLowerCase();
-      // Code is now in variants, so check if any variant matches
-      const matchCode = p.variants.some(v => String(v.productCode || "").toLowerCase().includes(q));
-      return name.includes(q) || matchCode;
-    });
-  } catch (error) {
-    return [];
-  }
+  return inventoryVariants.value.filter((product) => {
+    const name = String(product.productName || "").toLowerCase();
+    const codeMatches = product.variants.some((variant) => String(variant.productCode || variant.product_code || "").toLowerCase().includes(query));
+    return name.includes(query) || codeMatches;
+  });
 });
 
 const addInvoice = () => {
   if (invoices.value.length >= MAX_INVOICES) {
-    // Prevent creating more than allowed invoices
+    alert("Chỉ được tạo tối đa 5 hóa đơn cùng lúc.");
     return;
   }
-
-  const newInv = createNewInvoice();
-  invoices.value.push(newInv);
-  activeInvoiceId.value = newInv.id;
+  const newInvoice = createNewInvoice();
+  invoices.value.push(newInvoice);
+  activeInvoiceId.value = newInvoice.id;
 };
 
-const removeInvoice = (id) => {
-  invoices.value = invoices.value.filter((i) => i.id !== id);
-  if (activeInvoiceId.value === id && invoices.value.length > 0) {
-    activeInvoiceId.value = invoices.value[0].id;
+const removeInvoice = (invoiceId) => {
+  const target = invoices.value.find((invoice) => invoice.id === invoiceId);
+  if (!target) return;
+
+  let nextInvoices = invoices.value.filter((invoice) => invoice.id !== invoiceId);
+  if (nextInvoices.length === 0) {
+    const freshInvoice = createNewInvoice();
+    nextInvoices = [freshInvoice];
+    activeInvoiceId.value = freshInvoice.id;
   }
+  invoices.value = nextInvoices;
+
+  if (activeInvoiceId.value === invoiceId) {
+    activeInvoiceId.value = nextInvoices[0]?.id || null;
+  }
+};
+
+const invoiceRemovalLabel = computed(() => {
+  const invoice = invoiceRemovalTarget.value;
+  if (!invoice) return "hóa đơn này";
+  return invoice.orderId ? `hóa đơn #${invoice.orderId}` : `hóa đơn tạm ${invoice.number}`;
+});
+
+const requestRemoveInvoice = (invoice) => {
+  if (!invoice || invoice.orderId) return;
+  if (!Array.isArray(invoice.cart) || invoice.cart.length === 0) {
+    removeInvoice(invoice.id);
+    return;
+  }
+  invoiceRemovalTarget.value = invoice;
+};
+
+const cancelRemoveInvoice = () => {
+  invoiceRemovalTarget.value = null;
+};
+
+const confirmRemoveInvoice = () => {
+  const target = invoiceRemovalTarget.value;
+  if (!target) return;
+
+  const nextInvoices = invoices.value.filter((invoice) => invoice.id !== target.id);
+  invoices.value = nextInvoices;
+
+  if (activeInvoiceId.value === target.id) {
+    activeInvoiceId.value = nextInvoices[0]?.id || null;
+  }
+
+  invoiceRemovalTarget.value = null;
+};
+
+const resetInvoice = () => {
+  const invoice = activeInvoice.value;
+  if (!invoice) return;
+  invoice.customer = { fullname: "", phone: "", email: "" };
+  invoice.voucherInput = "";
+  invoice.appliedVoucher = null;
+  invoice.cart = [];
+  invoice.paymentMethodId = 1;
+  invoice.digitalPaymentMethodId = 4;
+  invoice.customerPaid = 0;
+  invoice.orderId = null;
+  invoice.orderCode = null;
+};
+
+const removeFromCart = (cartItemId) => {
+  if (!activeInvoice.value) return;
+  activeInvoice.value.cart = activeInvoice.value.cart.filter((item) => item.cartItemId !== cartItemId);
 };
 
 const addToCart = (product) => {
-  const defaultVariant = product.variants[0];
-  if (!defaultVariant || defaultVariant.stockQuantity <= 0) {
+  if (!activeInvoice.value) return;
+
+  const defaultVariant = product.variants.find((variant) => Number(variant.stockQuantity || 0) > 0) || product.variants[0];
+  if (!defaultVariant || Number(defaultVariant.stockQuantity || 0) <= 0) {
     alert("Sản phẩm này đã hết hàng!");
     return;
   }
 
-  const cart = activeInvoice.value.cart;
-  // Push a new row
-  cart.push({
-    cartItemId: Date.now() + Math.random(),
-    product: product,
+  const existing = activeInvoice.value.cart.find((item) => item.variantId === defaultVariant.variantId);
+  if (existing) {
+    const maxStock = Number(defaultVariant.stockQuantity || 0);
+    existing.quantity = Math.min(existing.quantity + 1, maxStock);
+    return;
+  }
+
+  activeInvoice.value.cart.push({
+    cartItemId: `${Date.now()}-${Math.random()}`,
+    product,
     variantId: defaultVariant.variantId,
     quantity: 1,
+    price: Number(defaultVariant.price || 0),
   });
 };
 
-const getVariant = (item) => item.product.variants.find(v => v.variantId === item.variantId) || item.product.variants[0];
+const getVariant = (item) =>
+  item.product.variants.find((variant) => variant.variantId === item.variantId) ||
+  item.product.variants[0] ||
+  { price: 0, stockQuantity: 0 };
 
 const updateQuantity = (item, change) => {
-  const newQty = item.quantity + change;
-  const maxStock = getVariant(item).stockQuantity;
-  if (newQty > 0 && newQty <= maxStock) {
+  const variant = getVariant(item);
+  const newQty = Number(item.quantity || 0) + change;
+  if (newQty >= 1 && newQty <= Number(variant.stockQuantity || 0)) {
     item.quantity = newQty;
   }
 };
 
 const validateQuantity = (item) => {
-  const maxStock = getVariant(item).stockQuantity;
-  if (item.quantity > maxStock) item.quantity = maxStock;
+  const variant = getVariant(item);
+  const maxStock = Number(variant.stockQuantity || 0);
   if (item.quantity < 1) item.quantity = 1;
-};
-
-const removeFromCart = (cartItemId) => {
-  activeInvoice.value.cart = activeInvoice.value.cart.filter(
-    (i) => i.cartItemId !== cartItemId,
-  );
+  if (item.quantity > maxStock) item.quantity = maxStock;
 };
 
 const applySpecificVoucher = (voucher) => {
-  if (activeInvoice.value) {
-    activeInvoice.value.appliedVoucher = voucher;
-    activeInvoice.value.voucherInput = voucher.code;
+  if (!activeInvoice.value) return;
+  if (!voucher.isEligible) {
+    alert(`Đơn hàng cần đạt tối thiểu ${formatMoney(getVoucherMinOrder(voucher))} để áp dụng mã này!`);
+    return;
   }
+  activeInvoice.value.voucherPreference = "auto";
+  activeInvoice.value.appliedVoucher = voucher;
+  activeInvoice.value.voucherInput = voucher.code || "";
 };
 
-const applyVoucherByInput = () => {
-  const inv = activeInvoice.value;
-  const code = inv.voucherInput.trim().toUpperCase();
+const applyVoucherByInput = async () => {
+  if (!activeInvoice.value) return;
+  const code = String(activeInvoice.value.voucherInput || "").trim().toUpperCase();
   if (!code) return;
 
   if (activeSubtotal.value === 0) {
@@ -1029,41 +912,55 @@ const applyVoucherByInput = () => {
     return;
   }
 
-  const found = processedVouchers.value.find(
-    (v) => v.code && v.code.toUpperCase() === code,
-  );
+  const found = processedVouchers.value.find((voucher) => String(voucher.code || "").toUpperCase() === code);
   if (!found) {
     alert("Mã giảm giá không tồn tại!");
     return;
   }
 
   if (!found.isEligible) {
-    alert(
-      `Đơn hàng cần đạt tối thiểu ${formatMoney(found.minOrder)} để áp dụng mã này!`,
-    );
+    alert(`Đơn hàng cần đạt tối thiểu ${formatMoney(getVoucherMinOrder(found))} để áp dụng mã này!`);
     return;
   }
 
-  inv.appliedVoucher = found;
-  inv.voucherInput = found.code;
-};
-
-const removeVoucher = () => {
-  if (activeInvoice.value) {
-    activeInvoice.value.appliedVoucher = null;
-    activeInvoice.value.voucherInput = "";
+  try {
+    const validated = await voucherAPI.applyVoucher(code, activeSubtotal.value);
+    activeInvoice.value.voucherPreference = "auto";
+    activeInvoice.value.appliedVoucher = {
+      ...found,
+      ...validated,
+      code: validated.code || found.code || code,
+    };
+    activeInvoice.value.voucherInput = activeInvoice.value.appliedVoucher.code || code;
+  } catch (error) {
+    console.warn("Không thể xác thực voucher từ API, dùng dữ liệu gợi ý cục bộ.", error);
+    activeInvoice.value.appliedVoucher = found;
+    activeInvoice.value.voucherInput = found.code || "";
   }
 };
 
-const formatMoney = (val) =>
-  new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(
-    val || 0,
-  );
+const removeVoucher = () => {
+  if (!activeInvoice.value) return;
+  activeInvoice.value.voucherPreference = "none";
+  activeInvoice.value.appliedVoucher = null;
+  activeInvoice.value.voucherInput = "";
+};
+
+const formatMoney = (value) =>
+  new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(Number(value) || 0);
+
+function escapeHtml(value) {
+  return String(value ?? "").replace(/[&<>"']/g, (character) => {
+    if (character === "&") return "&amp;";
+    if (character === "<") return "&lt;";
+    if (character === ">") return "&gt;";
+    if (character === '"') return "&quot;";
+    return "&#39;";
+  });
+}
 
 function normalizePhone(rawValue) {
-  return String(rawValue || "")
-    .replace(/\D/g, "")
-    .trim();
+  return String(rawValue || "").replace(/\D/g, "").trim();
 }
 
 function isValidCustomerName(rawValue) {
@@ -1077,133 +974,395 @@ function isValidCustomerPhone(rawValue) {
   return /^\d{7,15}$/.test(phone);
 }
 
-const handlePlaceOrder = async () => {
-  const inv = activeInvoice.value;
+function isValidEmail(rawValue) {
+  const value = String(rawValue || "").trim();
+  if (!value) return true;
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+}
 
-  // Bắt buộc nhập thông tin khách
-  if (!inv.customer.fullname || inv.customer.fullname.trim() === "") {
-    alert("⚠️ Vui lòng nhập Tên khách hàng trước khi thanh toán!");
-    return;
+function validateInvoiceBeforeSubmit(invoice) {
+  if (!invoice) {
+    return "Không tìm thấy hóa đơn hiện tại.";
   }
-  if (!isValidCustomerName(inv.customer.fullname)) {
-    alert("⚠️ Tên khách hàng không hợp lệ. Chỉ dùng chữ và tối thiểu 2 ký tự.");
-    return;
+  if (!Array.isArray(invoice.cart) || invoice.cart.length === 0) {
+    return "Vui lòng thêm ít nhất một sản phẩm vào giỏ hàng.";
   }
-  if (!inv.customer.phone || inv.customer.phone.trim() === "") {
-    alert("⚠️ Vui lòng nhập Số điện thoại khách hàng!");
-    return;
+  if (!invoice.customer.fullname.trim()) {
+    return "Vui lòng nhập Tên khách hàng trước khi thanh toán!";
   }
-  if (!isValidCustomerPhone(inv.customer.phone)) {
-    alert("⚠️ Số điện thoại chỉ gồm chữ số và dài từ 7 đến 15 ký tự.");
+  if (!isValidCustomerName(invoice.customer.fullname)) {
+    return "Tên khách hàng không hợp lệ. Chỉ dùng chữ và tối thiểu 2 ký tự.";
+  }
+  if (!invoice.customer.phone.trim()) {
+    return "Vui lòng nhập Số điện thoại khách hàng!";
+  }
+  if (!isValidCustomerPhone(invoice.customer.phone)) {
+    return "Số điện thoại chỉ gồm chữ số và dài từ 7 đến 15 ký tự.";
+  }
+  if (!isValidEmail(invoice.customer.email)) {
+    return "Email khách hàng không hợp lệ.";
+  }
+  if (invoice.paymentMethodId === 1 && Number(invoice.customerPaid || 0) < activeTotal.value) {
+    return "Tiền khách đưa không đủ! Vui lòng nhập số tiền khách trả.";
+  }
+
+  for (const item of invoice.cart) {
+    const variant = getVariant(item);
+    const quantity = Number(item.quantity || 0);
+    const stockQuantity = Number(variant.stockQuantity || 0);
+    if (!variant) {
+      return "Có biến thể sản phẩm không hợp lệ trong giỏ hàng.";
+    }
+    if (quantity < 1) {
+      return "Số lượng sản phẩm phải lớn hơn 0.";
+    }
+    if (stockQuantity > 0 && quantity > stockQuantity) {
+      return `Sản phẩm ${item.product?.productName || "đang chọn"} vượt quá tồn kho hiện tại.`;
+    }
+  }
+
+  return "";
+}
+
+const resolveEffectivePaymentMethodId = (invoice) => {
+  if (!invoice || invoice.paymentMethodId === 1) return 1;
+  const selected = Number(invoice.digitalPaymentMethodId || 4);
+  return Number.isFinite(selected) ? selected : 4;
+};
+
+function getPaymentMethodLabel(invoice) {
+  if (!invoice) return "Tiền mặt";
+  if (Number(invoice.paymentMethodId) === 1) return "Tiền mặt";
+  const selected = digitalPaymentMethods.find((method) => Number(method.id) === Number(invoice.digitalPaymentMethodId));
+  return selected ? selected.name : "Chuyển khoản";
+}
+
+function buildReceiptSnapshot(invoice, orderData, returnedOrderId, returnedOrderCode) {
+  const items = invoice.cart.map((item) => {
+    const variant = getVariant(item);
+    const price = Number(variant.price || 0);
+    const quantity = Number(item.quantity || 0);
+    return {
+      key: item.cartItemId,
+      productName: item.product?.productName || item.product?.name || "Sản phẩm",
+      variantName: [variant.colorName, variant.sizeName].filter(Boolean).join(" / ") || "Phiên bản mặc định",
+      quantity,
+      price,
+      lineTotal: price * quantity,
+    };
+  });
+
+  const customerPaid = Number(invoice.customerPaid || 0);
+  return {
+    orderId: returnedOrderId || null,
+    orderCode: returnedOrderCode || null,
+    createdAt: new Date().toISOString(),
+    customer: {
+      fullname: invoice.customer.fullname,
+      phone: invoice.customer.phone,
+      email: invoice.customer.email || "",
+    },
+    shippingAddress: orderData.shippingAddress,
+    paymentMethodLabel: getPaymentMethodLabel(invoice),
+    voucherCode: invoice.appliedVoucher ? invoice.appliedVoucher.code : null,
+    storeName: "SportX",
+    subtotal: activeSubtotal.value,
+    discount: activeDiscount.value,
+    total: activeTotal.value,
+    customerPaid,
+    changeDue: Math.max(0, customerPaid - activeTotal.value),
+    items,
+  };
+}
+
+function printReceipt(receipt) {
+  if (!receipt) return;
+
+  const receiptId = receipt.orderCode || (receipt.orderId ? `HD${receipt.orderId}` : "POS");
+  const itemRows = receipt.items
+    .map(
+      (item) => `
+        <tr>
+          <td>${escapeHtml(item.productName)}<div class="muted">${escapeHtml(item.variantName)}</div></td>
+          <td class="center">${escapeHtml(item.quantity)}</td>
+          <td class="right">${escapeHtml(formatMoney(item.price))}</td>
+          <td class="right">${escapeHtml(formatMoney(item.lineTotal))}</td>
+        </tr>`,
+    )
+    .join("");
+
+  const html = `
+    <!doctype html>
+    <html>
+      <head>
+        <meta charset="utf-8" />
+        <title>Hóa đơn ${escapeHtml(receiptId)}</title>
+        <style>
+          @page { size: 80mm auto; margin: 8mm; }
+          body { font-family: Arial, sans-serif; color: #0f172a; margin: 0; background: #fff; }
+          .sheet { max-width: 320px; margin: 0 auto; border: 1px solid #cbd5e1; border-radius: 12px; overflow: hidden; }
+          .header { padding: 14px 14px 12px; text-align: center; background: linear-gradient(180deg, #eff6ff 0%, #ffffff 100%); border-bottom: 1px solid #cbd5e1; }
+          h1 { font-size: 20px; margin: 0; text-align: center; letter-spacing: 0.06em; }
+          .brand { margin-top: 4px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.18em; color: #2563eb; font-weight: 700; }
+          .muted { font-size: 11px; color: #64748b; }
+          .section { padding: 12px 14px; }
+          .meta { font-size: 12px; margin: 3px 0; }
+          .divider { border-top: 1px dashed #cbd5e1; margin: 0 14px; }
+          .title-row { display: flex; justify-content: space-between; gap: 12px; align-items: center; }
+          .badge { display: inline-block; padding: 4px 8px; border: 1px solid #93c5fd; border-radius: 999px; color: #1d4ed8; font-size: 11px; font-weight: 700; background: #eff6ff; }
+          table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
+          thead th { border-bottom: 1px solid #cbd5e1; padding: 8px 0; }
+          th, td { padding: 7px 0; border-bottom: 1px solid #e2e8f0; vertical-align: top; }
+          th { text-align: left; font-size: 11px; color: #64748b; }
+          tbody tr:last-child td { border-bottom: none; }
+          .line-item { padding-top: 4px; }
+          .right { text-align: right; }
+          .center { text-align: center; }
+          .summary { margin-top: 10px; font-size: 12px; border: 1px solid #dbeafe; border-radius: 10px; background: #f8fbff; padding: 10px 12px; }
+          .summary div { display: flex; justify-content: space-between; gap: 12px; margin: 4px 0; }
+          .summary .total { margin-top: 8px; padding-top: 8px; border-top: 1px dashed #93c5fd; font-weight: 800; font-size: 13px; }
+          .footer { padding: 12px 14px 14px; text-align: center; font-size: 11px; color: #64748b; border-top: 1px dashed #cbd5e1; }
+          .footer strong { display: block; color: #0f172a; margin-bottom: 4px; }
+        </style>
+      </head>
+      <body>
+        <div class="sheet">
+          <div class="header">
+            <div class="brand">${escapeHtml(receipt.storeName || "SportX")}</div>
+            <h1>HÓA ĐƠN</h1>
+            <div class="muted">HÓA ĐƠN THANH TOÁN</div>
+          </div>
+          <div class="section">
+            <div class="title-row">
+              <div>
+                <div class="meta"><strong>Mã:</strong> ${escapeHtml(receiptId)}</div>
+                <div class="meta"><strong>Thời gian:</strong> ${escapeHtml(new Date(receipt.createdAt).toLocaleString("vi-VN"))}</div>
+              </div>
+              <span class="badge">ĐÃ THANH TOÁN</span>
+            </div>
+          </div>
+          <div class="divider"></div>
+          <div class="section">
+            <div class="meta"><strong>Khách hàng:</strong> ${escapeHtml(receipt.customer.fullname)}</div>
+            <div class="meta"><strong>SĐT:</strong> ${escapeHtml(receipt.customer.phone)}</div>
+            ${receipt.customer.email ? `<div class="meta"><strong>Email:</strong> ${escapeHtml(receipt.customer.email)}</div>` : ""}
+            <div class="meta"><strong>Thanh toán:</strong> ${escapeHtml(receipt.paymentMethodLabel)}</div>
+            <div class="meta"><strong>Địa chỉ:</strong> ${escapeHtml(receipt.shippingAddress)}</div>
+            ${receipt.voucherCode ? `<div class="meta"><strong>Voucher:</strong> ${escapeHtml(receipt.voucherCode)}</div>` : ""}
+          </div>
+          <div class="divider"></div>
+          <div class="section">
+            <table>
+              <thead>
+                <tr>
+                  <th>Sản phẩm</th>
+                  <th class="center">SL</th>
+                  <th class="right">ĐG</th>
+                  <th class="right">TT</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${itemRows}
+              </tbody>
+            </table>
+            <div class="summary">
+              <div><span>Tạm tính</span><span>${escapeHtml(formatMoney(receipt.subtotal))}</span></div>
+              <div><span>Giảm giá</span><span>${escapeHtml(formatMoney(receipt.discount))}</span></div>
+              <div class="total"><span>Phải thanh toán</span><span>${escapeHtml(formatMoney(receipt.total))}</span></div>
+              <div><span>Khách đưa</span><span>${escapeHtml(formatMoney(receipt.customerPaid))}</span></div>
+              <div><span>Tiền thừa</span><span>${escapeHtml(formatMoney(receipt.changeDue))}</span></div>
+            </div>
+          </div>
+          <div class="footer"><strong>SportX</strong>Cảm ơn quý khách đã mua hàng</div>
+        </div>
+      </body>
+    </html>`;
+
+  const printWindow = window.open("", "_blank", "width=420,height=760");
+  if (!printWindow) {
+    alert("Trình duyệt đã chặn cửa sổ in. Vui lòng cho phép pop-up để in hóa đơn.");
     return;
   }
 
-  inv.customer.fullname = String(inv.customer.fullname || "").trim();
-  inv.customer.phone = normalizePhone(inv.customer.phone);
+  printWindow.document.open();
+  printWindow.document.write(html);
+  printWindow.document.close();
+  printWindow.focus();
+  printWindow.onload = () => {
+    printWindow.print();
+  };
+}
 
-  // Kiểm tra tiền khách đưa (tiền mặt)
-  if (
-    inv.paymentMethodId === 1 &&
-    inv.customerPaid < activeTotal.value
-  ) {
-    alert("Tiền khách đưa không đủ! Vui lòng nhập số tiền khách trả.");
-    return;
+function closeReceipt() {
+  showReceipt.value = false;
+}
+
+function closePaymentDialog() {
+  paymentDialog.value = null;
+}
+
+function showPaymentDialog(config) {
+  paymentDialog.value = {
+    type: config.type || "error",
+    title: config.title || "",
+    message: config.message || "",
+    primaryLabel: config.primaryLabel || "Tiếp tục",
+    secondaryLabel: config.secondaryLabel || "Đóng",
+    details: config.details || null,
+    onPrimary: typeof config.onPrimary === "function" ? config.onPrimary : null,
+  };
+}
+
+function handlePaymentDialogPrimary() {
+  const dialog = paymentDialog.value;
+  if (dialog?.onPrimary) {
+    dialog.onPrimary();
   }
+  paymentDialog.value = null;
+}
+
+const processOrder = async (invoice) => {
+  if (!invoice) return;
+
+  invoice.customer.fullname = String(invoice.customer.fullname).trim();
+  invoice.customer.phone = normalizePhone(invoice.customer.phone);
+  invoice.customer.email = String(invoice.customer.email || "").trim();
 
   isProcessing.value = true;
   try {
-    // --- VÁ LỖI 1: LẤY ID NGƯỜI BÁN ĐỂ TRÁNH LỖI NULL TRANSACTION ---
-    let adminId = 1; // Mặc định là 1 nếu không lấy được
+    let adminId = 1;
     try {
-      const userStr = localStorage.getItem("user");
-      if (userStr) {
-        const userObj = JSON.parse(userStr);
-        adminId = userObj.id || userObj.accountId || userObj.account_id || 1;
+      const userString = localStorage.getItem("user");
+      if (userString) {
+        const userObject = JSON.parse(userString);
+        adminId = Number(userObject.id || userObject.accountId || userObject.account_id || 1);
       }
-    } catch (e) {}
+    } catch (error) {
+      console.warn("Không lấy được user từ localStorage", error);
+    }
 
     const orderData = {
-      accountId: adminId, // BẮT BUỘC PHẢI CÓ DÒNG NÀY ĐỂ JAVA KHÔNG BỊ SẬP
-      fullname: inv.customer.fullname,
-      phone: inv.customer.phone,
-      email: inv.customer.email || "khachle@peakseven.com",
+      accountId: adminId,
+      fullname: invoice.customer.fullname,
+      phone: invoice.customer.phone,
+      email: invoice.customer.email || "khachle@peakseven.com",
       shippingAddress: "Mua trực tiếp tại cửa hàng",
-      paymentMethodId: resolveEffectivePaymentMethodId(inv),
-      voucherCode: inv.appliedVoucher ? inv.appliedVoucher.code : null, // VÁ LỖI 2: CHUYỀN MÃ VOUCHER
-      items: inv.cart.map((item) => ({
-        // Đổi thành items cho chuẩn với Java
+      paymentMethodId: resolveEffectivePaymentMethodId(invoice),
+      voucherCode: invoice.appliedVoucher ? invoice.appliedVoucher.code : null,
+      items: invoice.cart.map((item) => ({
         variantId: item.variantId,
-        price: item.price,
-        quantity: item.quantity,
+        price: Number(getVariant(item).price || 0),
+        quantity: Number(item.quantity || 0),
       })),
     };
 
     const token = localStorage.getItem("token");
-    const reqHeaders = {
+    const headers = {
       Authorization: token ? `Bearer ${token}` : "",
       "Content-Type": "application/json",
     };
 
-    // BƯỚC 1: Gọi API Tạo Đơn Hàng
-    const response = await axios.post(
-      "http://localhost:8080/api/orders",
-      orderData,
-      { headers: reqHeaders },
-    );
+    const response = await axios.post("http://localhost:8080/api/orders", orderData, { headers });
+    const returnedOrderId = response.data?.orderId || response.data?.id || null;
+    const returnedOrderCode = response.data?.orderCode || (returnedOrderId ? `HD${returnedOrderId}` : null);
 
-    const returnedOrderId = response.data?.orderId;
-
-    // BƯỚC 2: TỰ ĐỘNG CHUYỂN TRẠNG THÁI ĐƠN POS THÀNH ĐÃ THANH TOÁN
     if (returnedOrderId) {
+      invoice.orderId = returnedOrderId;
+      invoice.orderCode = returnedOrderCode;
       await axios.put(
         `http://localhost:8080/api/orders/${returnedOrderId}`,
-        {
-          status: "SUCCESS",
-          paymentStatus: "PAID",
-        },
-        { headers: reqHeaders },
+        { status: "SUCCESS", paymentStatus: "PAID" },
+        { headers },
       );
     }
 
-    // Đóng gói thông tin để in Bill
-    const displayOrderCode = returnedOrderId
-      ? "HD" + returnedOrderId
-      : "HD" + Date.now().toString().slice(-5);
-
-    completedOrderInfo.value = {
-      orderCode: displayOrderCode,
-      paymentMethodId: inv.paymentMethodId,
-      cart: [...inv.cart],
-      customer: { ...inv.customer },
-      subtotal: activeSubtotal.value,
-      discount: activeDiscount.value,
-      total: activeTotal.value,
-      customerPaid: inv.customerPaid || activeTotal.value,
-      voucherCode: inv.appliedVoucher ? inv.appliedVoucher.code : "",
-    };
-
-    showSuccessModal.value = true;
+    lastReceipt.value = buildReceiptSnapshot(invoice, orderData, returnedOrderId, returnedOrderCode);
+    showReceipt.value = true;
   } catch (error) {
-    console.error("Chi tiết lỗi thanh toán:", error);
-    const msg =
-      error.response?.data?.message || error.message || "Không xác định";
-    alert("Lỗi thanh toán: " + msg);
+    console.error("Lỗi thanh toán:", error);
+    const message = error.response?.data?.message || error.message || "Không xác định";
+    showPaymentDialog({
+      type: "error",
+      title: "Thanh toán thất bại",
+      message,
+      primaryLabel: "Đóng",
+      secondaryLabel: "Đóng",
+    });
   } finally {
     isProcessing.value = false;
   }
 };
 
-const printInvoice = () => {
-  window.print();
+const handlePlaceOrder = async () => {
+  const invoice = activeInvoice.value;
+  if (!invoice) return;
+
+  const validationMessage = validateInvoiceBeforeSubmit(invoice);
+  if (validationMessage) {
+    showPaymentDialog({
+      type: "error",
+      title: "Kiểm tra thông tin trước khi thanh toán",
+      message: validationMessage,
+      primaryLabel: "Quay lại sửa",
+      secondaryLabel: "Đóng",
+    });
+    return;
+  }
+
+  showPaymentDialog({
+    type: "confirm",
+    title: "Xác nhận tạo hóa đơn",
+    message: "Bạn có chắc chắn muốn tạo đơn này không?",
+    primaryLabel: "Tạo đơn",
+    secondaryLabel: "Quay lại sửa",
+    details: {
+      total: activeTotal.value,
+      itemCount: invoice.cart.length,
+    },
+    onPrimary: () => {
+      void processOrder(invoice);
+    },
+  });
 };
 
-const closeSuccessModal = () => {
-  showSuccessModal.value = false;
-  completedOrderInfo.value = null;
-  const currentId = activeInvoiceId.value;
-  removeInvoice(currentId);
-  if (invoices.value.length === 0) addInvoice();
-};
+function toList(rawValue) {
+  if (Array.isArray(rawValue)) return rawValue;
+  if (rawValue == null) return [];
+  if (Array.isArray(rawValue.data)) return rawValue.data;
+  if (Array.isArray(rawValue.content)) return rawValue.content;
+  if (Array.isArray(rawValue.items)) return rawValue.items;
+  if (rawValue.data && Array.isArray(rawValue.data.content)) return rawValue.data.content;
+  if (rawValue.data && Array.isArray(rawValue.data.items)) return rawValue.data.items;
+  return [rawValue];
+}
+
+function createNewInvoice() {
+  return {
+    id: Date.now() + Math.floor(Math.random() * 10000),
+    number: nextInvoiceNumber++,
+    orderId: null,
+    orderCode: null,
+    customer: {
+      fullname: "",
+      phone: "",
+      email: "",
+    },
+    voucherInput: "",
+    appliedVoucher: null,
+    voucherPreference: "auto",
+    cart: [],
+    paymentMethodId: 1,
+    digitalPaymentMethodId: 4,
+    customerPaid: 0,
+  };
+}
+
+const digitalPaymentMethods = [
+  { id: 2, name: "VNPay" },
+  { id: 3, name: "Momo" },
+  { id: 4, name: "Chuyển khoản ngân hàng" },
+  { id: 5, name: "ZaloPay" },
+];
 </script>
 
 <style scoped>
@@ -1219,19 +1378,5 @@ const closeSuccessModal = () => {
 }
 .animate-fade-in-up {
   animation: fadeInUp 0.4s ease-out forwards;
-}
-
-/* Sticky action container inside POS right column */
-.sticky-actions {
-  position: sticky;
-  bottom: 1rem;
-  z-index: 30;
-}
-
-/* Generic drag-handle style to better fit theme if present */
-.drag-handle {
-  height: 6px;
-  background: linear-gradient(90deg, rgba(59,130,246,0.12), rgba(59,130,246,0.06));
-  border-radius: 4px;
 }
 </style>

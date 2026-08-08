@@ -1,12 +1,12 @@
 <template>
-  <AdminShell>
-    <template #header>
+  <div class="space-y-5">
+    <section v-if="!props.hideHeader" class="retail-card p-4">
       <div class="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p class="text-xs uppercase tracking-[0.18em] text-primary">
-            Quản lý tồn kho
+            Quản lý sản phẩm
           </p>
-          <h2 class="mt-1 text-2xl font-bold">Quản lý tồn kho</h2>
+          <h2 class="mt-1 text-2xl font-bold">Quản lý biến thể</h2>
         </div>
 
         <div class="flex flex-wrap items-center gap-2">
@@ -49,11 +49,11 @@
           </button>
         </div>
       </div>
-    </template>
+    </section>
 
     <div class="space-y-5">
       <!-- Search Bar -->
-      <section class="retail-card p-4">
+      <section v-if="!props.hideFilterControls" class="retail-card p-4">
         <div class="grid gap-3 md:grid-cols-[1fr_auto]">
           <label
             class="flex items-center gap-2  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 "
@@ -82,7 +82,7 @@
       </section>
 
       <!-- Advanced Filters -->
-      <section v-if="showFilters" class="retail-card p-4">
+      <section v-if="showFilters && !props.hideFilterControls" class="retail-card p-4">
         <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <div>
             <label class="mb-1 block text-xs font-medium text-slate-500"
@@ -138,7 +138,7 @@
 
           <div>
             <label class="mb-1 block text-xs font-medium text-slate-500"
-              >Trạng thái tồn kho</label
+              >Trạng thái biến thể</label
             >
             <select
               v-model="filters.stockStatus"
@@ -396,34 +396,24 @@
 
       <!-- Statistics Cards -->
       <section class="retail-card p-5">
-        <div class="mb-4 grid grid-cols-1 gap-3 text-sm md:grid-cols-4">
-          <div
-            class="rounded-xl border border-slate-200 px-3 py-2 "
-          >
-            Tổng sản phẩm:
-            <span class="font-semibold">{{ totalProductsCount }}</span>
-          </div>
-          <div
-            class="rounded-xl border border-slate-200 px-3 py-2 "
-          >
-            Còn hàng:
-            <span class="font-semibold text-green-600">{{ inStockCount }}</span>
-          </div>
-          <div
-            class="rounded-xl border border-slate-200 px-3 py-2 "
-          >
-            Sắp hết:
-            <span class="font-semibold text-yellow-600">{{
-              lowStockCount
-            }}</span>
-          </div>
-          <div
-            class="rounded-xl border border-slate-200 px-3 py-2 "
-          >
-            Hết hàng:
-            <span class="font-semibold text-red-600">{{
-              outOfStockCount
-            }}</span>
+        <div class="mb-4 overflow-x-auto">
+          <div class="flex min-w-max flex-nowrap gap-2 text-xs">
+            <div class="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 whitespace-nowrap">
+              <span class="text-slate-500">Tổng sản phẩm:</span>
+              <span class="font-semibold text-slate-800">{{ totalProductsCount }}</span>
+            </div>
+            <div class="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 whitespace-nowrap">
+              <span class="text-slate-500">Còn hàng:</span>
+              <span class="font-semibold text-green-600">{{ inStockCount }}</span>
+            </div>
+            <div class="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 whitespace-nowrap">
+              <span class="text-slate-500">Sắp hết:</span>
+              <span class="font-semibold text-yellow-600">{{ lowStockCount }}</span>
+            </div>
+            <div class="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 whitespace-nowrap">
+              <span class="text-slate-500">Hết hàng:</span>
+              <span class="font-semibold text-red-600">{{ outOfStockCount }}</span>
+            </div>
           </div>
         </div>
 
@@ -838,7 +828,7 @@
                 <input v-model.number="bulkForm.price" type="number" min="0" class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm " />
               </div>
               <div>
-                <label class="mb-1 block text-sm font-medium text-slate-500">Số lượng tồn kho chung *</label>
+                <label class="mb-1 block text-sm font-medium text-slate-500">Số lượng biến thể chung *</label>
                 <input v-model.number="bulkForm.stockQuantity" type="number" min="0" class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm " />
               </div>
             </div>
@@ -860,7 +850,7 @@
       </div>
     </Teleport>
 
-  </AdminShell>
+  </div>
 </template>
 
 <script setup>
@@ -869,6 +859,17 @@ import axios from "axios";
 import AdminShell from "@/components/admin/AdminShell.vue";
 import { adminApi, colorsApi, sizesApi } from "@/services/api";
 import { resolveImageUrl } from "@/services/api";
+
+const props = defineProps({
+  hideHeader: {
+    type: Boolean,
+    default: false,
+  },
+  hideFilterControls: {
+    type: Boolean,
+    default: false,
+  },
+});
 
 
 // Bulk create state
@@ -1319,6 +1320,19 @@ function handleSearch() {
   searchTimeout = setTimeout(() => {
     // no-op: computed filters auto apply
   }, 300);
+}
+
+function setSearchKeyword(value) {
+  searchKeyword.value = value ?? "";
+  handleSearch();
+}
+
+function setExternalFilters(nextFilters = {}) {
+  filters.value = {
+    ...filters.value,
+    ...nextFilters,
+  };
+  applyFilters();
 }
 
 function isExpandedProduct(productId) {
@@ -2221,11 +2235,23 @@ async function loadInventory() {
   } catch (err) {
     console.error("Failed to load inventory:", err);
     error.value =
-      "Không thể tải dữ liệu tồn kho. Vui lòng kiểm tra backend API.";
+      "Không thể tải dữ liệu biến thể. Vui lòng kiểm tra backend API.";
   } finally {
     loading.value = false;
   }
 }
+
+defineExpose({
+  openCreate,
+  openBulkCreate,
+  resetFilters,
+  loadInventory,
+  setSearchKeyword,
+  setExternalFilters,
+  products,
+  colors,
+  sizes,
+});
 
 onMounted(loadInventory);
 </script>

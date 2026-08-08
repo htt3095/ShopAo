@@ -1,231 +1,236 @@
+﻿[Output too large (28KB). Full output saved to: c:\Users\Dell\AppData\Roaming\Code\copilot-terminal-output\copilot-terminal-output-2e858a0d-e4a1-4ddd-8a47-bf5e8d699081.txt]
+[Use readFile or grep to examine the full output.]
+
 <template>
-  <AdminShell>
+  <AdminShell :wide="true">
     <template #header>
       <div class="flex flex-wrap items-center justify-between gap-2">
         <div>
           <p class="text-xs uppercase tracking-[0.18em] text-primary">
-            Quản lý danh mục
+            Quản lý sản phẩm
           </p>
-          <h2 class="mt-1 text-xl font-bold">Quản lý sản phẩm</h2>
+          <h2 class="mt-1 text-xl font-bold">Quản lý sản phẩm </h2>
         </div>
 
-        <div class="flex flex-wrap items-center gap-2">
-          <button
-            type="button"
-            class="inline-flex items-center gap-1.5 rounded-xl bg-primary px-3 py-1.5 text-sm font-semibold text-white hover:opacity-90"
-            @click="openCreate"
-          >
-            <span class="material-symbols-outlined text-[18px]">add</span>
-            Thêm sản phẩm
-          </button>
+        <div class="flex flex-wrap items-center gap-2 lg:gap-3">
+          <div class="flex flex-wrap items-center gap-2 rounded-xl border border-slate-200 bg-white px-2 py-1.5">
+            <span class="rounded-md bg-slate-100 px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-slate-600">Product</span>
+            <button
+              type="button"
+              class="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-sm font-semibold text-white hover:opacity-90"
+              @click="openCreate"
+            >
+              <span class="material-symbols-outlined text-[18px]">add</span>
+              Thêm sản phẩm
+            </button>
 
-          <button
-            type="button"
-            class="inline-flex items-center gap-1.5  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-1.5 text-sm font-medium hover:border-primary hover:text-primary "
-            @click="loadProducts"
-          >
-            <span class="material-symbols-outlined text-[18px]">refresh</span>
-            Làm mới
-          </button>
+            <button
+              type="button"
+              class="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-medium hover:border-primary hover:text-primary"
+              @click="loadProducts"
+            >
+              <span class="material-symbols-outlined text-[18px]">refresh</span>
+              Làm mới SP
+            </button>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2 rounded-xl border border-slate-200 bg-white px-2 py-1.5">
+            <span class="rounded-md bg-slate-100 px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-slate-600">Inventory</span>
+            <button
+              type="button"
+              class="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-emerald-700"
+              @click="openInventoryCreate"
+            >
+              <span class="material-symbols-outlined text-[18px]">add_box</span>
+              Thêm biến thể
+            </button>
+
+            <button
+              type="button"
+              class="inline-flex items-center gap-1.5 rounded-lg bg-orange-500 px-3 py-1.5 text-sm font-semibold text-white hover:bg-orange-600"
+              @click="openInventoryBulkCreate"
+            >
+              <span class="material-symbols-outlined text-[18px]">library_add</span>
+              Tạo hàng loạt
+            </button>
+
+            <button
+              type="button"
+              class="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-medium hover:border-primary hover:text-primary"
+              @click="refreshInventory"
+            >
+              <span class="material-symbols-outlined text-[18px]">sync</span>
+              Làm mới BT
+            </button>
+          </div>
         </div>
       </div>
     </template>
 
-    <div class="space-y-3">
-      <section class="retail-card p-3">
-        <div class="grid gap-3 lg:grid-cols-3">
-          <label
-            class="flex items-center gap-2  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-1.5 "
-          >
-            <span class="material-symbols-outlined text-[18px] text-slate-400"
-              >search</span
-            >
-            <input
-              v-model="search"
-              type="text"
-              placeholder="Tìm theo tên, mã sản phẩm, thương hiệu"
-              class="w-full bg-transparent text-sm outline-none"
-            />
-          </label>
-
-          <select
-            v-model.number="filterBrandId"
-            class=" shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-1.5 text-sm "
-          >
-            <option :value="null">Tất cả thương hiệu</option>
-            <option
-              v-for="brand in brands"
-              :key="brand.id"
-              :value="Number(brand.id)"
-            >
-              {{ brand.name }}
-            </option>
-          </select>
-
-          <select
-            v-model.number="filterCategoryId"
-            class=" shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-1.5 text-sm "
-          >
-            <option :value="null">Tất cả danh mục</option>
-            <option
-              v-for="category in categories"
-              :key="category.id"
-              :value="Number(category.id)"
-            >
-              {{ category.name }}
-            </option>
-          </select>
-        </div>
-      </section>
-
-      <section class="retail-card p-3">
-        <div
-          v-if="error"
-          class="mb-4 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 /40 /20 "
-        >
-          {{ error }}
-        </div>
-
-        <div
-          v-if="hiddenProducts.length > 0"
-          class="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-3 py-3 text-sm text-slate-700 /20 "
-        >
-          <div class="flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <p class="font-semibold">Sản phẩm ẩn tạm</p>
-              <p class="text-xs text-slate-500 ">
-                Những sản phẩm đã xóa mềm sẽ tạm ẩn khỏi danh sách được dùng.
-                Bạn có thể khôi phục lại khi cần.
-              </p>
-            </div>
+    <section class="retail-card mb-4 w-full p-3">
+      <div class="rounded-2xl border border-slate-200 bg-slate-50/80 p-2.5">
+        <div class="mb-2 flex flex-wrap items-center justify-between gap-2">
+          <div class="flex items-center gap-2">
+            <span class="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">Search & Filter</span>
+            <span class="rounded-md px-2 py-0.5 text-[11px] font-semibold" :class="filterScope === 'product' ? 'bg-primary/10 text-primary' : 'bg-emerald-100 text-emerald-700'">
+              {{ filterScope === 'product' ? 'Product Mode' : 'Inventory Mode' }}
+            </span>
+          </div>
+          <div class="flex items-center gap-2">
             <button
               type="button"
-              class="rounded-xl bg-primary px-3 py-2 text-xs font-semibold text-white hover:opacity-90"
-              @click="restoreAllHiddenProducts"
+              class="inline-flex h-8 items-center gap-1 rounded-full border border-slate-300 bg-white px-2.5 text-slate-600 hover:border-primary hover:text-primary"
+              title="Chuyển bộ lọc"
+              @click="toggleFilterScope"
             >
-              Khôi phục tất cả
+              <span class="material-symbols-outlined text-[16px]">swap_horiz</span>
+              <span class="text-xs font-medium">Switch</span>
+            </button>
+
+            <button
+              type="button"
+              class="inline-flex h-8 items-center gap-1 rounded-full border border-slate-300 bg-white px-2.5 text-slate-600 hover:border-primary hover:text-primary"
+              title="Xóa toàn bộ bộ lọc"
+              @click="resetAllFilters"
+            >
+              <span class="material-symbols-outlined text-[16px]">filter_alt_off</span>
+              <span class="text-xs font-medium">Reset all</span>
             </button>
           </div>
-          <div class="mt-3 space-y-2">
-            <div
-              v-for="product in hiddenProducts"
-              :key="product.id"
-              class="flex flex-wrap items-center justify-between gap-2  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 "
-            >
-              <div class="text-sm">
-                <span class="font-semibold">#{{ product.id }}</span>
-                <span class="ml-2">{{ product.name || "Sản phẩm" }}</span>
-              </div>
-              <button
-                type="button"
-                class="rounded-xl bg-emerald-500 px-3 py-2 text-xs font-semibold text-slate-800 hover:bg-emerald-600"
-                @click="restoreProduct(product)"
-              >
-                Khôi phục
-              </button>
-            </div>
+        </div>
+
+        <div v-if="filterScope === 'product'" class="grid gap-2 xl:grid-cols-12">
+          <label class="flex h-9 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 xl:col-span-6">
+            <span class="material-symbols-outlined text-[18px] text-slate-400">search</span>
+            <input v-model="search" type="text" placeholder="Tìm theo tên, mã sản phẩm, thương hiệu" class="w-full bg-transparent text-sm outline-none" />
+          </label>
+
+          <select v-model.number="filterBrandId" class="h-9 rounded-xl border border-slate-200 bg-white px-3 text-sm xl:col-span-3">
+            <option :value="null">Tất cả thương hiệu</option>
+            <option v-for="brand in brands" :key="brand.id" :value="Number(brand.id)">{{ brand.name }}</option>
+          </select>
+
+          <select v-model.number="filterCategoryId" class="h-9 rounded-xl border border-slate-200 bg-white px-3 text-sm xl:col-span-3">
+            <option :value="null">Tất cả danh mục</option>
+            <option v-for="category in categories" :key="category.id" :value="Number(category.id)">{{ category.name }}</option>
+          </select>
+        </div>
+
+        <div v-else class="grid gap-2 xl:grid-cols-12">
+          <label class="flex h-9 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 xl:col-span-4">
+            <span class="material-symbols-outlined text-[18px] text-slate-400">search</span>
+            <input :value="inventoryFilterForm.keyword" type="text" placeholder="Tìm theo ID, sản phẩm, màu, size" class="w-full bg-transparent text-sm outline-none" @input="updateInventoryKeyword($event.target.value)" />
+          </label>
+
+          <select v-model.number="inventoryFilterForm.productId" class="h-9 rounded-xl border border-slate-200 bg-white px-3 text-sm xl:col-span-2" @change="updateInventoryFilter('productId', inventoryFilterForm.productId)">
+            <option :value="null">Sản phẩm</option>
+            <option v-for="product in inventoryOptionsProducts" :key="product.id" :value="Number(product.id)">{{ product.name }}</option>
+          </select>
+
+          <select v-model.number="inventoryFilterForm.colorId" class="h-9 rounded-xl border border-slate-200 bg-white px-3 text-sm xl:col-span-2" @change="updateInventoryFilter('colorId', inventoryFilterForm.colorId)">
+            <option :value="null">Màu</option>
+            <option v-for="color in inventoryOptionsColors" :key="color.id" :value="Number(color.id)">{{ color.name }}</option>
+          </select>
+
+          <select v-model.number="inventoryFilterForm.sizeId" class="h-9 rounded-xl border border-slate-200 bg-white px-3 text-sm xl:col-span-2" @change="updateInventoryFilter('sizeId', inventoryFilterForm.sizeId)">
+            <option :value="null">Size</option>
+            <option v-for="size in inventoryOptionsSizes" :key="size.id" :value="Number(size.id)">{{ size.name }}</option>
+          </select>
+
+          <select v-model="inventoryFilterForm.stockStatus" class="h-9 rounded-xl border border-slate-200 bg-white px-3 text-sm xl:col-span-2" @change="updateInventoryFilter('stockStatus', inventoryFilterForm.stockStatus)">
+            <option :value="null">Trạng thái</option>
+            <option value="selling">Đang bán</option>
+            <option value="out_of_stock">Hết hàng</option>
+            <option value="hidden">Ngừng bán</option>
+            <option value="low_stock">Sắp hết</option>
+            <option value="in_stock">Còn hàng</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <div class="grid gap-4 xl:grid-cols-2 2xl:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
+      <section class="retail-card min-w-0 h-[calc(100vh-220px)] overflow-y-auto">
+        <div class="sticky top-0 z-20 border-b border-slate-200 bg-white/95 p-3 backdrop-blur">
+          <div class="mb-2 flex items-center justify-between gap-2">
+            <h3 class="text-sm font-semibold text-slate-700">Danh sach san pham</h3>
+            <span class="rounded-lg bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-600">{{ filteredProducts.length }} muc</span>
           </div>
         </div>
 
-        <div
-          v-if="loading"
-          class="py-8 text-center text-sm text-slate-500 "
-        >
-          Đang tải danh sách sản phẩm...
-        </div>
+        <div class="p-3">
+          <div v-if="error" class="mb-4 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{{ error }}</div>
 
-        <div
-          v-else-if="filteredProducts.length === 0"
-          class="rounded-2xl border border-dashed border-slate-300 p-6 text-center text-sm text-slate-500 "
-        >
-          Không tìm thấy sản phẩm.
-        </div>
+          <div v-if="hiddenProducts.length > 0" class="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-3 py-3 text-sm text-slate-700">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p class="font-semibold">Sản phẩm ẩn tạm</p>
+                <p class="text-xs text-slate-500">Những sản phẩm đã xóa mềm sẽ tạm ẩn khỏi danh sách. Bạn có thể khôi phục lại khi cần.</p>
+              </div>
+              <button type="button" class="rounded-xl bg-primary px-3 py-2 text-xs font-semibold text-white hover:opacity-90" @click="restoreAllHiddenProducts">Khôi phục tất cả</button>
+            </div>
+            <div class="mt-3 space-y-2">
+              <div v-for="product in hiddenProducts" :key="product.id" class="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2">
+                <div class="text-sm"><span class="font-semibold">#{{ product.id }}</span><span class="ml-2">{{ product.name || 'Sản phẩm' }}</span></div>
+                <button type="button" class="rounded-xl bg-emerald-500 px-3 py-2 text-xs font-semibold text-white hover:bg-emerald-600" @click="restoreProduct(product)">Khôi phục</button>
+              </div>
+            </div>
+          </div>
 
-        <div v-else class="overflow-x-auto">
-          <table class="w-full min-w-[900px] text-left text-xs">
-            <thead>
-              <tr
-                class="border-b border-slate-200 text-slate-500 "
-              >
-                <th class="px-2 py-2 font-medium">STT</th>
-                <th class="px-2 py-2 font-medium">Sản phẩm</th>
-                <th class="px-2 py-2 font-medium">Mã</th>
-                <th class="px-2 py-2 font-medium">Thương hiệu</th>
-                <th class="px-2 py-2 font-medium">Danh mục</th>
-                <th class="px-2 py-2 text-right font-medium">Thao tác</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr
-                v-for="(product, index) in filteredProducts"
-                :key="product.id"
-                class="border-b border-slate-100 last:border-none "
-              >
-                <td
-                  class="px-2 py-2 font-semibold text-slate-500 "
-                >
-                  {{ index + 1 }}
-                </td>
+          <div v-if="loading" class="py-8 text-center text-sm text-slate-500">Đang tải danh sách sản phẩm...</div>
 
-                <td class="px-2 py-2">
-                  <div class="flex items-center gap-3">
-                    <div
-                      class="size-12 overflow-hidden rounded-xl bg-slate-100 "
-                    >
-                      <img
-                        v-if="product._imageUrl || product.imageUrl"
-                        :src="product._imageUrl || product.imageUrl"
-                        alt="Product"
-                        class="h-full w-full object-cover"
-                      />
+          <div v-else-if="filteredProducts.length === 0" class="rounded-2xl border border-dashed border-slate-300 p-6 text-center text-sm text-slate-500">Không tìm thấy sản phẩm.</div>
+
+          <div v-else class="overflow-x-hidden">
+            <table class="w-full table-fixed text-left text-sm">
+              <colgroup>
+                <col class="w-[8%]" />
+                <col class="w-[44%]" />
+                <col class="w-[22%]" />
+                <col class="w-[11%]" />
+                <col class="w-[15%]" />
+              </colgroup>
+              <thead>
+                <tr class="border-b border-slate-200 text-slate-500">
+                  <th class="px-2 py-2 font-medium">STT</th>
+                  <th class="px-2 py-2 font-medium">Sản phẩm</th>
+                  <th class="px-2 py-2 font-medium">Danh mục</th>
+                  <th class="px-2 py-2 text-right font-medium">Tồn</th>
+                  <th class="px-2 py-2 text-right font-medium">Thao tác</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(product, index) in filteredProducts" :key="product.id" class="border-b border-slate-100 last:border-none">
+                  <td class="px-2 py-2 font-semibold text-slate-500">{{ index + 1 }}</td>
+                  <td class="px-2 py-2 align-top">
+                    <div class="flex items-center gap-2">
+                      <div class="size-9 shrink-0 overflow-hidden rounded-md bg-slate-100">
+                        <img v-if="product._imageUrl || product.imageUrl" :src="product._imageUrl || product.imageUrl" alt="Product" class="h-full w-full object-cover" />
+                      </div>
+                      <div class="min-w-0">
+                        <p class="truncate text-sm font-semibold" :title="product.name || 'Sản phẩm'">{{ product.name || 'Sản phẩm' }}</p>
+                        <p class="truncate text-xs text-slate-500" :title="(product.productCode || ('ID: ' + product.id)) + ' · ' + brandName(product.brandId)">{{ product.productCode || ('ID: ' + product.id) }} · {{ brandName(product.brandId) }}</p>
+                      </div>
                     </div>
-                    <div>
-                      <p class="font-semibold">
-                        {{ product.name || "Sản phẩm" }}
-                      </p>
-                      <p class="text-xs text-slate-500 ">
-                        ID: {{ product.id }}
-                      </p>
+                  </td>
+                  <td class="px-2 py-2 truncate" :title="categoryName(product.categoryId)">{{ categoryName(product.categoryId) }}</td>
+                  <td class="px-2 py-2 text-right font-semibold">{{ getTotalStock(product.id) }}</td>
+                  <td class="px-2 py-2 text-right">
+                    <div class="flex items-center justify-end gap-1">
+                      <button class="rounded-md p-1.5 hover:bg-slate-100" title="Chỉnh sửa" @click="openEdit(product)"><span class="material-symbols-outlined text-[18px] text-slate-500">edit</span></button>
+                      <button class="rounded-md p-1.5 hover:bg-red-50" title="Xóa" @click="confirmDelete(product)"><span class="material-symbols-outlined text-[18px] text-red-500">delete</span></button>
                     </div>
-                  </div>
-                </td>
-
-                <td class="px-2 py-2">{{ product.productCode || "-" }}</td>
-                <td class="px-2 py-2">{{ brandName(product.brandId) }}</td>
-                <td class="px-2 py-2">
-                  {{ categoryName(product.categoryId) }}
-                </td>
-                <td class="px-2 py-2 text-right">
-                  <div class="flex items-center justify-end gap-1">
-                    <button
-                      class="rounded-lg p-1.5 hover:bg-slate-100 dark:hover:bg-white"
-                      title="Chỉnh sửa"
-                      @click="openEdit(product)"
-                    >
-                      <span
-                        class="material-symbols-outlined text-[18px] text-slate-500"
-                        >edit</span
-                      >
-                    </button>
-
-                    <button
-                      class="rounded-lg p-1.5 hover:bg-red-50 dark:hover:bg-red-900/20"
-                      title="Xóa"
-                      @click="confirmDelete(product)"
-                    >
-                      <span
-                        class="material-symbols-outlined text-[18px] text-red-500"
-                        >delete</span
-                      >
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </section>
-    </div>
+
+      <section class="retail-card min-w-0 h-[calc(100vh-220px)] overflow-y-auto p-3">
+        <AdminInventoryView ref="inventoryPanelRef" :hide-header="true" :hide-filter-controls="true" />
+      </section>
 
     <Teleport to="body">
       <div
@@ -438,6 +443,7 @@
         </div>
       </div>
     </Teleport>
+    </div>
   </AdminShell>
 </template>
 
@@ -446,6 +452,7 @@ import { computed, onMounted, ref } from "vue";
 import axios from "axios";
 import AdminShell from "@/components/admin/AdminShell.vue";
 import { adminApi, brandsApi, categoriesApi, variantsApi } from "@/services/api";
+import AdminInventoryView from "@/pages/AdminInventoryView.vue";
 
 const loading = ref(false);
 const error = ref("");
@@ -456,6 +463,16 @@ const products = ref([]);
 const brands = ref([]);
 const categories = ref([]);
 const hiddenProducts = ref([]);
+const totalStockByProduct = ref(new Map());
+const inventoryPanelRef = ref(null);
+const filterScope = ref("product");
+const inventoryFilterForm = ref({
+  keyword: "",
+  productId: null,
+  colorId: null,
+  sizeId: null,
+  stockStatus: null,
+});
 
 const showModal = ref(false);
 const editingProductId = ref(null);
@@ -501,6 +518,18 @@ const categoryMap = computed(() => {
     }
     return acc;
   }, {});
+});
+
+const inventoryOptionsProducts = computed(() => {
+  return inventoryPanelRef.value?.products || [];
+});
+
+const inventoryOptionsColors = computed(() => {
+  return inventoryPanelRef.value?.colors || [];
+});
+
+const inventoryOptionsSizes = computed(() => {
+  return inventoryPanelRef.value?.sizes || [];
 });
 
 const filteredProducts = computed(() => {
@@ -583,13 +612,10 @@ function categoryName(categoryId) {
   return categoryMap.value[id] || `Category #${id}`;
 }
 
-function getProductImage(product) {
-  return getProductImageUrl({
-    product,
-    variants: productStore.variants,
-    width: 200,
-    height: 200,
-  });
+function getTotalStock(productId) {
+  const id = Number(productId);
+  if (!Number.isFinite(id)) return 0;
+  return totalStockByProduct.value.get(id) || 0;
 }
 
 function openCreate() {
@@ -618,6 +644,64 @@ function openEdit(product) {
 
 function closeModal() {
   showModal.value = false;
+}
+
+function openInventoryCreate() {
+  inventoryPanelRef.value?.openCreate?.();
+}
+
+function openInventoryBulkCreate() {
+  inventoryPanelRef.value?.openBulkCreate?.();
+}
+
+function refreshInventory() {
+  inventoryPanelRef.value?.loadInventory?.();
+}
+
+function resetInventoryPanelFilters() {
+  inventoryFilterForm.value = {
+    keyword: "",
+    productId: null,
+    colorId: null,
+    sizeId: null,
+    stockStatus: null,
+  };
+  inventoryPanelRef.value?.resetFilters?.();
+}
+
+function resetProductFilters() {
+  search.value = "";
+  filterBrandId.value = null;
+  filterCategoryId.value = null;
+}
+
+function resetAllFilters() {
+  resetProductFilters();
+  resetInventoryPanelFilters();
+}
+
+function toggleFilterScope() {
+  filterScope.value = filterScope.value === "product" ? "inventory" : "product";
+}
+
+function syncInventoryFilters() {
+  inventoryPanelRef.value?.setSearchKeyword?.(inventoryFilterForm.value.keyword);
+  inventoryPanelRef.value?.setExternalFilters?.({
+    productId: toNullableId(inventoryFilterForm.value.productId),
+    colorId: toNullableId(inventoryFilterForm.value.colorId),
+    sizeId: toNullableId(inventoryFilterForm.value.sizeId),
+    stockStatus: inventoryFilterForm.value.stockStatus || null,
+  });
+}
+
+function updateInventoryKeyword(value) {
+  inventoryFilterForm.value.keyword = value ?? "";
+  syncInventoryFilters();
+}
+
+function updateInventoryFilter(key, value) {
+  inventoryFilterForm.value[key] = value;
+  syncInventoryFilters();
 }
 
 async function saveProduct() {
@@ -763,13 +847,20 @@ async function loadProducts() {
     const productsData = toList(productList);
     const variantsData = toList(variantList);
     
-    // Build image map from variants
+    // Build image and stock maps from variants
     const variantImageMap = new Map();
+    const nextTotalStockByProduct = new Map();
     for (const v of variantsData) {
       const pid = Number(v.productId || v.product_id);
       const img = v.imageUrl || v.image_url || v.imgUrl;
       if (pid && img && !variantImageMap.has(pid)) {
         variantImageMap.set(pid, img);
+      }
+
+      if (pid) {
+        const stock = Number(v.stockQuantity ?? v.quantity ?? 0);
+        const prev = nextTotalStockByProduct.get(pid) || 0;
+        nextTotalStockByProduct.set(pid, prev + (Number.isFinite(stock) ? stock : 0));
       }
     }
 
@@ -777,12 +868,10 @@ async function loadProducts() {
       ...p,
       _imageUrl: p.imageUrl || p.image_url || variantImageMap.get(Number(p.id)) || null,
     }));
+    totalStockByProduct.value = nextTotalStockByProduct;
     
     brands.value = toList(brandList);
     categories.value = toList(categoryList);
-    if (productStore.variants.length === 0) {
-      await productStore.fetchVariants();
-    }
   } catch (err) {
     console.error("Failed to load admin products:", err);
     error.value = "Không thể tải sản phẩm. Vui lòng kiểm tra backend API.";

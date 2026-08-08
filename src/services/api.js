@@ -946,6 +946,32 @@ function normalizeOrderRecord(rawOrder) {
             ),
             0,
         ),
+        shippingFee: asFiniteNumber(
+            firstDefinedValue(
+                [
+                    source.shippingFee,
+                    source.shipping_fee,
+                    source.shipping,
+                    source.shippingAmount,
+                    source.shipping_amount,
+                    source.deliveryFee,
+                    source.delivery_fee,
+                    source.shipFee,
+                    source.ship_fee,
+                    source.feeShip,
+                    source.fee_ship,
+                ],
+                0,
+            ),
+            0,
+        ),
+        discountAmount: asFiniteNumber(
+            firstDefinedValue(
+                [source.discountAmount, source.discount_amount],
+                0,
+            ),
+            0,
+        ),
         finalAmount: asFiniteNumber(
             firstDefinedValue(
                 [

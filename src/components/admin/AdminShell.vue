@@ -2,7 +2,8 @@
   <div class="retail-shell">
     <header class="retail-header">
       <div
-        class="mx-auto flex w-full max-w-[1400px] items-center justify-between px-4 py-3 md:px-6"
+        class="mx-auto flex w-full items-center justify-between px-4 py-3 md:px-6"
+        :class="wide ? 'max-w-[1680px]' : 'max-w-[1400px]'"
       >
         <div class="flex items-center gap-3">
           <div
@@ -40,9 +41,12 @@
       </div>
     </header>
 
-    <div class="mx-auto flex w-full max-w-[1400px] gap-6 px-4 py-6 md:px-6">
+    <div
+      class="mx-auto flex w-full gap-6 px-4 py-6 md:px-6"
+      :class="wide ? 'max-w-[1680px]' : 'max-w-[1400px]'"
+    >
       <aside
-        class="hidden w-72 shrink-0 lg:block bg-white rounded-2xl border border-slate-200 shadow-sm transition-all duration-300 hover:shadow-lg hover:border-primary/30"
+        class="hidden w-72 shrink-0 lg:block h-fit bg-white rounded-2xl border border-slate-200 shadow-sm transition-shadow duration-300 hover:shadow-lg hover:border-primary/30"
       >
         <div class="retail-card p-3">
           <nav class="grid gap-1">
@@ -51,11 +55,9 @@
               :key="item.path"
               :to="item.path"
               class="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition-colors"
-              :class="
-                isActive(item.path)
-                  ? 'bg-primary-white'
-                  : 'text-slate-700 hover:bg-primary/10 hover:text-primary '
-              "
+              :class="isActive(item.path)
+                ? 'bg-transparent text-primary'
+                : 'text-slate-700 hover:bg-primary/10 hover:text-primary'"
             >
               <span class="material-symbols-outlined text-[20px]">{{
                 item.icon
@@ -65,7 +67,7 @@
 
             <router-link
               to="/"
-              class="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-100 hover:text-primary  :bg-white"
+              class="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-100 hover:text-primary bg-white"
             >
               <span class="material-symbols-outlined text-[20px]"
                 >storefront</span
@@ -122,14 +124,21 @@
 import { computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
+defineProps({
+  wide: {
+    type: Boolean,
+    default: false,
+  },
+});
+
 const route = useRoute();
 const router = useRouter();
 
 const navItems = [
   { path: "/admin", label: "Tổng quan", icon: "dashboard" },
   { path: "/admin/pos", label: "Bán hàng POS", icon: "point_of_sale" },
+  { path: "/admin/products", label: "Quản lý sản phẩm", icon: "inventory_2" },
   { path: "/admin/orders", label: "Đơn hàng", icon: "shopping_bag" },
-  { path: "/admin/inventory", label: "Sản phẩm & Tồn kho", icon: "inventory_2" },
   { path: "/admin/categories", label: "Danh mục", icon: "category" },
   { path: "/admin/brands", label: "Thương hiệu", icon: "branding_watermark" },
   { path: "/admin/customers", label: "Khách hàng", icon: "group" },

@@ -419,7 +419,12 @@
                   <div
                     class="flex items-center justify-between text-sm text-slate-600 "
                   >
-                    <span>Phí vận chuyển</span>
+                    <span>
+                      Phí vận chuyển
+                      <span class="mt-0.5 block text-[11px] font-normal text-slate-400">
+                        Nội thành Hà Nội: dưới 5km = 15k, dưới 10km = 25k, từ 10km = 35k; tỉnh khác = 40k.
+                      </span>
+                    </span>
                     <span
                       class="font-semibold text-slate-900 "
                       >{{ formatMoney(shipping) }}</span
@@ -1199,11 +1204,7 @@ const processedAvailableVouchers = computed(() => {
 const cartItems = computed(() => cartStore.cartItems);
 const subtotal = computed(() => cartStore.cartTotal);
 const shipping = computed(() =>
-  cartItems.value.length > 0
-    ? isRouteCalculated.value
-      ? calculatedShippingFee.value
-      : 0
-    : 0,
+  cartItems.value.length > 0 ? calculatedShippingFee.value : 0,
 );
 
 // TÍNH TIỀN GIẢM GIÁ
@@ -1212,7 +1213,10 @@ const discountAmount = computed(() => {
 
   // Ưu tiên dùng discountAmount từ API (đã áp dụng cap maxDiscountAmount bên backend)
   if (appliedVoucher.value.discountAmount != null) {
-    return Math.max(0, Number(appliedVoucher.value.discountAmount) || 0);
+    return Math.min(
+      Math.max(0, orderTotalBeforeDiscount.value),
+      Math.max(0, Number(appliedVoucher.value.discountAmount) || 0),
+    );
   }
 
   // Fallback: tự tính nếu chưa có discountAmount từ API
@@ -1238,9 +1242,9 @@ const discountAmount = computed(() => {
     const raw = (base * (Number(val) || 0)) / 100;
     // Áp dụng cap maxDiscountAmount nếu có
     if (maxCap != null && Number(maxCap) > 0) {
-      return Math.min(raw, Number(maxCap));
+      return Math.min(base, raw, Number(maxCap));
     }
-    return raw;
+    return Math.min(base, raw);
   }
 
   return 0;
@@ -1252,6 +1256,17 @@ const orderTotalBeforeDiscount = computed(() =>
 const total = computed(() =>
   Math.max(0, orderTotalBeforeDiscount.value - discountAmount.value),
 );
+
+function extractListPayload(payload) {
+  if (Array.isArray(payload)) return payload;
+  if (!payload || typeof payload !== "object") return [];
+  if (Array.isArray(payload.data)) return payload.data;
+  if (Array.isArray(payload.content)) return payload.content;
+  if (Array.isArray(payload.items)) return payload.items;
+  if (payload.data && Array.isArray(payload.data.content)) return payload.data.content;
+  if (payload.data && Array.isArray(payload.data.items)) return payload.data.items;
+  return [];
+}
 
 function showAlert(title, message, type = "success") {
   modal.title = title;
@@ -1335,42 +1350,59 @@ async function handlePlaceOrder() {
     return;
   }
 
-  if (appliedVoucher.value?.code) {
-    try {
-      const validatedVoucher = await voucherAPI.applyVoucher(
-        appliedVoucher.value.code,
-        orderTotalBeforeDiscount.value,
-      );
-      enforceVoucherMinOrder(validatedVoucher, orderTotalBeforeDiscount.value);
-      appliedVoucher.value = validatedVoucher;
-      voucherInput.value = validatedVoucher.code || appliedVoucher.value.code;
-    } catch (voucherError) {
-      showAlert(
-        "Voucher không hợp lệ",
-        voucherError?.message || "Mã giảm giá không còn đủ điều kiện áp dụng.",
-        "error",
-      );
-      clearVoucher();
-      return;
-    }
-  }
+  // voucher validation is performed after shipping is known so discount applies to subtotal+shipping
 
   isProcessing.value = true;
 
   try {
     const finalShippingAddress = fullAddressString.value || buildCurrentAddressString();
+    if (!isRouteCalculated.value && finalShippingAddress) {
+      applyFallbackShipping();
+    }
     const effectiveShippingFee = Math.max(
       0,
-      Number(shipping.value || calculatedShippingFee.value || 0),
+      Number(
+        // prefer calculatedShippingFee (from route) but fall back to precomputed calculatedShippingFee
+        typeof calculatedShippingFee.value === 'number' && !Number.isNaN(Number(calculatedShippingFee.value))
+          ? calculatedShippingFee.value
+          : (typeof shipping.value === 'number' ? shipping.value : 0)
+      ),
     );
     const effectiveTotalBeforeDiscount = Math.max(
       0,
       Number(subtotal.value || 0) + effectiveShippingFee,
     );
+    const effectiveDiscountAmount = Math.min(
+      effectiveTotalBeforeDiscount,
+      Math.max(0, Number(discountAmount.value || 0)),
+    );
     const effectiveFinalAmount = Math.max(
       0,
-      effectiveTotalBeforeDiscount - Number(discountAmount.value || 0),
+      effectiveTotalBeforeDiscount - effectiveDiscountAmount,
     );
+    const effectiveDistanceKm = Number(distanceKm.value || 0) || 0;
+
+    // Now validate voucher against the effective total (subtotal + shipping)
+    if (appliedVoucher.value?.code) {
+      try {
+        const validatedVoucher = await voucherAPI.applyVoucher(
+          appliedVoucher.value.code,
+          effectiveTotalBeforeDiscount,
+        );
+        enforceVoucherMinOrder(validatedVoucher, effectiveTotalBeforeDiscount);
+        appliedVoucher.value = validatedVoucher;
+        voucherInput.value = validatedVoucher.code || appliedVoucher.value.code;
+      } catch (voucherError) {
+        showAlert(
+          "Voucher không hợp lệ",
+          voucherError?.message || "Mã giảm giá không còn đủ điều kiện áp dụng.",
+          "error",
+        );
+        clearVoucher();
+        isProcessing.value = false;
+        return;
+      }
+    }
 
     const orderData = {
       accountId: currentAccountId.value,
@@ -1400,12 +1432,26 @@ async function handlePlaceOrder() {
       ship_fee: effectiveShippingFee,
       feeShip: effectiveShippingFee,
       fee_ship: effectiveShippingFee,
+      shippingDistanceKm: effectiveDistanceKm,
+      shipping_distance_km: effectiveDistanceKm,
+      distanceKm: effectiveDistanceKm,
+      distance_km: effectiveDistanceKm,
+      orderShipping: {
+        fee: effectiveShippingFee,
+        shippingFee: effectiveShippingFee,
+        distanceKm: effectiveDistanceKm,
+      },
+      shippingInfo: {
+        fee: effectiveShippingFee,
+        shippingFee: effectiveShippingFee,
+        distanceKm: effectiveDistanceKm,
+      },
       totalMoney: effectiveFinalAmount,
       total_money: effectiveFinalAmount,
       totalAmount: effectiveFinalAmount,
       total_amount: effectiveFinalAmount,
-      discountAmount: discountAmount.value,
-      discount_amount: discountAmount.value,
+      discountAmount: effectiveDiscountAmount,
+      discount_amount: effectiveDiscountAmount,
       finalAmount: effectiveFinalAmount,
       final_amount: effectiveFinalAmount,
 
@@ -1418,16 +1464,27 @@ async function handlePlaceOrder() {
     };
 
     const result = await orderAPI.placeOrder(orderData);
+    const createdOrderId =
+      result?.orderId ||
+      result?.id ||
+      result?.data?.orderId ||
+      result?.data?.id;
+
+    if (createdOrderId) {
+      try {
+        await orderAPI.updateOrder(createdOrderId, {
+          ...orderData,
+          id: createdOrderId,
+          orderId: createdOrderId,
+        });
+      } catch (updateError) {
+        console.warn("Không thể cập nhật lại phí vận chuyển cho đơn hàng:", updateError);
+      }
+    }
 
     // ── VNPay: nếu chọn thanh toán online → redirect sang VNPay ──
     if (selectedPayment.value === 2) {
       try {
-        const createdOrderId =
-          result?.orderId ||
-          result?.id ||
-          result?.data?.orderId ||
-          result?.data?.id;
-
         if (!createdOrderId) {
           throw new Error("Không lấy được mã đơn hàng để thanh toán VNPay.");
         }
@@ -1488,7 +1545,7 @@ async function loadAvailableVouchers() {
       "DESC",
     );
 
-    const rows = response.data || response.content || response || [];
+    const rows = extractListPayload(response);
     const estimateDiscount = (voucher) =>
       computeVoucherDiscount(voucher, orderTotalBeforeDiscount.value);
 

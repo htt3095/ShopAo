@@ -346,7 +346,7 @@
                   <td
                     class="px-4 py-3 text-right font-semibold text-red-500 "
                   >
-                    -{{ formatCurrency(overviewRefundRevenue) }}
+                    {{ formatCurrency(Math.abs(overviewRefundRevenue)) }}
                   </td>
                 </tr>
                 <tr class="border-b border-slate-300 bg-[#F8FAFC]/40">
@@ -569,7 +569,7 @@ const overviewGrossRevenue = computed(() => {
 });
 const overviewRefundRevenue = computed(() => {
   return overviewBuckets.value.reduce(
-    (sum, item) => sum + item.refundedRevenue,
+    (sum, item) => sum + Math.max(0, Number(item.refundedRevenue) || 0),
     0,
   );
 });

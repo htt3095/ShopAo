@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 @layer base {
-    :root {
+     :root {
         color-scheme: light;
         --brand-ink: #1E293B;
         --brand-muted: #64748B;
@@ -41,7 +41,7 @@
     textarea {
         font: inherit;
     }
-    ::selection {
+     ::selection {
         background: rgba(255, 107, 53, 0.3);
         color: #1E293B;
     }
@@ -58,8 +58,16 @@
         @apply sticky top-0 z-50 border-b border-slate-200 backdrop-blur-xl bg-white/70;
     }
     .retail-card {
-        @apply border border-slate-300 bg-white shadow-md transition-all duration-300 hover: -translate-y-1 hover: border-primary/60 hover: shadow-xl;
+        border: 1px solid #CBD5E1;
+        background: #FFFFFF;
+        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+        transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
         border-radius: 24px;
+    }
+    .retail-card:hover {
+        transform: translateY(-4px);
+        border-color: rgba(59, 130, 246, 0.6);
+        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.15);
     }
     .retail-kicker {
         @apply inline-flex items-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-primary shadow-neon;
@@ -88,12 +96,14 @@
 
 @layer components {
     .sportx-card {
-        @apply border border-slate-300 bg-white transition-all duration-300;
+        border: 1px solid #CBD5E1;
+        background: #FFFFFF;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
     }
     .sportx-card:hover {
-        @apply border-primary/40;
         transform: translateY(-2px);
+        border-color: rgba(59, 130, 246, 0.6);
         box-shadow: 0 10px 30px rgba(255, 107, 53, 0.12);
     }
 }

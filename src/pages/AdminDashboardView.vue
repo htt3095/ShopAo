@@ -23,10 +23,10 @@
             <p class="text-sm font-medium">Tổng quan</p>
           </router-link>
 
-          <router-link class="flex items-center gap-3 px-3 py-3 rounded-lg text-slate-600 hover:bg-slate-100 dark:hover:bg-surface-dark transition-colors" to="/admin/products">
+          <!-- <router-link class="flex items-center gap-3 px-3 py-3 rounded-lg text-slate-600 hover:bg-slate-100 dark:hover:bg-surface-dark transition-colors" to="/admin/products">
             <span class="material-symbols-outlined text-[24px]">inventory_2</span>
             <p class="text-sm font-medium">Sản phẩm</p>
-          </router-link>
+          </router-link> -->
 
           <a class="flex items-center gap-3 px-3 py-3 rounded-lg text-slate-600 hover:bg-slate-100 dark:hover:bg-surface-dark transition-colors" href="#">
             <span class="material-symbols-outlined text-[24px]">category</span>

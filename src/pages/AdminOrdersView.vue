@@ -201,7 +201,7 @@
           Không tìm thấy đơn hàng phù hợp.
         </div>
 
-        <div v-else class="admin-orders-table-scroll overflow-x-auto">
+        <div v-else class="admin-orders-table-scroll max-h-[58vh] overflow-auto">
           <table class="admin-orders-table w-full min-w-[1328px] table-fixed text-left text-xs">
             <colgroup>
               <col class="w-[64px]" />
@@ -235,19 +235,19 @@
             </thead>
             <tbody>
               <tr
-                v-for="order in filteredOrders"
+                v-for="order in paginatedOrders"
                 :key="order.id"
-                class="border-b border-slate-100 last:border-none dark:border-[#2b241f] cursor-pointer transition-colors hover:bg-slate-50 dark:hover:bg-white/5"
+                class="border-b border-slate-100 last:border-none dark:border-[#2b241f] cursor-pointer transition-colors hover:bg-slate-50 dark:hover:bg-slate-900/5"
                 :class="{ 'bg-primary/5 dark:bg-primary/10 border-l-2 border-l-primary': activeTrackedOrder?.id === order.id }"
                 @click="selectOrderToTrack(order)"
               >
-                <td class="sticky left-0 z-10 bg-white px-2 py-2 font-semibold shadow-[1px_0_0_rgba(60,52,46,0.75)]">#{{ order.id || "-" }}</td>
-                <td class="px-2 py-2">
+                <td class="sticky left-0 z-10 bg-white px-2 py-1.5 font-semibold shadow-[1px_0_0_rgba(60,52,46,0.75)]">#{{ order.id || "-" }}</td>
+                <td class="px-2 py-1.5">
                   <p class="truncate" :title="order.fullName || 'Khách hàng'">
                     {{ order.fullName || "Khách hàng" }}
                   </p>
                 </td>
-                <td class="px-2 py-2 text-slate-600 ">
+                <td class="px-2 py-1.5 text-slate-600 ">
                   <p
                     v-for="(itemText, idx) in getOrderItemsPreview(order)"
                     :key="`${order.id || 'order'}-item-${idx}`"
@@ -256,12 +256,12 @@
                     {{ itemText }}
                   </p>
                 </td>
-                <td class="px-2 py-2 text-slate-500 ">
+                <td class="px-2 py-1.5 text-slate-500 ">
                   <p class="truncate" :title="order.phone || '-'">{{ order.phone || "-" }}</p>
                   <p class="truncate" :title="order.email || '-'">{{ order.email || "-" }}</p>
                 </td>
                 <td
-                  class="px-2 py-2 text-xs text-slate-600 "
+                  class="px-2 py-1.5 text-xs text-slate-600 "
                 >
                   <p
                     class="line-clamp-2"
@@ -279,14 +279,14 @@
                     }}
                   </p>
                 </td>
-                <td class="px-2 py-2 font-bold text-primary">
+                <td class="px-2 py-1.5 font-bold text-primary">
                   {{ formatCurrency(order.finalAmount || order.totalMoney) }}
                 </td>
-                <td class="px-2 py-2">
+                <td class="px-2 py-1.5">
                   <div class="truncate font-medium text-slate-700 " :title="getPaymentMethodLabel(order)">{{ getPaymentMethodLabel(order) }}</div>
                   <div class="mt-0.5 text-[11px] text-slate-500">{{ getPaymentStatusLabel(order.paymentStatus) }}</div>
                 </td>
-                <td class="px-2 py-2 whitespace-nowrap">
+                <td class="px-2 py-1.5 whitespace-nowrap">
                   <span
                     class="inline-flex whitespace-nowrap rounded-full px-2 py-1 text-xs font-semibold"
                     :class="statusClass(order.status)"
@@ -294,10 +294,10 @@
                     {{ getOrderStatusLabel(order.status) }}
                   </span>
                 </td>
-                <td class="px-2 py-2 text-slate-500 whitespace-nowrap">
+                <td class="px-2 py-1.5 text-slate-500 whitespace-nowrap">
                   {{ formatDate(order.createdAt) }}
                 </td>
-                <td class="sticky right-0 z-10 bg-white px-2 py-2 text-right shadow-[-1px_0_0_rgba(60,52,46,0.75)]">
+                <td class="sticky right-0 z-10 bg-white px-2 py-1.5 text-right shadow-[-1px_0_0_rgba(60,52,46,0.75)]">
                   <div class="flex items-center justify-end gap-1">
                     <button
                       class="rounded-lg p-1.5 hover:bg-slate-100 dark:hover:bg-white"
@@ -400,6 +400,46 @@
               </tr>
             </tbody>
           </table>
+        </div>
+
+        <div v-if="filteredOrders.length > 0" class="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs">
+          <div class="text-slate-500">
+            Hiển thị <span class="font-semibold text-slate-700">{{ pageStart }}</span>-
+            <span class="font-semibold text-slate-700">{{ pageEnd }}</span>
+            / <span class="font-semibold text-slate-700">{{ filteredOrders.length }}</span> đơn
+          </div>
+
+          <div class="flex items-center gap-2">
+            <label class="text-slate-500">Mỗi trang</label>
+            <select v-model.number="pageSize" class="rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs">
+              <option :value="10">10</option>
+              <option :value="20">20</option>
+              <option :value="30">30</option>
+              <option :value="50">50</option>
+            </select>
+
+            <button
+              type="button"
+              class="rounded-lg border border-slate-200 px-2 py-1 text-xs disabled:opacity-50"
+              :disabled="currentPage <= 1"
+              @click="currentPage = Math.max(1, currentPage - 1)"
+            >
+              Trước
+            </button>
+
+            <span class="rounded-md bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-700">
+              {{ currentPage }} / {{ totalPages }}
+            </span>
+
+            <button
+              type="button"
+              class="rounded-lg border border-slate-200 px-2 py-1 text-xs disabled:opacity-50"
+              :disabled="currentPage >= totalPages"
+              @click="currentPage = Math.min(totalPages, currentPage + 1)"
+            >
+              Sau
+            </button>
+          </div>
         </div>
       </section>
     </div>
@@ -687,7 +727,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 
 import AdminShell from "@/components/admin/AdminShell.vue";
 import { accountsApi, adminApi, ordersApi } from "@/services/api";
@@ -697,6 +737,8 @@ const error = ref("");
 const orders = ref([]);
 const search = ref("");
 const statusFilter = ref("ALL");
+const currentPage = ref(1);
+const pageSize = ref(20);
 
 const showModal = ref(false);
 const editingOrderId = ref(null);
@@ -901,6 +943,37 @@ const filteredOrders = computed(() => {
       }
       return Number(b.id || 0) - Number(a.id || 0);
     });
+});
+
+const totalPages = computed(() => {
+  const total = Math.ceil(filteredOrders.value.length / pageSize.value);
+  return Math.max(total, 1);
+});
+
+const paginatedOrders = computed(() => {
+  const start = (currentPage.value - 1) * pageSize.value;
+  const end = start + pageSize.value;
+  return filteredOrders.value.slice(start, end);
+});
+
+const pageStart = computed(() => {
+  if (filteredOrders.value.length === 0) return 0;
+  return (currentPage.value - 1) * pageSize.value + 1;
+});
+
+const pageEnd = computed(() => {
+  if (filteredOrders.value.length === 0) return 0;
+  return Math.min(currentPage.value * pageSize.value, filteredOrders.value.length);
+});
+
+watch([search, statusFilter], () => {
+  currentPage.value = 1;
+});
+
+watch([filteredOrders, pageSize], () => {
+  if (currentPage.value > totalPages.value) {
+    currentPage.value = totalPages.value;
+  }
 });
 
 const profitableOrders = computed(() => {
@@ -1469,6 +1542,21 @@ async function openEdit(order) {
       order.paymentMethod?.name ||
       order.payment_method?.name ||
       "",
+    shippingFee: asNumber(
+      order.shippingFee ||
+        order.shipping_fee ||
+        order.shipping ||
+        order.shippingAmount ||
+        order.shipping_amount ||
+        order.deliveryFee ||
+        order.delivery_fee ||
+        order.shipFee ||
+        order.ship_fee ||
+        order.feeShip ||
+        order.fee_ship,
+      0,
+    ),
+    discountAmount: asNumber(order.discountAmount || order.discount_amount, 0),
     totalMoney: asNumber(order.totalMoney || order.total_money, 0),
     finalAmount: asNumber(
       order.finalAmount ||
@@ -1699,8 +1787,6 @@ onMounted(() => {
     loadOrders(true);
   }, 10000); // Poll every 10 seconds
 });
-
-import { onUnmounted } from "vue";
 onUnmounted(() => {
   if (pollingInterval) clearInterval(pollingInterval);
 });
@@ -1746,7 +1832,7 @@ onUnmounted(() => {
 }
 
 .admin-orders-table tbody tr:hover > td {
-  background-color: #2b241f;
+  background-color: #f8fafc;
 }
 
 :global(.dark) .admin-orders-table-scroll {
@@ -1762,6 +1848,6 @@ onUnmounted(() => {
 }
 
 :global(.dark) .admin-orders-table tbody tr:hover > td {
-  background-color: #2b241f;
+  background-color: rgba(255, 255, 255, 0.05);
 }
 </style>

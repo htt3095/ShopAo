@@ -153,7 +153,7 @@ function normalizeOrderItem(rawOrder) {
         source.order_date ||
         null
 
-    const finalAmount = toFiniteNumber(
+    const finalAmount = Math.max(0, toFiniteNumber(
         source.finalAmount !== undefined && source.finalAmount !== null ? source.finalAmount :
         source.final_amount !== undefined && source.final_amount !== null ? source.final_amount :
         source.totalAmount !== undefined && source.totalAmount !== null ? source.totalAmount :
@@ -161,7 +161,28 @@ function normalizeOrderItem(rawOrder) {
         source.totalMoney !== undefined && source.totalMoney !== null ? source.totalMoney :
         source.total_money,
         0,
+    ))
+
+    const shippingFee = toFiniteNumber(
+        source.shippingFee !== undefined && source.shippingFee !== null ? source.shippingFee :
+        source.shipping_fee !== undefined && source.shipping_fee !== null ? source.shipping_fee :
+        source.shipping !== undefined && source.shipping !== null ? source.shipping :
+        source.shippingAmount !== undefined && source.shippingAmount !== null ? source.shippingAmount :
+        source.shipping_amount !== undefined && source.shipping_amount !== null ? source.shipping_amount :
+        source.deliveryFee !== undefined && source.deliveryFee !== null ? source.deliveryFee :
+        source.delivery_fee !== undefined && source.delivery_fee !== null ? source.delivery_fee :
+        source.shipFee !== undefined && source.shipFee !== null ? source.shipFee :
+        source.ship_fee !== undefined && source.ship_fee !== null ? source.ship_fee :
+        source.feeShip !== undefined && source.feeShip !== null ? source.feeShip :
+        source.fee_ship,
+        0,
     )
+
+    const discountAmount = Math.max(0, toFiniteNumber(
+        source.discountAmount !== undefined && source.discountAmount !== null ? source.discountAmount :
+        source.discount_amount,
+        0,
+    ))
 
     const paymentStatus =
         source.paymentStatus ||
@@ -181,6 +202,8 @@ function normalizeOrderItem(rawOrder) {
         id: normalizedId,
         createdAt,
         finalAmount,
+        shippingFee,
+        discountAmount,
         paymentStatus: normalizePaymentStatus(paymentStatus),
         status: normalizeOrderStatus(status),
     }

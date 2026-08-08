@@ -931,12 +931,15 @@ const detailItems = computed(() =>
   normalizeOrderDetailItems(activeDetailOrder.value),
 );
 const detailDiscount = computed(() =>
-  Math.max(
+  Math.min(
+    detailSubtotal.value,
+    Math.max(
     0,
     getOrderAmount(
       activeDetailOrder.value,
       ["discountAmount", "discount_amount"],
       0,
+    ),
     ),
   ),
 );
