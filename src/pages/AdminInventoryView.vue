@@ -594,6 +594,13 @@
                         >delete</span
                       >
                     </button>
+                    <button
+                      class="rounded-lg p-1.5 hover:bg-blue-50"
+                      title="Xem QR"
+                      @click.stop="viewQR(v)"
+                    >
+                      <span class="material-symbols-outlined text-[18px] text-blue-500">qr_code</span>
+                    </button>
                   </div>
                 </div>
               </div>
@@ -602,7 +609,32 @@
         </div>
       </section>
     </div>
-
+<!-- Modal Xem QR -->
+<Teleport to="body">
+  <div
+    v-if="showQrModal"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+    @click.self="showQrModal = false"
+  >
+    <div class="w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl text-center">
+      <h3 class="mb-2 text-base font-bold">
+        Mã QR - Biến thể #{{ qrVariant?.id }}
+      </h3>
+      <div v-if="qrImageUrl" class="mx-auto flex justify-center">
+        <img :src="qrImageUrl" alt="QR Code" class="max-w-full h-auto" />
+      </div>
+      <div v-else class="py-4 text-sm text-slate-500">Đang tải mã QR...</div>
+      <div class="mt-4 flex justify-end">
+        <button
+          class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium hover:bg-slate-50"
+          @click="showQrModal = false"
+        >
+          Đóng
+        </button>
+      </div>
+    </div>
+  </div>
+</Teleport>
     <!-- Modal Thêm/Sửa -->
     <Teleport to="body">
       <div
@@ -857,8 +889,9 @@
 import { computed, onMounted, ref, watch } from "vue";
 import axios from "axios";
 import AdminShell from "@/components/admin/AdminShell.vue";
-import { adminApi, colorsApi, sizesApi } from "@/services/api";
+import { adminApi, colorsApi, sizesApi, variantsApi } from "@/services/api";
 import { resolveImageUrl } from "@/services/api";
+import QRCode from 'qrcode';
 
 const props = defineProps({
   hideHeader: {
@@ -870,8 +903,10 @@ const props = defineProps({
     default: false,
   },
 });
-
-
+// Biến state cho QR
+const showQrModal = ref(false);
+const qrVariant = ref(null);
+const qrImageUrl = ref("");
 // Bulk create state
 const showBulkModal = ref(false);
 const bulkForm = ref({
@@ -2112,7 +2147,13 @@ async function saveVariant() {
 
       const createdVariant = await adminApi.createVariant(payload);
       variantIdForUpload = createdVariant.id || createdVariant.data?.id;
-    } else {
+      try {
+        await variantsApi.generateQR(variantIdForUpload);
+      } catch (qrErr) {
+        console.warn("Không thể sinh QR cho biến thể #" + variantIdForUpload, qrErr);
+      }
+    } 
+    else {
       await adminApi.updateVariant(variantIdForUpload, {
         productId: Number(f.productId),
         colorId: Number(f.colorId),
@@ -2154,6 +2195,44 @@ function confirmDelete(v) {
   deleteTarget.value = v;
 }
 
+async function viewQR(variant) {
+  qrVariant.value = variant;
+  qrImageUrl.value = "";
+  showQrModal.value = true;
+
+  try {
+    // Gọi generateQR để tạo QR và lấy đường dẫn
+    const response = await variantsApi.generateQR(variant.id);
+    console.log('QR response:', response); // kiểm tra xem response có gì
+
+    // Lấy đường dẫn ảnh từ response (có thể là qrPath, qrCodeUrl, imageUrl, hoặc qrCode)
+    let qrPath = response?.qrPath || response?.qrCodeUrl || response?.imageUrl || response?.qrCode;
+    if (qrPath) {
+      // Sử dụng resolveImageUrl để tạo URL tuyệt đối
+      qrImageUrl.value = resolveImageUrl(qrPath);
+    } else {
+      // Nếu không có đường dẫn, tạo QR từ ID bằng QRCode
+      const dataUrl = await QRCode.toDataURL(String(variant.id), {
+        width: 300,
+        margin: 2,
+      });
+      qrImageUrl.value = dataUrl;
+    }
+  } catch (err) {
+    console.error('Lỗi lấy QR:', err);
+    // Fallback: tạo QR từ ID
+    try {
+      const dataUrl = await QRCode.toDataURL(String(variant.id), {
+        width: 300,
+        margin: 2,
+      });
+      qrImageUrl.value = dataUrl;
+    } catch (e) {
+      alert('Không thể tạo mã QR cho biến thể này.');
+      showQrModal.value = false;
+    }
+  }
+}
 async function doDelete() {
   if (!deleteTarget.value) return;
 
@@ -2240,7 +2319,12 @@ async function loadInventory() {
     loading.value = false;
   }
 }
-
+watch(showQrModal, (newVal) => {
+  if (!newVal && qrImageUrl.value && qrImageUrl.value.startsWith("blob:")) {
+    URL.revokeObjectURL(qrImageUrl.value);
+    qrImageUrl.value = "";
+  }
+});
 defineExpose({
   openCreate,
   openBulkCreate,

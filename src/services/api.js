@@ -349,6 +349,11 @@ export const variantsApi = {
             `/variants?productId=${productId}&page=${page}&size=${size}`,
         );
     },
+    async generateQR(id) {
+        return apiCall(`/variants/${id}/generate-qr`, {
+            method: 'POST',
+        });
+    },
 };
 
 // Colors API (if available)
