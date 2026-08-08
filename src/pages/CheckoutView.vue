@@ -62,7 +62,25 @@
               Thông tin giao hàng
             </h2>
 
-            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <!-- Chọn địa chỉ đã lưu -->
+            <div v-if="savedAddresses.length > 0" class="mb-6">
+              <h3 class="text-sm font-bold text-slate-700 mb-3">Chọn địa chỉ đã lưu:</h3>
+              <div class="space-y-3">
+                <label v-for="addr in savedAddresses" :key="addr.id" class="flex items-start gap-3 p-3 border rounded-xl cursor-pointer transition-colors" :class="selectedAddressId === addr.id ? 'border-primary bg-primary/5' : 'border-slate-200 hover:bg-slate-50'">
+                  <input type="radio" v-model="selectedAddressId" :value="addr.id" class="mt-1" @change="handleSelectSavedAddress(addr)">
+                  <div>
+                    <p class="font-bold text-sm">{{ addr.fullname }} - {{ addr.phone }} <span v-if="addr.isDefault" class="ml-2 text-[10px] bg-primary text-white px-1.5 py-0.5 rounded">Mặc định</span></p>
+                    <p class="text-sm text-slate-600">{{ addr.address }}</p>
+                  </div>
+                </label>
+                <label class="flex items-start gap-3 p-3 border rounded-xl cursor-pointer transition-colors" :class="selectedAddressId === 'new' ? 'border-primary bg-primary/5' : 'border-slate-200 hover:bg-slate-50'">
+                  <input type="radio" v-model="selectedAddressId" value="new" class="mt-1" @change="resetShippingForm">
+                  <span class="font-bold text-sm">Nhập địa chỉ mới</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 gap-4 md:grid-cols-2" v-show="selectedAddressId === 'new'">
               <label class="flex flex-col gap-2 md:col-span-2">
                 <span
                   class="text-xs font-semibold uppercase tracking-wide text-slate-500 "
@@ -485,7 +503,7 @@ L.Icon.Default.mergeOptions({
   shadowUrl,
 });
 import { orderAPI, orderUtils, voucherAPI } from "@/services/orders";
-import { paymentApi } from "@/services/api";
+import { paymentApi, addressApi } from "@/services/api";
 import { resolveColorMeta, resolveSizeMeta } from "@/utils/variantValues";
 
 const cartStore = useCartStore();
@@ -510,6 +528,50 @@ const shippingForm = reactive({
   phone: "",
   address: "",
 });
+
+const savedAddresses = ref([]);
+const selectedAddressId = ref("new");
+
+async function fetchAddresses() {
+  if (currentAccountId.value) {
+    try {
+      const res = await addressApi.getByAccountId(currentAccountId.value);
+      savedAddresses.value = Array.isArray(res) ? res : (res.data || []);
+      
+      const defaultAddr = savedAddresses.value.find(a => a.isDefault);
+      if (defaultAddr) {
+        selectedAddressId.value = defaultAddr.id;
+        handleSelectSavedAddress(defaultAddr);
+      } else if (savedAddresses.value.length > 0) {
+        selectedAddressId.value = savedAddresses.value[0].id;
+        handleSelectSavedAddress(savedAddresses.value[0]);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }
+}
+
+function handleSelectSavedAddress(addr) {
+  shippingForm.fullname = addr.fullname || "";
+  shippingForm.phone = addr.phone || "";
+  shippingForm.address = addr.address || "";
+  streetAddress.value = addr.address || "";
+  
+  // Trigger map re-calculation
+  checkAndCalculateRoute(true);
+}
+
+function resetShippingForm() {
+  shippingForm.fullname = currentUser.value?.fullname || currentUser.value?.username || "";
+  shippingForm.phone = currentUser.value?.phone || "";
+  shippingForm.address = "";
+  streetAddress.value = "";
+  selectedProvince.value = "";
+  selectedDistrict.value = "";
+  selectedWard.value = "";
+  isRouteCalculated.value = false;
+}
 
 
 
@@ -1011,6 +1073,7 @@ onMounted(async () => {
   }, 100);
 
   await hydrateCheckout();
+  await fetchAddresses();
   try {
     const res = await fetch("https://esgoo.net/api-tinhthanh/4/0.htm");
     const json = await res.json();

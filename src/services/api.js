@@ -410,6 +410,30 @@ export const ordersApi = {
     },
 };
 
+// Address API
+export const addressApi = {
+    async getByAccountId(accountId) {
+        return apiCall(`/addresses/account/${accountId}`);
+    },
+    async create(addressData) {
+        return apiCall("/addresses", {
+            method: "POST",
+            body: JSON.stringify(addressData),
+        });
+    },
+    async update(addressId, addressData) {
+        return apiCall(`/addresses/${addressId}`, {
+            method: "PUT",
+            body: JSON.stringify(addressData),
+        });
+    },
+    async delete(addressId) {
+        return apiCall(`/addresses/${addressId}`, {
+            method: "DELETE",
+        });
+    },
+};
+
 // Vouchers API - bổ sung
 export const vouchersApi = {
     async getUserVouchers(accountId) {

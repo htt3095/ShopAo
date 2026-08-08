@@ -151,24 +151,28 @@
             class="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-slate-200/70 "
           >
             <div class="p-6 md:p-8 flex flex-col gap-4">
-              <div class="flex items-center gap-2 mb-2">
-                <span class="material-symbols-outlined text-primary"
-                  >location_on</span
-                >
-                <h3 class="text-slate-900  font-bold text-lg">
-                  Địa chỉ mặc định
-                </h3>
+              <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center gap-2">
+                  <span class="material-symbols-outlined text-primary">location_on</span>
+                  <h3 class="text-slate-900 font-bold text-lg">Sổ địa chỉ</h3>
+                </div>
+                <button @click="showAddAddressModal = true" class="text-sm font-medium text-primary hover:underline">
+                  + Thêm mới
+                </button>
               </div>
-              <div class="pl-8">
-                <p
-                  v-if="user.address"
-                  class="text-slate-600 "
-                >
-                  {{ user.address }}
-                </p>
-                <p v-else class="text-slate-400  italic">
-                  Bạn chưa thêm địa chỉ
-                </p>
+              <div class="pl-8 flex flex-col gap-3">
+                <div v-if="addresses.length > 0">
+                  <div v-for="addr in addresses" :key="addr.id" class="border rounded-lg p-3 relative group" :class="{'border-primary bg-primary/5': addr.isDefault}">
+                    <div v-if="addr.isDefault" class="absolute top-2 right-2 text-xs bg-primary text-white px-2 py-0.5 rounded">Mặc định</div>
+                    <p class="font-bold text-sm text-slate-800">{{ addr.fullname }} - {{ addr.phone }}</p>
+                    <p class="text-sm text-slate-600 mt-1">{{ addr.address }}</p>
+                    <div class="flex items-center gap-3 mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                       <button @click="deleteAddress(addr.id)" class="text-xs text-red-500 font-medium">Xóa</button>
+                       <button v-if="!addr.isDefault" @click="setDefaultAddress(addr)" class="text-xs text-primary font-medium">Đặt mặc định</button>
+                    </div>
+                  </div>
+                </div>
+                <p v-else class="text-slate-400 italic">Bạn chưa thêm địa chỉ nào</p>
               </div>
             </div>
             <div class="p-6 md:p-8 flex flex-col gap-4">
@@ -416,6 +420,34 @@
         </section>
       </div>
     </div>
+    <!-- Modal Thêm Địa Chỉ -->
+    <div v-if="showAddAddressModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
+      <div class="bg-white rounded-xl p-6 w-full max-w-md">
+        <h3 class="text-xl font-bold text-slate-900 mb-4">Thêm địa chỉ mới</h3>
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium mb-1">Họ và tên</label>
+            <input v-model="newAddress.fullname" type="text" class="w-full border rounded p-2" placeholder="Tên người nhận">
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1">Số điện thoại</label>
+            <input v-model="newAddress.phone" type="text" class="w-full border rounded p-2" placeholder="Số điện thoại">
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1">Địa chỉ chi tiết</label>
+            <textarea v-model="newAddress.address" class="w-full border rounded p-2" placeholder="Số nhà, đường, phường, quận, thành phố..."></textarea>
+          </div>
+          <div class="flex items-center gap-2">
+            <input type="checkbox" v-model="newAddress.isDefault" id="isDefault">
+            <label for="isDefault" class="text-sm">Đặt làm địa chỉ mặc định</label>
+          </div>
+        </div>
+        <div class="mt-6 flex justify-end gap-3">
+          <button @click="showAddAddressModal = false" class="px-4 py-2 border rounded hover:bg-slate-50">Hủy</button>
+          <button @click="addAddress" class="px-4 py-2 bg-primary text-white rounded hover:bg-primary/90">Lưu</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -424,7 +456,7 @@ import { computed, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import { useProductStore } from "@/stores/products";
 import { useReviewsStore } from "@/stores/reviews";
-import { accountsApi, resolveBackendAssetUrl } from "../services/api";
+import { accountsApi, addressApi, resolveBackendAssetUrl } from "../services/api";
 import { orderAPI } from "@/services/orders";
 
 const router = useRouter();
@@ -436,7 +468,54 @@ const isLoadingFeedback = ref(false);
 const user = ref({});
 const orders = ref([]);
 const feedbacks = ref([]);
+const addresses = ref([]);
+const showAddAddressModal = ref(false);
+const newAddress = ref({ fullname: '', phone: '', address: '', isDefault: false });
 const recentOrders = computed(() => orders.value.slice(0, 4));
+
+async function fetchAddresses() {
+  const accountId = getAccountId(user.value);
+  if (accountId === null) return;
+  try {
+    const res = await addressApi.getByAccountId(accountId);
+    addresses.value = Array.isArray(res) ? res : (res.data || []);
+  } catch (err) {
+    console.error("Lỗi lấy địa chỉ", err);
+  }
+}
+
+async function addAddress() {
+  const accountId = getAccountId(user.value);
+  if (!accountId || !newAddress.value.address || !newAddress.value.phone) return;
+  try {
+    await addressApi.create({ ...newAddress.value, accountId });
+    showAddAddressModal.value = false;
+    newAddress.value = { fullname: '', phone: '', address: '', isDefault: false };
+    await fetchAddresses();
+  } catch (err) {
+    console.error(err);
+    alert("Thêm địa chỉ thất bại");
+  }
+}
+
+async function deleteAddress(id) {
+  if (!confirm("Bạn có chắc chắn muốn xóa?")) return;
+  try {
+    await addressApi.delete(id);
+    await fetchAddresses();
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+async function setDefaultAddress(addr) {
+  try {
+    await addressApi.update(addr.id, { ...addr, isDefault: true });
+    await fetchAddresses();
+  } catch (err) {
+    console.error(err);
+  }
+}
 
 function normalizeAvatarUrl(rawUrl) {
   if (!rawUrl || typeof rawUrl !== "string") {
@@ -478,6 +557,7 @@ function getAccountId(sourceUser) {
 // Lấy thông tin user từ localStorage khi component được mount
 onMounted(async () => {
   await loadUserData();
+  await fetchAddresses();
   await fetchUserOrders();
   await fetchUserFeedbacks();
 });
