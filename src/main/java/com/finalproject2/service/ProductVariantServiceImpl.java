@@ -11,6 +11,8 @@ import com.finalproject2.repository.ColorRepository;
 import com.finalproject2.repository.ProductRepository;
 import com.finalproject2.repository.ProductVariantRepository;
 import com.finalproject2.repository.SizeRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,20 +24,25 @@ import java.util.stream.Collectors;
 @Service
 public class ProductVariantServiceImpl implements ProductVariantService {
 
+    private static final Logger log = LoggerFactory.getLogger(ProductVariantServiceImpl.class);
+
     private final ProductVariantRepository repo;
     private final ProductRepository productRepo;
     private final SizeRepository sizeRepo;
     private final ColorRepository colorRepo;
+    private final QRCodeService qrCodeService;
 
     public ProductVariantServiceImpl(
             ProductVariantRepository repo,
             ProductRepository productRepo,
             SizeRepository sizeRepo,
-            ColorRepository colorRepo) {
+            ColorRepository colorRepo,
+            QRCodeService qrCodeService) {
         this.repo = repo;
         this.productRepo = productRepo;
         this.sizeRepo = sizeRepo;
         this.colorRepo = colorRepo;
+        this.qrCodeService = qrCodeService;
     }
 
     @Override
@@ -56,12 +63,21 @@ public class ProductVariantServiceImpl implements ProductVariantService {
         v.setStatus(normalizeStatus(req.getStatus(), req.getStockQuantity()));
         v.setImageUrl(req.getImageUrl());
 
-        // NEW: Handle extraImages
         if (req.getExtraImages() != null && !req.getExtraImages().isEmpty()) {
             v.setExtraImages(req.getExtraImages());
         }
 
         v = repo.save(v);
+
+        // Sinh QR cho variant
+        try {
+            String qrPath = qrCodeService.generateVariantQR(v.getId());
+            v.setQrCode(qrPath);
+            repo.save(v);
+        } catch (Exception e) {
+            log.error("Lỗi sinh QR cho variant {}: {}", v.getId(), e.getMessage(), e);
+        }
+
         return toResponse(v);
     }
 
@@ -96,8 +112,6 @@ public class ProductVariantServiceImpl implements ProductVariantService {
         if (req.getImageUrl() != null) {
             v.setImageUrl(req.getImageUrl());
         }
-
-        // NEW: Handle extraImages
         if (req.getExtraImages() != null) {
             v.setExtraImages(req.getExtraImages());
         }
@@ -129,7 +143,6 @@ public class ProductVariantServiceImpl implements ProductVariantService {
         try {
             repo.delete(v);
         } catch (DataIntegrityViolationException e) {
-            // Foreign key constraint violation - soft delete by setting stockQuantity to 0
             v.setStockQuantity(0);
             v.setStatus("HIDDEN");
             v.setUpdatedAt(Instant.now());
@@ -137,24 +150,20 @@ public class ProductVariantServiceImpl implements ProductVariantService {
         }
     }
 
-    /**
-     * Map thủ công từ entity sang response.
-     * KHÔNG dùng ModelMapper để tránh circular reference:
-     * ProductVariant → cartItems → CartItem → cart → Cart → cartItems → ...
-     */
     private ProductVariantResponse toResponse(ProductVariant v) {
         ProductVariantResponse r = new ProductVariantResponse();
         r.setId(v.getId());
         r.setProductId(v.getProduct() != null ? v.getProduct().getId() : null);
-        r.setSizeId(v.getSize()       != null ? v.getSize().getId()    : null);
-        r.setColorId(v.getColor()     != null ? v.getColor().getId()   : null);
-        r.setColorName(v.getColor()   != null ? v.getColor().getName() : null);
-        r.setSizeName(v.getSize()     != null ? v.getSize().getName()  : null);
+        r.setSizeId(v.getSize() != null ? v.getSize().getId() : null);
+        r.setColorId(v.getColor() != null ? v.getColor().getId() : null);
+        r.setColorName(v.getColor() != null ? v.getColor().getName() : null);
+        r.setSizeName(v.getSize() != null ? v.getSize().getName() : null);
         r.setPrice(v.getPrice());
         r.setStockQuantity(v.getStockQuantity());
         r.setStatus(normalizeStatus(v.getStatus(), v.getStockQuantity()));
         r.setImageUrl(v.getImageUrl());
         r.setExtraImages(v.getExtraImages());
+        r.setQrCode(v.getQrCode());   // 👈 QUAN TRỌNG: thêm dòng này
         return r;
     }
 

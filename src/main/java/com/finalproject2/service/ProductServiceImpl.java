@@ -13,6 +13,8 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,19 +22,26 @@ import java.util.stream.Collectors;
 @Service
 public class ProductServiceImpl implements ProductService {
 
+    private static final Logger log = LoggerFactory.getLogger(ProductServiceImpl.class);
+
     private final ProductRepository productRepo;
     private final CategoryRepository categoryRepo;
     private final BrandRepository brandRepo;
+    private final QRCodeService qrCodeService;   // 👈 thêm
 
+    // Cập nhật constructor
     public ProductServiceImpl(ProductRepository productRepo,
                               CategoryRepository categoryRepo,
-                              BrandRepository brandRepo) {
+                              BrandRepository brandRepo,
+                              QRCodeService qrCodeService) {
         this.productRepo = productRepo;
         this.categoryRepo = categoryRepo;
         this.brandRepo = brandRepo;
+        this.qrCodeService = qrCodeService;
     }
 
     @Override
+    @Transactional
     public ProductResponse create(ProductRequest req) {
         Category cat = categoryRepo.findById(req.getCategoryId())
                 .orElseThrow(() -> new NotFoundException("Category not found"));
@@ -49,6 +58,15 @@ public class ProductServiceImpl implements ProductService {
         p.setStatus("AVAILABLE");
         p.setCreatedAt(Instant.now());
         p = productRepo.save(p);
+
+        try {
+            String qrPath = qrCodeService.generateProductQR(p.getId());
+            p.setQrCode(qrPath);
+            productRepo.save(p);
+        } catch (Exception e) {
+            log.error("Lỗi sinh QR cho sản phẩm {}: {}", p.getId(), e.getMessage(), e);
+        }
+
         return toResponse(p);
     }
 
@@ -76,6 +94,10 @@ public class ProductServiceImpl implements ProductService {
 
         p.setUpdatedAt(Instant.now());
         p = productRepo.save(p);
+
+        // (Tùy chọn) Nếu muốn tạo lại QR khi cập nhật, có thể gọi ở đây
+        // try { ... } catch...
+
         return toResponse(p);
     }
 
@@ -111,8 +133,6 @@ public class ProductServiceImpl implements ProductService {
 
     /**
      * Map thủ công từ entity sang response.
-     * KHÔNG dùng ModelMapper để tránh circular reference:
-     * Product → accounts → Account → cart → Cart → cartItems → CartItem → variant → ProductVariant → ...
      */
     private ProductResponse toResponse(Product p) {
         ProductResponse r = new ProductResponse();
@@ -125,6 +145,7 @@ public class ProductServiceImpl implements ProductService {
         r.setUpdatedAt(p.getUpdatedAt());
         r.setCategoryId(p.getCategory() != null ? p.getCategory().getId() : null);
         r.setBrandId(p.getBrand()       != null ? p.getBrand().getId()    : null);
+        r.setQrCode(p.getQrCode());   // 👈 QUAN TRỌNG: map qrCode
         return r;
     }
 }

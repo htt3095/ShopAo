@@ -59,6 +59,9 @@ public class ProductVariant {
     @Column(name = "updated_at")
     private Instant updatedAt;
 
+    @Column(name = "qr_code")
+    private String qrCode;
+
     // JsonIgnore để tránh circular reference:
     // ProductVariant → cartItems → CartItem → cart → Cart → cartItems → ...
     @JsonIgnore

@@ -18,4 +18,6 @@ public class ProductResponse {
     private String status;
     private String imageUrl;
     private Instant updatedAt;
+    private String qrCode;
+
 }

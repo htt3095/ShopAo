@@ -21,4 +21,5 @@ public class ProductVariantResponse {
     private String status;
     private String imageUrl;
     private List<String> extraImages;
+    private String qrCode;
 }

@@ -64,6 +64,11 @@ public class Product {
     @Column(name = "image_url")
     private String imageUrl;
 
+    // 👇 THÊM TRƯỜNG QR CODE
+    @Size(max = 255)
+    @Column(name = "qr_code")
+    private String qrCode;
+
     // @JsonIgnore để tránh circular reference
     @JsonIgnore
     @ManyToMany(mappedBy = "products")

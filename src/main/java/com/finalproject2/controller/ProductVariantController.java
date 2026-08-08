@@ -7,7 +7,9 @@ import com.finalproject2.model.request.ProductVariantRequest;
 import com.finalproject2.model.response.ProductVariantResponse;
 import com.finalproject2.service.ProductVariantService;
 import com.finalproject2.repository.ProductVariantRepository;
+import com.finalproject2.service.QRCodeService;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -22,11 +24,13 @@ public class ProductVariantController {
     private final ProductVariantService svc;
     private final ProductVariantRepository repo;
     private final Cloudinary cloudinary;
+    private final QRCodeService qrCodeService;
 
-    public ProductVariantController(ProductVariantService svc, ProductVariantRepository repo, Cloudinary cloudinary) {
+    public ProductVariantController(ProductVariantService svc, ProductVariantRepository repo, Cloudinary cloudinary, QRCodeService qrCodeService) {
         this.svc = svc;
         this.repo = repo;
         this.cloudinary = cloudinary;
+        this.qrCodeService = qrCodeService;
     }
 
     @PostMapping
@@ -186,6 +190,20 @@ public class ProductVariantController {
             ));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+    @PostMapping("/{id}/generate-qr")
+    public ResponseEntity<?> generateQR(@PathVariable Long id) {
+        try {
+            String qrPath = qrCodeService.generateVariantQR(id);
+            ProductVariant variant = repo.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy biến thể"));
+            variant.setQrCode(qrPath);
+            repo.save(variant);
+            return ResponseEntity.ok(Map.of("qrPath", qrPath));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Lỗi tạo QR: " + e.getMessage()));
         }
     }
 }
