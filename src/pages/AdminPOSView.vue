@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <AdminShell>
     <template #header>
       <div class="flex flex-wrap items-center justify-between gap-4">
@@ -153,6 +153,31 @@
                   placeholder="Nhập từ khóa..."
                   class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-sm text-slate-900 outline-none focus:border-primary"
                 />
+              </div>
+              <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <div class="flex items-center gap-2">
+                  <span class="material-symbols-outlined text-[20px] text-primary">search</span>
+                  <div>
+                    <p class="text-[13px] font-semibold text-slate-900">Tìm sản phẩm</p>
+                    <p class="text-xs text-slate-500">Tìm theo tên hoặc mã sản phẩm.</p>
+                  </div>
+                </div>
+                <div class="flex w-full items-center gap-2 sm:w-[340px]">
+                  <input
+                    v-model="searchQuery"
+                    type="text"
+                    placeholder="Nhập từ khóa hoặc ID biến thể..."
+                    class="flex-1 rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-sm text-slate-900 outline-none focus:border-primary"
+                  />
+                  <button
+                    type="button"
+                    class="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-sm font-semibold text-white hover:bg-blue-600"
+                    @click="startQrScanner"
+                  >
+                    <span class="material-symbols-outlined text-[18px]">qr_code_scanner</span>
+                    Quét QR
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -524,12 +549,45 @@
           </div>
         </div>
       </Teleport>
+     <!-- Modal quét QR -->
+<Teleport to="body">
+  <div
+    v-if="qrScannerVisible"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+    @click.self="stopQrScanner"
+  >
+    <div class="w-full max-w-md rounded-2xl bg-white p-4 shadow-2xl">
+      <div class="flex items-center justify-between">
+        <h3 class="text-lg font-bold">Quét mã QR</h3>
+        <button
+          type="button"
+          class="rounded-lg p-1 hover:bg-slate-100"
+          @click="stopQrScanner"
+        >
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <div id="qr-reader" class="mt-3 w-full"></div>
+      <p v-if="qrScanError" class="mt-2 text-sm text-red-500">{{ qrScanError }}</p>
+      <div class="mt-3 flex justify-end">
+        <button
+          type="button"
+          class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium hover:border-slate-400"
+          @click="stopQrScanner"
+        >
+          Đóng
+        </button>
+      </div>
+    </div>
+  </div>
+</Teleport>
     </div>
   </AdminShell>
 </template>
 
 <script setup>
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, onMounted, ref, watch, nextTick, onBeforeUnmount } from "vue";
+import { Html5Qrcode, Html5QrcodeScanType } from "html5-qrcode";
 import axios from "axios";
 import AdminShell from "@/components/admin/AdminShell.vue";
 import { adminApi, colorsApi, sizesApi } from "@/services/api";
@@ -547,6 +605,11 @@ const invoiceRemovalTarget = ref(null);
 const invoices = ref([createNewInvoice()]);
 const activeInvoiceId = ref(invoices.value[0].id);
 const isProcessing = ref(false);
+
+const qrScannerVisible = ref(false);
+const qrScanner = ref(null);
+const qrScanError = ref("");
+let isScannerStopping = false;
 
 const activeInvoice = computed(() => invoices.value.find((invoice) => invoice.id === activeInvoiceId.value) || invoices.value[0]);
 const activeInvoiceTitle = computed(() => {
@@ -755,7 +818,15 @@ onMounted(async () => {
     console.error("Lỗi tải dữ liệu POS:", error);
   }
 });
-
+onBeforeUnmount(() => {
+  if (qrScanner.value) {
+    try {
+      qrScanner.value.stop().catch(() => {});
+      qrScanner.value.clear().catch(() => {});
+    } catch {}
+    qrScanner.value = null;
+  }
+});
 const filteredVariants = computed(() => {
   const query = String(searchQuery.value || "").toLowerCase().trim();
   if (!query) return inventoryVariants.value;
@@ -1323,6 +1394,159 @@ const handlePlaceOrder = async () => {
       void processOrder(invoice);
     },
   });
+};
+const startQrScanner = () => {
+  if (!inventoryVariants.value.length) {
+    alert("Dữ liệu sản phẩm chưa được tải, vui lòng thử lại sau.");
+    return;
+  }
+
+  if (qrScanner.value) {
+    stopQrScanner();
+  }
+
+  qrScannerVisible.value = true;
+  qrScanError.value = "";
+  isScannerStopping = false;
+
+  nextTick(() => {
+    const element = document.getElementById("qr-reader");
+    if (!element) {
+      qrScanError.value = "Không tìm thấy phần tử quét QR.";
+      return;
+    }
+
+    element.innerHTML = "";
+
+    try {
+      const scanner = new Html5Qrcode("qr-reader");
+      qrScanner.value = scanner;
+
+      const config = {
+        fps: 20,
+        qrbox: { width: 250, height: 250 },
+        aspectRatio: 1.0,
+        supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA],
+      };
+
+      scanner.start(
+        { facingMode: "environment" },
+        config,
+        onQrScanSuccess,
+        onQrScanError
+      ).catch((err) => {
+        qrScanError.value = "Không thể khởi tạo camera: " + err.message;
+        console.error(err);
+        qrScannerVisible.value = false;
+        qrScanner.value = null;
+      });
+    } catch (err) {
+      qrScanError.value = "Lỗi tạo scanner: " + err.message;
+      console.error(err);
+      qrScannerVisible.value = false;
+    }
+  });
+};
+
+const stopQrScanner = async () => {
+  if (isScannerStopping) return;
+  isScannerStopping = true;
+
+  const scanner = qrScanner.value;
+  qrScanner.value = null; 
+
+  if (scanner) {
+    try {
+      await scanner.stop().catch(() => {});
+      await scanner.clear().catch(() => {});
+    } catch (err) {
+    }
+  }
+
+  isScannerStopping = false;
+  qrScannerVisible.value = false;
+};
+
+const onQrScanSuccess = async (decodedText) => {
+  await stopQrScanner();
+  handleQrData(decodedText);
+};
+
+const onQrScanError = () => {};
+
+// Đã sửa hàm này để nhận diện được cả Link URL và Số
+const handleQrData = (decodedText) => {
+  if (!decodedText) return;
+
+  // 1. Xóa khoảng trắng và dấu gạch chéo thừa ở cuối (nếu có)
+  const rawText = decodedText.trim().replace(/\/+$/, "");
+
+  // 2. Tự động tìm ID ở cuối đường link (VD: /variant/3) hoặc mã chỉ có số
+  let variantId = null;
+  const match = rawText.match(/\/variant\/(\d+)/i) || rawText.match(/(\d+)$/);
+
+  if (match) {
+    variantId = Number(match[1]); // Lấy được số 3
+  } else {
+    variantId = Number(rawText);
+  }
+
+  // 3. Kiểm tra xem mã quét được có hợp lệ không
+  if (!variantId || isNaN(variantId) || variantId <= 0) {
+    alert("Mã QR không hợp lệ (không tìm thấy ID sản phẩm).");
+    return;
+  }
+
+  // 4. Tìm kiếm biến thể trong kho
+  let foundProduct = null;
+  let foundVariant = null;
+  for (const product of inventoryVariants.value) {
+    const variant = product.variants.find(
+      (v) => Number(v.variantId) === variantId || Number(v.id) === variantId
+    );
+    if (variant) {
+      foundProduct = product;
+      foundVariant = variant;
+      break;
+    }
+  }
+
+  if (!foundProduct || !foundVariant) {
+    alert(`Không tìm thấy biến thể với ID #${variantId}.`);
+    return;
+  }
+
+  const invoice = activeInvoice.value;
+  if (!invoice) return;
+
+  const stock = Number(foundVariant.stockQuantity || 0);
+  if (stock <= 0) {
+    alert("Sản phẩm này đã hết hàng!");
+    return;
+  }
+
+  // 5. Thêm vào giỏ
+  const existing = invoice.cart.find(
+    (item) => item.variantId === foundVariant.variantId
+  );
+  if (existing) {
+    existing.quantity = Math.min(existing.quantity + 1, stock);
+  } else {
+    const productForCart = {
+      productId: foundProduct.productId,
+      productName: foundProduct.productName,
+      imageUrl: foundProduct.imageUrl,
+      price: foundVariant.price,
+      variants: foundProduct.variants,
+    };
+    invoice.cart.push({
+      cartItemId: `${Date.now()}-${Math.random()}`,
+      product: productForCart,
+      variantId: foundVariant.variantId,
+      quantity: 1,
+      price: Number(foundVariant.price || 0),
+    });
+  }
 };
 
 function toList(rawValue) {
