@@ -218,21 +218,32 @@ public class OrderController {
         // ----------------------------------
 
         // --- VÁ LỖI 3: CỘNG LẠI KHO KHI HỦY/HOÀN ĐƠN ---
+        boolean restoreStock = req.containsKey("restoreStock") ? Boolean.parseBoolean(req.get("restoreStock").toString()) : true;
         if (oldStatus != null && !oldStatus.equals(newStatus) &&
                 ("CANCELLED".equals(newStatus) || "RETURNED".equals(newStatus) || "DAMAGED".equals(newStatus) || "LOST".equals(newStatus))) {
 
-            for (OrderItem item : order.getOrderItems()) {
-                ProductVariant variant = item.getVariant();
-                if (variant != null) {
-                    variant.setStockQuantity(variant.getStockQuantity() + item.getQuantity());
-                    variantRepo.save(variant);
+            if (restoreStock) {
+                for (OrderItem item : order.getOrderItems()) {
+                    ProductVariant variant = item.getVariant();
+                    if (variant != null) {
+                        variant.setStockQuantity(variant.getStockQuantity() + item.getQuantity());
+                        variantRepo.save(variant);
+                    }
                 }
             }
         }
         // ----------------------------------------------
 
-        if (newStatus != null)
+        if (newStatus != null) {
             order.setStatus(newStatus);
+            // AUTO REFUND FOR CANCELLED ONLINE ORDERS
+            if ("CANCELLED".equals(newStatus)) {
+                String pStatus = order.getPaymentStatus();
+                if (pStatus != null && (pStatus.equals("PAID") || pStatus.equals("DA_THANH_TOAN") || pStatus.equals("CAPTURED") || pStatus.equals("SETTLED"))) {
+                    order.setPaymentStatus("REFUNDED");
+                }
+            }
+        }
         String pStatus = asString(req.get("paymentStatus"));
         String returnReason = asString(req.get("returnReason"));
         if (returnReason != null && !returnReason.isEmpty()) {

@@ -28,7 +28,7 @@ public class AddressController {
 
     @GetMapping("/account/{accountId}")
     public ResponseEntity<?> getAddressesByAccount(@PathVariable Integer accountId) {
-        List<Address> addresses = addressRepo.findByAccountId(accountId);
+        List<Address> addresses = addressRepo.findByAccount_Id(accountId);
         return ResponseEntity.ok(addresses);
     }
 
@@ -51,7 +51,7 @@ public class AddressController {
         Boolean isDefault = asBoolean(payload.get("isDefault"));
         if (isDefault != null && isDefault) {
             // Unset other default addresses
-            List<Address> existing = addressRepo.findByAccountId(accountId);
+            List<Address> existing = addressRepo.findByAccount_Id(accountId);
             for (Address a : existing) {
                 if (Boolean.TRUE.equals(a.getIsDefault())) {
                     a.setIsDefault(false);
@@ -61,7 +61,7 @@ public class AddressController {
             address.setIsDefault(true);
         } else {
             // If it's the first address, make it default automatically
-            if (addressRepo.findByAccountId(accountId).isEmpty()) {
+            if (addressRepo.findByAccount_Id(accountId).isEmpty()) {
                 address.setIsDefault(true);
             } else {
                 address.setIsDefault(false);
@@ -90,7 +90,7 @@ public class AddressController {
         Boolean isDefault = asBoolean(payload.get("isDefault"));
         if (isDefault != null && isDefault && !Boolean.TRUE.equals(address.getIsDefault())) {
             // Unset others
-            List<Address> existing = addressRepo.findByAccountId(address.getAccount().getId());
+            List<Address> existing = addressRepo.findByAccount_Id(address.getAccount().getId());
             for (Address a : existing) {
                 if (Boolean.TRUE.equals(a.getIsDefault()) && !a.getId().equals(id)) {
                     a.setIsDefault(false);
@@ -117,7 +117,7 @@ public class AddressController {
         
         // If we deleted the default address, make another one default if it exists
         if (wasDefault) {
-            List<Address> remaining = addressRepo.findByAccountId(accountId);
+            List<Address> remaining = addressRepo.findByAccount_Id(accountId);
             if (!remaining.isEmpty()) {
                 Address first = remaining.get(0);
                 first.setIsDefault(true);

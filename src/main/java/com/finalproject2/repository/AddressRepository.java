@@ -8,6 +8,6 @@ import java.util.List;
 
 @Repository
 public interface AddressRepository extends JpaRepository<Address, Long> {
-    List<Address> findByAccountId(Integer accountId);
-    List<Address> findByAccountIdAndIsDefaultTrue(Integer accountId);
+    List<Address> findByAccount_Id(Integer accountId);
+    List<Address> findByAccount_IdAndIsDefaultTrue(Integer accountId);
 }
