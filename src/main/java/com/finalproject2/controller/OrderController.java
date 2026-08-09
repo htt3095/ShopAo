@@ -1,47 +1,22 @@
 package com.finalproject2.controller;
 
-import com.cloudinary.Cloudinary;
-import com.finalproject2.entity.Account;
-import com.finalproject2.entity.AccountVoucher;
-import com.finalproject2.entity.Order;
-import com.finalproject2.entity.OrderItem;
-import com.finalproject2.entity.PaymentMethod;
-import com.finalproject2.entity.ProductVariant;
-import com.finalproject2.entity.Voucher;
+import com.finalproject2.entity.*;
+import com.finalproject2.repository.*;
 import com.finalproject2.exception.BadRequestException;
 import com.finalproject2.exception.NotFoundException;
-import com.finalproject2.repository.AccountRepository;
-import com.finalproject2.repository.AccountVoucherRepository;
-import com.finalproject2.repository.CartItemRepository;
-import com.finalproject2.repository.CartRepository;
-import com.finalproject2.repository.OrderItemRepository;
-import com.finalproject2.repository.OrderRepository;
-import com.finalproject2.repository.PaymentMethodRepository;
-import com.finalproject2.repository.ProductVariantRepository;
-import com.finalproject2.repository.VoucherRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import com.cloudinary.Cloudinary;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/orders")
@@ -59,8 +34,7 @@ public class OrderController {
     private final CartItemRepository cartItemRepo;
     private final Cloudinary cloudinary;
 
-    public OrderController(
-            OrderRepository orderRepo,
+    public OrderController(OrderRepository orderRepo,
             OrderItemRepository orderItemRepo,
             PaymentMethodRepository paymentRepo,
             VoucherRepository voucherRepo,
@@ -69,8 +43,7 @@ public class OrderController {
             AccountVoucherRepository accountVoucherRepo,
             CartRepository cartRepo,
             CartItemRepository cartItemRepo,
-            Cloudinary cloudinary
-    ) {
+            Cloudinary cloudinary) {
         this.orderRepo = orderRepo;
         this.orderItemRepo = orderItemRepo;
         this.paymentRepo = paymentRepo;
@@ -90,7 +63,6 @@ public class OrderController {
         if (accountId == null) {
             throw new BadRequestException("Tài khoản không tồn tại");
         }
-
         Account account = accountRepo.findById(accountId)
                 .orElseThrow(() -> new BadRequestException("Tài khoản không tồn tại"));
 
@@ -98,7 +70,6 @@ public class OrderController {
         if (pmId == null) {
             throw new BadRequestException("Phương thức thanh toán không hợp lệ");
         }
-
         PaymentMethod pm = paymentRepo.findById(pmId)
                 .orElseThrow(() -> new BadRequestException("Phương thức thanh toán không hợp lệ"));
 
@@ -115,6 +86,8 @@ public class OrderController {
 
         List<Map<String, Object>> itemsReq = extractOrderItems(payload);
         if (itemsReq == null || itemsReq.isEmpty()) {
+            System.out.println("=== LỖI PAYLOAD KHÔNG TÌM THẤY GIỎ HÀNG ===");
+            System.out.println("Dữ liệu Frontend gửi xuống: " + payload);
             throw new BadRequestException("Giỏ hàng đang trống, không thể đặt hàng!");
         }
 
@@ -124,26 +97,25 @@ public class OrderController {
         order.setStatus("NEW");
         order.setFullname(asString(payload.get("fullname")));
         order.setPhone(asString(payload.get("phone")));
-
-        String shippingAddress = asString(payload.get("shippingAddress"));
-        if (shippingAddress == null || shippingAddress.isBlank()) {
-            shippingAddress = asString(payload.get("address"));
-        }
-        order.setShippingAddress(shippingAddress);
-
+        order.setShippingAddress(asString(payload.get("shippingAddress")));
         order.setPaymentStatus("PENDING");
         order.setPaymentMethod(pm);
         if (voucher != null) {
             order.setVoucher(voucher);
         }
 
-        BigDecimal subtotal = BigDecimal.ZERO;
+        BigDecimal shippingFee = BigDecimal.ZERO;
+        if (payload.get("shippingFee") != null) {
+            shippingFee = new BigDecimal(payload.get("shippingFee").toString());
+        }
+        order.setShippingFee(shippingFee);
+
+        BigDecimal totalMoney = BigDecimal.ZERO;
         List<OrderItem> orderItems = new ArrayList<>();
 
         for (Map<String, Object> itemReq : itemsReq) {
             Long variantId = extractVariantId(itemReq);
             Integer qty = asInteger(itemReq.get("quantity"));
-
             if (variantId == null) {
                 throw new BadRequestException("Sản phẩm không hợp lệ");
             }
@@ -155,16 +127,18 @@ public class OrderController {
                     .orElseThrow(() -> new BadRequestException("Sản phẩm không tồn tại"));
 
             if (!isVariantSellable(variant)) {
-                throw new BadRequestException("Sản phẩm " + variant.getProduct().getName() + " hiện không mở bán!");
+                throw new BadRequestException(
+                        "Sáº£n pháº©m " + variant.getProduct().getName() + " hiá»‡n khÃ´ng má»Ÿ bÃ¡n!");
             }
 
             int updatedRows = variantRepo.decrementStockIfAvailable(variantId, qty);
             if (updatedRows == 0) {
-                throw new BadRequestException("Sản phẩm " + variant.getProduct().getName() + " không đủ số lượng trong kho!");
+                throw new BadRequestException(
+                        "Sản phẩm " + variant.getProduct().getName() + " không đủ số lượng trong kho!");
             }
 
             BigDecimal price = variant.getPrice();
-            subtotal = subtotal.add(price.multiply(BigDecimal.valueOf(qty)));
+            totalMoney = totalMoney.add(price.multiply(BigDecimal.valueOf(qty)));
 
             OrderItem oi = new OrderItem();
             oi.setOrder(order);
@@ -174,25 +148,25 @@ public class OrderController {
             orderItems.add(oi);
         }
 
-        BigDecimal shippingFee = resolveShippingFee(payload);
-        BigDecimal payableBase = subtotal.add(shippingFee);
+        order.setTotalMoney(totalMoney);
 
         if (voucher != null) {
-            validateVoucherForOrder(voucher, subtotal);
+            validateVoucherForOrder(voucher, totalMoney);
         }
 
-        BigDecimal discount = calculateDiscount(voucher, payableBase);
-        BigDecimal finalAmount = payableBase.subtract(discount);
+        BigDecimal discount = calculateDiscount(voucher, totalMoney);
+        if (discount.compareTo(totalMoney) > 0) {
+            discount = totalMoney;
+        }
+        order.setDiscountAmount(discount);
+        
+        BigDecimal finalAmount = totalMoney.add(shippingFee).subtract(discount);
         if (finalAmount.compareTo(BigDecimal.ZERO) < 0) {
             finalAmount = BigDecimal.ZERO;
         }
-
-        order.setTotalMoney(payableBase);
-        order.setDiscountAmount(discount);
         order.setFinalAmount(finalAmount);
 
         Order savedOrder = orderRepo.save(order);
-
         for (OrderItem item : orderItems) {
             item.setOrder(savedOrder);
         }
@@ -211,8 +185,7 @@ public class OrderController {
             accountVoucherRepo.save(av);
         }
 
-        cartRepo.findByAccountId(accountId)
-                .ifPresent(cart -> cartItemRepo.deleteByCartId(cart.getId()));
+        cartRepo.findByAccountId(accountId).ifPresent(cart -> cartItemRepo.deleteByCartId(cart.getId()));
 
         return ResponseEntity.ok(Map.of("success", true, "orderId", savedOrder.getId()));
     }
@@ -226,26 +199,28 @@ public class OrderController {
         String oldStatus = order.getStatus();
         String newStatus = asString(req.get("status"));
 
+        // --- CHẶN HOÀN HÀNG NHIỀU LẦN ---
+        // Nếu đơn đang được yêu cầu chuyển sang RETURN_REQUEST mà trước đó đã có bất kỳ
+        // trạng thái hoàn hàng nào rồi thì trả lỗi ngay
         if ("RETURN_REQUEST".equals(newStatus)) {
             boolean alreadyReturned = oldStatus != null && (
-                    oldStatus.contains("RETURN")
-                            || oldStatus.contains("REFUND")
-                            || oldStatus.equals("HOAN_TRA")
-                            || oldStatus.equals("HOAN_TIEN")
-                            || oldStatus.equals("YEU_CAU_TRA")
-                            || oldStatus.equals("TRA_HANG")
+                oldStatus.contains("RETURN") ||
+                oldStatus.contains("REFUND") ||
+                oldStatus.equals("HOAN_TRA") ||
+                oldStatus.equals("HOAN_TIEN") ||
+                oldStatus.equals("YEU_CAU_TRA") ||
+                oldStatus.equals("TRA_HANG")
             );
             if (alreadyReturned) {
-                throw new BadRequestException("Đơn hàng này đã được gửi yêu cầu hoàn trả trước đó, không thể hoàn thêm lần nữa!");
+                throw new BadRequestException("Don hang nay da duoc gui yeu cau hoan tra truoc do, khong the hoan them lan nua!");
             }
         }
+        // ----------------------------------
 
-        if (oldStatus != null
-                && !oldStatus.equals(newStatus)
-                && ("CANCELLED".equals(newStatus)
-                || "RETURNED".equals(newStatus)
-                || "DAMAGED".equals(newStatus)
-                || "LOST".equals(newStatus))) {
+        // --- VÁ LỖI 3: CỘNG LẠI KHO KHI HỦY/HOÀN ĐƠN ---
+        if (oldStatus != null && !oldStatus.equals(newStatus) &&
+                ("CANCELLED".equals(newStatus) || "RETURNED".equals(newStatus) || "DAMAGED".equals(newStatus) || "LOST".equals(newStatus))) {
+
             for (OrderItem item : order.getOrderItems()) {
                 ProductVariant variant = item.getVariant();
                 if (variant != null) {
@@ -254,41 +229,38 @@ public class OrderController {
                 }
             }
         }
+        // ----------------------------------------------
 
-        if (newStatus != null) {
+        if (newStatus != null)
             order.setStatus(newStatus);
-        }
-
         String pStatus = asString(req.get("paymentStatus"));
-        if (pStatus != null) {
-            order.setPaymentStatus(pStatus);
-        }
-
         String returnReason = asString(req.get("returnReason"));
         if (returnReason != null && !returnReason.isEmpty()) {
             order.setReturnReason(returnReason);
         }
-
         String returnImages = asString(req.get("returnImages"));
         if (returnImages != null && !returnImages.isBlank()) {
             order.setReturnImages(returnImages);
         }
+        if (pStatus != null)
+            order.setPaymentStatus(pStatus);
 
+        // --- Cập nhật thông tin khách hàng ---
         String fullname = asString(req.get("fullname"));
         if (fullname != null && !fullname.trim().isEmpty()) {
             order.setFullname(fullname);
         }
-
+        
         String phone = asString(req.get("phone"));
         if (phone != null) {
             order.setPhone(phone);
         }
-
+        
         String email = asString(req.get("email"));
         if (email != null) {
             order.setEmail(email);
         }
-
+        
         String shippingAddress = asString(req.get("shippingAddress"));
         if (shippingAddress == null) {
             shippingAddress = asString(req.get("address"));
@@ -305,51 +277,43 @@ public class OrderController {
     @Transactional
     public ResponseEntity<?> uploadReturnImages(
             @PathVariable Long id,
-            @RequestParam("files") List<MultipartFile> files
-    ) {
+            @RequestParam("files") List<MultipartFile> files) {
         try {
             Order order = orderRepo.findById(id)
                     .orElseThrow(() -> new NotFoundException("Không tìm thấy đơn hàng"));
 
             List<String> uploadedUrls = new ArrayList<>();
-
+            // Parse existing return images if any
             String existing = order.getReturnImages();
             if (existing != null && !existing.isBlank()) {
                 existing = existing.trim();
                 if (existing.startsWith("[")) {
+                    // Simple JSON array parsing
                     existing = existing.substring(1, existing.length() - 1);
                     for (String s : existing.split(",")) {
                         String url = s.trim().replaceAll("^\"|\"$", "");
-                        if (!url.isEmpty()) {
-                            uploadedUrls.add(url);
-                        }
+                        if (!url.isEmpty()) uploadedUrls.add(url);
                     }
                 }
             }
 
             for (MultipartFile file : files) {
-                if (file.isEmpty()) {
-                    continue;
-                }
-                Map uploadResult = cloudinary.uploader().upload(
-                        file.getBytes(),
+                if (file.isEmpty()) continue;
+                Map uploadResult = cloudinary.uploader().upload(file.getBytes(),
                         com.cloudinary.utils.ObjectUtils.asMap(
                                 "folder", "return_images",
                                 "resource_type", "image"
-                        )
-                );
+                        ));
                 uploadedUrls.add(uploadResult.get("secure_url").toString());
             }
 
+            // Store as JSON array string
             StringBuilder sb = new StringBuilder("[");
             for (int i = 0; i < uploadedUrls.size(); i++) {
-                if (i > 0) {
-                    sb.append(",");
-                }
+                if (i > 0) sb.append(",");
                 sb.append("\"").append(uploadedUrls.get(i)).append("\"");
             }
             sb.append("]");
-
             order.setReturnImages(sb.toString());
             orderRepo.save(order);
 
@@ -372,8 +336,7 @@ public class OrderController {
     @GetMapping
     public ResponseEntity<?> getAllOrders(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
-    ) {
+            @RequestParam(defaultValue = "10") int size) {
         Page<Order> orders = orderRepo.findAll(PageRequest.of(page, size, Sort.by("createdAt").descending()));
         return ResponseEntity.ok(orders.map(this::mapOrderToMap));
     }
@@ -384,20 +347,22 @@ public class OrderController {
         return ResponseEntity.ok(list.stream().map(this::mapOrderToMap).toList());
     }
 
+    // --- HELPER METHODS ---
     private Map<String, Object> mapOrderToMap(Order order) {
         Map<String, Object> map = new HashMap<>();
         map.put("id", order.getId());
         map.put("status", order.getStatus());
         map.put("totalMoney", order.getTotalMoney());
         map.put("discountAmount", order.getDiscountAmount());
+        map.put("shippingFee", order.getShippingFee() != null ? order.getShippingFee() : BigDecimal.ZERO);
         map.put("finalAmount", order.getFinalAmount());
         map.put("fullname", order.getFullname());
-        map.put("fullName", order.getFullname());
         map.put("phone", order.getPhone());
         map.put("shippingAddress", order.getShippingAddress());
         map.put("paymentStatus", order.getPaymentStatus());
         map.put("returnReason", order.getReturnReason());
 
+        // Parse returnImages JSON string to List for frontend
         String returnImagesJson = order.getReturnImages();
         if (returnImagesJson != null && !returnImagesJson.isBlank()) {
             List<String> imgList = new ArrayList<>();
@@ -406,9 +371,7 @@ public class OrderController {
                 trimmed = trimmed.substring(1, trimmed.length() - 1);
                 for (String s : trimmed.split(",")) {
                     String url = s.trim().replaceAll("^\"|\"$", "");
-                    if (!url.isEmpty()) {
-                        imgList.add(url);
-                    }
+                    if (!url.isEmpty()) imgList.add(url);
                 }
             }
             map.put("returnImages", imgList);
@@ -423,6 +386,7 @@ public class OrderController {
             map.put("paymentMethodName", order.getPaymentMethod().getName());
         }
 
+        // --- BỔ SUNG: ĐÓNG GÓI DANH SÁCH SẢN PHẨM GỬI CHO FRONTEND ---
         List<Map<String, Object>> items = new ArrayList<>();
         if (order.getOrderItems() != null) {
             for (OrderItem oi : order.getOrderItems()) {
@@ -436,26 +400,24 @@ public class OrderController {
                     itemMap.put("variantId", variant.getId());
                     if (variant.getProduct() != null) {
                         itemMap.put("productName", variant.getProduct().getName());
-                        itemMap.put(
-                                "imageUrl",
-                                variant.getImageUrl() != null
-                                        ? variant.getImageUrl()
-                                        : variant.getProduct().getImageUrl()
-                        );
+                        // Lấy ảnh của biến thể, nếu không có thì lấy ảnh gốc của sản phẩm
+                        itemMap.put("imageUrl", variant.getImageUrl() != null ? variant.getImageUrl()
+                                : variant.getProduct().getImageUrl());
                     }
-                    if (variant.getColor() != null) {
+                    if (variant.getColor() != null)
                         itemMap.put("colorName", variant.getColor().getName());
-                    }
-                    if (variant.getSize() != null) {
+                    if (variant.getSize() != null)
                         itemMap.put("sizeName", variant.getSize().getName());
-                    }
                 }
                 items.add(itemMap);
             }
         }
 
+        // Gắn danh sách vào Response (Gắn cả 2 tên để lót đường cho mọi loại Frontend)
         map.put("items", items);
         map.put("orderItems", items);
+        // --------------------------------------------------------------
+
         return map;
     }
 
@@ -477,39 +439,27 @@ public class OrderController {
             throw new BadRequestException("Mã giảm giá đã đạt giới hạn sử dụng");
         }
 
-        if (orderTotal != null
-                && voucher.getMinOrderValue() != null
-                && orderTotal.compareTo(voucher.getMinOrderValue()) < 0) {
+        if (orderTotal != null && voucher.getMinOrderValue() != null && orderTotal.compareTo(voucher.getMinOrderValue()) < 0) {
             throw new BadRequestException("Giá trị đơn hàng chưa đạt mức tối thiểu để sử dụng mã giảm giá");
         }
     }
 
-    private BigDecimal calculateDiscount(Voucher voucher, BigDecimal payableBase) {
-        if (voucher == null || payableBase == null || payableBase.compareTo(BigDecimal.ZERO) <= 0) {
+    private BigDecimal calculateDiscount(Voucher voucher, BigDecimal orderTotal) {
+        if (voucher == null || orderTotal == null || orderTotal.compareTo(BigDecimal.ZERO) <= 0) {
             return BigDecimal.ZERO;
         }
 
-        BigDecimal discount;
         if ("PERCENT".equals(voucher.getDiscountType())) {
-            discount = payableBase.multiply(voucher.getDiscountValue())
-                    .divide(new BigDecimal(100), 0, RoundingMode.HALF_UP);
+            BigDecimal discount = orderTotal.multiply(voucher.getDiscountValue())
+                    .divide(new BigDecimal(100), RoundingMode.HALF_UP);
             if (voucher.getMaxDiscountAmount() != null && discount.compareTo(voucher.getMaxDiscountAmount()) > 0) {
-                discount = voucher.getMaxDiscountAmount();
+                return voucher.getMaxDiscountAmount();
             }
-        } else {
-            discount = voucher.getDiscountValue();
+            return discount;
         }
-
-        if (discount == null || discount.compareTo(BigDecimal.ZERO) < 0) {
-            discount = BigDecimal.ZERO;
-        }
-        if (discount.compareTo(payableBase) > 0) {
-            discount = payableBase;
-        }
-        return discount;
+        return voucher.getDiscountValue();
     }
 
-    @SuppressWarnings("unchecked")
     private List<Map<String, Object>> extractOrderItems(Map<String, Object> payload) {
         if (payload.get("items") instanceof List) {
             return (List<Map<String, Object>>) payload.get("items");
@@ -576,49 +526,15 @@ public class OrderController {
                 || "DISCONTINUED".equals(normalized));
     }
 
-    private BigDecimal resolveShippingFee(Map<String, Object> payload) {
-        BigDecimal fee = asBigDecimal(payload.get("shippingFee"));
-        if (fee == null) fee = asBigDecimal(payload.get("shipping_fee"));
-        if (fee == null) fee = asBigDecimal(payload.get("shippingAmount"));
-        if (fee == null) fee = asBigDecimal(payload.get("shipping_amount"));
-        if (fee == null) fee = asBigDecimal(payload.get("deliveryFee"));
-        if (fee == null) fee = asBigDecimal(payload.get("delivery_fee"));
-        if (fee == null) fee = asBigDecimal(payload.get("deliveryAmount"));
-        if (fee == null) fee = asBigDecimal(payload.get("delivery_amount"));
-        if (fee == null) fee = asBigDecimal(payload.get("shipFee"));
-        if (fee == null) fee = asBigDecimal(payload.get("ship_fee"));
-        if (fee == null) fee = BigDecimal.ZERO;
-
-        if (fee.compareTo(BigDecimal.ZERO) < 0) {
-            return BigDecimal.ZERO;
-        }
-        return fee;
-    }
-
-    private BigDecimal asBigDecimal(Object v) {
-        if (v == null) return null;
-        if (v instanceof BigDecimal bd) return bd;
-        try {
-            String raw = v.toString().trim();
-            if (raw.isEmpty()) return null;
-            raw = raw.replace(",", "");
-            return new BigDecimal(raw);
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
     private Integer asInteger(Object v) {
-        if (v == null) {
+        if (v == null)
             return null;
-        }
         return Integer.valueOf(v.toString());
     }
 
     private Long asLong(Object v) {
-        if (v == null) {
+        if (v == null)
             return null;
-        }
         return Long.valueOf(v.toString());
     }
 

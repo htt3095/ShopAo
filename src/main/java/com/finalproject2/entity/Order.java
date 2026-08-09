@@ -45,6 +45,10 @@ public class Order {
     @Column(name = "shipping_address", nullable = false)
     private String shippingAddress;
 
+    @ColumnDefault("0")
+    @Column(name = "shipping_fee", precision = 12, scale = 2)
+    private BigDecimal shippingFee;
+
     @NotNull
     @Column(name = "total_money", nullable = false, precision = 12, scale = 2)
     private BigDecimal totalMoney;
@@ -63,12 +67,12 @@ public class Order {
     private PaymentMethod paymentMethod;
 
     @Size(max = 20)
-    @ColumnDefault("'PENDING'") // Đã thêm dấu nháy ' '
+    @ColumnDefault("PENDING")
     @Column(name = "payment_status", length = 20)
     private String paymentStatus;
 
     @Size(max = 255)
-    @ColumnDefault("'NEW'") // Đã thêm dấu nháy ' '
+    @ColumnDefault("NEW")
     @Column(name = "status")
     private String status;
 
@@ -89,6 +93,7 @@ public class Order {
     @Lob
     @Column(name = "return_images")
     private String returnImages;
+
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<OrderItem> orderItems = new LinkedHashSet<>();
