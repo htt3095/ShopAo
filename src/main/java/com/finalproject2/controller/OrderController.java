@@ -151,7 +151,7 @@ public class OrderController {
         order.setTotalMoney(totalMoney);
 
         if (voucher != null) {
-            validateVoucherForOrder(voucher, totalMoney);
+            validateVoucherForOrder(voucher, totalMoney, accountId);
         }
 
         BigDecimal discount = calculateDiscount(voucher, totalMoney);
@@ -421,7 +421,7 @@ public class OrderController {
         return map;
     }
 
-    private void validateVoucherForOrder(Voucher voucher, BigDecimal orderTotal) {
+    private void validateVoucherForOrder(Voucher voucher, BigDecimal orderTotal, Integer accountId) {
         if (!Boolean.TRUE.equals(voucher.getIsActive())) {
             throw new BadRequestException("Mã giảm giá không còn hoạt động!");
         }
@@ -437,6 +437,10 @@ public class OrderController {
         int usedCount = voucher.getUsedCount() != null ? voucher.getUsedCount() : 0;
         if (voucher.getUsageLimit() != null && voucher.getUsageLimit() > 0 && usedCount >= voucher.getUsageLimit()) {
             throw new BadRequestException("Mã giảm giá đã đạt giới hạn sử dụng");
+        }
+
+        if (accountId != null && accountVoucherRepo.existsByAccountIdAndVoucherId(accountId, voucher.getId())) {
+            throw new BadRequestException("Bạn đã sử dụng mã giảm giá này rồi!");
         }
 
         if (orderTotal != null && voucher.getMinOrderValue() != null && orderTotal.compareTo(voucher.getMinOrderValue()) < 0) {
