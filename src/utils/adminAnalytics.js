@@ -122,6 +122,7 @@ export function getOrderAmount(order) {
 
 export function getOrderPaymentImpact(order) {
     const paymentStatus = normalizePaymentStatusValue(order && order.paymentStatus ? order.paymentStatus : null);
+    const statusKey = normalizeStatusKey(order && order.status ? order.status : null);
     const amount = getOrderAmount(order);
 
     if (profitablePaymentStatuses.includes(paymentStatus)) {
@@ -129,7 +130,12 @@ export function getOrderPaymentImpact(order) {
     }
 
     if (deductedPaymentStatuses.includes(paymentStatus)) {
-        return -amount;
+        // Theo yêu cầu: Chỉ tính âm doanh thu (ghi nhận lỗ/hoàn tiền) nếu đơn hàng là DAMAGED (hàng hỏng, không cộng kho)
+        if (statusKey === "DAMAGED") {
+            return -amount;
+        }
+        // Nếu là trả hàng bình thường (RETURNED) đã cộng lại kho, thì coi như hòa vốn (không âm)
+        return 0;
     }
 
     return 0;
@@ -354,6 +360,7 @@ export function buildRevenueBuckets(orders, { mode = "day", startDate = null, en
 
         const amount = getOrderAmount(order);
         const paymentStatus = normalizePaymentStatusValue(order.paymentStatus);
+        const statusKey = normalizeStatusKey(order.status);
 
         bucket.orderCount += 1;
 
@@ -362,8 +369,10 @@ export function buildRevenueBuckets(orders, { mode = "day", startDate = null, en
             bucket.netRevenue += amount;
             bucket.paidCount += 1;
         } else if (deductedPaymentStatuses.includes(paymentStatus)) {
-            bucket.refundedRevenue += amount;
-            bucket.netRevenue -= amount;
+            if (statusKey === "DAMAGED") {
+                bucket.refundedRevenue += amount;
+                bucket.netRevenue -= amount;
+            }
             bucket.refundedCount += 1;
         }
     }

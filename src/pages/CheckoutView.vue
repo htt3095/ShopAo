@@ -201,10 +201,8 @@
                     fullAddressString
                   }}</span>
                 </div>
-                <div class="flex items-center justify-between">
-                  <span class="font-semibold text-slate-600 "
-                    >Khoảng cách:</span
-                  >
+                <div class="flex items-center justify-between" v-if="Number(distanceKm) > 0">
+                  <span class="font-semibold text-slate-600 ">Khoảng cách:</span>
                   <span class="font-bold">{{ distanceKm }} km</span>
                 </div>
                 <div class="flex items-center justify-between">
@@ -663,6 +661,30 @@ const provinces = ref([]);
 const districts = ref([]);
 const wards = ref([]);
 
+const geocodeCache = new Map();
+let lastGeocodeTime = 0;
+async function fetchGeocode(q) {
+  if (geocodeCache.has(q)) return geocodeCache.get(q);
+  const now = Date.now();
+  const timeSinceLast = now - lastGeocodeTime;
+  if (timeSinceLast < 1100) {
+    await new Promise(r => setTimeout(r, 1100 - timeSinceLast));
+  }
+  lastGeocodeTime = Date.now();
+  const targetUrl = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&limit=1&q=${encodeURIComponent(q + ", Việt Nam")}`;
+  const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`);
+  if (!res.ok) return { ok: false, status: res.status };
+  const allOriginsData = await res.json();
+  let data = [];
+  if (allOriginsData.contents) {
+    try { data = JSON.parse(allOriginsData.contents); } catch (e) {}
+  }
+  const result = { ok: true, data };
+  geocodeCache.set(q, result);
+  return result;
+}
+
+
 const selectedProvince = ref(null);
 const selectedDistrict = ref(null);
 const selectedWard = ref(null);
@@ -843,18 +865,26 @@ async function autoFillAddressHierarchyFromText(rawAddress) {
   skipNextWatcherUpdate.value = true;
 
   try {
-    const geoRes = await fetch(
-      `/nominatim/search?format=json&addressdetails=1&limit=1&q=${encodeURIComponent(input + ", Việt Nam")}`,
-    );
-    if (!geoRes.ok) {
-      if (geoRes.status === 429) {
-        throw new Error('Geocoding service rate-limited (429). Please try again later.');
+    let first = null;
+    const parts = input.split(',').map(s => s.trim()).filter(Boolean);
+    while (parts.length > 0) {
+      const q = parts.join(', ');
+      const geoRes = await fetchGeocode(q);
+      if (!geoRes.ok) {
+        if (geoRes.status === 429) {
+          routeError.value = "Geocoding service busy — tính ship tạm thời bằng ước lượng.";
+          applyTextFallbackShipping(input);
+          return true;
+        }
+        throw new Error(`Geocoding failed (HTTP ${geoRes.status})`);
       }
-      const txt = await safeParseResponse(geoRes);
-      throw new Error(typeof txt === 'string' ? txt : `Geocoding failed (HTTP ${geoRes.status})`);
+      const geoData = geoRes.data;
+      if (Array.isArray(geoData) && geoData.length > 0) {
+        first = geoData[0];
+        break;
+      }
+      parts.shift();
     }
-    const geoData = await safeParseResponse(geoRes);
-    const first = Array.isArray(geoData) ? geoData[0] : null;
     
     // Extract from Nominatim ONLY for basic hints
     const addressMeta = first?.address || {};
@@ -986,21 +1016,26 @@ async function calculateRouteFromFreeformAddress(rawAddress, silent = false) {
   }
 
   try {
-    const geoRes = await fetch(
-      `/nominatim/search?format=json&addressdetails=1&limit=1&q=${encodeURIComponent(addressText + ", Việt Nam")}`,
-    );
-    if (!geoRes.ok) {
-      if (geoRes.status === 429) {
-        // Rate limit: provide graceful fallback
-        routeError.value = 'Geocoding service busy — tính ship tạm thời bằng ước lượng.';
-        applyTextFallbackShipping(addressText);
-        return true;
+    let first = null;
+    const parts = input.split(',').map(s => s.trim()).filter(Boolean);
+    while (parts.length > 0) {
+      const q = parts.join(', ');
+      const geoRes = await fetchGeocode(q);
+      if (!geoRes.ok) {
+        if (geoRes.status === 429) {
+          routeError.value = 'Geocoding service busy — tính ship tạm thời bằng ước lượng.';
+          applyTextFallbackShipping(addressText);
+          return true;
+        }
+        throw new Error(`Geocoding failed (HTTP ${geoRes.status})`);
       }
-      const txt = await safeParseResponse(geoRes);
-      throw new Error(typeof txt === 'string' ? txt : `Geocoding failed (HTTP ${geoRes.status})`);
+      const geoData = geoRes.data;
+      if (Array.isArray(geoData) && geoData.length > 0) {
+        first = geoData[0];
+        break;
+      }
+      parts.shift();
     }
-    const geoData = await safeParseResponse(geoRes);
-    const first = Array.isArray(geoData) ? geoData[0] : null;
     if (!first) {
       applyTextFallbackShipping(addressText);
       return true;

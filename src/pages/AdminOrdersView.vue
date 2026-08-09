@@ -120,7 +120,16 @@
               <span class="material-symbols-outlined text-primary">local_shipping</span>
               Theo dõi tiến độ đơn hàng <span class="text-primary">#{{ activeTrackedOrder.id }}</span>
             </h3>
-            <span class="text-xs text-slate-500 ">Khách hàng: {{ activeTrackedOrder.fullName || activeTrackedOrder.fullname || 'Khách hàng' }}</span>
+            <div class="flex items-center gap-4">
+              <button 
+                v-if="canRefund(activeTrackedOrder)" 
+                @click="openRefundModal(activeTrackedOrder)" 
+                class="rounded-lg bg-red-500 px-3 py-1.5 text-xs font-bold text-white transition-colors hover:bg-red-600 shadow-sm"
+              >
+                Hoàn tiền / Trả hàng
+              </button>
+              <span class="text-xs text-slate-500 ">Khách hàng: {{ activeTrackedOrder.fullName || activeTrackedOrder.fullname || 'Khách hàng' }}</span>
+            </div>
           </div>
           
           <div class="relative flex items-center justify-between w-full mt-6 px-4">
@@ -182,6 +191,41 @@
                 @click="restoreOrder(order)"
               >
                 Khôi phục
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div
+          v-if="pendingReturnRequests.length > 0"
+          class="mb-4 rounded-xl border border-red-200 bg-red-50 px-3 py-3 text-sm text-slate-700 /20 "
+        >
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p class="font-bold text-red-600 flex items-center gap-1.5"><span class="material-symbols-outlined text-[18px]">campaign</span> Có {{ pendingReturnRequests.length }} yêu cầu hoàn hàng chờ xử lý</p>
+              <p class="text-xs text-slate-500 mt-0.5">
+                Khách hàng đã gửi yêu cầu hoàn tiền/trả hàng. Vui lòng kiểm tra và xử lý.
+              </p>
+            </div>
+          </div>
+          <div class="mt-3 space-y-2">
+            <div
+              v-for="order in pendingReturnRequests"
+              :key="order.id"
+              class="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-white shadow-sm hover:shadow-md transition-all duration-300 px-3 py-2 cursor-pointer border border-red-100"
+              @click="selectOrderToTrack(order)"
+            >
+              <div class="text-sm">
+                <span class="font-bold text-red-600">#{{ order.id }}</span>
+                <span class="ml-2 font-semibold text-slate-800">{{ order.fullName || "Khách hàng" }}</span>
+                <span class="ml-2 text-xs text-slate-500 hidden sm:inline">- {{ formatCurrency(order.finalAmount || order.totalMoney) }}</span>
+              </div>
+              <button
+                type="button"
+                class="rounded-lg bg-red-500 px-3 py-1.5 text-xs font-bold text-white hover:bg-red-600"
+                @click.stop="selectOrderToTrack(order); openRefundModal(order)"
+              >
+                Xem chi tiết
               </button>
             </div>
           </div>
@@ -310,41 +354,7 @@
                       >
                     </button>
 
-                    <button
-                      v-if="order.status === 'RETURN_REQUEST'"
-                      class="rounded-lg p-1.5 hover:bg-emerald-50 dark:hover:bg-emerald-900/20"
-                      title="Duyệt trả hàng (Chuyển sang Đang hoàn về)"
-                      @click="quickUpdateStatus(order, 'RETURNING')"
-                    >
-                      <span
-                        class="material-symbols-outlined text-[18px] text-emerald-600"
-                        >thumb_up</span
-                      >
-                    </button>
 
-                    <button
-                      v-if="order.status === 'RETURN_REQUEST'"
-                      class="rounded-lg p-1.5 hover:bg-red-50 dark:hover:bg-red-900/20"
-                      title="Từ chối trả hàng"
-                      @click="quickUpdateStatus(order, 'SUCCESS')"
-                    >
-                      <span
-                        class="material-symbols-outlined text-[18px] text-red-500"
-                        >thumb_down</span
-                      >
-                    </button>
-
-                    <button
-                      v-if="order.status === 'RETURNING'"
-                      class="rounded-lg p-1.5 hover:bg-blue-50 dark:hover:bg-blue-900/20"
-                      title="Đã nhận hàng (Hoàn tiền & Cộng kho)"
-                      @click="quickUpdateStatus(order, 'RETURNED')"
-                    >
-                      <span
-                        class="material-symbols-outlined text-[18px] text-blue-600"
-                        >inventory_2</span
-                      >
-                    </button>
 
                     <!-- Xác nhận đơn (PENDING -> PROCESSING) -->
                     <button
@@ -723,6 +733,70 @@
         </div>
       </div>
     </Teleport>
+
+    <!-- Modal Hoàn Tiền -->
+    <Teleport to="body">
+      <div
+        v-if="showRefundModal"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+        @click.self="closeRefundModal"
+      >
+        <div class="w-full max-w-md rounded-2xl bg-white p-5 shadow-2xl">
+          <div class="mb-4 flex items-center gap-2">
+            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-red-100 text-red-500">
+              <span class="material-symbols-outlined">assignment_return</span>
+            </div>
+            <div>
+              <h3 class="text-base font-bold text-slate-900">Hoàn tiền / Trả hàng</h3>
+              <p class="text-xs text-slate-500">Đơn hàng #{{ refundForm.orderId }}</p>
+            </div>
+          </div>
+          
+          <div class="space-y-4">
+            <div>
+              <label class="mb-1 block text-xs font-medium text-slate-500">Số tiền hoàn (VND)</label>
+              <input v-model.number="refundForm.amount" type="number" readonly class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-bold text-red-500 outline-none" />
+            </div>
+
+            <!-- Phản hồi của khách hàng (nếu có) -->
+            <div v-if="refundForm.customerReason || (refundForm.customerImages && refundForm.customerImages.length)" class="rounded-xl border border-slate-200 bg-slate-50 p-3">
+              <p class="mb-2 text-xs font-bold uppercase text-slate-500">Khách hàng yêu cầu hoàn trả</p>
+              <div v-if="refundForm.customerReason" class="mb-2 text-sm text-slate-800 italic">
+                "{{ refundForm.customerReason }}"
+              </div>
+              <div v-if="refundForm.customerImages && refundForm.customerImages.length > 0" class="flex flex-wrap gap-2">
+                <div v-for="(img, idx) in refundForm.customerImages" :key="idx" class="group relative size-16 cursor-pointer overflow-hidden rounded-lg border border-slate-200" @click="window.open(img, '_blank')">
+                  <img :src="img" class="h-full w-full object-cover transition-transform group-hover:scale-110" />
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <label class="mb-1 block text-xs font-medium text-slate-500">Lý do hoàn tiền / trả hàng <span class="text-red-500">*</span></label>
+              <textarea v-model="refundForm.reason" rows="3" placeholder="Nhập lý do chi tiết..." class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-primary"></textarea>
+            </div>
+            <div class="flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3">
+              <input v-model="refundForm.restoreStock" type="checkbox" id="restoreStockCheckbox" class="mt-0.5 rounded border-amber-300 text-amber-600 focus:ring-amber-500" />
+              <label for="restoreStockCheckbox" class="text-sm font-medium text-amber-800">
+                Cộng lại số lượng vào kho
+                <span class="block mt-1 text-xs text-amber-700 font-normal">Chỉ nên chọn nếu khách trả lại hàng nguyên vẹn. Không tick nếu khách hủy trước khi đóng gói hoặc hàng bị lỗi hỏng không bán được.</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
+            <button @click="closeRefundModal" class="rounded-xl px-4 py-2 text-sm font-bold text-slate-500 hover:bg-slate-100 transition">Đóng</button>
+            <button v-if="activeTrackedOrder?.status === 'RETURN_REQUEST'" @click="rejectReturnRequest" :disabled="refunding" class="flex items-center justify-center gap-2 rounded-xl bg-slate-200 px-6 py-2 text-sm font-bold text-slate-700 shadow-sm hover:bg-slate-300 transition disabled:opacity-50">
+              Từ chối (Giữ nguyên)
+            </button>
+            <button @click="submitRefund" :disabled="refunding || !refundForm.reason" class="flex items-center justify-center gap-2 rounded-xl bg-red-500 px-6 py-2 text-sm font-bold text-white shadow-lg hover:bg-red-600 transition disabled:opacity-50">
+              <span v-if="refunding" class="material-symbols-outlined animate-spin text-[18px]">progress_activity</span>
+              Chấp nhận Hoàn Tiền
+            </button>
+          </div>
+        </div>
+      </div>
+    </Teleport>
   </AdminShell>
 </template>
 
@@ -741,6 +815,92 @@ const currentPage = ref(1);
 const pageSize = ref(20);
 
 const showModal = ref(false);
+const showRefundModal = ref(false);
+const refundForm = ref({
+  orderId: null,
+  amount: 0,
+  reason: "",
+  restoreStock: true,
+  customerReason: "",
+  customerImages: []
+});
+const refunding = ref(false);
+
+function canRefund(order) {
+  if (!order) return false;
+  const status = normalizeOrderStatusValue(order.status);
+  const paymentStatus = normalizePaymentStatusValue(order.paymentStatus);
+  if (status === "RETURNED" || status === "HOAN_TRA" || status === "CANCELLED" || status === "DA_HUY") return false;
+  if (paymentStatus === "HOAN_TIEN" || paymentStatus === "REFUNDED") return false;
+  return (paymentStatus === "PAID" || paymentStatus === "DA_THANH_TOAN") || (status === "DELIVERED" || status === "DA_GIAO") || status === "RETURN_REQUEST";
+}
+
+function openRefundModal(order) {
+  let images = [];
+  if (order.returnImages) {
+    if (Array.isArray(order.returnImages)) {
+      images = order.returnImages;
+    } else if (typeof order.returnImages === 'string') {
+      try {
+        images = JSON.parse(order.returnImages);
+      } catch (e) {
+        images = order.returnImages.split(',').filter(Boolean);
+      }
+    }
+  }
+
+  refundForm.value = {
+    orderId: order.id,
+    amount: asNumber(order.finalAmount) || asNumber(order.totalMoney) || 0,
+    reason: order.returnReason || "",
+    restoreStock: true,
+    customerReason: order.returnReason || "",
+    customerImages: images
+  };
+  showRefundModal.value = true;
+}
+
+function closeRefundModal() {
+  showRefundModal.value = false;
+}
+
+async function submitRefund() {
+  if (refunding.value) return;
+  refunding.value = true;
+  try {
+    const payload = {
+      status: refundForm.value.restoreStock ? "RETURNED" : "DAMAGED",
+      paymentStatus: "HOAN_TIEN",
+      returnReason: refundForm.value.reason,
+      restoreStock: refundForm.value.restoreStock
+    };
+    await adminApi.updateOrder(refundForm.value.orderId, payload);
+    showRefundModal.value = false;
+    await loadOrders(true);
+  } catch (e) {
+    alert(e.message || "Lỗi khi xử lý hoàn tiền!");
+  } finally {
+    refunding.value = false;
+  }
+}
+
+async function rejectReturnRequest() {
+  if (refunding.value) return;
+  refunding.value = true;
+  try {
+    const payload = {
+      status: "SUCCESS"
+    };
+    await adminApi.updateOrder(refundForm.value.orderId, payload);
+    showRefundModal.value = false;
+    await loadOrders(true);
+  } catch (e) {
+    alert(e.message || "Lỗi khi từ chối yêu cầu!");
+  } finally {
+    refunding.value = false;
+  }
+}
+
 const editingOrderId = ref(null);
 const saving = ref(false);
 const modalError = ref("");
@@ -765,6 +925,10 @@ const visibleOrders = computed(() => {
         (hidden) => Number(order.id) === Number(hidden.id),
       ),
   );
+});
+
+const pendingReturnRequests = computed(() => {
+  return visibleOrders.value.filter(order => order.status === 'RETURN_REQUEST');
 });
 
 const latestOrder = computed(() => {
@@ -1568,7 +1732,7 @@ async function openEdit(order) {
     status: normalizeOrderStatusValue(order.status),
     paymentStatus: normalizePaymentStatusValue(order.paymentStatus),
     returnReason: order.returnReason || "",
-    returnImages: order.returnImages || [],
+    returnImages: (typeof order.returnImages === 'string' ? (() => { try { return JSON.parse(order.returnImages); } catch(e) { return order.returnImages.split(',').filter(Boolean); } })() : order.returnImages) || [],
   };
   orderRuleHint.value = "";
   modalError.value = "";
