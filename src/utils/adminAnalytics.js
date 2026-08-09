@@ -63,7 +63,12 @@ export function normalizeOrderStatusValue(status) {
     if (["CONFIRMED", "PROCESSING", "DANG_XU_LY", "XAC_NHAN", "IN_PROGRESS"].includes(key)) return "DANG_XU_LY";
     if (["SHIPPING", "DELIVERING", "DANG_GIAO", "IN_TRANSIT"].includes(key)) return "DANG_GIAO";
     if (["SUCCESS", "COMPLETED", "DELIVERED", "THANH_CONG", "HOAN_THANH"].includes(key)) return "THANH_CONG";
-    if (["CANCELLED", "CANCELED", "DA_HUY", "HUY", "FAILED", "RETURNED"].includes(key)) return "DA_HUY";
+    if (["RETURN_REQUEST", "YEU_CAU_TRA"].includes(key)) return "RETURN_REQUEST";
+    if (["RETURNING", "TRA_HANG", "DANG_HOAN", "DANG_TRA_HANG"].includes(key)) return "RETURNING";
+    if (["RETURNED", "HOAN_TRA", "HOAN_TIEN", "REFUND", "REFUNDED", "HOAN_HANG"].includes(key)) return "RETURNED";
+    if (["DAMAGED", "HANG_HONG", "HANG_HONG_HONG"].includes(key)) return "DAMAGED";
+    if (["LOST", "HANG_MAT", "MAT_HANG", "THAT_LAC", "PARCEL_LOST"].includes(key)) return "LOST";
+    if (["CANCELLED", "CANCELED", "DA_HUY", "HUY", "FAILED"].includes(key)) return "DA_HUY";
     return key || "CHUA_XU_LY";
 }
 
@@ -76,18 +81,26 @@ export function orderStatusLabel(status) {
     return "Chưa xử lý";
 }
 
-export function normalizePaymentStatusValue(paymentStatus) {
+export function normalizePaymentStatusValue(paymentStatus, orderStatus = null) {
     const key = normalizeStatusKey(paymentStatus || "CHUA_THANH_TOAN");
-    if (["PENDING", "UNPAID", "CHUA_THANH_TOAN", "AWAITING_PAYMENT"].includes(key)) return "CHUA_THANH_TOAN";
-    if (["PAID", "DA_THANH_TOAN", "SETTLED", "CAPTURED"].includes(key)) return "DA_THANH_TOAN";
+    const normalizedStatus = normalizeOrderStatusValue(orderStatus);
+    const isRefundOrder = ["RETURNED", "DAMAGED", "LOST"].includes(normalizedStatus);
+
+    if (["PENDING", "UNPAID", "CHUA_THANH_TOAN", "AWAITING_PAYMENT"].includes(key)) {
+        return isRefundOrder ? "HOAN_TIEN" : "CHUA_THANH_TOAN";
+    }
+    if (["PAID", "DA_THANH_TOAN", "SETTLED", "CAPTURED"].includes(key)) {
+        return isRefundOrder ? "HOAN_TIEN" : "DA_THANH_TOAN";
+    }
     if (["REFUNDED", "REFUND", "HOAN_TIEN", "CHARGEBACK", "REVERSED"].includes(key)) return "HOAN_TIEN";
     return key;
 }
 
-export function paymentStatusLabel(paymentStatus) {
-    const normalized = normalizePaymentStatusValue(paymentStatus);
-    if (profitablePaymentStatuses.includes(normalized)) return "Đã thanh toán";
-    if (deductedPaymentStatuses.includes(normalized)) return "Hoàn tiền";
+export function paymentStatusLabel(paymentStatus, orderStatus = null) {
+    const normalized = normalizePaymentStatusValue(paymentStatus, orderStatus);
+    const normalizedStatus = normalizeOrderStatusValue(orderStatus);
+    if (profitablePaymentStatuses.includes(normalized) && !["RETURNED", "DAMAGED", "LOST"].includes(normalizedStatus)) return "Đã thanh toán";
+    if (deductedPaymentStatuses.includes(normalized) || ["RETURNED", "DAMAGED", "LOST"].includes(normalizedStatus)) return "Hoàn tiền";
     return "Chưa thanh toán";
 }
 
@@ -122,20 +135,15 @@ export function getOrderAmount(order) {
 
 export function getOrderPaymentImpact(order) {
     const paymentStatus = normalizePaymentStatusValue(order && order.paymentStatus ? order.paymentStatus : null);
-    const statusKey = normalizeStatusKey(order && order.status ? order.status : null);
+    const statusKey = normalizeOrderStatusValue(order && order.status ? order.status : null);
     const amount = getOrderAmount(order);
 
-    if (profitablePaymentStatuses.includes(paymentStatus)) {
+    if (profitablePaymentStatuses.includes(paymentStatus) && !["RETURNED", "DAMAGED", "LOST"].includes(statusKey)) {
         return amount;
     }
 
-    if (deductedPaymentStatuses.includes(paymentStatus)) {
-        // Theo yêu cầu: Chỉ tính âm doanh thu (ghi nhận lỗ/hoàn tiền) nếu đơn hàng là DAMAGED (hàng hỏng, không cộng kho)
-        if (statusKey === "DAMAGED") {
-            return -amount;
-        }
-        // Nếu là trả hàng bình thường (RETURNED) đã cộng lại kho, thì coi như hòa vốn (không âm)
-        return 0;
+    if (deductedPaymentStatuses.includes(paymentStatus) || ["RETURNED", "DAMAGED", "LOST"].includes(statusKey)) {
+        return -amount;
     }
 
     return 0;
@@ -359,21 +367,21 @@ export function buildRevenueBuckets(orders, { mode = "day", startDate = null, en
         if (!bucket) continue;
 
         const amount = getOrderAmount(order);
-        const paymentStatus = normalizePaymentStatusValue(order.paymentStatus);
-        const statusKey = normalizeStatusKey(order.status);
+        const paymentStatus = normalizePaymentStatusValue(order.paymentStatus, order.status);
+        const statusKey = normalizeOrderStatusValue(order.status);
+        const isFinalRefundOutcome = ["RETURNED", "DAMAGED", "LOST"].includes(statusKey);
+        const isInProgressReturn = ["RETURN_REQUEST", "RETURNING"].includes(statusKey);
 
         bucket.orderCount += 1;
 
-        if (profitablePaymentStatuses.includes(paymentStatus)) {
+        if (isFinalRefundOutcome || deductedPaymentStatuses.includes(paymentStatus)) {
+            bucket.refundedRevenue += amount;
+            bucket.refundedCount += 1;
+            bucket.netRevenue -= amount;
+        } else if (profitablePaymentStatuses.includes(paymentStatus) && !isInProgressReturn) {
             bucket.grossRevenue += amount;
             bucket.netRevenue += amount;
             bucket.paidCount += 1;
-        } else if (deductedPaymentStatuses.includes(paymentStatus)) {
-            if (statusKey === "DAMAGED") {
-                bucket.refundedRevenue += amount;
-                bucket.netRevenue -= amount;
-            }
-            bucket.refundedCount += 1;
         }
     }
 
@@ -420,12 +428,12 @@ const PAYMENT_METHOD_LABELS = {
 };
 
 export function resolvePaymentMethodLabel(order) {
-    const id = Number(order?.paymentMethodId);
+    const id = Number(order && order.paymentMethodId);
     if (Number.isFinite(id) && PAYMENT_METHOD_LABELS[id]) {
         return PAYMENT_METHOD_LABELS[id];
     }
 
-    const name = String(order?.paymentMethodName || "").trim();
+    const name = String((order && order.paymentMethodName) || "").trim();
     if (name) return name;
 
     return "Không rõ";
@@ -435,7 +443,7 @@ export function getPaymentMethodBreakdown(orders) {
     const map = new Map();
 
     for (const order of orders || []) {
-        const paymentStatus = normalizePaymentStatusValue(order?.paymentStatus);
+        const paymentStatus = normalizePaymentStatusValue(order && order.paymentStatus ? order.paymentStatus : null);
         if (!profitablePaymentStatuses.includes(paymentStatus)) continue;
 
         const label = resolvePaymentMethodLabel(order);

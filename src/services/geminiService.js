@@ -23,6 +23,8 @@ Quy tắc:
 - productIds là mảng ID sản phẩm từ catalog, tối đa 4 sản phẩm.
 - Nếu khách hỏi về giá, hãy lọc đúng theo khoảng giá họ nêu và không gợi ý sản phẩm ngoài khoảng đó.
 - Nếu khách hỏi chung chung như "có gì hay không?", hãy gợi ý sản phẩm nổi bật, bán chạy hoặc phù hợp nhất.
+- Nếu khách hỏi dạng khám phá catalog như "shop có những loại áo gì", "có hãng nào", "có gì trong shop", hãy tóm tắt ngắn gọn các nhóm sản phẩm hoặc thương hiệu đang có rồi gợi ý 2-4 sản phẩm đại diện.
+- Với câu hỏi khám phá chung, ưu tiên trả lời như một tư vấn viên thật: mô tả ngắn gọn shop đang có gì, điểm khác nhau giữa các dòng áo, mức giá tương đối và chỉ dùng productIds như phần gợi ý thêm, không biến câu trả lời thành danh sách máy móc.
 - Nếu khách chưa nói rõ nhu cầu, hãy hỏi thêm 1 câu ngắn để hiểu phong cách, ngân sách, kích cỡ hoặc mục đích.
 - Nếu không có sản phẩm phù hợp, hãy nói rõ và đề xuất cách hỗ trợ tiếp theo.
 - Nếu câu hỏi ngoài phạm vi sản phẩm áo thể thao, hãy lịch sự từ chối và chuyển hướng lại về sản phẩm.
@@ -40,9 +42,124 @@ function buildProductCatalog(products) {
         price: p._minPrice || p.price || p.minPrice || 0,
         brand: p.brandName || p.brand || "",
         category: p.categoryName || p.category || "",
+        keywords: [
+            p.name || "",
+            p.brandName || p.brand || "",
+            p.categoryName || p.category || "",
+            p.description || p.shortDescription || "",
+        ].filter(Boolean).join(" | "),
     }));
 
     return JSON.stringify(catalog, null, 0);
+}
+
+function normalizeQueryText(value) {
+    return String(value || "")
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .trim();
+}
+
+function isOverviewIntent(query) {
+    const normalizedQuery = normalizeQueryText(query);
+    return [
+        "co nhung loai",
+        "co loai nao",
+        "co gi trong shop",
+        "shop co gi",
+        "co gi hay",
+        "quan ao trong shop",
+        "nhung hang nao",
+        "co hang nao",
+        "biet them",
+        "them ve ao",
+        "ao trong shop",
+        "xem ao",
+        "tell me about",
+        "what can you tell me",
+        "what do you have",
+        "what is in the shop",
+        "shirts in the shop",
+        "about the shirts",
+        "about shirts",
+        "what brands",
+        "any brands",
+    ].some((pattern) => normalizedQuery.includes(pattern));
+}
+
+function filterMerchandiseProducts(products) {
+    const list = Array.isArray(products) ? products : [];
+    return list.filter((product) => {
+        const name = normalizeQueryText(product && product.name);
+        const price = Number(product && (product._minPrice || product.price || product.minPrice || 0));
+        return !name.includes("test") && price >= 1000;
+    });
+}
+
+function collectUniqueValues(items, getter, limit = 6) {
+    const values = [];
+    const seen = new Set();
+
+    for (const item of items) {
+        const value = String(getter(item) || "").trim();
+        if (!value) continue;
+
+        const key = value.toLowerCase();
+        if (seen.has(key)) continue;
+
+        seen.add(key);
+        values.push(value);
+
+        if (values.length >= limit) break;
+    }
+
+    return values;
+}
+
+function buildDynamicQueryContext(userMessage, products) {
+    const usableProducts = filterMerchandiseProducts(products);
+    if (usableProducts.length === 0) {
+        return "Không có thêm dữ liệu catalog sạch để tham chiếu cho câu hỏi này.";
+    }
+
+    const normalizedQuery = normalizeQueryText(userMessage);
+    const categories = collectUniqueValues(usableProducts, (item) => item.categoryName || item.category, 5);
+    const brands = collectUniqueValues(usableProducts, (item) => item.brandName || item.brand, 5);
+    const prices = usableProducts
+        .map((item) => Number(item._minPrice || item.price || item.minPrice || 0))
+        .filter((value) => Number.isFinite(value) && value > 0);
+    const minPrice = prices.length > 0 ? Math.min(...prices) : null;
+    const maxPrice = prices.length > 0 ? Math.max(...prices) : null;
+
+    const candidateProducts = usableProducts.slice(0, 4).map((item) => ({
+        id: item.id,
+        name: item.name,
+        brand: item.brandName || item.brand || "",
+        category: item.categoryName || item.category || "",
+        price: item._minPrice || item.price || item.minPrice || 0,
+    }));
+
+    if (isOverviewIntent(normalizedQuery)) {
+        return [
+            "Đây là câu hỏi khám phá catalog tổng quát.",
+            "Hãy trả lời tự nhiên như nhân viên tư vấn, không mở đầu bằng việc đếm số sản phẩm tìm thấy.",
+            `Nhóm sản phẩm nổi bật: ${categories.join(", ") || "chưa rõ"}.`,
+            `Thương hiệu hiện có: ${brands.join(", ") || "chưa rõ"}.`,
+            minPrice !== null && maxPrice !== null ?
+            `Khoảng giá tham khảo: ${minPrice} đến ${maxPrice} VND.` :
+            "Khoảng giá: chưa xác định rõ.",
+            `Một vài sản phẩm đại diện: ${JSON.stringify(candidateProducts)}.`,
+            "Nếu phù hợp, hãy gợi ý 2-4 sản phẩm đại diện bằng productIds, nhưng phần message phải là câu trả lời tư vấn tự nhiên.",
+        ].join("\n");
+    }
+
+    return [
+        "Đây là dữ liệu tham chiếu thêm cho câu hỏi hiện tại.",
+        `Thương hiệu liên quan: ${brands.join(", ") || "chưa rõ"}.`,
+        `Danh mục liên quan: ${categories.join(", ") || "chưa rõ"}.`,
+        `Ứng viên sản phẩm: ${JSON.stringify(candidateProducts)}.`,
+    ].join("\n");
 }
 
 function parseGeminiResponse(text) {
@@ -127,7 +244,10 @@ export async function sendChatMessage(userMessage, products = []) {
             });
         }
 
-        const result = await chatSession.sendMessage(userMessage);
+        const queryContext = buildDynamicQueryContext(userMessage, products);
+        const result = await chatSession.sendMessage(
+            `${userMessage}\n\n[NGU CANH NOI BO - KHONG LAP LAI NGUYEN VAN]\n${queryContext}`,
+        );
         const responseText = result.response.text();
 
         return parseGeminiResponse(responseText);
