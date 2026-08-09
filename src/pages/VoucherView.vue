@@ -2,44 +2,43 @@
  <div class="retail-shell min-h-screen">
  <MainTopBar />
 
- <main class="mx-auto flex w-full max-w-[1240px] flex-col gap-10 px-4 py-10 md:px-8 xl:px-10">
- <section class="grid gap-6 lg:grid-cols-[1.06fr_0.94fr]">
- <article class="retail-card px-6 py-7 sm:px-8 lg:px-9 lg:py-9">
+ <main class="mx-auto flex w-full max-w-[1240px] flex-col gap-8 px-4 py-10 md:px-8 xl:px-10">
+ <section class="retail-card px-5 py-5 sm:px-6 lg:px-7">
+ <div class="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+ <div class="max-w-2xl">
+ <div class="flex flex-wrap items-center gap-3">
  <span class="retail-kicker">Trung tâm ưu đãi</span>
- <h1 class="retail-heading mt-4 text-[54px] leading-[0.92] text-slate-900 sm:text-[72px]">Tất cả mã giảm giá của bạn trong một nơi.</h1>
- <p class="mt-6 max-w-2xl text-base leading-8 text-slate-600 sm:text-lg">
- Kiểm tra mã còn dùng được, mã đã dùng và hạn áp dụng để chốt đơn nhanh hơn.
+ <span class="inline-flex items-center gap-2 rounded-full border border-green-200 bg-green-50 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-green-700">
+ <span class="material-symbols-outlined text-[16px]">local_activity</span>
+ {{ activeCount }} mã khả dụng
+ </span>
+ </div>
+
+ <div class="mt-4 flex flex-wrap items-end justify-between gap-4">
+ <div>
+ <h1 class="retail-heading text-3xl leading-tight text-slate-900 sm:text-4xl">Mã giảm giá của bạn</h1>
+ <p class="mt-2 max-w-xl text-sm leading-6 text-slate-600 sm:text-base">
+ Kiểm tra nhanh mã còn dùng được, mã đã dùng và hạn áp dụng để vào checkout với ít thao tác hơn.
  </p>
+ </div>
+ </div>
+ </div>
 
- <div class="mt-8 grid gap-4 sm:grid-cols-3">
- <article class="rounded-[24px] border border-slate-200/70 bg-white/75 p-5">
+ <div class="grid flex-1 gap-3 sm:grid-cols-3 lg:max-w-[560px] lg:min-w-[420px]">
+ <article class="rounded-[20px] border border-slate-200 bg-slate-50 p-4">
  <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">Đang hoạt động</p>
- <p class="mt-3 font-headline text-[42px] leading-none text-slate-900">{{ activeCount }}</p>
+ <p class="mt-2 text-3xl font-bold leading-none text-slate-900">{{ activeCount }}</p>
  </article>
- <article class="rounded-[24px] border border-slate-200/70 bg-white/75 p-5">
+ <article class="rounded-[20px] border border-slate-200 bg-slate-50 p-4">
  <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">Đã dùng</p>
- <p class="mt-3 font-headline text-[42px] leading-none text-slate-900">{{ usedCount }}</p>
+ <p class="mt-2 text-3xl font-bold leading-none text-slate-900">{{ usedCount }}</p>
  </article>
- <article class="rounded-[24px] border border-slate-200/70 bg-white/75 p-5">
+ <article class="rounded-[20px] border border-slate-200 bg-slate-50 p-4">
  <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">Tổng số mã</p>
- <p class="mt-3 font-headline text-[42px] leading-none text-slate-900">{{ vouchers.length }}</p>
+ <p class="mt-2 text-3xl font-bold leading-none text-slate-900">{{ vouchers.length }}</p>
  </article>
  </div>
- </article>
-
- <article class="retail-card overflow-hidden p-0">
- <div class="relative flex aspect-[4/5] min-h-[320px] h-full items-end overflow-hidden bg-[radial-gradient(circle_at_top,_rgba(232,164,90,0.35),_transparent_45%),linear-gradient(135deg,_#1f2937,_#0f172a_58%,_#312e81)] p-8 lg:min-h-[430px]">
- <div class="absolute inset-0 bg-[linear-gradient(120deg,transparent_0%,rgba(255,255,255,0.08)_35%,transparent_70%)]"/>
- <div class="absolute right-8 top-8 flex size-24 items-center justify-center rounded-full border border-white/20 bg-white/10 text-slate-800 shadow-2xl backdrop-blur">
- <span class="material-symbols-outlined text-5xl">local_activity</span>
  </div>
- <div class="relative z-10 max-w-sm text-slate-800">
- <p class="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-800/70">Ưu đãi theo đơn hàng</p>
- <h2 class="mt-4 font-headline text-4xl leading-tight">Theo dõi điều kiện áp dụng trước khi sang checkout.</h2>
- <p class="mt-4 text-sm leading-7 text-slate-800/75">Mỗi voucher hiển thị mức giảm và đơn tối thiểu để bạn biết ngay mã nào còn dùng được với giỏ hàng hiện tại.</p>
- </div>
- </div>
- </article>
  </section>
 
  <section class="flex flex-wrap gap-4 border-b border-slate-300/70 pb-4">

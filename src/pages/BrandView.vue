@@ -2,31 +2,40 @@
  <div class="retail-shell min-h-screen">
  <MainTopBar />
 
- <main class="mx-auto flex w-full max-w-[1240px] flex-col gap-14 px-4 py-10 md:px-8 xl:px-10">
- <section class="grid gap-6 lg:grid-cols-[1.08fr_0.92fr]">
- <article class="retail-card px-6 py-7 sm:px-8 lg:px-9 lg:py-9">
+ <main class="mx-auto flex w-full max-w-[1240px] flex-col gap-6 px-4 py-8 md:px-8 xl:px-10">
+ <section class="retail-card overflow-hidden p-0">
+ <div class="grid gap-0 lg:grid-cols-[1.12fr_0.88fr] lg:items-stretch">
+ <div class="px-4 py-4 sm:px-5 lg:px-6 lg:py-5">
+ <div class="flex flex-wrap items-center gap-3">
  <span class="retail-kicker">Danh mục thương hiệu</span>
- <h1 class="retail-heading mt-4 text-[54px] leading-[0.92] text-slate-900 sm:text-[72px]">Những thương hiệu đang có tại SportX.</h1>
- <p class="mt-6 max-w-2xl text-base leading-8 text-slate-600 sm:text-lg">
- Chọn thương hiệu bạn thích để thu gọn lựa chọn nhanh hơn trước khi vào trang cửa hàng.
+ </div>
+
+ <h1 class="retail-heading mt-3 text-[28px] leading-tight text-slate-900 sm:text-[34px]">
+ Chọn thương hiệu bạn muốn xem
+ </h1>
+ <p class="mt-2 max-w-lg text-sm leading-6 text-slate-600">
+ Nếu bạn đã có hãng mình thích, đây là cách nhanh nhất để đi thẳng tới đúng nhóm sản phẩm mà không cần tìm vòng quanh.
  </p>
 
- <div class="mt-8 grid gap-4 sm:grid-cols-3">
- <article v-for="item in brandHighlights":key="item.title"class="rounded-[24px] border border-slate-200/70 bg-white/75 p-5">
- <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">{{ item.kicker }}</p>
- <h3 class="mt-2 text-lg font-semibold text-slate-900">{{ item.title }}</h3>
- <p class="mt-2 text-sm leading-6 text-slate-600">{{ item.description }}</p>
- </article>
+ <p class="mt-3 max-w-xl text-sm leading-6 text-slate-600">
+ Chỉ cần chọn thương hiệu quen thuộc, nhìn logo một chút là bạn có thể mở ngay nhóm sản phẩm tương ứng trong cửa hàng và tiếp tục mua sắm nhanh hơn.
+ </p>
  </div>
- </article>
 
- <article class="retail-card overflow-hidden p-0">
+ <div class="border-t border-slate-200/70 bg-[#f7efe7] lg:border-l lg:border-t-0">
  <img
  src="https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=1400&q=80"
  alt="Cận cảnh áo thể thao SportX"
- class="aspect-[4/5] h-full w-full object-cover lg:min-h-[460px]"
+ class="h-[150px] w-full object-cover sm:h-[180px] lg:h-full lg:min-h-[210px]"
  />
- </article>
+ <div class="border-t border-slate-200/70 bg-white px-4 py-2 sm:px-5">
+ <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">SportX Brands</p>
+ <p class="mt-1 text-sm leading-5 text-slate-600">
+ Một góc nhìn nhỏ để trang bớt khô, còn phần chọn thương hiệu vẫn là trọng tâm chính.
+ </p>
+ </div>
+ </div>
+ </div>
  </section>
 
  <section v-if="loading"class="retail-card py-24 text-center">
@@ -112,24 +121,6 @@
 import { computed, onMounted, ref } from'vue';
 
 import { brandsApi } from'@/services/api';
-
-const brandHighlights = [
- {
- kicker:'Nhanh hơn',
- title:'Nhận diện bằng logo',
- description:'Bạn quen hãng nào thì chọn thẳng hãng đó để tiết kiệm thời gian.',
- },
- {
- kicker:'Dễ xem',
- title:'Danh sách gọn và rõ',
- description:'Tập trung vào tên hãng và hình nhận diện để bạn quét thông tin nhanh.',
- },
- {
- kicker:'Liên kết mượt',
- title:'Vào cửa hàng chỉ một chạm',
- description:'Sau khi xem thương hiệu, bạn có thể chuyển ngay sang trang mua sắm.',
- },
-];
 
 const brands = ref([]);
 const loading = ref(true);

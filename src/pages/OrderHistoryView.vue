@@ -5,117 +5,87 @@
     <main
       class="mx-auto flex w-full max-w-[1240px] flex-col gap-8 px-4 py-10 md:px-8 xl:px-10"
     >
-      <section class="grid gap-6 lg:grid-cols-[1.04fr_0.96fr]">
-        <article class="retail-card px-6 py-7 sm:px-8 lg:px-9 lg:py-9">
-          <span class="retail-kicker">Đơn hàng của bạn</span>
-          <h1
-            class="retail-heading mt-4 text-[50px] leading-[0.94] text-slate-900  sm:text-[66px]"
-          >
-            Lịch sử mua sắm
-          </h1>
-          <p
-            class="mt-5 max-w-2xl text-base leading-8 text-slate-600  sm:text-lg"
-          >
-            Theo dõi trạng thái đơn, tổng chi tiêu và kiểm tra thanh toán trên
-            cùng một bảng điều khiển.
-          </p>
-
-          <div class="mt-8 grid gap-4 sm:grid-cols-3">
-            <article
-              class="rounded-[24px] border border-slate-200/70 bg-white/75 p-5  "
-            >
-              <p
-                class="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary"
+      <section class="retail-card px-5 py-5 sm:px-6 lg:px-7">
+        <div
+          class="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between"
+        >
+          <div class="max-w-2xl">
+            <div class="flex flex-wrap items-center gap-3">
+              <span class="retail-kicker">Đơn hàng của bạn</span>
+              <span
+                class="inline-flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-amber-700"
               >
+                <span class="material-symbols-outlined text-[16px]"
+                  >schedule</span
+                >
+                {{ processingCount }} đang xử lý
+              </span>
+            </div>
+
+            <div class="mt-4 flex flex-wrap items-end justify-between gap-4">
+              <div>
+                <h1
+                  class="retail-heading text-3xl leading-tight text-slate-900 sm:text-4xl"
+                >
+                  Lịch sử mua sắm
+                </h1>
+                <p class="mt-2 max-w-xl text-sm leading-6 text-slate-600 sm:text-base">
+                  Xem nhanh trạng thái đơn, thanh toán và tổng chi tiêu mà không
+                  phải cuộn qua một phần giới thiệu quá lớn.
+                </p>
+              </div>
+
+              <div class="flex flex-wrap gap-3">
+                <router-link
+                  to="/profile"
+                  class="inline-flex items-center gap-2 rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition-colors hover:border-primary hover:text-primary"
+                >
+                  <span class="material-symbols-outlined text-[18px]">person</span>
+                  Quay lại tài khoản
+                </router-link>
+                <router-link
+                  to="/shop"
+                  class="inline-flex items-center gap-2 rounded-full bg-primary-white transition-colors hover:bg-[#a84f24]"
+                >
+                  <span class="material-symbols-outlined text-[18px]"
+                    >storefront</span
+                  >
+                  Tiếp tục mua sắm
+                </router-link>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid flex-1 gap-3 sm:grid-cols-3 lg:max-w-[560px] lg:min-w-[420px]">
+            <article class="rounded-[20px] border border-slate-200 bg-slate-50 p-4">
+              <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">
                 Tổng đơn
               </p>
-              <p
-                class="mt-3 font-headline text-[42px] leading-none text-slate-900 "
-              >
+              <p class="mt-2 text-3xl font-bold leading-none text-slate-900">
                 {{ totalOrders }}
               </p>
             </article>
-            <article
-              class="rounded-[24px] border border-slate-200/70 bg-white/75 p-5  "
-            >
-              <p
-                class="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary"
-              >
+            <article class="rounded-[20px] border border-slate-200 bg-slate-50 p-4">
+              <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">
                 Đã giao
               </p>
-              <p
-                class="mt-3 font-headline text-[42px] leading-none text-slate-900 "
-              >
+              <p class="mt-2 text-3xl font-bold leading-none text-slate-900">
                 {{ deliveredCount }}
               </p>
             </article>
-            <article
-              class="rounded-[24px] border border-slate-200/70 bg-white/75 p-5  "
-            >
-              <p
-                class="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary"
-              >
+            <article class="rounded-[20px] border border-slate-200 bg-slate-50 p-4 sm:col-span-3 lg:col-span-1">
+              <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">
                 Tổng chi
               </p>
               <p
-                class="mt-3 break-words font-headline text-[22px] leading-tight text-slate-900  sm:text-[26px]"
+                class="mt-2 break-words text-lg font-bold leading-snug text-slate-900 sm:text-xl"
                 :title="formatMoney(totalSpent)"
               >
                 {{ formatMoney(totalSpent) }}
               </p>
             </article>
           </div>
-
-          <div class="mt-7 flex flex-wrap gap-3">
-            <router-link
-              to="/profile"
-              class="inline-flex items-center gap-2 rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition-colors hover:border-primary hover:text-primary  "
-            >
-              <span class="material-symbols-outlined text-[18px]">person</span>
-              Quay lại tài khoản
-            </router-link>
-            <router-link
-              to="/shop"
-              class="inline-flex items-center gap-2 rounded-full bg-primary-white transition-colors hover:bg-[#a84f24]"
-            >
-              <span class="material-symbols-outlined text-[18px]"
-                >storefront</span
-              >
-              Tiếp tục mua sắm
-            </router-link>
-          </div>
-        </article>
-
-        <article class="retail-card overflow-hidden p-0">
-          <div
-            class="relative flex h-full min-h-[320px] items-end overflow-hidden bg-[radial-gradient(circle_at_top,_rgba(232,164,90,0.35),_transparent_45%),linear-gradient(135deg,_#1f2937,_#0f172a_58%,_#312e81)] p-8 lg:min-h-[430px]"
-          >
-            <div
-              class="absolute inset-0 bg-[linear-gradient(120deg,transparent_0%,rgba(255,255,255,0.08)_35%,transparent_70%)]"
-            />
-            <div
-              class="absolute right-8 top-8 flex size-24 items-center justify-center rounded-full border border-white/20 bg-white/10 text-slate-900 shadow-2xl backdrop-blur"
-            >
-              <span class="material-symbols-outlined text-5xl"
-                >receipt_long</span
-              >
-            </div>
-            <div class="relative z-10 max-w-sm text-slate-900">
-              <p
-                class="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-900/70"
-              >
-                Tình trạng hiện tại
-              </p>
-              <h2 class="mt-4 font-headline text-4xl leading-tight">
-                {{ processingCount }} đơn đang xử lý.
-              </h2>
-              <p class="mt-4 text-sm leading-7 text-slate-900/75">
-                Danh sách bên dưới tự động đồng bộ theo dữ liệu đã lưu từ
-                backend sau khi checkout thành công.
-              </p>
-            </div>
-          </div>
-        </article>
+        </div>
       </section>
 
       <section v-if="isLoading" class="retail-card py-20 text-center">
@@ -174,6 +144,41 @@
       </section>
 
       <section v-else class="space-y-5">
+        <div class="flex flex-col gap-3 rounded-[20px] border border-slate-200/70 bg-white/80 px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+              Hiển thị đơn hàng
+            </p>
+            <p class="mt-1 text-sm text-slate-700">
+              {{ paginationLabel }}
+            </p>
+          </div>
+
+          <div class="flex items-center gap-2 self-start sm:self-auto">
+            <button
+              type="button"
+              class="inline-flex items-center gap-1 rounded-full border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 transition-colors hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-50"
+              :disabled="currentPage === 1"
+              @click="goToPreviousPage"
+            >
+              <span class="material-symbols-outlined text-[18px]">chevron_left</span>
+              Trước
+            </button>
+            <span class="rounded-full bg-slate-100 px-3 py-2 text-sm font-semibold text-slate-700">
+              Trang {{ currentPage }}/{{ totalPages }}
+            </span>
+            <button
+              type="button"
+              class="inline-flex items-center gap-1 rounded-full border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 transition-colors hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-50"
+              :disabled="currentPage === totalPages"
+              @click="goToNextPage"
+            >
+              Sau
+              <span class="material-symbols-outlined text-[18px]">chevron_right</span>
+            </button>
+          </div>
+        </div>
+
         <article class="retail-card hidden overflow-hidden p-0 md:block">
           <div class="overflow-x-auto">
             <table class="min-w-full text-left">
@@ -220,14 +225,14 @@
               </thead>
               <tbody class="divide-y divide-slate-200/70 ">
                 <tr
-                  v-for="(order, index) in orders"
+                  v-for="(order, index) in paginatedOrders"
                   :key="order.id || `${order.createdAt}-${order.finalAmount}`"
                   class="transition-colors hover:bg-[#fbf4ec] :bg-[#2a231f]"
                 >
                   <td
                     class="px-5 py-4 text-sm font-bold text-slate-900 "
                   >
-                    {{ index + 1 }}
+                    {{ paginationStartIndex + index + 1 }}
                   </td>
                   <td
                     class="px-5 py-4 text-sm font-medium text-slate-900 "
@@ -281,7 +286,7 @@
 
         <article class="space-y-3 md:hidden">
           <div
-            v-for="(order, index) in orders"
+            v-for="(order, index) in paginatedOrders"
             :key="order.id || `${order.createdAt}-${order.finalAmount}`"
             class="retail-card p-4"
           >
@@ -295,7 +300,7 @@
                 <p
                   class="mt-1 text-sm font-bold text-slate-900 "
                 >
-                  {{ index + 1 }}
+                  {{ paginationStartIndex + index + 1 }}
                 </p>
               </div>
               <span
@@ -367,6 +372,39 @@
             </button>
           </div>
         </article>
+
+        <div v-if="totalPages > 1" class="flex justify-center">
+          <div class="inline-flex flex-wrap items-center justify-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-3 shadow-sm">
+            <button
+              type="button"
+              class="inline-flex size-10 items-center justify-center rounded-full border border-slate-300 text-slate-700 transition-colors hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-50"
+              :disabled="currentPage === 1"
+              @click="goToPreviousPage"
+            >
+              <span class="material-symbols-outlined text-[18px]">chevron_left</span>
+            </button>
+
+            <button
+              v-for="page in visiblePageNumbers"
+              :key="page"
+              type="button"
+              class="inline-flex size-10 items-center justify-center rounded-full text-sm font-semibold transition-colors"
+              :class="page === currentPage ? 'bg-primary text-white' : 'border border-slate-300 text-slate-700 hover:border-primary hover:text-primary'"
+              @click="goToPage(page)"
+            >
+              {{ page }}
+            </button>
+
+            <button
+              type="button"
+              class="inline-flex size-10 items-center justify-center rounded-full border border-slate-300 text-slate-700 transition-colors hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-50"
+              :disabled="currentPage === totalPages"
+              @click="goToNextPage"
+            >
+              <span class="material-symbols-outlined text-[18px]">chevron_right</span>
+            </button>
+          </div>
+        </div>
       </section>
 
       <transition name="fade-scale">
@@ -832,6 +870,7 @@ const route = useRoute();
 const router = useRouter();
 const currentUser = ref(null);
 const orders = ref([]);
+const currentPage = ref(1);
 const isLoading = ref(false);
 const errorMessage = ref("");
 const isDetailOpen = ref(false);
@@ -877,10 +916,44 @@ const confirmModal = reactive({
 });
 
 const totalOrders = computed(() => orders.value.length);
+const ordersPerPage = 6;
+const totalPages = computed(() =>
+  Math.max(1, Math.ceil(orders.value.length / ordersPerPage)),
+);
+const paginationStartIndex = computed(
+  () => (currentPage.value - 1) * ordersPerPage,
+);
+const paginatedOrders = computed(() =>
+  orders.value.slice(
+    paginationStartIndex.value,
+    paginationStartIndex.value + ordersPerPage,
+  ),
+);
+const paginationLabel = computed(() => {
+  if (orders.value.length === 0) {
+    return "Chưa có đơn hàng nào để hiển thị.";
+  }
+
+  const start = paginationStartIndex.value + 1;
+  const end = Math.min(
+    paginationStartIndex.value + paginatedOrders.value.length,
+    orders.value.length,
+  );
+  return `Đơn ${start}-${end} trên tổng ${orders.value.length} đơn`;
+});
+const visiblePageNumbers = computed(() => {
+  const radius = 2;
+  const start = Math.max(1, currentPage.value - radius);
+  const end = Math.min(totalPages.value, currentPage.value + radius);
+  return Array.from({ length: end - start + 1 }, (_, index) => start + index);
+});
 const deliveredCount = computed(
   () =>
     orders.value.filter(
-      (order) => getOrderStatusCategory(order.status) === "delivered",
+      (order) => {
+        const category = getOrderStatusCategory(order.status);
+        return category === "delivered" || category === "completed";
+      },
     ).length,
 );
 const processingCount = computed(
@@ -1982,6 +2055,20 @@ function closeOrderDetails() {
   }
 }
 
+function goToPage(page) {
+  const nextPage = Number(page);
+  if (!Number.isFinite(nextPage)) return;
+  currentPage.value = Math.min(Math.max(1, nextPage), totalPages.value);
+}
+
+function goToPreviousPage() {
+  goToPage(currentPage.value - 1);
+}
+
+function goToNextPage() {
+  goToPage(currentPage.value + 1);
+}
+
 async function loadOrders() {
   isLoading.value = true;
   errorMessage.value = "";
@@ -2008,6 +2095,7 @@ async function loadOrders() {
     orders.value = sortOrdersNewestFirst(
       await enrichOrdersWithItemNames(normalizedList),
     );
+    currentPage.value = 1;
   } catch (error) {
     console.error("Lỗi lấy đơn hàng:", error);
     errorMessage.value =
@@ -2015,6 +2103,7 @@ async function loadOrders() {
         ? error.message
         : "Không thể tải lịch sử đơn hàng. Vui lòng thử lại.";
     orders.value = [];
+    currentPage.value = 1;
   } finally {
     isLoading.value = false;
   }
@@ -2037,6 +2126,12 @@ watch(routeOrderId, async (next, previous) => {
   }
 
   await openOrderDetailsById(next);
+});
+
+watch(totalPages, (nextTotalPages) => {
+  if (currentPage.value > nextTotalPages) {
+    currentPage.value = nextTotalPages;
+  }
 });
 </script>
 
