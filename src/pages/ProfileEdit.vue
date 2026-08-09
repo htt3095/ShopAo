@@ -230,21 +230,8 @@
 
  <!-- Password section -->
  <div class="pt-4 border-t border-slate-100">
- <h3 class="text-lg font-bold text-slate-900 mb-2">Xác nhận mật khẩu</h3>
- <p class="text-sm text-slate-500 mb-4">Nhập mật khẩu hiện tại để xác nhận lưu thay đổi thông tin tài khoản.</p>
-
- <div class="mb-4">
- <label class="text-sm font-medium text-slate-700">Xác nhận mật khẩu</label>
- <input
- v-model="form.confirmPassword"
- type="password"
- autocomplete="current-password"
- class="mt-2 w-full px-4 py-2.5 rounded-lg border border-slate-200 bg-white text-slate-900 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
- :class="{'border-red-500': errors.confirmPassword }"
- placeholder="Nhập mật khẩu hiện tại"
- >
- <p v-if="errors.confirmPassword"class="mt-1 text-red-500 text-xs">{{ errors.confirmPassword }}</p>
- </div>
+ <h3 class="text-lg font-bold text-slate-900 mb-2">Thay đổi mật khẩu</h3>
+ <p class="text-sm text-slate-500 mb-4">Bạn có thể đổi mật khẩu tại đây.</p>
 
  <router-link
  to="/profile/change-password"
@@ -423,7 +410,6 @@ const form = ref({
  phone:'',
  address:'',
  membership:'Thành viên thường', // Backend không có field này, tự thêm vào UI
- confirmPassword:'',
  avatar: null,
  imgUrl: null
 })
@@ -434,8 +420,7 @@ const resolvedSidebarAvatar = computed(() =>
 
 const errors = ref({
  username:'',
- gmail:'',
- confirmPassword:''
+ gmail:''
 })
 
 const isReviewsTab = computed(() => route.name ==='profile-edit-reviews')
@@ -483,7 +468,6 @@ async function loadUserData() {
  phone: latestUser.phone ||'',
  address: latestUser.address ||'',
  membership: form.value.membership, // Giữ membership từ UI
- confirmPassword:'',
  avatar: null,
  imgUrl: normalizeAvatarUrl(latestUser.imgUrl || null)
  }
@@ -513,7 +497,6 @@ async function loadUserData() {
  phone: localUser.phone ||'',
  address: localUser.address ||'',
  membership: localUser.membership ||'Thành viên thường',
- confirmPassword:'',
  avatar: null,
  imgUrl: normalizeAvatarUrl(localUser.imgUrl || null)
  }
@@ -670,7 +653,7 @@ function getStatusClass(status) {
 // Validate form
 const validateForm = () => {
  let isValid = true
- errors.value = { username:'', gmail:'', confirmPassword:''}
+ errors.value = { username:'', gmail:''}
 
  if (!form.value.username?.trim()) {
  errors.value.username ='Bạn cần nhập tên đăng nhập'
@@ -682,11 +665,6 @@ const validateForm = () => {
  isValid = false
  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.value.gmail)) {
  errors.value.gmail ='Email không đúng định dạng'
- isValid = false
- }
-
- if (!form.value.confirmPassword?.trim()) {
- errors.value.confirmPassword ='Vui lòng nhập mật khẩu để xác nhận'
  isValid = false
  }
 
@@ -749,8 +727,7 @@ const handleSubmit = async () => {
  gmail: form.value.gmail,
  phone: form.value.phone ||'',
  address: form.value.address ||'',
- imgUrl: imageUrl, // Include image URL in update
- password: form.value.confirmPassword // Backend currently requires password in AccountRequest
+ imgUrl: imageUrl // Include image URL in update
  // KHÔNG gửi accountCode - backend sẽ tự xử lý
  // KHÔNG gửi isActive - giữ nguyên trạng thái
  }

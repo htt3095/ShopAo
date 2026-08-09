@@ -435,7 +435,12 @@
           </div>
           <div>
             <label class="block text-sm font-medium mb-1">Địa chỉ chi tiết</label>
-            <textarea v-model="newAddress.address" class="w-full border rounded p-2" placeholder="Số nhà, đường, phường, quận, thành phố..."></textarea>
+            <textarea v-model="newAddress.address" @blur="forwardGeocode" class="w-full border rounded p-2" placeholder="Số nhà, đường, phường, quận, thành phố..."></textarea>
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1">Hoặc chọn trên bản đồ</label>
+            <div id="profile-map" class="h-48 w-full rounded-xl border border-slate-200 z-10 relative overflow-hidden"></div>
+            <p class="text-[11px] text-slate-500 mt-1">Bấm vào bản đồ để định vị địa chỉ nhanh chóng.</p>
           </div>
           <div class="flex items-center gap-2">
             <input type="checkbox" v-model="newAddress.isDefault" id="isDefault">
@@ -452,12 +457,25 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch, nextTick } from "vue";
 import { useRouter } from "vue-router";
 import { useProductStore } from "@/stores/products";
 import { useReviewsStore } from "@/stores/reviews";
 import { accountsApi, addressApi, resolveBackendAssetUrl } from "../services/api";
 import { orderAPI } from "@/services/orders";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+
+// Fix Leaflet marker icons
+import iconRetinaUrl from 'leaflet/dist/images/marker-icon-2x.png';
+import iconUrl from 'leaflet/dist/images/marker-icon.png';
+import shadowUrl from 'leaflet/dist/images/marker-shadow.png';
+
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl,
+  iconUrl,
+  shadowUrl,
+});
 
 const router = useRouter();
 const productStore = useProductStore();
@@ -959,6 +977,92 @@ function getStatusClass(status) {
 function getStatusDotClass(status) {
   return getStatusMeta(status).dotClass;
 }
+
+// --- Map logic ---
+let map = null;
+let marker = null;
+
+async function safeParseResponse(res) {
+  try {
+    return await res.json();
+  } catch (e) {
+    return null;
+  }
+}
+
+function initMap() {
+  const mapElement = document.getElementById("profile-map");
+  if (!mapElement) return;
+
+  if (map) {
+    map.remove();
+  }
+
+  const defaultCoord = [21.028511, 105.804817]; // Hanoi default
+  map = L.map("profile-map").setView(defaultCoord, 12);
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    attribution: "&copy; OpenStreetMap contributors",
+  }).addTo(map);
+
+  marker = L.marker(defaultCoord).addTo(map);
+
+  map.on("click", (e) => {
+    const lat = e.latlng.lat;
+    const lng = e.latlng.lng;
+    marker.setLatLng([lat, lng]);
+    reverseGeocode(lat, lng);
+  });
+}
+
+async function reverseGeocode(lat, lng) {
+  try {
+    const res = await fetch(`/nominatim/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`);
+    if (!res.ok) return;
+    const data = await safeParseResponse(res);
+    if (data && data.display_name) {
+      newAddress.value.address = data.display_name;
+    }
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+async function forwardGeocode() {
+  if (!newAddress.value.address || !map) return;
+  try {
+    const geoRes = await fetch(
+      `/nominatim/search?format=json&addressdetails=1&limit=1&q=${encodeURIComponent(newAddress.value.address + ", Việt Nam")}`,
+    );
+    if (!geoRes.ok) return;
+    const geoData = await safeParseResponse(geoRes);
+    const first = Array.isArray(geoData) ? geoData[0] : null;
+    
+    if (first && first.lat && first.lon) {
+      const lat = parseFloat(first.lat);
+      const lng = parseFloat(first.lon);
+      map.setView([lat, lng], 15);
+      marker.setLatLng([lat, lng]);
+    }
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+watch(showAddAddressModal, (newVal) => {
+  if (newVal) {
+    nextTick(() => {
+      initMap();
+      if (newAddress.value.address) {
+        forwardGeocode();
+      }
+    });
+  } else {
+    if (map) {
+      map.remove();
+      map = null;
+    }
+  }
+});
 </script>
 
 <style scoped>
