@@ -40,6 +40,7 @@ function buildProductCatalog(products) {
         price: p._minPrice || p.price || p.minPrice || 0,
         brand: p.brandName || p.brand || "",
         category: p.categoryName || p.category || "",
+        description: p.description || "",
     }));
 
     return JSON.stringify(catalog, null, 0);

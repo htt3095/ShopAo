@@ -361,6 +361,9 @@ export const colorsApi = {
     async getAll() {
         return apiCall("/colors");
     },
+    async create(payload) {
+        return apiCall("/colors", { method: "POST", body: JSON.stringify(payload) });
+    }
 };
 
 // Sizes API (if available)
@@ -1293,6 +1296,7 @@ function normalizeProductPayload(rawProduct) {
             null,
         ),
         imageUrl: firstDefinedValue([source.imageUrl, source.image_url], null),
+        description: firstDefinedValue([source.description], null),
     };
 
     if (source.status !== undefined || source.productStatus !== undefined) {
@@ -1307,12 +1311,12 @@ function normalizeProductPayload(rawProduct) {
 function normalizeVariantPayload(rawVariant) {
     const source = rawVariant && typeof rawVariant === "object" ? rawVariant : {};
     const rawExtraImages = firstDefinedValue(
-        [source.extraImages, source.extra_images], [],
+        [source.extraImages, source.extra_images], undefined,
     );
-    const normalizedExtraImages = (Array.isArray(rawExtraImages) ?
+    const normalizedExtraImages = rawExtraImages !== undefined ? (Array.isArray(rawExtraImages) ?
             rawExtraImages : [])
         .map((url) => (typeof url === "string" ? url.trim() : ""))
-        .filter(Boolean);
+        .filter(Boolean) : undefined;
 
     const payload = {
         productId: asFiniteNumber(
@@ -1773,6 +1777,21 @@ export const adminApi = {
         };
     },
 
+    async hardDeleteProduct(productId) {
+        const id = asFiniteNumber(productId, null);
+        if (id === null) {
+            throw new Error("Thiếu productId hợp lệ");
+        }
+        await tryApiRequests([
+            { endpoint: `/products/${id}`, method: "DELETE" }
+        ]);
+        return {
+            hardDeleted: true,
+            message: "Sản phẩm đã được xóa vĩnh viễn.",
+        };
+    },
+
+
     async restoreProduct(productId) {
         const id = asFiniteNumber(productId, null);
         const current = await productsApi.getById(id);
@@ -1842,6 +1861,20 @@ export const adminApi = {
             { endpoint: `/variants/${id}`, method: "PUT", body: payload }
         ]);
         return true;
+    },
+
+    async hardDeleteVariant(variantId) {
+        const id = asFiniteNumber(variantId, null);
+        if (id === null) {
+            throw new Error("Thiếu variantId hợp lệ");
+        }
+        await tryApiRequests([
+            { endpoint: `/variants/${id}`, method: "DELETE" }
+        ]);
+        return {
+            deleted: true,
+            message: "Biến thể đã được xóa vĩnh viễn.",
+        };
     },
 
     async getVouchers({ page = 0, size = 300 } = {}) {

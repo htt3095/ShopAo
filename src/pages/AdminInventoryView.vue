@@ -242,157 +242,167 @@
       </section>
 
             <!-- Modal: Cập nhật ảnh theo nhóm màu -->
-      <div v-if="showBulkImageModal" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 overflow-y-auto">
-        <section class="retail-card p-5 w-full max-w-3xl flex flex-col max-h-[90vh] overflow-y-auto relative animate-[fadeIn_0.2s_ease-out]">
-          <button @click="showBulkImageModal = false" class="absolute top-4 right-4 text-slate-400 hover:text-slate-800">
-            <span class="material-symbols-outlined">close</span>
-          </button>
-          <div class="mb-4 flex items-center justify-between gap-2">
+      <Teleport to="body">
+        <div v-if="showBulkImageModal" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 overflow-y-auto">
+          <section class="retail-card p-5 w-full max-w-3xl flex flex-col max-h-[90vh] overflow-y-auto relative animate-[fadeIn_0.2s_ease-out]">
+            <button @click="showBulkImageModal = false" class="absolute top-4 right-4 text-slate-400 hover:text-slate-800">
+              <span class="material-symbols-outlined">close</span>
+            </button>
+            <div class="mb-4 flex items-center justify-between gap-2">
+              <div>
+                <h3 class="text-lg font-bold text-slate-800">Cập nhật ảnh theo nhóm màu</h3>
+              <p class="text-xs text-slate-500 ">
+                1 bộ ảnh áp dụng cho toàn bộ biến thể cùng màu (khác size).
+              </p>
+              <p class="text-[11px] text-slate-500 ">
+                Luôn cố định 5 ảnh: Ảnh chính + 4 ảnh phụ. Upload mới sẽ ghi đè
+                đúng slot, không cộng dồn.
+              </p>
+            </div>
+          </div>
+
+          <p
+            v-if="bulkImageNotice"
+            class="mb-2 rounded-lg border border-amber-200 bg-amber-50 px-2.5 py-1.5 text-[11px] text-amber-700 /50 /20 "
+          >
+            {{ bulkImageNotice }}
+          </p>
+
+          <div class="grid gap-2 md:grid-cols-3">
             <div>
-              <h3 class="text-lg font-bold text-slate-800">Cập nhật ảnh theo nhóm màu</h3>
-            <p class="text-xs text-slate-500 ">
-              1 bộ ảnh áp dụng cho toàn bộ biến thể cùng màu (khác size).
-            </p>
-            <p class="text-[11px] text-slate-500 ">
-              Luôn cố định 5 ảnh: Ảnh chính + 4 ảnh phụ. Upload mới sẽ ghi đè
-              đúng slot, không cộng dồn.
-            </p>
-          </div>
-        </div>
-
-        <p
-          v-if="bulkImageNotice"
-          class="mb-2 rounded-lg border border-amber-200 bg-amber-50 px-2.5 py-1.5 text-[11px] text-amber-700 /50 /20 "
-        >
-          {{ bulkImageNotice }}
-        </p>
-
-        <div class="grid gap-2 md:grid-cols-3">
-          <div>
-            <label class="mb-1 block text-xs font-medium text-slate-500"
-              >Sản phẩm</label
-            >
-            <select
-              v-model.number="bulkImageProductId"
-              class="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-sm "
-              @change="openBulkImageForGroup(bulkImageProductId, null)"
-            >
-              <option :value="null">-- Chọn sản phẩm --</option>
-              <option v-for="p in products" :key="p.id" :value="Number(p.id)">
-                {{ p.name }}
-              </option>
-            </select>
-          </div>
-
-          <div>
-            <label class="mb-1 block text-xs font-medium text-slate-500"
-              >Màu</label
-            >
-            <select
-              v-model.number="bulkImageColorId"
-              class="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-sm "
-              :disabled="!bulkImageProductId"
-              @change="preloadBulkSlotsFromVariantDetails"
-            >
-              <option :value="null">-- Chọn màu --</option>
-              <option
-                v-for="c in bulkColorOptions"
-                :key="c.id"
-                :value="Number(c.id)"
+              <label class="mb-1 block text-xs font-medium text-slate-500"
+                >Sản phẩm</label
               >
-                {{ c.name }}
-              </option>
-            </select>
-          </div>
-
-          <div
-            class="rounded-lg border border-slate-300 px-2.5 py-1.5 text-sm "
-          >
-            <div class="text-xs text-slate-500">Biến thể trong nhóm</div>
-            <div class="mt-1 font-semibold">
-              {{ bulkTargetVariants.length }}
-            </div>
-          </div>
-        </div>
-
-        <div class="mt-2 grid grid-cols-5 gap-1.5">
-          <div
-            v-for="entry in imageSlotEntries"
-            :key="`bulk-${entry.key}`"
-            class="rounded-lg border border-slate-300 p-1.5 "
-          >
-            <div
-              class="mb-1 truncate text-[10px] font-semibold text-slate-600 "
-            >
-              {{ entry.label }}
-            </div>
-            <div
-              class="mb-1.5 aspect-square overflow-hidden rounded-md bg-slate-100 "
-            >
-              <img
-                v-if="slotSource(bulkImageSlots, entry.key)"
-                :src="slotSource(bulkImageSlots, entry.key)"
-                :alt="entry.label"
-                class="h-full w-full object-cover"
-              />
-              <div
-                v-else
-                class="flex h-full items-center justify-center text-[10px] text-slate-400"
+              <select
+                v-model.number="bulkImageProductId"
+                class="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-sm "
+                @change="openBulkImageForGroup(bulkImageProductId, null)"
               >
-                Trống
+                <option :value="null">-- Chọn sản phẩm --</option>
+                <option v-for="p in products" :key="p.id" :value="Number(p.id)">
+                  {{ p.name }}
+                </option>
+              </select>
+            </div>
+
+            <div>
+              <label class="mb-1 block text-xs font-medium text-slate-500"
+                >Màu</label
+              >
+              <select
+                v-model.number="bulkImageColorId"
+                class="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-sm "
+                :disabled="!bulkImageProductId"
+                @change="preloadBulkSlotsFromVariantDetails"
+              >
+                <option :value="null">-- Chọn màu --</option>
+                <option
+                  v-for="c in bulkColorOptions"
+                  :key="c.id"
+                  :value="Number(c.id)"
+                >
+                  {{ c.name }}
+                </option>
+              </select>
+            </div>
+
+            <div
+              class="rounded-lg border border-slate-300 px-2.5 py-1.5 text-sm "
+            >
+              <div class="text-xs text-slate-500">Biến thể trong nhóm</div>
+              <div class="mt-1 font-semibold">
+                {{ bulkTargetVariants.length }}
               </div>
             </div>
-            <label
-              class="block cursor-pointer rounded-md border border-slate-300 px-1.5 py-1 text-center text-[10px] font-medium hover:border-primary hover:text-primary "
-            >
-              Chọn ảnh thay slot
-              <input
-                type="file"
-                accept="image/*"
-                class="hidden"
-                @change="
-                  handleImageUploadForSlots(bulkImageSlots, entry.key, $event)
-                "
-              />
-            </label>
           </div>
-        </div>
 
-        <div class="mt-2 flex flex-wrap items-center gap-2">
-          <button
-            type="button"
-            class="inline-flex items-center gap-1.5 rounded-lg bg-primary px-2.5 py-1.5 text-xs font-semibold text-white hover:opacity-90 disabled:opacity-60"
-            :disabled="applyingBulkImages"
-            @click="applyBulkImagesToColorGroup"
-          >
-            <span class="material-symbols-outlined text-[16px]"
-              >cloud_upload</span
+          <div class="mt-2 grid grid-cols-5 gap-1.5">
+            <div
+              v-for="entry in imageSlotEntries"
+              :key="`bulk-${entry.key}`"
+              class="rounded-lg border border-slate-300 p-1.5 "
             >
-            {{
-              applyingBulkImages
-                ? "Đang áp dụng..."
-                : "Áp dụng cho toàn bộ nhóm màu"
-            }}
-          </button>
-          <p
-            v-if="bulkImageProductId && bulkImageColorId"
-            class="text-[11px] text-slate-500 "
-          >
-            Đang đọc ảnh từ {{ bulkTargetVariants.length }} biến thể trong nhóm
-            màu đã chọn.
-          </p>
-          <p v-if="bulkImageError" class="text-xs text-red-500">
-            {{ bulkImageError }}
-          </p>
-          <p
-            v-if="bulkImageSuccess"
-            class="text-xs text-green-600 "
-          >
-            {{ bulkImageSuccess }}
-          </p>
+              <div
+                class="mb-1 truncate text-[10px] font-semibold text-slate-600 "
+              >
+                {{ entry.label }}
+              </div>
+              <div
+                class="mb-1.5 aspect-square overflow-hidden rounded-md bg-slate-100 "
+              >
+                <img
+                  v-if="slotSource(bulkImageSlots, entry.key)"
+                  :src="slotSource(bulkImageSlots, entry.key)"
+                  :alt="entry.label"
+                  class="h-full w-full object-cover"
+                />
+                <div
+                  v-else
+                  class="flex h-full items-center justify-center text-[10px] text-slate-400"
+                >
+                  Trống
+                </div>
+              </div>
+              <label
+                class="block cursor-pointer rounded-md border border-slate-300 px-1.5 py-1 text-center text-[10px] font-medium hover:border-primary hover:text-primary "
+              >
+                Chọn ảnh thay slot
+                <input
+                  type="file"
+                  accept="image/*"
+                  class="hidden"
+                  @change="
+                    handleImageUploadForSlots(bulkImageSlots, entry.key, $event)
+                  "
+                />
+              </label>
+              <button
+                type="button"
+                v-if="slotSource(bulkImageSlots, entry.key)"
+                class="mt-1 block w-full rounded-md border border-red-300 px-1.5 py-1 text-center text-[10px] font-medium text-red-600 hover:bg-red-50"
+                @click="clearImageSlotForSlots(bulkImageSlots, entry.key)"
+              >
+                Xóa ảnh
+              </button>
+            </div>
+          </div>
+
+          <div class="mt-2 flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              class="inline-flex items-center gap-1.5 rounded-lg bg-primary px-2.5 py-1.5 text-xs font-semibold text-white hover:opacity-90 disabled:opacity-60"
+              :disabled="applyingBulkImages"
+              @click="applyBulkImagesToColorGroup"
+            >
+              <span class="material-symbols-outlined text-[16px]"
+                >cloud_upload</span
+              >
+              {{
+                applyingBulkImages
+                  ? "Đang áp dụng..."
+                  : "Áp dụng cho toàn bộ nhóm màu"
+              }}
+            </button>
+            <p
+              v-if="bulkImageProductId && bulkImageColorId"
+              class="text-[11px] text-slate-500 "
+            >
+              Đang đọc ảnh từ {{ bulkTargetVariants.length }} biến thể trong nhóm
+              màu đã chọn.
+            </p>
+            <p v-if="bulkImageError" class="text-xs text-red-500">
+              {{ bulkImageError }}
+            </p>
+            <p
+              v-if="bulkImageSuccess"
+              class="text-xs text-green-600 "
+            >
+              {{ bulkImageSuccess }}
+            </p>
+          </div>
+                </section>
         </div>
-              </section>
-      </div>
+      </Teleport>
 
       <!-- Statistics Cards -->
       <section class="retail-card p-5">
@@ -458,13 +468,22 @@
                   {{ variant.sizeName || "" }}</span
                 >
               </div>
-              <button
-                type="button"
-                class="rounded-xl bg-emerald-500 px-3 py-2 text-xs font-semibold text-slate-800 hover:bg-emerald-600"
-                @click="restoreVariant(variant)"
-              >
-                Khôi phục
-              </button>
+              <div class="flex items-center gap-2">
+                <button
+                  type="button"
+                  class="rounded-xl bg-emerald-500 px-3 py-2 text-xs font-semibold text-slate-800 hover:bg-emerald-600"
+                  @click="restoreVariant(variant)"
+                >
+                  Khôi phục
+                </button>
+                <button
+                  type="button"
+                  class="rounded-xl bg-red-500 px-3 py-2 text-xs font-semibold text-white hover:bg-red-600"
+                  @click="hardDeleteVariant(variant)"
+                >
+                  Xóa hẳn
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -658,7 +677,7 @@
                   </div>
                 </div>
               </div>
-              <button type="button" @click="showBulkImageModal = true" class="text-xs font-semibold text-primary hover:underline">
+              <button type="button" @click="openBulkImageForGroup(form.productId, bulkImageColorId)" class="text-xs font-semibold text-primary hover:underline">
                 Xem / Sửa ảnh
               </button>
             </div>
@@ -683,15 +702,15 @@
               <label class="mb-1 block text-xs font-medium text-slate-500"
                 >Màu sắc *</label
               >
-              <select
-                v-model.number="form.colorId"
-                class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-1.5 text-sm "
-              >
-                <option :value="null">-- Chọn màu --</option>
-                <option v-for="c in availableColorsForForm" :key="c.id" :value="Number(c.id)">
-                  {{ c.name }}
-                </option>
-              </select>
+              <input
+                v-model="form.colorName"
+                list="colorOptionsList"
+                placeholder="-- Chọn hoặc nhập màu mới --"
+                class="w-full shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-1.5 text-sm rounded-xl border border-slate-200 outline-none focus:border-primary"
+              />
+              <datalist id="colorOptionsList">
+                <option v-for="c in availableColorsForForm" :key="c.id" :value="c.name"></option>
+              </datalist>
             </div>
 
             <div>
@@ -1044,10 +1063,13 @@ const availableColorsForForm = computed(() => {
 });
 
 const availableSizesForForm = computed(() => {
-  if (!form.value.productId || !form.value.colorId) return sizes.value;
+  if (!form.value.productId || !form.value.colorName) return sizes.value;
+  const selectedColor = colors.value.find(c => c.name.toLowerCase() === form.value.colorName.toLowerCase());
+  if (!selectedColor) return sizes.value;
+  
   const existingVariants = visibleVariants.value.filter(v => 
     Number(v.productId) === Number(form.value.productId) && 
-    Number(v.colorId) === Number(form.value.colorId) && 
+    Number(v.colorId) === Number(selectedColor.id) && 
     Number(v.id) !== Number(editingId.value)
   );
   const usedSizeIds = new Set(existingVariants.map(v => Number(v.sizeId)));
@@ -1171,6 +1193,9 @@ const filteredVariants = computed(() => {
       if (filters.value.stockStatus === "in_stock") return stock >= 10;
       return true;
     });
+  } else {
+    // Mặc định ẩn các biến thể đã bị xóa mềm (Ngừng bán) để tránh rác giao diện
+    result = result.filter(v => normalizeVariantStatus(v.status, v.stockQuantity) !== "HIDDEN");
   }
 
   // Filter by price range
@@ -1487,7 +1512,7 @@ function bindVariantToSlots(targetSlotsRef, variant) {
   const slots = ensureSlotsObject(targetSlotsRef);
   const extra = readVariantExtras(variant);
   if (extra.length > 4) {
-    bulkImageNotice.value = `Nhóm màu này đang có ${extra.length + 1} ảnh. Hệ thống chỉ dùng 5 ảnh chuẩn (1 chính + 4 phụ), ảnh dư sẽ bị bỏ qua khi cập nhật.`;
+    bulkImageNotice.value = `Nhóm màu này đang có ${extra.length + 1} ảnh. Hệ thống chỉ dùng 5 ảnh chuẩn (1 chính + tối đa 4 phụ), ảnh dư sẽ bị bỏ qua khi cập nhật.`;
   }
   slots.primary.url = readVariantPrimary(variant);
   slots.primary.previewUrl = "";
@@ -1634,7 +1659,7 @@ function clearImageSlotForSlots(targetSlotsRef, slotKey) {
 function emptyForm() {
   return {
     productId: null,
-    colorId: null,
+    colorName: "",
     sizeId: null,
     price: 0,
     stockQuantity: 0,
@@ -1833,7 +1858,8 @@ function validateFiveImagesForSlots(targetSlotsRef) {
     const slot = targetSlotsRef.value[key];
     return !slot.file && !slot.url;
   });
-  return missing.length === 0;
+  const hasPrimary = targetSlotsRef.value.primary.file || targetSlotsRef.value.primary.url;
+  return hasPrimary && missing.length <= 1;
 }
 
 function getVariantImageScore(variant) {
@@ -2043,10 +2069,6 @@ async function applyBulkImagesToColorGroup() {
     return;
   }
 
-  if (!validateFiveImagesForSlots(bulkImageSlots)) {
-    bulkImageError.value = "Bộ ảnh nhóm màu cần đủ 5 ảnh (1 chính + 4 phụ).";
-    return;
-  }
 
   applyingBulkImages.value = true;
   try {
@@ -2102,7 +2124,7 @@ function openEdit(v) {
   bulkImageColorId.value = asFiniteNumber(v.colorId, null);
   form.value = {
     productId: asFiniteNumber(v.productId, null),
-    colorId: asFiniteNumber(v.colorId, null),
+    colorName: v.colorName || "",
     sizeId: asFiniteNumber(v.sizeId, null),
     price: asFiniteNumber(v.price, 0) || 0,
     stockQuantity: asFiniteNumber(v.stockQuantity, 0) || 0,
@@ -2120,13 +2142,31 @@ async function saveVariant() {
   modalError.value = "";
   const f = form.value;
 
-  if (!f.productId || !f.colorId || !f.sizeId) {
-    modalError.value = "Vui lòng chọn đầy đủ Sản phẩm, Màu sắc và Size.";
+  if (!f.productId || !f.colorName || !f.sizeId) {
+    modalError.value = "Vui lòng nhập đầy đủ Sản phẩm, Màu sắc và Size.";
     return;
   }
 
   saving.value = true;
   try {
+    const typedColorName = String(f.colorName).trim();
+    let finalColorId = null;
+    const existingColor = colors.value.find(c => c.name.toLowerCase() === typedColorName.toLowerCase());
+    if (existingColor) {
+      finalColorId = existingColor.id;
+    } else {
+      try {
+        const newColor = await colorsApi.create({ name: typedColorName });
+        finalColorId = newColor.id || newColor.data?.id;
+        const rawColors = await colorsApi.getAll().catch(() => []);
+        colors.value = toList(rawColors);
+      } catch(err) {
+        modalError.value = "Không thể tạo màu mới: " + err.message;
+        saving.value = false;
+        return;
+      }
+    }
+
     let variantIdForUpload = editingId.value;
     const requestedStatus = String(f.status || "").trim().toUpperCase();
     const normalizedStock =
@@ -2138,7 +2178,7 @@ async function saveVariant() {
     if (!editingId.value) {
       const payload = {
         productId: Number(f.productId),
-        colorId: Number(f.colorId),
+        colorId: Number(finalColorId),
         sizeId: Number(f.sizeId),
         price: Number(f.price || 0),
         stockQuantity: normalizedStock,
@@ -2156,7 +2196,7 @@ async function saveVariant() {
     else {
       await adminApi.updateVariant(variantIdForUpload, {
         productId: Number(f.productId),
-        colorId: Number(f.colorId),
+        colorId: Number(finalColorId),
         sizeId: Number(f.sizeId),
         price: Number(f.price || 0),
         stockQuantity: normalizedStock,
@@ -2166,7 +2206,7 @@ async function saveVariant() {
 
     const finalPayload = {
       productId: Number(f.productId),
-      colorId: Number(f.colorId),
+      colorId: Number(finalColorId),
       sizeId: Number(f.sizeId),
       price: Number(f.price || 0),
       stockQuantity: normalizedStock,
@@ -2271,6 +2311,22 @@ async function restoreVariant(variant) {
     await loadInventory();
   } catch (err) {
     error.value = "Không thể khôi phục biến thể.";
+  }
+}
+
+async function hardDeleteVariant(variant) {
+  if (!confirm("Bạn có chắc chắn muốn xóa vĩnh viễn biến thể này? Hành động này không thể hoàn tác!")) {
+    return;
+  }
+  try {
+    await adminApi.hardDeleteVariant(variant.id);
+    const deletedId = Number(variant?.id);
+    hiddenVariants.value = hiddenVariants.value.filter(
+      (hidden) => Number(hidden.id) !== deletedId,
+    );
+    await loadInventory();
+  } catch (err) {
+    error.value = "Không thể xóa vĩnh viễn biến thể này. Có thể nó đang được sử dụng trong các đơn hàng.";
   }
 }
 

@@ -1,4 +1,4 @@
-﻿[Output too large (28KB). Full output saved to: c:\Users\Dell\AppData\Roaming\Code\copilot-terminal-output\copilot-terminal-output-2e858a0d-e4a1-4ddd-8a47-bf5e8d699081.txt]
+[Output too large (28KB). Full output saved to: c:\Users\Dell\AppData\Roaming\Code\copilot-terminal-output\copilot-terminal-output-2e858a0d-e4a1-4ddd-8a47-bf5e8d699081.txt]
 [Use readFile or grep to examine the full output.]
 
 <template>
@@ -172,7 +172,10 @@
             <div class="mt-3 space-y-2">
               <div v-for="product in hiddenProducts" :key="product.id" class="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2">
                 <div class="text-sm"><span class="font-semibold">#{{ product.id }}</span><span class="ml-2">{{ product.name || 'Sản phẩm' }}</span></div>
-                <button type="button" class="rounded-xl bg-emerald-500 px-3 py-2 text-xs font-semibold text-white hover:bg-emerald-600" @click="restoreProduct(product)">Khôi phục</button>
+                <div class="flex items-center gap-2">
+                  <button type="button" class="rounded-xl bg-emerald-500 px-3 py-2 text-xs font-semibold text-white hover:bg-emerald-600" @click="restoreProduct(product)">Khôi phục</button>
+                  <button type="button" class="rounded-xl bg-red-500 px-3 py-2 text-xs font-semibold text-white hover:bg-red-600" @click="hardDeleteProduct(product)">Xóa hẳn</button>
+                </div>
               </div>
             </div>
           </div>
@@ -310,6 +313,18 @@
                   {{ category.name }}
                 </option>
               </select>
+            </div>
+
+            <div class="md:col-span-2">
+              <label class="mb-1 block text-xs font-medium text-slate-500"
+                >Mô tả chi tiết sản phẩm</label
+              >
+              <textarea
+                v-model="form.description"
+                rows="10"
+                class="w-full shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm rounded-xl border border-slate-200 outline-none focus:border-primary"
+                placeholder="Nhập thông tin chi tiết về chất liệu, kiểu dáng, tính năng, v.v. (Ví dụ: Áo thun thể thao nam mát lạnh, chất vải co giãn, thấm hút mồ hôi...)"
+              ></textarea>
             </div>
 
             <div class="md:col-span-2">
@@ -572,6 +587,7 @@ function emptyForm() {
     brandId: null,
     categoryId: null,
     imageUrl: "",
+    description: "",
   };
 }
 
@@ -636,7 +652,8 @@ function openEdit(product) {
     categoryId: Number.isFinite(Number(product.categoryId))
       ? Number(product.categoryId)
       : null,
-    imageUrl: product.imageUrl || "",
+    imageUrl: product._imageUrl || product.imageUrl || "",
+    description: product.description || "",
   };
   modalError.value = "";
   showModal.value = true;
@@ -727,6 +744,7 @@ async function saveProduct() {
         categoryId: Number.isFinite(Number(f.categoryId))
           ? Number(f.categoryId)
           : null,
+        description: f.description || null,
         imageUrl: null, // Don't set image URL yet
       };
 
@@ -755,6 +773,7 @@ async function saveProduct() {
         categoryId: Number.isFinite(Number(f.categoryId))
           ? Number(f.categoryId)
           : null,
+        description: f.description || null,
         imageUrl: imageUrl || null,
       };
 
@@ -819,6 +838,23 @@ async function restoreProduct(product) {
     error.value = "Không thể khôi phục sản phẩm.";
   }
 }
+
+async function hardDeleteProduct(product) {
+  if (!confirm("Bạn có chắc chắn muốn xóa vĩnh viễn sản phẩm này? Hành động này không thể hoàn tác!")) {
+    return;
+  }
+  try {
+    await adminApi.hardDeleteProduct(product.id);
+    const deletedId = Number(product?.id);
+    hiddenProducts.value = hiddenProducts.value.filter(
+      (hidden) => Number(hidden.id) !== deletedId,
+    );
+    await loadProducts();
+  } catch (err) {
+    error.value = "Không thể xóa vĩnh viễn sản phẩm này. Có thể nó đang chứa các biến thể được sử dụng trong các đơn hàng.";
+  }
+}
+
 
 async function restoreAllHiddenProducts() {
   try {

@@ -175,12 +175,7 @@
                     </span>
                   </p>
                 </div>
-                <p
-                  class="text-[#4f5b69]  text-base font-normal leading-normal"
-                >
-                  {{ productDescription }}
-                </p>
-                <hr class="border-[#e5e7eb] " />
+
 
                 <div class="flex flex-col gap-4">
                   <div class="grid grid-cols-2 gap-4">
@@ -310,8 +305,17 @@
               </div>
             </div>
 
+            <div class="px-4 py-10 mt-10 border-t border-[#e5e7eb] ">
+              <h2 class="text-[#111418] text-2xl font-bold mb-6">
+                Thông tin chi tiết sản phẩm
+              </h2>
+              <div class="prose max-w-none text-[#4f5b69]">
+                <p class="whitespace-pre-line text-base leading-relaxed" v-html="productDescription"></p>
+              </div>
+            </div>
+
             <div
-              class="px-4 py-10 mt-10 border-t border-[#e5e7eb] "
+              class="px-4 py-10 border-t border-[#e5e7eb] "
             >
               <h2
                 class="text-[#111418]  text-2xl font-bold mb-6"
