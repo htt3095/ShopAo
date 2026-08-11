@@ -1159,11 +1159,11 @@ function getOrderStatusCategory(status) {
     return "deliveryFailed";
   }
 
-  if (key === "DAMAGED" || key === "HANG_HONG") {
+  if (key === "DAMAGED" || key === "HANG_HONG" || key === "HANG_HONG_HONG") {
     return "damaged";
   }
 
-  if (key === "LOST" || key === "THAT_LAC" || key === "PARCEL_LOST" || key === "HANG_MAT") {
+  if (key === "LOST" || key === "THAT_LAC" || key === "PARCEL_LOST" || key === "HANG_MAT" || key === "MAT_HANG") {
     return "lost";
   }
 
@@ -1178,9 +1178,12 @@ function getOrderStatusCategory(status) {
   }
 
   if (
+    key === "RETURN_REQUEST" ||
+    key === "YEU_CAU_TRA" ||
     key.indexOf("RETURNING") !== -1 ||
     key === "TRA_HANG" ||
-    key === "YEU_CAU_TRA"
+    key === "DANG_HOAN" ||
+    key === "DANG_TRA_HANG"
   ) {
     return "returning";
   }
@@ -1189,7 +1192,9 @@ function getOrderStatusCategory(status) {
     key.indexOf("RETURN") !== -1 ||
     key.indexOf("REFUND") !== -1 ||
     key === "HOAN_TRA" ||
-    key === "HOAN_TIEN"
+    key === "HOAN_TIEN" ||
+    key === "RETURNED" ||
+    key === "HOAN_HANG"
   ) {
     return "returned";
   }

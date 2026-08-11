@@ -146,41 +146,23 @@
                   <p class="text-xs text-slate-500">Tìm theo tên hoặc mã sản phẩm.</p>
                 </div>
               </div>
-              <div class="w-full sm:w-[320px]">
+              <div class="flex w-full items-center gap-2 sm:w-[340px]">
                 <input
                   v-model="searchQuery"
                   type="text"
-                  placeholder="Nhập từ khóa..."
-                  class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-sm text-slate-900 outline-none focus:border-primary"
+                  placeholder="Nhập từ khóa hoặc ID biến thể..."
+                  class="flex-1 rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-sm text-slate-900 outline-none focus:border-primary"
                 />
-              </div>
-              <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                <div class="flex items-center gap-2">
-                  <span class="material-symbols-outlined text-[20px] text-primary">search</span>
-                  <div>
-                    <p class="text-[13px] font-semibold text-slate-900">Tìm sản phẩm</p>
-                    <p class="text-xs text-slate-500">Tìm theo tên hoặc mã sản phẩm.</p>
-                  </div>
-                </div>
-                <div class="flex w-full items-center gap-2 sm:w-[340px]">
-                  <input
-                    v-model="searchQuery"
-                    type="text"
-                    placeholder="Nhập từ khóa hoặc ID biến thể..."
-                    class="flex-1 rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-sm text-slate-900 outline-none focus:border-primary"
-                  />
-                  <button
-                    type="button"
-                    class="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-sm font-semibold text-white hover:bg-blue-600"
-                    @click="startQrScanner"
-                  >
-                    <span class="material-symbols-outlined text-[18px]">qr_code_scanner</span>
-                    Quét QR
-                  </button>
-                </div>
+                <button
+                  type="button"
+                  class="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-sm font-semibold text-white hover:bg-blue-600"
+                  @click="startQrScanner"
+                >
+                  <span class="material-symbols-outlined text-[18px]">qr_code_scanner</span>
+                  Quét QR
+                </button>
               </div>
             </div>
-
             <div class="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
               <div
                 v-for="product in filteredVariants"
@@ -287,15 +269,16 @@
                 <button @click="applyVoucherByInput" class="rounded-lg bg-slate-700 px-3 py-1.5 text-xs font-bold text-white transition-colors hover:bg-slate-800">Áp dụng</button>
               </div>
               <div class="max-h-48 space-y-2 overflow-y-auto pr-1">
-                <div v-for="voucher in processedVouchers" :key="voucher.id || voucher.code" class="flex items-center justify-between gap-2 rounded-lg border p-2.5" :class="[voucher.isApplied ? 'border-primary bg-primary/5' : 'border-slate-200', !voucher.isEligible ? 'opacity-60 grayscale' : '']">
+                <div v-for="voucher in processedVouchers" :key="voucher.id || voucher.code" class="flex items-center justify-between gap-2 rounded-lg border p-2.5" :class="[voucher.isApplied ? 'border-primary bg-primary/5' : 'border-slate-200', !voucher.isEligible ? 'opacity-60 grayscale' : '', !voucher.isActive ? 'bg-slate-100 opacity-80' : '']">
                   <div class="min-w-0">
                     <p class="truncate text-sm font-black text-slate-900" :class="voucher.isApplied ? 'text-primary' : ''">{{ voucher.code }}</p>
                     <p class="mt-0.5 text-xs text-slate-500">Giảm {{ formatDiscountLabel(voucher) }}, tối thiểu {{ formatMoney(voucher.minOrder) }}</p>
+                    <p v-if="voucher.reason" class="mt-1 text-[11px] font-semibold text-slate-500">{{ voucher.reason }}</p>
                   </div>
                   <div class="shrink-0">
                     <button v-if="voucher.isApplied" @click="removeVoucher" class="rounded-md bg-primary/10 px-2 py-1 text-[11px] font-bold text-primary transition-colors hover:bg-primary hover:text-white">Bỏ mã</button>
-                    <button v-else-if="voucher.isEligible" @click="applySpecificVoucher(voucher)" class="rounded-md bg-primary/10 px-2 py-1 text-[11px] font-bold text-primary transition-colors hover:bg-primary hover:text-white">Dùng mã</button>
-                    <span v-else class="rounded-md bg-slate-100 px-2 py-1 text-[11px] font-bold text-slate-500">Chưa đủ</span>
+                    <button v-else-if="voucher.isActive && voucher.isEligible" @click="applySpecificVoucher(voucher)" class="rounded-md bg-primary/10 px-2 py-1 text-[11px] font-bold text-primary transition-colors hover:bg-primary hover:text-white">Dùng mã</button>
+                    <span v-else class="rounded-md bg-slate-100 px-2 py-1 text-[11px] font-bold text-slate-500">{{ voucher.isActive ? 'Chưa đủ' : 'Tắt' }}</span>
                   </div>
                 </div>
                 <div v-if="processedVouchers.length === 0" class="text-center text-sm text-slate-500">Không có mã giảm giá khả dụng.</div>
@@ -640,22 +623,31 @@ const getVoucherDiscountType = (voucher) =>
 const getVoucherMaxDiscount = (voucher) =>
   Number(voucher?.maxDiscountAmount ?? voucher?.max_discount_amount ?? voucher?.max_discount ?? 0) || 0;
 
-const isVoucherActive = (voucher) => {
-  if (!voucher) return false;
+const getVoucherUsageState = (voucher) => {
+  const limit = Number(voucher?.usageLimit ?? voucher?.usage_limit ?? voucher?.limit ?? 0) || 0;
+  const used = Number(voucher?.usedCount ?? voucher?.used_count ?? voucher?.used ?? 0) || 0;
+  const remaining = limit > 0 ? Math.max(0, limit - used) : null;
+  return { limit, used, remaining, exhausted: limit > 0 && used >= limit };
+};
+
+const getVoucherAvailabilityReason = (voucher) => {
+  if (!voucher) return "Voucher không khả dụng";
   const status = String(voucher.status || voucher.state || "").trim().toUpperCase();
-  if (["INACTIVE", "DISABLED", "EXPIRED", "DELETED"].includes(status)) return false;
-  if (voucher.isActive === false || voucher.is_active === false) return false;
+  if (["INACTIVE", "DISABLED", "DELETED"].includes(status)) return "Voucher không còn hoạt động";
+  if (status === "EXPIRED") return "Voucher đã hết hạn";
+  if (status === "USED") return "Voucher đã hết lượt sử dụng";
+  if (voucher.isActive === false || voucher.is_active === false) return "Voucher không còn hoạt động";
 
   const endDateRaw = voucher.endDate || voucher.end_date || voucher.expiryDate || voucher.expire_date;
   if (endDateRaw) {
     const endTime = new Date(endDateRaw).getTime();
-    if (Number.isFinite(endTime) && endTime < Date.now()) return false;
+    if (Number.isFinite(endTime) && endTime < Date.now()) return "Voucher đã hết hạn";
   }
 
-  const limit = Number(voucher.usageLimit ?? voucher.usage_limit ?? voucher.limit ?? 0) || 0;
-  const used = Number(voucher.usedCount ?? voucher.used_count ?? voucher.used ?? 0) || 0;
-  return limit <= 0 || used < limit;
+  return getVoucherUsageState(voucher).exhausted ? "Voucher đã hết lượt sử dụng" : null;
 };
+
+const isVoucherActive = (voucher) => !getVoucherAvailabilityReason(voucher);
 
 const computeVoucherDiscount = (voucher, baseAmount) => {
   const base = Math.max(0, Number(baseAmount) || 0);
@@ -673,18 +665,18 @@ const processedVouchers = computed(() => {
   if (!systemVouchers.value) return [];
 
   return systemVouchers.value
-    .filter((voucher) => isVoucherActive(voucher))
     .map((voucher) => {
       const minOrder = getVoucherMinOrder(voucher);
       const isEligible = activeSubtotal.value >= minOrder;
       const calculatedDiscount = isEligible ? computeVoucherDiscount(voucher, activeSubtotal.value) : 0;
+      const reason = getVoucherAvailabilityReason(voucher);
 
       const isApplied =
         activeInvoice.value &&
         activeInvoice.value.appliedVoucher &&
         String(activeInvoice.value.appliedVoucher.code || "").toUpperCase() === String(voucher.code || "").toUpperCase();
 
-      return { ...voucher, minOrder, isEligible, calculatedDiscount, isApplied };
+      return { ...voucher, minOrder, isEligible, calculatedDiscount, isApplied, isActive: !reason, reason };
     })
     .sort((a, b) => b.calculatedDiscount - a.calculatedDiscount);
 });
@@ -968,6 +960,11 @@ const applySpecificVoucher = (voucher) => {
     alert(`Đơn hàng cần đạt tối thiểu ${formatMoney(getVoucherMinOrder(voucher))} để áp dụng mã này!`);
     return;
   }
+  const usage = getVoucherUsageState(voucher);
+  if (usage.exhausted) {
+    alert("Mã voucher này đã hết lượt sử dụng.");
+    return;
+  }
   activeInvoice.value.voucherPreference = "auto";
   activeInvoice.value.appliedVoucher = voucher;
   activeInvoice.value.voucherInput = voucher.code || "";
@@ -996,6 +993,10 @@ const applyVoucherByInput = async () => {
 
   try {
     const validated = await voucherAPI.applyVoucher(code, activeSubtotal.value);
+    const usage = getVoucherUsageState({ ...found, ...validated });
+    if (usage.exhausted) {
+      throw new Error("Mã voucher này đã hết lượt sử dụng.");
+    }
     activeInvoice.value.voucherPreference = "auto";
     activeInvoice.value.appliedVoucher = {
       ...found,
@@ -1005,6 +1006,11 @@ const applyVoucherByInput = async () => {
     activeInvoice.value.voucherInput = activeInvoice.value.appliedVoucher.code || code;
   } catch (error) {
     console.warn("Không thể xác thực voucher từ API, dùng dữ liệu gợi ý cục bộ.", error);
+    const usage = getVoucherUsageState(found);
+    if (usage.exhausted) {
+      alert("Mã voucher này đã hết lượt sử dụng.");
+      return;
+    }
     activeInvoice.value.appliedVoucher = found;
     activeInvoice.value.voucherInput = found.code || "";
   }

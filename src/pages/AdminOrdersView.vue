@@ -954,6 +954,9 @@ const trackingSteps = computed(() => {
 
   if (status === "CANCELLED") {
     steps.push({ label: "Đã hủy", icon: "cancel", isActive: true, isError: true, isWarning: false });
+  } else if (["DAMAGED", "LOST"].includes(status)) {
+    steps.push({ label: "Đang giao", icon: "local_shipping", isActive: true, isError: false, isWarning: false });
+    steps.push({ label: "Hàng hỏng / mất", icon: "warning", isActive: true, isError: true, isWarning: true });
   } else if (["RETURN_REQUEST", "RETURNING", "RETURNED"].includes(status)) {
     steps.push({ label: "Đang giao", icon: "local_shipping", isActive: true, isError: false, isWarning: false });
     steps.push({ label: "Thành công", icon: "check_circle", isActive: true, isError: false, isWarning: false });
@@ -1008,13 +1011,19 @@ function normalizeOrderStatusValue(value) {
   if (["RETURN_REQUEST", "YEU_CAU_TRA"].includes(key)) {
     return "RETURN_REQUEST";
   }
-  if (["RETURNING", "TRA_HANG", "DANG_HOAN"].includes(key)) {
+  if (["RETURNING", "TRA_HANG", "DANG_HOAN", "DANG_TRA_HANG"].includes(key)) {
     return "RETURNING";
   }
   if (
-    ["RETURNED", "HOAN_TRA", "HOAN_TIEN", "REFUND", "REFUNDED"].includes(key)
+    ["RETURNED", "HOAN_TRA", "HOAN_TIEN", "REFUND", "REFUNDED", "HOAN_HANG"].includes(key)
   ) {
     return "RETURNED";
+  }
+  if (["DAMAGED", "HANG_HONG", "HANG_HONG_HONG"].includes(key)) {
+    return "DAMAGED";
+  }
+  if (["LOST", "HANG_MAT", "MAT_HANG", "THAT_LAC", "PARCEL_LOST"].includes(key)) {
+    return "LOST";
   }
   if (["CANCELLED", "CANCELED", "DA_HUY", "HUY", "FAILED"].includes(key)) {
     return "CANCELLED";
@@ -1140,18 +1149,21 @@ watch([filteredOrders, pageSize], () => {
   }
 });
 
+function isRefundedOrder(order) {
+  const paymentStatus = normalizePaymentStatusValue(order?.paymentStatus);
+  const status = normalizeOrderStatusValue(order?.status);
+  return deductedPaymentStatuses.includes(paymentStatus) || ["RETURN_REQUEST", "RETURNING", "RETURNED", "DAMAGED", "LOST"].includes(status);
+}
+
 const profitableOrders = computed(() => {
   return orders.value.filter((order) => {
     const paymentStatus = normalizePaymentStatusValue(order.paymentStatus);
-    return profitablePaymentStatuses.includes(paymentStatus);
+    return !isRefundedOrder(order) && profitablePaymentStatuses.includes(paymentStatus);
   });
 });
 
 const deductedOrders = computed(() => {
-  return orders.value.filter((order) => {
-    const paymentStatus = normalizePaymentStatusValue(order.paymentStatus);
-    return deductedPaymentStatuses.includes(paymentStatus);
-  });
+  return orders.value.filter((order) => isRefundedOrder(order));
 });
 
 const profitableOrdersCount = computed(() => profitableOrders.value.length);
@@ -1621,7 +1633,10 @@ function statusClass(status) {
   if (["RETURN_REQUEST", "RETURNING"].includes(normalized)) {
     return "bg-orange-100 text-orange-700 /20 ";
   }
-  if (["CANCELLED", "RETURNED", "DAMAGED", "LOST"].includes(normalized)) {
+  if (["DAMAGED", "LOST"].includes(normalized)) {
+    return "bg-rose-100 text-rose-700 /20 ";
+  }
+  if (["CANCELLED", "RETURNED"].includes(normalized)) {
     return "bg-red-100 text-red-700 /20 ";
   }
   return "bg-yellow-100 text-yellow-700 /20 ";

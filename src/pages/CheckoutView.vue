@@ -393,7 +393,7 @@
                         v-for="voucher in processedAvailableVouchers"
                         :key="voucher.id || voucher.code"
                         class="rounded-lg border px-3 py-2"
-                        :class="voucher.isEligible ? 'border-slate-200 bg-white  ' : 'border-slate-200 bg-slate-50 opacity-70  '"
+                        :class="voucher.isActive ? (voucher.isEligible ? 'border-slate-200 bg-white' : 'border-slate-200 bg-slate-50 opacity-70') : 'border-slate-200 bg-slate-100 opacity-80'"
                       >
                         <div class="flex items-start justify-between gap-3">
                           <div>
@@ -404,15 +404,18 @@
                             <p v-if="!voucher.isEligible" class="mt-1 text-[11px] font-semibold text-amber-600 ">
                               Cần tối thiểu {{ formatMoney(voucher.minOrderValue || voucher.min_order_value || 0) }}
                             </p>
+                            <p v-else-if="voucher.reason" class="mt-1 text-[11px] font-semibold text-slate-500">
+                              {{ voucher.reason }}
+                            </p>
                           </div>
                           <button
                             type="button"
                             class="rounded-md px-3 py-1 text-xs font-semibold"
-                            :class="voucher.isEligible ? 'bg-primary text-white hover:bg-blue-600' : 'bg-slate-200 text-slate-500 cursor-not-allowed '"
-                            :disabled="!voucher.isEligible"
+                            :class="voucher.isActive && voucher.isEligible ? 'bg-primary text-white hover:bg-blue-600' : 'bg-slate-200 text-slate-500 cursor-not-allowed'"
+                            :disabled="!voucher.isActive || !voucher.isEligible"
                             @click="applySuggestedVoucher(voucher)"
                           >
-                            {{ voucher.isEligible ? 'Dùng mã' : 'Chưa đủ ĐK' }}
+                            {{ voucher.isActive ? (voucher.isEligible ? 'Dùng mã' : 'Chưa đủ ĐK') : 'Tắt' }}
                           </button>
                         </div>
                       </div>
@@ -1204,6 +1207,17 @@ function getVoucherMinOrder(voucher) {
   return Number(voucher?.minOrderValue ?? voucher?.min_order_value ?? 0) || 0;
 }
 
+function getVoucherUsageState(voucher) {
+  const limit = Number(voucher?.usageLimit ?? voucher?.usage_limit ?? voucher?.limit ?? 0) || 0;
+  const used = Number(voucher?.usedCount ?? voucher?.used_count ?? voucher?.used ?? 0) || 0;
+  return {
+    limit,
+    used,
+    remaining: limit > 0 ? Math.max(0, limit - used) : null,
+    exhausted: limit > 0 && used >= limit,
+  };
+}
+
 function getVoucherByCode(code) {
   const normalizedCode = String(code || "").trim().toUpperCase();
   if (!normalizedCode) return null;
@@ -1246,54 +1260,50 @@ function computeVoucherDiscount(voucher, baseAmount) {
   return Number(voucher?.discountAmount || 0);
 }
 
-function isVoucherActive(voucher) {
-  // Prefer explicit status when provided by backend
-  const statusRaw = String(voucher?.status || voucher?.state || "").trim();
-  if (statusRaw) {
-    const st = String(statusRaw).toUpperCase();
-    // Treat these as active states
-    if (['ACTIVE', 'ENABLED', 'AVAILABLE', 'APPROVED'].includes(st)) {
-      // continue to further checks (dates/usages)
-    } else {
-      return false;
-    }
-  } else {
-    if (!(voucher?.isActive || voucher?.is_active)) return false;
-  }
+function getVoucherAvailabilityReason(voucher) {
+  const statusRaw = String(voucher?.status || voucher?.state || "").trim().toUpperCase();
+  if (["INACTIVE", "DISABLED", "DELETED"].includes(statusRaw)) return "Voucher không còn hoạt động";
+  if (statusRaw === "EXPIRED") return "Voucher đã hết hạn";
+  if (statusRaw === "USED") return "Voucher đã hết lượt sử dụng";
+
+  if (voucher?.isActive === false || voucher?.is_active === false) return "Voucher không còn hoạt động";
 
   const now = new Date();
-  const endDateRaw = voucher?.endDate || voucher?.end_date;
+  const endDateRaw = voucher?.endDate || voucher?.end_date || voucher?.expiryDate || voucher?.expire_date;
   if (endDateRaw) {
     const endDate = new Date(endDateRaw);
     if (!Number.isNaN(endDate.getTime()) && endDate.getTime() < now.getTime()) {
-      return false;
+      return "Voucher đã hết hạn";
     }
   }
 
-  const usageLimit = Number(voucher?.usageLimit ?? voucher?.usage_limit ?? 0) || 0;
-  const usedCount = Number(voucher?.usedCount ?? voucher?.used_count ?? 0) || 0;
-  if (usageLimit > 0 && usedCount >= usageLimit) {
-    return false;
-  }
+  const usageState = getVoucherUsageState(voucher);
+  if (usageState.exhausted) return "Voucher đã hết lượt sử dụng";
 
-  return true;
+  return null;
+}
+
+function isVoucherActive(voucher) {
+  return !getVoucherAvailabilityReason(voucher);
 }
 
 const processedAvailableVouchers = computed(() => {
   const orderBase = Math.max(0, orderTotalBeforeDiscount.value);
 
   return (availableVouchers.value || [])
-    .filter((voucher) => isVoucherActive(voucher))
     .map((voucher) => {
       const minOrder = getVoucherMinOrder(voucher);
       const isEligible = orderBase >= minOrder;
       const expectedDiscount = isEligible
         ? computeVoucherDiscount(voucher, orderBase)
         : 0;
+      const reason = getVoucherAvailabilityReason(voucher);
       return {
         ...voucher,
         isEligible,
         expectedDiscount,
+        isActive: !reason,
+        reason,
       };
     })
     .sort((a, b) => (b.expectedDiscount || 0) - (a.expectedDiscount || 0));
@@ -1487,6 +1497,10 @@ async function handlePlaceOrder() {
           appliedVoucher.value.code,
           effectiveTotalBeforeDiscount,
         );
+        const usageState = getVoucherUsageState(validatedVoucher);
+        if (usageState.exhausted) {
+          throw new Error("Mã giảm giá đã hết lượt sử dụng.");
+        }
         enforceVoucherMinOrder(validatedVoucher, effectiveTotalBeforeDiscount);
         appliedVoucher.value = validatedVoucher;
         voucherInput.value = validatedVoucher.code || appliedVoucher.value.code;
@@ -1666,6 +1680,10 @@ async function applyVoucher() {
       code,
       orderTotalBeforeDiscount.value,
     );
+    const usageState = getVoucherUsageState(validated);
+    if (usageState.exhausted) {
+      throw new Error("Mã giảm giá đã hết lượt sử dụng.");
+    }
     enforceVoucherMinOrder(validated, orderTotalBeforeDiscount.value);
     appliedVoucher.value = validated;
     voucherInput.value = validated.code || code;
@@ -1688,6 +1706,11 @@ function applySuggestedVoucher(v) {
       `Đơn cần tối thiểu ${formatMoney(v.minOrderValue || v.min_order_value || 0)} để dùng mã này.`,
       "error",
     );
+    return;
+  }
+  const usageState = getVoucherUsageState(v);
+  if (usageState.exhausted) {
+    showAlert("Voucher không khả dụng", "Mã giảm giá này đã hết lượt sử dụng.", "error");
     return;
   }
   voucherInput.value = v.code;
