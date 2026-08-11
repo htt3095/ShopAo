@@ -643,7 +643,13 @@
         <img :src="qrImageUrl" alt="QR Code" class="max-w-full h-auto" />
       </div>
       <div v-else class="py-4 text-sm text-slate-500">Đang tải mã QR...</div>
-      <div class="mt-4 flex justify-end">
+      <div class="mt-4 flex justify-end gap-2">
+        <button
+          class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium hover:bg-slate-50"
+          @click="printQrCode"
+        >
+          In QR
+        </button>
         <button
           class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium hover:bg-slate-50"
           @click="showQrModal = false"
@@ -2272,6 +2278,61 @@ async function viewQR(variant) {
       showQrModal.value = false;
     }
   }
+}
+
+function printQrCode() {
+  if (!qrImageUrl.value) {
+    alert('Mã QR chưa sẵn sàng. Vui lòng thử lại.');
+    return;
+  }
+
+  const printWindow = window.open('', '', 'width=600,height=600');
+  printWindow.document.write(`
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <title>In Mã QR - Biến thể #${qrVariant.value?.id}</title>
+        <style>
+          body {
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: Arial, sans-serif;
+            min-height: 100vh;
+            background: white;
+          }
+          h1 {
+            font-size: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+          }
+          img {
+            max-width: 400px;
+            height: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            background: white;
+          }
+          @media print {
+            body {
+              padding: 0;
+            }
+          }
+        </style>
+      </head>
+      <body>
+        <h1>Mã QR - Biến thể #${qrVariant.value?.id}</h1>
+        <img src="${qrImageUrl.value}" alt="QR Code" />
+      </body>
+    </html>
+  `);
+  printWindow.document.close();
+  printWindow.onload = () => {
+    printWindow.print();
+  };
 }
 async function doDelete() {
   if (!deleteTarget.value) return;
