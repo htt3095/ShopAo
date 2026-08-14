@@ -106,7 +106,7 @@
                     @error="handleImgError"
                   />
                 </div>
-                <div class="grid grid-cols-4 gap-3">
+                <div class="grid grid-cols-5 gap-3">
                   <button
                     v-for="(url, idx) in thumbnailUrls"
                     :key="`${idx}-${url}`"
@@ -268,7 +268,7 @@
                   </button>
 
                   <button
-                    class="flex-1 flex items-center justify-center gap-2 rounded-lg h-12 px-5 bg-transparent border-2 border-[#d1d5db]  text-[#111418]  hover:bg-gray-100 :bg-[#283039] text-base font-bold transition-colors"
+                    class="flex-1 flex items-center justify-center gap-2 rounded-lg h-12 px-5 bg-transparent border-2 border-[#d1d5db] text-[#111418] hover:border-primary hover:bg-primary/5 text-base font-bold transition-colors"
                     :class="
                       isCompared
                         ? 'border-primary text-primary '
@@ -667,7 +667,7 @@ const thumbnailUrls = computed(() => {
     urls.push(...selectedVariant.value.extraImages);
   }
 
-  return urls;
+  return [...new Set(urls)].slice(0, 5);
 });
 
 // 2. CẬP NHẬT ẢNH CHÍNH (THAY ĐỔI KHI BẤM VÀO ẢNH NHỎ)
@@ -791,8 +791,7 @@ function handleAddToCart() {
 
 function handleCompare() {
   if (!Number.isFinite(productId.value)) return;
-  compareStore.add(productId.value);
-  router.push("/compare");
+  compareStore.toggle(productId.value);
 }
 
 function checkLoginStatus() {

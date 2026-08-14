@@ -792,8 +792,7 @@
   )
 
   function toggleCompare (productId) {
-    compareStore.add(productId)
-    router.push('/compare')
+    compareStore.toggle(productId)
   }
 </script>
 

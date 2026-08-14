@@ -821,6 +821,7 @@ import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 
 import AdminShell from "@/components/admin/AdminShell.vue";
 import { accountsApi, adminApi, ordersApi } from "@/services/api";
+import { buildVariantCode } from "@/utils/variantValues";
 
 const loading = ref(false);
 const error = ref("");
@@ -1630,7 +1631,10 @@ function normalizeOrderItemsForModal(orderLike) {
   return extractOrderItems(orderLike).map(item => {
     const text = formatOrderItemText(item);
     const image = item.imageUrl || item.image || item.variant?.imageUrl || item.product?.imageUrl || "";
-    const code = item.productCode || item.product_code || item.variant?.product?.code || item.variant?.code || item.variant?.id || item.productId || item.product_id || "?";
+    const variant = item.variant || {};
+    const product = item.product || variant.product || {};
+    const productCode = item.productCode || item.product_code || product.productCode || product.product_code || variant.productCode || variant.product_code || "";
+    const code = item.variantCode || item.variant_code || variant.variantCode || variant.variant_code || buildVariantCode(productCode, item.colorName || variant.colorName || variant.color_name, item.sizeName || variant.sizeName || variant.size_name);
     const price = Number(item.price || item.unitPrice || item.variant?.price || item.product?.price || 0);
     const qty = Number(item.quantity || item.qty || 1);
     const priceText = `${formatCurrency(price)} x ${qty}`;
@@ -1712,15 +1716,15 @@ function openCreate() {
 async function openEdit(order) {
   selectedOrderItems.value = normalizeOrderItemsForModal(order);
 
-  if (
-    selectedOrderItems.value.length === 0 &&
-    Number.isFinite(Number(order.id))
-  ) {
+  if (Number.isFinite(Number(order.id))) {
     try {
       const orderDetail = await ordersApi.getOrderById(order.id);
-      selectedOrderItems.value = normalizeOrderItemsForModal(orderDetail);
+      if (orderDetail && typeof orderDetail === "object") {
+        order = { ...order, ...orderDetail };
+        selectedOrderItems.value = normalizeOrderItemsForModal(order);
+      }
     } catch {
-      // Keep empty fallback text in modal when order detail cannot be loaded.
+      // Keep list data when the detailed order cannot be loaded.
     }
   }
 
@@ -1753,25 +1757,25 @@ async function openEdit(order) {
       order.payment_method?.name ||
       "",
     shippingFee: asNumber(
-      order.shippingFee ||
-        order.shipping_fee ||
-        order.shipping ||
-        order.shippingAmount ||
-        order.shipping_amount ||
-        order.deliveryFee ||
-        order.delivery_fee ||
-        order.shipFee ||
-        order.ship_fee ||
-        order.feeShip ||
+      order.shippingFee ??
+        order.shipping_fee ??
+        order.shipping ??
+        order.shippingAmount ??
+        order.shipping_amount ??
+        order.deliveryFee ??
+        order.delivery_fee ??
+        order.shipFee ??
+        order.ship_fee ??
+        order.feeShip ??
         order.fee_ship,
       0,
     ),
-    discountAmount: asNumber(order.discountAmount || order.discount_amount, 0),
-    totalMoney: asNumber(order.totalMoney || order.total_money, 0),
+    discountAmount: asNumber(order.discountAmount ?? order.discount_amount, 0),
+    totalMoney: asNumber(order.totalMoney ?? order.total_money, 0),
     finalAmount: asNumber(
-      order.finalAmount ||
-        order.final_amount ||
-        order.totalMoney ||
+      order.finalAmount ??
+        order.final_amount ??
+        order.totalMoney ??
         order.total_money,
       0,
     ),
@@ -1852,6 +1856,8 @@ async function saveOrder() {
     address: f.address || "", // Bao lô ở đây để backend luôn nhận được!
     totalMoney: asNumber(f.totalMoney, 0),
     finalAmount: asNumber(f.finalAmount, 0),
+    shippingFee: asNumber(f.shippingFee, 0),
+    discountAmount: asNumber(f.discountAmount, 0),
     status: managedState.status,
     paymentStatus: managedState.paymentStatus,
     paymentMethodId: Number.isFinite(Number(f.paymentMethodId))

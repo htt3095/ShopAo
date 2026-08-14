@@ -192,13 +192,19 @@
           <div class="space-y-4">
             <div class="rounded-2xl border border-slate-200 p-4 ">
               <div class="mb-3 flex items-center justify-between">
-                <h4 class="font-semibold">Donut thanh toán</h4>
+                <h4 class="font-semibold">Phân bố trạng thái đơn</h4>
                 <span class="text-xs text-slate-500 ">{{ filteredOrders.length }} đơn</span>
               </div>
-              <div class="mx-auto flex h-40 w-40 items-center justify-center rounded-full" :style="paymentPieStyle">
+              <div class="mx-auto flex h-40 w-40 items-center justify-center rounded-full" :style="statusPieStyle">
                 <div class="flex h-20 w-20 flex-col items-center justify-center rounded-full bg-white text-center ">
                   <span class="text-[10px] uppercase tracking-wide text-slate-500 ">Tổng</span>
                   <span class="mt-1 text-xl font-bold">{{ filteredOrders.length }}</span>
+                </div>
+              </div>
+              <div class="mt-4 space-y-2">
+                <div v-for="item in statusRowsWithShare" :key="item.status" class="flex items-center justify-between text-sm">
+                  <span class="flex items-center gap-2"><i class="h-2.5 w-2.5 rounded-full" :style="{ backgroundColor: statusColor(item.status) }" />{{ item.label }}</span>
+                  <span class="font-medium">{{ item.count }} ({{ item.share }}%)</span>
                 </div>
               </div>
             </div>
@@ -208,11 +214,11 @@
               <div class="space-y-3">
                 <div v-for="item in statusRowsWithShare" :key="item.status" class="space-y-1">
                   <div class="flex items-center justify-between text-sm">
-                    <span>{{ item.label }}</span>
+                    <span class="flex items-center gap-2"><i class="h-2.5 w-2.5 rounded-full" :style="{ backgroundColor: statusColor(item.status) }" />{{ item.label }}</span>
                     <span class="font-medium">{{ item.count }} ({{ item.share }}%)</span>
                   </div>
                   <div class="h-2 overflow-hidden rounded-full bg-slate-100 ">
-                    <div class="h-full rounded-full bg-primary/80" :style="{ width: `${item.share}%` }" />
+                    <div class="h-full rounded-full" :style="{ width: `${item.share}%`, backgroundColor: statusColor(item.status) }" />
                   </div>
                 </div>
               </div>
@@ -296,13 +302,13 @@
           </table>
 
           <div class="mt-8 mb-4 flex items-center justify-between">
-            <h3 class="text-lg font-semibold">Doanh thu theo PT thanh toán</h3>
+            <h3 class="text-lg font-semibold">Doanh thu theo kênh bán</h3>
           </div>
 
           <table class="w-full text-sm">
             <thead>
               <tr class="border-b border-slate-200 text-slate-500 dark:border-[#3c342e] dark:text-[#b9aa9a]">
-                <th class="px-2 py-3 font-medium text-left">Phương thức</th>
+                <th class="px-2 py-3 font-medium text-left">Kênh bán</th>
                 <th class="px-2 py-3 font-medium text-right">Doanh thu</th>
                 <th class="px-2 py-3 font-medium text-right">Tỷ lệ</th>
               </tr>
@@ -422,7 +428,7 @@ function getOrderAmount(order) {
 }
 
 function getOrderPaymentImpact(order) {
-  const status = normalizePaymentStatusValue(order?.paymentStatus || null);
+  const status = normalizePaymentStatusValue(order?.paymentStatus, order?.status);
   const amount = getOrderAmount(order);
 
   if (["DA_THANH_TOAN", "PAID", "SETTLED", "CAPTURED"].includes(status)) {
@@ -509,7 +515,7 @@ const statusBreakdown = computed(() => getStatusBreakdown(filteredOrders.value))
 
 const refundBreakdown = computed(() => {
   const refunds = filteredOrders.value.filter(o => {
-    const st = normalizePaymentStatusValue(o?.paymentStatus || null);
+    const st = normalizePaymentStatusValue(o?.paymentStatus, o?.status);
     return ["HOAN_TIEN", "REFUNDED", "REFUND", "CHARGEBACK", "REVERSED"].includes(st);
   });
   
@@ -607,18 +613,13 @@ const reportTrendPath = computed(() => {
 
 const reportHighlights = computed(() => sortedActiveBuckets.value.slice(0, Math.min(4, sortedActiveBuckets.value.length)));
 
-const paymentPieStyle = computed(() => {
+const statusPieStyle = computed(() => {
   const total = Math.max(filteredOrders.value.length, 1);
-  const colorByLabel = {
-    "Đã thanh toán": "#16a34a",
-    "Hoàn tiền": "#ef4444",
-    "Chưa thanh toán": "#2563eb",
-  };
 
   let start = 0;
-  const segments = paymentBreakdownWithShare.value.map((item) => {
+  const segments = statusRowsWithShare.value.map((item) => {
     const end = start + ((item.count / total) * 100);
-    const color = colorByLabel[item.label] || "#64748b";
+    const color = statusColor(item.status);
     const seg = `${color} ${start}% ${end}%`;
     start = end;
     return seg;
@@ -628,6 +629,25 @@ const paymentPieStyle = computed(() => {
     background: `conic-gradient(${segments.join(",")})`,
   };
 });
+
+function paymentColor(label) {
+  if (label === "Đã thanh toán") return "#16a34a";
+  if (label === "Hoàn tiền") return "#ef4444";
+  if (label === "Chưa thanh toán") return "#2563eb";
+  return "#64748b";
+}
+
+function statusColor(status) {
+  if (status === "THANH_CONG") return "#16a34a";
+  if (status === "DANG_GIAO") return "#2563eb";
+  if (status === "DANG_XU_LY") return "#f59e0b";
+  if (status === "DA_HUY") return "#ef4444";
+  if (status === "RETURN_REQUEST" || status === "RETURNING") return "#f97316";
+  if (status === "RETURNED") return "#8b5cf6";
+  if (status === "DAMAGED" || status === "LOST") return "#be123c";
+  if (status === "CHUA_XU_LY") return "#64748b";
+  return "#64748b";
+}
 
 const statusRowsWithShare = computed(() => {
   const total = Math.max(filteredOrders.value.length, 1);
@@ -881,7 +901,7 @@ function printReport() {
       return `
         <div class="pay-row">
           <div class="pay-head"><span>${escaped(item.label)}</span><span>${escaped(item.count)} đơn (${escaped(item.share)}%)</span></div>
-          <div class="pay-track"><div class="pay-fill" style="width:${width}%;background:#0f766e;"></div></div>
+          <div class="pay-track"><div class="pay-fill" style="width:${width}%;background:${statusColor(item.status)};"></div></div>
         </div>
       `;
     })

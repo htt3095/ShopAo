@@ -20,6 +20,32 @@ function normalizeText(value) {
     return text || null
 }
 
+function toCodePart(value, fallback) {
+    const text = normalizeText(value)
+    if (!text) return fallback
+
+    const normalized = text
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/đ/g, 'd')
+        .replace(/Đ/g, 'D')
+        .toUpperCase()
+        .replace(/[^A-Z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '')
+
+    return normalized || fallback
+}
+
+export function buildVariantCode(productCode, colorName, sizeName, existingCode = null) {
+    const savedCode = normalizeText(existingCode)
+    if (savedCode) return savedCode
+
+    const parentCode = toCodePart(productCode, 'SP')
+    const colorCode = toCodePart(colorName, 'MAC').slice(0, 3)
+    const sizeCode = toCodePart(sizeName, 'STD')
+    return `${parentCode}-${colorCode}-${sizeCode}`
+}
+
 export function toVariantId(value) {
     if (value === null || value === undefined) return null
 

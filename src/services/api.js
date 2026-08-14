@@ -82,7 +82,7 @@ async function apiCall(endpoint, options = {}) {
             }
         }
 
-        const headers = { ...options.headers };
+        const headers = {...options.headers };
         if (!(options.body instanceof FormData) && !headers["Content-Type"]) {
             headers["Content-Type"] = "application/json";
         }
@@ -286,37 +286,37 @@ export const brandsApi = {
 };
 
 export const categoriesApi = {
-  async getAll() {
-    return apiCall("/categories");
-  },
-  async getById(id) {
-    return apiCall(`/categories/${id}`);
-  },
-  async uploadImage(file) {
-    const formData = new FormData();
-    formData.append("file", file);
-    return apiCall("/upload/image", {
-      method: "POST",
-      body: formData,
-    });
-  },
-  async create(data) {
-    return apiCall("/categories", {
-      method: "POST",
-      body: JSON.stringify(data),
-    });
-  },
-  async update(id, data) {
-    return apiCall(`/categories/${id}`, {
-      method: "PUT",
-      body: JSON.stringify(data),
-    });
-  },
-  async delete(id) {
-    return apiCall(`/categories/${id}`, {
-      method: "DELETE",
-    });
-  },
+    async getAll() {
+        return apiCall("/categories");
+    },
+    async getById(id) {
+        return apiCall(`/categories/${id}`);
+    },
+    async uploadImage(file) {
+        const formData = new FormData();
+        formData.append("file", file);
+        return apiCall("/upload/image", {
+            method: "POST",
+            body: formData,
+        });
+    },
+    async create(data) {
+        return apiCall("/categories", {
+            method: "POST",
+            body: JSON.stringify(data),
+        });
+    },
+    async update(id, data) {
+        return apiCall(`/categories/${id}`, {
+            method: "PUT",
+            body: JSON.stringify(data),
+        });
+    },
+    async delete(id) {
+        return apiCall(`/categories/${id}`, {
+            method: "DELETE",
+        });
+    },
 };
 
 export const productsApi = {
@@ -1131,6 +1131,10 @@ function normalizeVariantRecord(rawVariant) {
             [source.productName, source.product_name, productObject.name],
             "",
         ),
+        variantCode: firstDefinedValue(
+            [source.variantCode, source.variant_code, source.code],
+            "",
+        ),
         colorName: firstDefinedValue(
             [source.colorName, source.color_name, colorObject.name],
             "",
@@ -1330,6 +1334,10 @@ function normalizeVariantPayload(rawVariant) {
         sizeId: asFiniteNumber(
             firstDefinedValue([source.sizeId, source.size_id], null),
             null,
+        ),
+        variantCode: firstDefinedValue(
+            [source.variantCode, source.variant_code, source.code],
+            "",
         ),
         price: asFiniteNumber(firstDefinedValue([source.price], 0), 0),
         stockQuantity: asFiniteNumber(
@@ -1588,16 +1596,16 @@ export const adminApi = {
     async updateBrand(id, data) {
         return brandsApi.update(id, data);
     },
-    
-  async uploadImage(file) {
-    const formData = new FormData();
-    formData.append("file", file);
-    return apiCall("/upload/image", {
-      method: "POST",
-      body: formData,
-    });
-  },
-  async deleteBrand(id) {
+
+    async uploadImage(file) {
+        const formData = new FormData();
+        formData.append("file", file);
+        return apiCall("/upload/image", {
+            method: "POST",
+            body: formData,
+        });
+    },
+    async deleteBrand(id) {
         const numericId = asFiniteNumber(id, null);
         if (numericId === null) {
             throw new Error("Thiếu brandId hợp lệ");

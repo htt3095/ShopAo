@@ -63,7 +63,7 @@ export function normalizeOrderStatusValue(status) {
     if (["CONFIRMED", "PROCESSING", "DANG_XU_LY", "XAC_NHAN", "IN_PROGRESS"].includes(key)) return "DANG_XU_LY";
     if (["SHIPPING", "DELIVERING", "DANG_GIAO", "IN_TRANSIT"].includes(key)) return "DANG_GIAO";
     if (["SUCCESS", "COMPLETED", "DELIVERED", "THANH_CONG", "HOAN_THANH"].includes(key)) return "THANH_CONG";
-    if (["CANCELLED", "CANCELED", "DA_HUY", "HUY", "FAILED", "RETURNED"].includes(key)) return "DA_HUY";
+    if (["CANCELLED", "CANCELED", "DA_HUY", "HUY", "FAILED"].includes(key)) return "DA_HUY";
     return key || "CHUA_XU_LY";
 }
 
@@ -73,10 +73,19 @@ export function orderStatusLabel(status) {
     if (normalized === "DANG_GIAO") return "Đang giao";
     if (normalized === "DANG_XU_LY") return "Đang xử lý";
     if (normalized === "DA_HUY") return "Đã hủy";
-    return "Chưa xử lý";
+    if (normalized === "CHUA_XU_LY") return "Chưa xử lý";
+    if (normalized === "RETURN_REQUEST") return "Yêu cầu hoàn trả";
+    if (normalized === "RETURNING") return "Đang hoàn trả";
+    if (normalized === "RETURNED") return "Đã hoàn trả";
+    if (normalized === "DAMAGED") return "Hàng hư hỏng";
+    if (normalized === "LOST") return "Thất lạc";
+    return "Trạng thái khác";
 }
 
-export function normalizePaymentStatusValue(paymentStatus) {
+export function normalizePaymentStatusValue(paymentStatus, orderStatus = null) {
+    const orderStatusKey = normalizeOrderStatusValue(orderStatus);
+    if (["RETURNED", "DAMAGED", "LOST"].includes(orderStatusKey)) return "HOAN_TIEN";
+
     const key = normalizeStatusKey(paymentStatus || "CHUA_THANH_TOAN");
     if (["PENDING", "UNPAID", "CHUA_THANH_TOAN", "AWAITING_PAYMENT"].includes(key)) return "CHUA_THANH_TOAN";
     if (["PAID", "DA_THANH_TOAN", "SETTLED", "CAPTURED"].includes(key)) return "DA_THANH_TOAN";
@@ -121,12 +130,20 @@ export function getOrderAmount(order) {
 }
 
 export function getOrderPaymentImpact(order) {
-    const paymentStatus = normalizePaymentStatusValue(order && order.paymentStatus ? order.paymentStatus : null);
+    const paymentStatus = normalizePaymentStatusValue(order && order.paymentStatus, order && order.status);
     const statusKey = normalizeStatusKey(order && order.status ? order.status : null);
     const amount = getOrderAmount(order);
 
+    if (["RETURNING", "RETURN_REQUEST"].includes(statusKey)) {
+        return 0;
+    }
+
     if (profitablePaymentStatuses.includes(paymentStatus)) {
         return amount;
+    }
+
+    if (deductedPaymentStatuses.includes(paymentStatus)) {
+        return -amount;
     }
 
     return 0;
@@ -350,10 +367,14 @@ export function buildRevenueBuckets(orders, { mode = "day", startDate = null, en
         if (!bucket) continue;
 
         const amount = getOrderAmount(order);
-        const paymentStatus = normalizePaymentStatusValue(order.paymentStatus);
+        const paymentStatus = normalizePaymentStatusValue(order.paymentStatus, order.status);
         const statusKey = normalizeStatusKey(order.status);
 
         bucket.orderCount += 1;
+
+        if (["RETURNING", "RETURN_REQUEST"].includes(statusKey)) {
+            continue;
+        }
 
         if (profitablePaymentStatuses.includes(paymentStatus)) {
             bucket.grossRevenue += amount;
@@ -361,6 +382,7 @@ export function buildRevenueBuckets(orders, { mode = "day", startDate = null, en
             bucket.paidCount += 1;
         } else if (deductedPaymentStatuses.includes(paymentStatus)) {
             bucket.refundedRevenue += amount;
+            bucket.netRevenue -= amount;
             bucket.refundedCount += 1;
         }
     }
@@ -371,7 +393,8 @@ export function buildRevenueBuckets(orders, { mode = "day", startDate = null, en
 export function getStatusBreakdown(orders) {
     const map = new Map();
     for (const order of orders || []) {
-        const status = normalizeOrderStatusValue(order && order.status ? order.status : null);
+        const normalizedStatus = normalizeOrderStatusValue(order && order.status ? order.status : null);
+        const status = orderStatusLabel(normalizedStatus) === "Trạng thái khác" ? "KHAC" : normalizedStatus;
         map.set(status, (map.get(status) || 0) + 1);
     }
 
@@ -392,7 +415,7 @@ export function getPaymentBreakdown(orders) {
     ]);
 
     for (const order of orders || []) {
-        const label = paymentStatusLabel(order && order.paymentStatus ? order.paymentStatus : null);
+        const label = paymentStatusLabel(normalizePaymentStatusValue(order && order.paymentStatus, order && order.status));
         map.set(label, (map.get(label) || 0) + 1);
     }
 
@@ -408,27 +431,46 @@ const PAYMENT_METHOD_LABELS = {
 };
 
 export function resolvePaymentMethodLabel(order) {
-    const id = Number(order?.paymentMethodId);
+    const id = Number(order && order.paymentMethodId);
     if (Number.isFinite(id) && PAYMENT_METHOD_LABELS[id]) {
         return PAYMENT_METHOD_LABELS[id];
     }
 
-    const name = String(order?.paymentMethodName || "").trim();
+    const name = String((order && order.paymentMethodName) || "").trim();
     if (name) return name;
 
     return "Không rõ";
+}
+
+export function resolveOrderChannel(order) {
+    const source = normalizeStatusKey(
+        (order && order.orderSource) || (order && order.order_source) || (order && order.salesChannel) || (order && order.sales_channel) || (order && order.channel),
+    );
+    if (["POS", "IN_STORE", "INSTORE", "STORE", "COUNTER"].includes(source)) {
+        return "Mua tại cửa hàng (POS)";
+    }
+
+    // Support POS orders saved before a dedicated source field existed.
+    const address = normalizeStatusKey((order && order.shippingAddress) || (order && order.shipping_address) || (order && order.address));
+    const email = String((order && order.email) || "").trim().toLowerCase();
+    if (
+        ["MUA_TAI_QUAY", "MUA_TRUC_TIEP_TAI_CUA_HANG"].includes(address) ||
+        email === "pos@local.shop"
+    ) {
+        return "Mua tại cửa hàng (POS)";
+    }
+
+    return "Mua Online";
 }
 
 export function getPaymentMethodBreakdown(orders) {
     const map = new Map();
 
     for (const order of orders || []) {
-        const paymentStatus = normalizePaymentStatusValue(order?.paymentStatus);
+        const paymentStatus = normalizePaymentStatusValue(order && order.paymentStatus, order && order.status);
         if (!profitablePaymentStatuses.includes(paymentStatus)) continue;
 
-        const address = String(order?.shippingAddress || order?.shipping_address || order?.address || "").trim();
-        const isPOS = address === "" || address.toLowerCase() === "mua tại quầy" || address.toLowerCase() === "mua tai quay";
-        const label = isPOS ? "Mua tại quầy (POS)" : "Mua Online";
+        const label = resolveOrderChannel(order);
 
         const amount = getOrderAmount(order);
 
@@ -463,7 +505,7 @@ export function sumPositiveRevenue(orders) {
 
 export function sumRefundRevenue(orders) {
     return (orders || []).reduce((sum, order) => {
-        const paymentStatus = normalizePaymentStatusValue(order && order.paymentStatus ? order.paymentStatus : null);
+        const paymentStatus = normalizePaymentStatusValue(order && order.paymentStatus, order && order.status);
         if (deductedPaymentStatuses.includes(paymentStatus)) {
             return sum + getOrderAmount(order);
         }
@@ -477,7 +519,7 @@ export function filterOrdersByPayment(orders, paymentFilter) {
     }
 
     return (orders || []).filter((order) => {
-        return normalizePaymentStatusValue(order && order.paymentStatus ? order.paymentStatus : null) === paymentFilter;
+        return normalizePaymentStatusValue(order && order.paymentStatus, order && order.status) === paymentFilter;
     });
 }
 
