@@ -177,6 +177,7 @@
                 <div class="flex flex-1 flex-col justify-between overflow-hidden">
                   <div>
                     <p class="truncate text-[13px] font-bold text-slate-900" :title="product.productName">{{ product.productName }}</p>
+                    <p class="mt-0.5 truncate text-[11px] text-slate-500">Mã SP: {{ product.productCode || "--" }}</p>
                     <p class="mt-0.5 text-[11px] text-slate-500">{{ product.variants.length }} biến thể</p>
                   </div>
                   <div class="mt-2 flex items-center justify-between text-[11px] text-slate-500">
@@ -211,9 +212,10 @@
                     <td class="px-3 py-2 font-bold text-slate-400">{{ index + 1 }}</td>
                     <td class="px-2 py-2">
                       <p class="font-bold text-slate-900">{{ item.product.productName }}</p>
+                      <p class="mt-0.5 text-[11px] text-slate-500">Mã SP: {{ getVariant(item).productCode || item.product.productCode || "--" }}</p>
                       <select v-model="item.variantId" @change="validateQuantity(item)" class="mt-1 block w-full rounded-md border border-slate-300 py-1 text-[11px] text-slate-700">
                         <option v-for="variant in item.product.variants" :key="variant.variantId" :value="variant.variantId">
-                          {{ variant.colorName }} / Size {{ variant.sizeName }} (Kho: {{ variant.stockQuantity }})
+                          {{ variant.colorName }} / Size {{ variant.sizeName }} - {{ variant.productCode || "--" }} (Kho: {{ variant.stockQuantity }})
                         </option>
                       </select>
                     </td>
@@ -242,22 +244,6 @@
 
         <aside class="space-y-3">
           <div class="sticky top-6 space-y-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
-            <div class="space-y-2">
-              <div>
-                <p class="text-[13px] font-semibold text-slate-900">Khách hàng</p>
-              </div>
-              <div class="space-y-2">
-                <div class="flex items-center rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 focus-within:border-primary">
-                  <span class="material-symbols-outlined mr-2 text-[17px] text-slate-400">badge</span>
-                  <input v-model="activeInvoice.customer.fullname" type="text" placeholder="Nhập tên khách hàng..." class="w-full bg-transparent text-sm text-slate-900 outline-none" />
-                </div>
-                <div class="flex items-center rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 focus-within:border-primary">
-                  <span class="material-symbols-outlined mr-2 text-[17px] text-slate-400">call</span>
-                  <input v-model="activeInvoice.customer.phone" type="text" placeholder="Nhập số điện thoại..." class="w-full bg-transparent text-sm text-slate-900 outline-none" />
-                </div>
-              </div>
-            </div>
-
             <div class="space-y-3 rounded-xl border border-slate-200 bg-slate-50 p-3">
               <div>
                 <p class="text-[13px] font-semibold text-slate-900">Áp dụng voucher</p>
@@ -315,7 +301,7 @@
               <div v-if="activeInvoice.paymentMethodId === 1" class="mt-2 rounded-lg border border-slate-200 bg-white p-2.5">
                 <div class="flex items-center justify-between text-sm text-slate-600">
                   <span>Khách đưa</span>
-                  <input v-model.number="activeInvoice.customerPaid" type="number" class="w-28 rounded-lg border border-slate-200 bg-slate-50 px-2 py-1.5 text-right text-base font-bold text-slate-900 outline-none" />
+                  <input v-model.number="activeInvoice.customerPaid" type="number" class="money-input w-28 rounded-lg border border-slate-200 bg-slate-50 px-2 py-1.5 text-right text-base font-bold text-slate-900 outline-none" />
                 </div>
                 <div class="mt-2 flex items-center justify-between text-sm text-slate-500">
                   <span>Tiền thừa</span>
@@ -373,19 +359,11 @@
                   </div>
                 </div>
 
-                <div class="mt-3 grid gap-3 text-sm md:grid-cols-2">
-                  <div>
-                    <p class="text-xs uppercase tracking-wide text-slate-400">Khách hàng</p>
-                    <p class="mt-1 font-semibold text-slate-900">{{ lastReceipt.customer.fullname }}</p>
-                    <p class="text-slate-600">{{ lastReceipt.customer.phone }}</p>
-                    <p v-if="lastReceipt.customer.email" class="text-slate-600">{{ lastReceipt.customer.email }}</p>
-                  </div>
-                  <div class="md:text-right">
-                    <p class="text-xs uppercase tracking-wide text-slate-400">Thanh toán</p>
-                    <p class="mt-1 font-semibold text-slate-900">{{ lastReceipt.paymentMethodLabel }}</p>
-                    <p class="text-slate-600">{{ lastReceipt.shippingAddress }}</p>
-                    <p v-if="lastReceipt.voucherCode" class="text-slate-600">Voucher: {{ lastReceipt.voucherCode }}</p>
-                  </div>
+                <div class="mt-3 text-sm md:text-right">
+                  <p class="text-xs uppercase tracking-wide text-slate-400">Thanh toán</p>
+                  <p class="mt-1 font-semibold text-slate-900">{{ lastReceipt.paymentMethodLabel }}</p>
+                  <p class="text-slate-600">{{ lastReceipt.shippingAddress }}</p>
+                  <p class="text-slate-600">Voucher: {{ lastReceipt.voucherCode || "None" }}</p>
                 </div>
 
                 <div class="mt-4 overflow-hidden rounded-xl border border-slate-200 bg-white">
@@ -402,6 +380,7 @@
                       <tr v-for="item in lastReceipt.items" :key="item.key">
                         <td class="px-3 py-2">
                           <p class="font-semibold text-slate-900">{{ item.productName }}</p>
+                          <p class="text-[11px] text-slate-500">Mã SP: {{ item.productCode || "--" }}</p>
                           <p class="text-[11px] text-slate-500">{{ item.variantName }}</p>
                         </td>
                         <td class="px-3 py-2 text-slate-700">{{ item.quantity }}</td>
@@ -577,6 +556,11 @@ import { adminApi, colorsApi, sizesApi } from "@/services/api";
 import { voucherAPI } from "@/services/orders";
 
 const MAX_INVOICES = 5;
+const POS_DEFAULT_CUSTOMER = Object.freeze({
+  fullname: "POS",
+  phone: "00000000",
+  email: "pos@local.shop",
+});
 let nextInvoiceNumber = 1;
 const searchQuery = ref("");
 const systemVouchers = ref([]);
@@ -786,6 +770,7 @@ onMounted(async () => {
         ...variant,
         variantId: variant.id || variant.variantId || `${productId}-${colorId}-${sizeId}-${Math.random()}`,
         productName,
+        productCode: variant.productCode || variant.product_code || product.productCode || product.product_code || "",
         colorName: variant.colorName || variant.color_name || color.name || "Mặc định",
         sizeName: variant.sizeName || variant.size_name || size.name || "Mặc định",
         price: Number(variant.price || 0),
@@ -797,6 +782,7 @@ onMounted(async () => {
         productGroup.set(productId, {
           productId,
           productName,
+          productCode: variantModel.productCode,
           imageUrl: variantModel.imageUrl,
           price: variantModel.price,
           variants: [],
@@ -893,7 +879,7 @@ const confirmRemoveInvoice = () => {
 const resetInvoice = () => {
   const invoice = activeInvoice.value;
   if (!invoice) return;
-  invoice.customer = { fullname: "", phone: "", email: "" };
+  invoice.customer = { ...POS_DEFAULT_CUSTOMER };
   invoice.voucherInput = "";
   invoice.appliedVoucher = null;
   invoice.cart = [];
@@ -1036,25 +1022,15 @@ function escapeHtml(value) {
   });
 }
 
-function normalizePhone(rawValue) {
-  return String(rawValue || "").replace(/\D/g, "").trim();
-}
-
-function isValidCustomerName(rawValue) {
-  const value = String(rawValue || "").trim();
-  if (value.length < 2) return false;
-  return /^[\p{L}\s'.-]+$/u.test(value);
-}
-
-function isValidCustomerPhone(rawValue) {
-  const phone = normalizePhone(rawValue);
-  return /^\d{7,15}$/.test(phone);
-}
-
-function isValidEmail(rawValue) {
-  const value = String(rawValue || "").trim();
-  if (!value) return true;
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+function applyDefaultPosCustomer(invoice) {
+  if (!invoice) return;
+  if (!invoice.customer || typeof invoice.customer !== "object") {
+    invoice.customer = { ...POS_DEFAULT_CUSTOMER };
+    return;
+  }
+  invoice.customer.fullname = POS_DEFAULT_CUSTOMER.fullname;
+  invoice.customer.phone = POS_DEFAULT_CUSTOMER.phone;
+  invoice.customer.email = POS_DEFAULT_CUSTOMER.email;
 }
 
 function validateInvoiceBeforeSubmit(invoice) {
@@ -1063,21 +1039,6 @@ function validateInvoiceBeforeSubmit(invoice) {
   }
   if (!Array.isArray(invoice.cart) || invoice.cart.length === 0) {
     return "Vui lòng thêm ít nhất một sản phẩm vào giỏ hàng.";
-  }
-  if (!invoice.customer.fullname.trim()) {
-    return "Vui lòng nhập Tên khách hàng trước khi thanh toán!";
-  }
-  if (!isValidCustomerName(invoice.customer.fullname)) {
-    return "Tên khách hàng không hợp lệ. Chỉ dùng chữ và tối thiểu 2 ký tự.";
-  }
-  if (!invoice.customer.phone.trim()) {
-    return "Vui lòng nhập Số điện thoại khách hàng!";
-  }
-  if (!isValidCustomerPhone(invoice.customer.phone)) {
-    return "Số điện thoại chỉ gồm chữ số và dài từ 7 đến 15 ký tự.";
-  }
-  if (!isValidEmail(invoice.customer.email)) {
-    return "Email khách hàng không hợp lệ.";
   }
   if (invoice.paymentMethodId === 1 && Number(invoice.customerPaid || 0) < activeTotal.value) {
     return "Tiền khách đưa không đủ! Vui lòng nhập số tiền khách trả.";
@@ -1122,6 +1083,7 @@ function buildReceiptSnapshot(invoice, orderData, returnedOrderId, returnedOrder
     return {
       key: item.cartItemId,
       productName: item.product?.productName || item.product?.name || "Sản phẩm",
+      productCode: variant.productCode || item.product?.productCode || "",
       variantName: [variant.colorName, variant.sizeName].filter(Boolean).join(" / ") || "Phiên bản mặc định",
       quantity,
       price,
@@ -1160,7 +1122,7 @@ function printReceipt(receipt) {
     .map(
       (item) => `
         <tr>
-          <td>${escapeHtml(item.productName)}<div class="muted">${escapeHtml(item.variantName)}</div></td>
+          <td>${escapeHtml(item.productName)}<div class="muted">Mã SP: ${escapeHtml(item.productCode || "--")}</div><div class="muted">${escapeHtml(item.variantName)}</div></td>
           <td class="center">${escapeHtml(item.quantity)}</td>
           <td class="right">${escapeHtml(formatMoney(item.price))}</td>
           <td class="right">${escapeHtml(formatMoney(item.lineTotal))}</td>
@@ -1220,12 +1182,9 @@ function printReceipt(receipt) {
           </div>
           <div class="divider"></div>
           <div class="section">
-            <div class="meta"><strong>Khách hàng:</strong> ${escapeHtml(receipt.customer.fullname)}</div>
-            <div class="meta"><strong>SĐT:</strong> ${escapeHtml(receipt.customer.phone)}</div>
-            ${receipt.customer.email ? `<div class="meta"><strong>Email:</strong> ${escapeHtml(receipt.customer.email)}</div>` : ""}
             <div class="meta"><strong>Thanh toán:</strong> ${escapeHtml(receipt.paymentMethodLabel)}</div>
             <div class="meta"><strong>Địa chỉ:</strong> ${escapeHtml(receipt.shippingAddress)}</div>
-            ${receipt.voucherCode ? `<div class="meta"><strong>Voucher:</strong> ${escapeHtml(receipt.voucherCode)}</div>` : ""}
+            <div class="meta"><strong>Voucher:</strong> ${escapeHtml(receipt.voucherCode || "None")}</div>
           </div>
           <div class="divider"></div>
           <div class="section">
@@ -1301,9 +1260,7 @@ function handlePaymentDialogPrimary() {
 const processOrder = async (invoice) => {
   if (!invoice) return;
 
-  invoice.customer.fullname = String(invoice.customer.fullname).trim();
-  invoice.customer.phone = normalizePhone(invoice.customer.phone);
-  invoice.customer.email = String(invoice.customer.email || "").trim();
+  applyDefaultPosCustomer(invoice);
 
   isProcessing.value = true;
   try {
@@ -1541,6 +1498,7 @@ const handleQrData = (decodedText) => {
     const productForCart = {
       productId: foundProduct.productId,
       productName: foundProduct.productName,
+      productCode: foundVariant.productCode || foundProduct.productCode || "",
       imageUrl: foundProduct.imageUrl,
       price: foundVariant.price,
       variants: foundProduct.variants,
@@ -1573,9 +1531,7 @@ function createNewInvoice() {
     orderId: null,
     orderCode: null,
     customer: {
-      fullname: "",
-      phone: "",
-      email: "",
+      ...POS_DEFAULT_CUSTOMER,
     },
     voucherInput: "",
     appliedVoucher: null,
@@ -1608,5 +1564,16 @@ const digitalPaymentMethods = [
 }
 .animate-fade-in-up {
   animation: fadeInUp 0.4s ease-out forwards;
+}
+
+.money-input::-webkit-outer-spin-button,
+.money-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.money-input {
+  -moz-appearance: textfield;
+  appearance: textfield;
 }
 </style>

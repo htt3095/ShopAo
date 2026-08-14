@@ -141,7 +141,7 @@ const navItems = [
   { path: "/admin/orders", label: "Đơn hàng", icon: "shopping_bag" },
   { path: "/admin/categories", label: "Danh mục", icon: "category" },
   { path: "/admin/brands", label: "Thương hiệu", icon: "branding_watermark" },
-  { path: "/admin/customers", label: "Khách hàng", icon: "group" },
+  { path: "/admin/customers", label: "Quản Lý Tài Khoản", icon: "group" },
   { path: "/admin/vouchers", label: "Voucher", icon: "local_activity" },
   { path: "/admin/reports", label: "Báo cáo", icon: "bar_chart" },
   { path: "/admin/settings", label: "Cài đặt", icon: "settings" },
