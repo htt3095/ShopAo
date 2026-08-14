@@ -1,4 +1,4 @@
-[Output too large (28KB). Full output saved to: c:\Users\Dell\AppData\Roaming\Code\copilot-terminal-output\copilot-terminal-output-2e858a0d-e4a1-4ddd-8a47-bf5e8d699081.txt]
+﻿[Output too large (28KB). Full output saved to: c:\Users\Dell\AppData\Roaming\Code\copilot-terminal-output\copilot-terminal-output-2e858a0d-e4a1-4ddd-8a47-bf5e8d699081.txt]
 [Use readFile or grep to examine the full output.]
 
 <template>
@@ -7,9 +7,9 @@
       <div class="flex flex-wrap items-center justify-between gap-2">
         <div>
           <p class="text-xs uppercase tracking-[0.18em] text-primary">
-            Quản lý sản phẩm
+            Quáº£n lÃ½ sáº£n pháº©m
           </p>
-          <h2 class="mt-1 text-xl font-bold">Quản lý sản phẩm </h2>
+          <h2 class="mt-1 text-xl font-bold">Quáº£n lÃ½ sáº£n pháº©m </h2>
         </div>
 
         <div class="flex flex-wrap items-center gap-2 lg:gap-3">
@@ -21,7 +21,7 @@
               @click="openCreate"
             >
               <span class="material-symbols-outlined text-[18px]">add</span>
-              Thêm sản phẩm
+              ThÃªm sáº£n pháº©m
             </button>
 
             <button
@@ -30,7 +30,7 @@
               @click="loadProducts"
             >
               <span class="material-symbols-outlined text-[18px]">refresh</span>
-              Làm mới SP
+              LÃ m má»›i SP
             </button>
           </div>
 
@@ -42,7 +42,7 @@
               @click="openInventoryCreate"
             >
               <span class="material-symbols-outlined text-[18px]">add_box</span>
-              Thêm biến thể
+              ThÃªm biáº¿n thá»ƒ
             </button>
 
             <button
@@ -51,7 +51,7 @@
               @click="openInventoryBulkCreate"
             >
               <span class="material-symbols-outlined text-[18px]">library_add</span>
-              Tạo hàng loạt
+              Táº¡o hÃ ng loáº¡t
             </button>
 
             <button
@@ -60,7 +60,7 @@
               @click="refreshInventory"
             >
               <span class="material-symbols-outlined text-[18px]">sync</span>
-              Làm mới BT
+              LÃ m má»›i BT
             </button>
           </div>
         </div>
@@ -80,7 +80,7 @@
             <button
               type="button"
               class="inline-flex h-8 items-center gap-1 rounded-full border border-slate-300 bg-white px-2.5 text-slate-600 hover:border-primary hover:text-primary"
-              title="Chuyển bộ lọc"
+              title="Chuyá»ƒn bá»™ lá»c"
               @click="toggleFilterScope"
             >
               <span class="material-symbols-outlined text-[16px]">swap_horiz</span>
@@ -90,7 +90,7 @@
             <button
               type="button"
               class="inline-flex h-8 items-center gap-1 rounded-full border border-slate-300 bg-white px-2.5 text-slate-600 hover:border-primary hover:text-primary"
-              title="Xóa toàn bộ bộ lọc"
+              title="XÃ³a toÃ n bá»™ bá»™ lá»c"
               @click="resetAllFilters"
             >
               <span class="material-symbols-outlined text-[16px]">filter_alt_off</span>
@@ -102,16 +102,16 @@
         <div v-if="filterScope === 'product'" class="grid gap-2 xl:grid-cols-12">
           <label class="flex h-9 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 xl:col-span-6">
             <span class="material-symbols-outlined text-[18px] text-slate-400">search</span>
-            <input v-model="search" type="text" placeholder="Tìm theo tên, mã sản phẩm, thương hiệu" class="w-full bg-transparent text-sm outline-none" />
+            <input v-model="search" type="text" placeholder="TÃ¬m theo tÃªn, mÃ£ sáº£n pháº©m, thÆ°Æ¡ng hiá»‡u" class="w-full bg-transparent text-sm outline-none" />
           </label>
 
           <select v-model.number="filterBrandId" class="h-9 rounded-xl border border-slate-200 bg-white px-3 text-sm xl:col-span-3">
-            <option :value="null">Tất cả thương hiệu</option>
+            <option :value="null">Táº¥t cáº£ thÆ°Æ¡ng hiá»‡u</option>
             <option v-for="brand in brands" :key="brand.id" :value="Number(brand.id)">{{ brand.name }}</option>
           </select>
 
           <select v-model.number="filterCategoryId" class="h-9 rounded-xl border border-slate-200 bg-white px-3 text-sm xl:col-span-3">
-            <option :value="null">Tất cả danh mục</option>
+            <option :value="null">Táº¥t cáº£ danh má»¥c</option>
             <option v-for="category in categories" :key="category.id" :value="Number(category.id)">{{ category.name }}</option>
           </select>
         </div>
@@ -119,16 +119,16 @@
         <div v-else class="grid gap-2 xl:grid-cols-12">
           <label class="flex h-9 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 xl:col-span-4">
             <span class="material-symbols-outlined text-[18px] text-slate-400">search</span>
-            <input :value="inventoryFilterForm.keyword" type="text" placeholder="Tìm theo ID, sản phẩm, màu, size" class="w-full bg-transparent text-sm outline-none" @input="updateInventoryKeyword($event.target.value)" />
+            <input :value="inventoryFilterForm.keyword" type="text" placeholder="TÃ¬m theo ID, sáº£n pháº©m, mÃ u, size" class="w-full bg-transparent text-sm outline-none" @input="updateInventoryKeyword($event.target.value)" />
           </label>
 
           <select v-model.number="inventoryFilterForm.productId" class="h-9 rounded-xl border border-slate-200 bg-white px-3 text-sm xl:col-span-2" @change="updateInventoryFilter('productId', inventoryFilterForm.productId)">
-            <option :value="null">Sản phẩm</option>
+            <option :value="null">Sáº£n pháº©m</option>
             <option v-for="product in inventoryOptionsProducts" :key="product.id" :value="Number(product.id)">{{ product.name }}</option>
           </select>
 
           <select v-model.number="inventoryFilterForm.colorId" class="h-9 rounded-xl border border-slate-200 bg-white px-3 text-sm xl:col-span-2" @change="updateInventoryFilter('colorId', inventoryFilterForm.colorId)">
-            <option :value="null">Màu</option>
+            <option :value="null">MÃ u</option>
             <option v-for="color in inventoryOptionsColors" :key="color.id" :value="Number(color.id)">{{ color.name }}</option>
           </select>
 
@@ -138,12 +138,12 @@
           </select>
 
           <select v-model="inventoryFilterForm.stockStatus" class="h-9 rounded-xl border border-slate-200 bg-white px-3 text-sm xl:col-span-2" @change="updateInventoryFilter('stockStatus', inventoryFilterForm.stockStatus)">
-            <option :value="null">Trạng thái</option>
-            <option value="selling">Đang bán</option>
-            <option value="out_of_stock">Hết hàng</option>
-            <option value="hidden">Ngừng bán</option>
-            <option value="low_stock">Sắp hết</option>
-            <option value="in_stock">Còn hàng</option>
+            <option :value="null">Tráº¡ng thÃ¡i</option>
+            <option value="selling">Äang bÃ¡n</option>
+            <option value="out_of_stock">Háº¿t hÃ ng</option>
+            <option value="hidden">Ngá»«ng bÃ¡n</option>
+            <option value="low_stock">Sáº¯p háº¿t</option>
+            <option value="in_stock">CÃ²n hÃ ng</option>
           </select>
         </div>
       </div>
@@ -164,25 +164,25 @@
           <div v-if="hiddenProducts.length > 0" class="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-3 py-3 text-sm text-slate-700">
             <div class="flex flex-wrap items-center justify-between gap-3">
               <div>
-                <p class="font-semibold">Sản phẩm ẩn tạm</p>
-                <p class="text-xs text-slate-500">Những sản phẩm đã xóa mềm sẽ tạm ẩn khỏi danh sách. Bạn có thể khôi phục lại khi cần.</p>
+                <p class="font-semibold">Sáº£n pháº©m áº©n táº¡m</p>
+                <p class="text-xs text-slate-500">Nhá»¯ng sáº£n pháº©m Ä‘Ã£ xÃ³a má»m sáº½ táº¡m áº©n khá»i danh sÃ¡ch. Báº¡n cÃ³ thá»ƒ khÃ´i phá»¥c láº¡i khi cáº§n.</p>
               </div>
-              <button type="button" class="rounded-xl bg-primary px-3 py-2 text-xs font-semibold text-white hover:opacity-90" @click="restoreAllHiddenProducts">Khôi phục tất cả</button>
+              <button type="button" class="rounded-xl bg-primary px-3 py-2 text-xs font-semibold text-white hover:opacity-90" @click="restoreAllHiddenProducts">KhÃ´i phá»¥c táº¥t cáº£</button>
             </div>
             <div class="mt-3 space-y-2">
               <div v-for="product in hiddenProducts" :key="product.id" class="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2">
-                <div class="text-sm"><span class="font-semibold">#{{ product.id }}</span><span class="ml-2">{{ product.name || 'Sản phẩm' }}</span></div>
+                <div class="text-sm"><span class="font-semibold">#{{ product.id }}</span><span class="ml-2">{{ product.name || 'Sáº£n pháº©m' }}</span></div>
                 <div class="flex items-center gap-2">
-                  <button type="button" class="rounded-xl bg-emerald-500 px-3 py-2 text-xs font-semibold text-white hover:bg-emerald-600" @click="restoreProduct(product)">Khôi phục</button>
-                  <button type="button" class="rounded-xl bg-red-500 px-3 py-2 text-xs font-semibold text-white hover:bg-red-600" @click="hardDeleteProduct(product)">Xóa hẳn</button>
+                  <button type="button" class="rounded-xl bg-emerald-500 px-3 py-2 text-xs font-semibold text-white hover:bg-emerald-600" @click="restoreProduct(product)">KhÃ´i phá»¥c</button>
+                  <button type="button" class="rounded-xl bg-red-500 px-3 py-2 text-xs font-semibold text-white hover:bg-red-600" @click="hardDeleteProduct(product)">XÃ³a háº³n</button>
                 </div>
               </div>
             </div>
           </div>
 
-          <div v-if="loading" class="py-8 text-center text-sm text-slate-500">Đang tải danh sách sản phẩm...</div>
+          <div v-if="loading" class="py-8 text-center text-sm text-slate-500">Äang táº£i danh sÃ¡ch sáº£n pháº©m...</div>
 
-          <div v-else-if="filteredProducts.length === 0" class="rounded-2xl border border-dashed border-slate-300 p-6 text-center text-sm text-slate-500">Không tìm thấy sản phẩm.</div>
+          <div v-else-if="filteredProducts.length === 0" class="rounded-2xl border border-dashed border-slate-300 p-6 text-center text-sm text-slate-500">KhÃ´ng tÃ¬m tháº¥y sáº£n pháº©m.</div>
 
           <div v-else class="overflow-x-hidden">
             <table class="w-full table-fixed text-left text-sm">
@@ -196,10 +196,10 @@
               <thead>
                 <tr class="border-b border-slate-200 text-slate-500">
                   <th class="px-2 py-2 font-medium">STT</th>
-                  <th class="px-2 py-2 font-medium">Sản phẩm</th>
-                  <th class="px-2 py-2 font-medium">Danh mục</th>
-                  <th class="px-2 py-2 text-right font-medium">Tồn</th>
-                  <th class="px-2 py-2 text-right font-medium">Thao tác</th>
+                  <th class="px-2 py-2 font-medium">Sáº£n pháº©m</th>
+                  <th class="px-2 py-2 font-medium">Danh má»¥c</th>
+                  <th class="px-2 py-2 text-right font-medium">Tá»“n</th>
+                  <th class="px-2 py-2 text-right font-medium">Thao tÃ¡c</th>
                 </tr>
               </thead>
               <tbody>
@@ -211,8 +211,8 @@
                         <img v-if="product._imageUrl || product.imageUrl" :src="product._imageUrl || product.imageUrl" alt="Product" class="h-full w-full object-cover" />
                       </div>
                       <div class="min-w-0">
-                        <p class="truncate text-sm font-semibold" :title="product.name || 'Sản phẩm'">{{ product.name || 'Sản phẩm' }}</p>
-                        <p class="truncate text-xs text-slate-500" :title="(product.productCode || ('ID: ' + product.id)) + ' · ' + brandName(product.brandId)">{{ product.productCode || ('ID: ' + product.id) }} · {{ brandName(product.brandId) }}</p>
+                        <p class="truncate text-sm font-semibold" :title="product.name || 'Sáº£n pháº©m'">{{ product.name || 'Sáº£n pháº©m' }}</p>
+                        <p class="truncate text-xs text-slate-500" :title="(product.productCode || ('ID: ' + product.id)) + ' Â· ' + brandName(product.brandId)">{{ product.productCode || ('ID: ' + product.id) }} Â· {{ brandName(product.brandId) }}</p>
                       </div>
                     </div>
                   </td>
@@ -220,8 +220,8 @@
                   <td class="px-2 py-2 text-right font-semibold">{{ getTotalStock(product.id) }}</td>
                   <td class="px-2 py-2 text-right">
                     <div class="flex items-center justify-end gap-1">
-                      <button class="rounded-md p-1.5 hover:bg-slate-100" title="Chỉnh sửa" @click="openEdit(product)"><span class="material-symbols-outlined text-[18px] text-slate-500">edit</span></button>
-                      <button class="rounded-md p-1.5 hover:bg-red-50" title="Xóa" @click="confirmDelete(product)"><span class="material-symbols-outlined text-[18px] text-red-500">delete</span></button>
+                      <button class="rounded-md p-1.5 hover:bg-slate-100" title="Chá»‰nh sá»­a" @click="openEdit(product)"><span class="material-symbols-outlined text-[18px] text-slate-500">edit</span></button>
+                      <button class="rounded-md p-1.5 hover:bg-red-50" title="XÃ³a" @click="confirmDelete(product)"><span class="material-symbols-outlined text-[18px] text-red-500">delete</span></button>
                     </div>
                   </td>
                 </tr>
@@ -247,31 +247,30 @@
           <h3 class="mb-4 text-base font-bold">
             {{
               editingProductId
-                ? `Sửa sản phẩm #${editingProductId}`
-                : "Thêm sản phẩm mới"
+                ? `Sá»­a sáº£n pháº©m #${editingProductId}`
+                : "ThÃªm sáº£n pháº©m má»›i"
             }}
           </h3>
 
           <div class="grid gap-3 md:grid-cols-2">
             <div class="md:col-span-2">
               <label class="mb-1 block text-xs font-medium text-slate-500"
-                >Tên sản phẩm *</label
+                >TÃªn sáº£n pháº©m *</label
               >
               <input
                 v-model.trim="form.name"
                 type="text"
                 class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-1.5 text-sm "
-                placeholder="Nhập tên sản phẩm"
+                placeholder="Nháº­p tÃªn sáº£n pháº©m"
               />
             </div>
 
             <div>
               <label class="mb-1 block text-xs font-medium text-slate-500"
-                >Mã sản phẩm</label
+                >MÃ£ sáº£n pháº©m</label
               >
               <input
-                v-model.trim="form.productCode"
-                type="text"
+                v-model.trim="form.productCode" @input="isProductCodeManuallyEdited = true" type="text"
                 class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-1.5 text-sm "
                 placeholder="VD: SNK-001"
               />
@@ -279,13 +278,13 @@
 
             <div>
               <label class="mb-1 block text-xs font-medium text-slate-500"
-                >Thương hiệu</label
+                >ThÆ°Æ¡ng hiá»‡u</label
               >
               <select
                 v-model.number="form.brandId"
                 class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-1.5 text-sm "
               >
-                <option :value="null">-- Chọn thương hiệu --</option>
+                <option :value="null">-- Chá»n thÆ°Æ¡ng hiá»‡u --</option>
                 <option
                   v-for="brand in brands"
                   :key="brand.id"
@@ -298,13 +297,13 @@
 
             <div>
               <label class="mb-1 block text-xs font-medium text-slate-500"
-                >Danh mục</label
+                >Danh má»¥c</label
               >
               <select
                 v-model.number="form.categoryId"
                 class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-1.5 text-sm "
               >
-                <option :value="null">-- Chọn danh mục --</option>
+                <option :value="null">-- Chá»n danh má»¥c --</option>
                 <option
                   v-for="category in categories"
                   :key="category.id"
@@ -317,19 +316,19 @@
 
             <div class="md:col-span-2">
               <label class="mb-1 block text-xs font-medium text-slate-500"
-                >Mô tả chi tiết sản phẩm</label
+                >MÃ´ táº£ chi tiáº¿t sáº£n pháº©m</label
               >
               <textarea
                 v-model="form.description"
                 rows="10"
                 class="w-full shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm rounded-xl border border-slate-200 outline-none focus:border-primary"
-                placeholder="Nhập thông tin chi tiết về chất liệu, kiểu dáng, tính năng, v.v. (Ví dụ: Áo thun thể thao nam mát lạnh, chất vải co giãn, thấm hút mồ hôi...)"
+                placeholder="Nháº­p thÃ´ng tin chi tiáº¿t vá» cháº¥t liá»‡u, kiá»ƒu dÃ¡ng, tÃ­nh nÄƒng, v.v. (VÃ­ dá»¥: Ão thun thá»ƒ thao nam mÃ¡t láº¡nh, cháº¥t váº£i co giÃ£n, tháº¥m hÃºt má»“ hÃ´i...)"
               ></textarea>
             </div>
 
             <div class="md:col-span-2">
               <label class="mb-3 block text-xs font-medium text-slate-500"
-                >Ảnh sản phẩm</label
+                >áº¢nh sáº£n pháº©m</label
               >
 
               <!-- Image Preview -->
@@ -348,7 +347,7 @@
                   class="rounded-lg bg-red-100 px-2.5 py-1.5 text-xs font-medium text-red-600 hover:bg-red-200 /30 "
                   @click="clearProductImage"
                 >
-                  Xóa ảnh
+                  XÃ³a áº£nh
                 </button>
               </div>
 
@@ -360,7 +359,7 @@
                 <span
                   class="h-4 w-4 animate-spin rounded-full border-2 border-blue-600 border-t-transparent"
                 />
-                Đang tải lên...
+                Äang táº£i lÃªn...
               </div>
               <div
                 v-else-if="productUploadError"
@@ -386,7 +385,7 @@
                 @click="$refs.productImageInput?.click()"
               >
                 <span class="material-symbols-outlined text-[20px]">image</span>
-                Chọn ảnh từ máy tính
+                Chá»n áº£nh tá»« mÃ¡y tÃ­nh
               </button>
             </div>
           </div>
@@ -401,7 +400,7 @@
               class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium hover:border-slate-400 "
               @click="closeModal"
             >
-              Hủy
+              Há»§y
             </button>
 
             <button
@@ -412,10 +411,10 @@
             >
               {{
                 saving
-                  ? "Đang lưu..."
+                  ? "Äang lÆ°u..."
                   : editingProductId
-                    ? "Cập nhật"
-                    : "Thêm mới"
+                    ? "Cáº­p nháº­t"
+                    : "ThÃªm má»›i"
               }}
             </button>
           </div>
@@ -432,11 +431,11 @@
         <div
           class="w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl "
         >
-          <h3 class="mb-2 text-base font-bold">Xác nhận xóa</h3>
+          <h3 class="mb-2 text-base font-bold">XÃ¡c nháº­n xÃ³a</h3>
           <p class="text-sm text-slate-500 ">
-            Bạn chắc chắn muốn xóa sản phẩm
+            Báº¡n cháº¯c cháº¯n muá»‘n xÃ³a sáº£n pháº©m
             <strong>#{{ deleteTarget.id }}</strong> ({{
-              deleteTarget.name || "Sản phẩm"
+              deleteTarget.name || "Sáº£n pháº©m"
             }})?
           </p>
 
@@ -445,14 +444,14 @@
               class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium "
               @click="deleteTarget = null"
             >
-              Hủy
+              Há»§y
             </button>
             <button
               :disabled="deleting"
               class="rounded-xl bg-red-500 px-4 py-2 text-sm font-medium text-white hover:bg-red-600 disabled:opacity-60"
               @click="doDelete"
             >
-              {{ deleting ? "Đang xóa..." : "Xóa" }}
+              {{ deleting ? "Äang xÃ³a..." : "XÃ³a" }}
             </button>
           </div>
         </div>
@@ -463,13 +462,38 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import axios from "axios";
 import AdminShell from "@/components/admin/AdminShell.vue";
 import { adminApi, brandsApi, categoriesApi, variantsApi } from "@/services/api";
 import AdminInventoryView from "@/pages/AdminInventoryView.vue";
 
-const loading = ref(false);
+const isProductCodeManuallyEdited = ref(false);
+const autoGeneratedSessionId = ref("");
+
+function removeVietnameseTones(str) { if (!str) return ""; return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d").replace(/Đ/g, "D"); }
+
+function getInitials(str) {
+  if (!str) return "XX";
+  const clean = removeVietnameseTones(str).toUpperCase().trim();
+  const words = clean.split(/\s+/);
+  if (words.length === 1) return words[0].substring(0, 3) || "XX";
+  return words.map(w => w[0]).join('');
+}
+
+watch([() => form.value.name, () => form.value.brandId], ([newName, newBrandId]) => {
+  if (isProductCodeManuallyEdited.value) return;
+  if (!editingProductId.value && (newName || newBrandId)) {
+    let bCode = "XX";
+    if (newBrandId) {
+      const brand = brands.value.find(b => Number(b.id) === Number(newBrandId));
+      if (brand) bCode = getInitials(brand.name).substring(0, 2);
+    }
+    const pCode = newName ? getInitials(newName) : "XX";
+    form.value.productCode = `--`;
+  }
+});
+  const loading = ref(false);
 const error = ref("");
 const search = ref("");
 const filterBrandId = ref(null);
@@ -580,16 +604,7 @@ const filteredProducts = computed(() => {
   });
 });
 
-function emptyForm() {
-  return {
-    name: "",
-    productCode: "",
-    brandId: null,
-    categoryId: null,
-    imageUrl: "",
-    description: "",
-  };
-}
+function emptyForm() { autoGeneratedSessionId.value = Math.random().toString(36).substring(2, 5).toUpperCase(); isProductCodeManuallyEdited.value = false; return { name: "", productCode: "", brandId: null, categoryId: null, imageUrl: "", description: "" }; }
 
 function toList(payload) {
   if (Array.isArray(payload)) {
@@ -726,7 +741,7 @@ async function saveProduct() {
   modalError.value = "";
 
   if (!f.name) {
-    modalError.value = "Vui lòng nhập tên sản phẩm.";
+    modalError.value = "Vui lÃ²ng nháº­p tÃªn sáº£n pháº©m.";
     return;
   }
 
@@ -760,7 +775,7 @@ async function saveProduct() {
         // Image upload failed, but if it's a new product, we already created it
         // For editing, we'll just warn the user
         console.warn("Image upload failed:", uploadErr);
-        modalError.value = "Tải ảnh lên thất bại, nhưng sản phẩm đã được lưu.";
+        modalError.value = "Táº£i áº£nh lÃªn tháº¥t báº¡i, nhÆ°ng sáº£n pháº©m Ä‘Ã£ Ä‘Æ°á»£c lÆ°u.";
       }
     }
 
@@ -786,7 +801,7 @@ async function saveProduct() {
     closeModal();
     await loadProducts();
   } catch (err) {
-    modalError.value = err?.message || "Không thể lưu sản phẩm.";
+    modalError.value = err?.message || "KhÃ´ng thá»ƒ lÆ°u sáº£n pháº©m.";
   } finally {
     saving.value = false;
   }
@@ -820,7 +835,7 @@ async function doDelete() {
     deleteTarget.value = null;
     await loadProducts();
   } catch (err) {
-    error.value = err?.message || "Không thể xóa sản phẩm.";
+    error.value = err?.message || "KhÃ´ng thá»ƒ xÃ³a sáº£n pháº©m.";
   } finally {
     deleting.value = false;
   }
@@ -835,12 +850,12 @@ async function restoreProduct(product) {
     );
     await loadProducts();
   } catch (err) {
-    error.value = "Không thể khôi phục sản phẩm.";
+    error.value = "KhÃ´ng thá»ƒ khÃ´i phá»¥c sáº£n pháº©m.";
   }
 }
 
 async function hardDeleteProduct(product) {
-  if (!confirm("Bạn có chắc chắn muốn xóa vĩnh viễn sản phẩm này? Hành động này không thể hoàn tác!")) {
+  if (!confirm("Báº¡n cÃ³ cháº¯c cháº¯n muá»‘n xÃ³a vÄ©nh viá»…n sáº£n pháº©m nÃ y? HÃ nh Ä‘á»™ng nÃ y khÃ´ng thá»ƒ hoÃ n tÃ¡c!")) {
     return;
   }
   try {
@@ -851,7 +866,7 @@ async function hardDeleteProduct(product) {
     );
     await loadProducts();
   } catch (err) {
-    error.value = "Không thể xóa vĩnh viễn sản phẩm này. Có thể nó đang chứa các biến thể được sử dụng trong các đơn hàng.";
+    error.value = "KhÃ´ng thá»ƒ xÃ³a vÄ©nh viá»…n sáº£n pháº©m nÃ y. CÃ³ thá»ƒ nÃ³ Ä‘ang chá»©a cÃ¡c biáº¿n thá»ƒ Ä‘Æ°á»£c sá»­ dá»¥ng trong cÃ¡c Ä‘Æ¡n hÃ ng.";
   }
 }
 
@@ -864,7 +879,7 @@ async function restoreAllHiddenProducts() {
     hiddenProducts.value = [];
     await loadProducts();
   } catch (err) {
-    error.value = "Có lỗi xảy ra khi khôi phục.";
+    error.value = "CÃ³ lá»—i xáº£y ra khi khÃ´i phá»¥c.";
   }
 }
 
@@ -910,7 +925,7 @@ async function loadProducts() {
     categories.value = toList(categoryList);
   } catch (err) {
     console.error("Failed to load admin products:", err);
-    error.value = "Không thể tải sản phẩm. Vui lòng kiểm tra backend API.";
+    error.value = "KhÃ´ng thá»ƒ táº£i sáº£n pháº©m. Vui lÃ²ng kiá»ƒm tra backend API.";
   } finally {
     loading.value = false;
   }
@@ -951,13 +966,13 @@ async function uploadProductImage(productId) {
       productImageFile.value = null;
       return response.data.imageUrl;
     } else {
-      throw new Error("Máy chủ không trả về đường dẫn ảnh");
+      throw new Error("MÃ¡y chá»§ khÃ´ng tráº£ vá» Ä‘Æ°á»ng dáº«n áº£nh");
     }
   } catch (err) {
     console.error("Error uploading product image:", err);
     productUploadStatus.value = "error";
     productUploadError.value =
-      "Tải ảnh lên thất bại: " + (err.response?.data?.error || err.message);
+      "Táº£i áº£nh lÃªn tháº¥t báº¡i: " + (err.response?.data?.error || err.message);
     throw new Error(productUploadError.value);
   }
 }
@@ -968,14 +983,14 @@ function handleProductImageUpload(event) {
 
   // Validate file type
   if (!file.type.startsWith("image/")) {
-    productUploadError.value = "Vui lòng chọn tệp ảnh hợp lệ.";
+    productUploadError.value = "Vui lÃ²ng chá»n tá»‡p áº£nh há»£p lá»‡.";
     productUploadStatus.value = "error";
     return;
   }
 
   // Validate file size (max 5MB)
   if (file.size > 5 * 1024 * 1024) {
-    productUploadError.value = "Kích thước ảnh không được vượt quá 5MB.";
+    productUploadError.value = "KÃ­ch thÆ°á»›c áº£nh khÃ´ng Ä‘Æ°á»£c vÆ°á»£t quÃ¡ 5MB.";
     productUploadStatus.value = "error";
     return;
   }
@@ -996,3 +1011,5 @@ function handleProductImageUpload(event) {
 
 onMounted(loadProducts);
 </script>
+
+

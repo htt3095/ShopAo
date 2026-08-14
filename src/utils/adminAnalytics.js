@@ -426,7 +426,10 @@ export function getPaymentMethodBreakdown(orders) {
         const paymentStatus = normalizePaymentStatusValue(order?.paymentStatus);
         if (!profitablePaymentStatuses.includes(paymentStatus)) continue;
 
-        const label = resolvePaymentMethodLabel(order);
+        const address = String(order?.shippingAddress || order?.shipping_address || order?.address || "").trim();
+        const isPOS = address === "" || address.toLowerCase() === "mua tại quầy" || address.toLowerCase() === "mua tai quay";
+        const label = isPOS ? "Mua tại quầy (POS)" : "Mua Online";
+
         const amount = getOrderAmount(order);
 
         if (!map.has(label)) {

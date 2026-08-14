@@ -466,7 +466,7 @@
           <h3 class="mb-4 text-base font-bold">
             {{
               editingOrderId
-                ? `Sửa đơn hàng #${editingOrderId}`
+                ? (form.status === 'SUCCESS' ? `Xem chi tiết đơn hàng #${editingOrderId}` : `Sửa đơn hàng #${editingOrderId}`)
                 : "Tạo đơn hàng mới"
             }}
           </h3>
@@ -630,14 +630,30 @@
                 Chưa có dữ liệu sản phẩm cho đơn hàng này.
               </div>
 
-              <div v-else class="space-y-1 text-slate-600 ">
-                <p
-                  v-for="(itemText, idx) in selectedOrderItems"
+              <div v-else class="space-y-3 text-slate-600 ">
+                <div
+                  v-for="(item, idx) in selectedOrderItems"
                   :key="`modal-item-${idx}`"
-                  class="truncate"
+                  class="flex items-center gap-3"
                 >
-                  {{ itemText }}
-                </p>
+                  <img v-if="item.image" :src="item.image" class="w-10 h-10 object-cover rounded border border-slate-200" />
+                  <div v-else class="w-10 h-10 bg-slate-100 rounded border border-slate-200 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-slate-400 text-sm">image</span>
+                  </div>
+                  <div class="flex-1 truncate">
+                    <p class="truncate text-sm font-medium" :title="item.text">{{ item.text }}</p>
+                    <p class="text-xs text-slate-500">
+                       {{ item.priceText }}
+                       <span v-if="item.code" class="ml-1 border-l pl-1 border-slate-300">Mã SP: {{ item.code }}</span>
+                    </p>
+                  </div>
+                </div>
+                
+                <div v-if="editingOrderId" class="mt-4 border-t border-slate-100 pt-3 text-right text-sm">
+                  <p class="text-slate-500 mb-1">Phí ship: {{ formatCurrency(form.shippingFee || 0) }}</p>
+                  <p class="text-slate-500 mb-1">Giảm giá: -{{ formatCurrency(form.discountAmount || 0) }}</p>
+                  <p class="font-bold text-primary mt-1 text-base">Tổng cộng: {{ formatCurrency(form.finalAmount || 0) }}</p>
+                </div>
               </div>
             </div>
 
@@ -660,16 +676,16 @@
           <div class="mt-4 flex justify-end gap-2">
             <button
               type="button"
-              class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium hover:border-slate-400 "
-              @click="closeModal"
+              class="rounded-xl border border-slate-300 bg-white px-5 py-2 font-semibold text-slate-700 hover:bg-slate-50"
+              @click="showModal = false"
             >
-              Hủy
+              {{ form.status === 'SUCCESS' ? 'Đóng' : 'Hủy' }}
             </button>
-
             <button
+              v-if="form.status !== 'SUCCESS'"
               type="button"
+              class="rounded-xl bg-primary px-5 py-2 font-semibold text-white hover:opacity-90 disabled:opacity-50"
               :disabled="saving"
-              class="rounded-xl bg-primary px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-60"
               @click="saveOrder"
             >
               {{
@@ -1202,6 +1218,8 @@ function emptyForm() {
     status: "PENDING",
     paymentStatus: "PENDING",
     returnReason: "",
+    shippingFee: 0,
+    discountAmount: 0
   };
 }
 
@@ -1608,6 +1626,19 @@ function normalizeOrderItemsForDisplay(orderLike) {
   return extractOrderItems(orderLike).map(formatOrderItemText).filter(Boolean);
 }
 
+function normalizeOrderItemsForModal(orderLike) {
+  return extractOrderItems(orderLike).map(item => {
+    const text = formatOrderItemText(item);
+    const image = item.imageUrl || item.image || item.variant?.imageUrl || item.product?.imageUrl || "";
+    const code = item.productCode || item.product_code || item.variant?.product?.code || item.variant?.code || item.variant?.id || item.productId || item.product_id || "?";
+    const price = Number(item.price || item.unitPrice || item.variant?.price || item.product?.price || 0);
+    const qty = Number(item.quantity || item.qty || 1);
+    const priceText = `${formatCurrency(price)} x ${qty}`;
+    
+    return { text, image, code, priceText };
+  }).filter(Boolean);
+}
+
 function getOrderItemsPreview(orderLike) {
   const lines = normalizeOrderItemsForDisplay(orderLike);
   if (lines.length === 0) {
@@ -1679,7 +1710,7 @@ function openCreate() {
 }
 
 async function openEdit(order) {
-  selectedOrderItems.value = normalizeOrderItemsForDisplay(order);
+  selectedOrderItems.value = normalizeOrderItemsForModal(order);
 
   if (
     selectedOrderItems.value.length === 0 &&
@@ -1687,7 +1718,7 @@ async function openEdit(order) {
   ) {
     try {
       const orderDetail = await ordersApi.getOrderById(order.id);
-      selectedOrderItems.value = normalizeOrderItemsForDisplay(orderDetail);
+      selectedOrderItems.value = normalizeOrderItemsForModal(orderDetail);
     } catch {
       // Keep empty fallback text in modal when order detail cannot be loaded.
     }

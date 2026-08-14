@@ -578,7 +578,7 @@
                         <p
                           class="mt-0.5 text-xs text-slate-500 "
                         >
-                          Đơn giá {{ formatMoney(item.unitPrice) }}
+                          Đơn giá {{ formatMoney(item.unitPrice) }}<span v-if="item.productCode && item.productCode !== '?'"> | Mã SP: {{ item.productCode }}</span>
                         </p>
                       </div>
                       <span
@@ -601,7 +601,7 @@
                 </article>
 
                 <article
-                  class="grid gap-3 rounded-2xl border border-slate-200/70 bg-[#f7efe6] p-4   sm:grid-cols-3"
+                  class="grid gap-3 rounded-2xl border border-slate-200/70 bg-[#f7efe6] p-4   sm:grid-cols-4"
                 >
                   <div>
                     <p
@@ -625,6 +625,18 @@
                       class="mt-1 text-sm font-semibold text-green-600 "
                     >
                       -{{ formatMoney(detailDiscount) }}
+                    </p>
+                  </div>
+                  <div>
+                    <p
+                      class="text-[11px] uppercase tracking-[0.18em] text-slate-500 "
+                    >
+                      Phí ship
+                    </p>
+                    <p
+                      class="mt-1 text-sm font-semibold text-slate-900 "
+                    >
+                      {{ formatMoney(detailShippingFee) }}
                     </p>
                   </div>
                   <div>
@@ -1002,6 +1014,16 @@ const canConfirmActiveOrder = computed(() => {
 });
 const detailItems = computed(() =>
   normalizeOrderDetailItems(activeDetailOrder.value),
+);
+const detailShippingFee = computed(() =>
+  Math.max(
+    0,
+    getOrderAmount(
+      activeDetailOrder.value,
+      ["shippingFee", "shipping_fee"],
+      0,
+    ),
+  ),
 );
 const detailDiscount = computed(() =>
   Math.min(
@@ -1624,6 +1646,15 @@ function normalizeOrderDetailItems(order) {
       variant.product_name,
     ]);
 
+    const productCodeRaw = firstDefined([
+      item.productCode,
+      item.product_code,
+      variant.code,
+      product.code,
+      variant.id,
+      product.id,
+    ]);
+
     const keyRaw = firstDefined([
       item.id,
       item.orderItemId,
@@ -1636,6 +1667,7 @@ function normalizeOrderDetailItems(order) {
       productName: productNameRaw
         ? String(productNameRaw)
         : `Sản phẩm ${index + 1}`,
+      productCode: productCodeRaw ? String(productCodeRaw) : "?",
       quantity,
       unitPrice,
       lineTotal,
