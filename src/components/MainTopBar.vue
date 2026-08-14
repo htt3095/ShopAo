@@ -24,6 +24,19 @@
 
       <!-- 3. Icons & Actions (Right) -->
       <div class="flex shrink-0 items-center justify-end gap-2">
+        <!-- Compare Icon -->
+        <router-link
+          to="/compare"
+          class="relative flex size-11 items-center justify-center rounded-full text-slate-500 transition-colors hover:bg-slate-100 hover:text-primary"
+          title="So sánh sản phẩm"
+          aria-label="So sánh sản phẩm"
+        >
+          <span class="material-symbols-outlined">compare_arrows</span>
+          <span v-if="compareCount > 0" class="absolute right-1 top-2 flex size-4 items-center justify-center rounded-full bg-primary text-[9px] font-bold text-white shadow-neon">
+            {{ compareCount }}
+          </span>
+        </router-link>
+
         <!-- Cart Icon -->
         <router-link to="/cart" class="relative flex size-11 items-center justify-center rounded-full text-slate-500 hover:text-primary hover:bg-slate-100 transition-colors">
           <span class="material-symbols-outlined">shopping_bag</span>
@@ -107,9 +120,11 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
 import { useCartStore } from "@/stores/cart";
+import { useCompareStore } from "@/stores/compare";
 import { resolveBackendAssetUrl } from "@/services/api";
 
 const cartStore = useCartStore();
+const compareStore = useCompareStore();
 const route = useRoute();
 const router = useRouter();
 
@@ -123,6 +138,7 @@ const userAvatar = ref("");
 const userMenuRef = ref(null);
 
 const cartCount = computed(() => cartStore.cartItems.length);
+const compareCount = computed(() => compareStore.count);
 
 const userInitials = computed(() => {
   if (!userName.value) return "PS";

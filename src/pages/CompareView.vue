@@ -1,5 +1,5 @@
 ﻿<template>
- <div class="bg-background-light text-black font-display antialiased selection:bg-primary selection:text-white">
+ <div class="compare-page bg-background-light text-slate-900 font-display antialiased selection:bg-primary selection:text-white">
  <div class="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden">
 
  <MainTopBar />
@@ -17,33 +17,27 @@
  </router-link>
  </div>
 
- <div class="w-full overflow-hidden rounded-xl border border-border-dark bg-background-dark shadow-xl @container">
+ <div class="w-full overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm @container">
  <div class="overflow-x-auto">
  <table class="w-full min-w-[800px] border-collapse">
  <thead>
- <tr class="bg-surface-dark">
- <th class="p-6 text-left w-1/4 min-w-[200px] border-b border-border-dark">
+ <tr class="bg-slate-50">
+ <th class="p-6 text-left w-1/4 min-w-[200px] border-b border-slate-200">
  <span class="text-text-secondary text-sm font-bold uppercase tracking-wider">Tiêu chí</span>
  </th>
  <th
  v-for="(p, idx) in comparedProducts"
  :key="p.id"
- class="p-6 text-left w-1/4 min-w-[240px] border-b border-border-dark border-l border-l-border-dark/50"
- :class="idx === 1 ?'bg-surface-dark-highlight/10':''"
+ class="p-6 text-left w-1/4 min-w-[240px] border-b border-l border-slate-200"
+ :class="idx === 1 ?'bg-orange-50/40':''"
  >
  <div class="flex flex-col gap-4">
- <div class="aspect-[4/3] w-full overflow-hidden rounded-lg bg-surface-dark-highlight relative group">
- <div class="absolute inset-0 bg-gradient-to-tr from-primary/20 to-transparent"/>
+ <div class="aspect-[4/3] w-full overflow-hidden rounded-lg bg-slate-100 relative group">
  <img :alt="p.name"class="h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-110":src="p.imageUrl ||'https://via.placeholder.com/400x300'">
  </div>
  <div class="flex items-start justify-between gap-3">
  <div>
  <h3 class="text-slate-800 text-lg font-bold">{{ p.name }}</h3>
- <div class="flex items-center gap-1 mt-1">
- <span class="material-symbols-outlined text-yellow-500 text-sm">star</span>
- <span class="text-slate-800 text-sm font-medium">4.8</span>
- <span class="text-text-secondary text-xs">(124 đánh giá)</span>
- </div>
  </div>
  <button
  class="text-text-secondary hover:text-slate-800 transition-colors"
@@ -104,15 +98,11 @@
  <div
  v-for="color in getProductColors(p)"
  :key="`color-token-${p.id}-${color.id ?? color.name}`"
- class="inline-flex items-center gap-2 rounded-full border border-white/15 bg-surface-dark-highlight/20 px-2 py-1"
+ class="compare-color-token inline-flex items-center gap-2 rounded-full border px-2 py-1"
  :title="color.name"
+ :style="getColorTokenStyle(color)"
  >
- <span
- class="size-4 rounded-full border border-white/25"
- :class="!getColorSwatchStyle(color) ?'bg-slate-500':''"
- :style="getColorSwatchStyle(color) || undefined"
- />
- <span class="text-slate-800 text-xs">{{ color.name }}</span>
+ <span class="text-xs font-medium">{{ color.name }}</span>
  </div>
  </div>
  <span v-else class="text-text-secondary">--</span>
@@ -130,7 +120,7 @@
  <span
  v-for="sizeName in getProductSizes(p)"
  :key="`size-token-${p.id}-${sizeName}`"
- class="inline-flex items-center rounded-md border border-white/15 bg-surface-dark-highlight/20 px-2 py-1 text-xs"
+ class="compare-size-token inline-flex items-center rounded-md border px-2 py-1 text-xs"
  >
  {{ sizeName }}
  </span>
@@ -170,56 +160,8 @@
  </div>
  </div>
 
- <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
- <div class="bg-surface-dark rounded-xl p-6 border border-border-dark flex items-start gap-4">
- <div class="bg-surface-dark-highlight p-3 rounded-lg text-primary">
- <span class="material-symbols-outlined">local_shipping</span>
- </div>
- <div>
- <h4 class="text-slate-800 font-bold mb-1">Miễn phí vận chuyển</h4>
- <p class="text-text-secondary text-sm">Áp dụng với đơn đủ điều kiện. Hỗ trợ giao hàng nhiều khu vực.</p>
- </div>
- </div>
- <div class="bg-surface-dark rounded-xl p-6 border border-border-dark flex items-start gap-4">
- <div class="bg-surface-dark-highlight p-3 rounded-lg text-primary">
- <span class="material-symbols-outlined">verified_user</span>
- </div>
- <div>
- <h4 class="text-slate-800 font-bold mb-1">Bảo hành 2 năm</h4>
- <p class="text-text-secondary text-sm">Cam kết chất lượng rõ ràng để bạn yên tâm sử dụng.</p>
- </div>
- </div>
- <div class="bg-surface-dark rounded-xl p-6 border border-border-dark flex items-start gap-4">
- <div class="bg-surface-dark-highlight p-3 rounded-lg text-primary">
- <span class="material-symbols-outlined">sync_alt</span>
- </div>
- <div>
- <h4 class="text-slate-800 font-bold mb-1">Đổi trả dễ dàng</h4>
- <p class="text-text-secondary text-sm">Hỗ trợ đổi trả trong 30 ngày nếu sản phẩm còn nguyên trạng.</p>
- </div>
- </div>
- </div>
  </div>
  </main>
-
- <footer class="bg-surface-dark border-t border-border-dark py-12 px-6 md:px-10">
- <div class="max-w-[960px] mx-auto flex flex-col items-center gap-8">
- <div class="flex flex-wrap items-center justify-center gap-6 md:gap-10">
- <a class="text-text-secondary hover:text-slate-800 transition-colors text-sm font-medium"href="#">Về chúng tôi</a>
- <a class="text-text-secondary hover:text-slate-800 transition-colors text-sm font-medium"href="#">Liên hệ</a>
- <a class="text-text-secondary hover:text-slate-800 transition-colors text-sm font-medium"href="#">Chính sách giao hàng</a>
- <a class="text-text-secondary hover:text-slate-800 transition-colors text-sm font-medium"href="#">Đổi trả</a>
- <a class="text-text-secondary hover:text-slate-800 transition-colors text-sm font-medium"href="#">Tuyển dụng</a>
- </div>
- <div class="flex flex-wrap justify-center gap-6">
- <a class="text-text-secondary hover:text-primary transition-colors"href="#"><span class="material-symbols-outlined text-2xl">public</span></a>
- <a class="text-text-secondary hover:text-primary transition-colors"href="#"><span class="material-symbols-outlined text-2xl">photo_camera</span></a>
- <a class="text-text-secondary hover:text-primary transition-colors"href="#"><span class="material-symbols-outlined text-2xl">play_circle</span></a>
- <a class="text-text-secondary hover:text-primary transition-colors"href="#"><span class="material-symbols-outlined text-2xl">alternate_email</span></a>
- </div>
- <p class="text-text-secondary text-sm font-normal leading-normal">© 2026 Peak Seven Sports. Mọi quyền được bảo lưu.</p>
- </div>
- </footer>
  </div>
  </div>
 </template>
@@ -229,6 +171,7 @@
  import { useRoute, useRouter } from'vue-router'
  import { useCompareStore } from'@/stores/compare'
  import { useProductStore } from'@/stores/products'
+ import { colorsApi } from'@/services/api'
  import {
  normalizeHexColor,
  resolveColorFromVariant,
@@ -240,6 +183,7 @@
  const productStore = useProductStore()
  const router = useRouter()
  const route = useRoute()
+ const inventoryColors = ref([])
  const isLoggedIn = ref(false)
  const showUserMenu = ref(false)
 
@@ -247,6 +191,15 @@
  return compareStore.compareIds
  .map(id => productStore.getProductById(id))
  .filter(Boolean)
+ })
+
+ const inventoryColorsById = computed(() => {
+ const map = new Map()
+ for (const color of inventoryColors.value) {
+ const id = toVariantId(color && color.id)
+ if (id !== null) map.set(id, color)
+ }
+ return map
  })
 
  function getProductVariants (productId) {
@@ -296,24 +249,52 @@
 
  for (const variant of getProductVariants(product?.id)) {
  const colorMeta = resolveColorFromVariant(variant)
- if (!colorMeta.name) continue
+ const inventoryColor = colorMeta.id !== null ? inventoryColorsById.value.get(colorMeta.id) : null
+ const variantColor = variant && variant.color ? variant.color : {}
+ const name = (inventoryColor && inventoryColor.name) || variantColor.name || variant.colorName || variant.color_name || colorMeta.name
+ if (!name) continue
+ const hexCode = normalizeHexColor(
+ (inventoryColor && (inventoryColor.hexCode || inventoryColor.hex_code || inventoryColor.hexCode1 || inventoryColor.hex || inventoryColor.value)) ||
+ variantColor.hexCode ||
+ variantColor.hex_code ||
+ variant.colorHexCode ||
+ variant.color_hex_code,
+ )
 
- const key = colorMeta.id !== null ? `id-${colorMeta.id}` : `name-${colorMeta.name}`
+ const key = colorMeta.id !== null ? `id-${colorMeta.id}` : `name-${name}`
  if (deduped.has(key)) continue
 
  deduped.set(key, {
  id: colorMeta.id,
- name: colorMeta.name,
- hexCode: colorMeta.hexCode,
+ name,
+ hexCode,
  })
  }
 
  return [...deduped.values()]
  }
 
- function getColorSwatchStyle (color) {
+ function getColorTokenStyle (color) {
  const hex = normalizeHexColor(color?.hexCode)
- return hex ? { backgroundColor: hex } : null
+ if (!hex) return null
+
+ const red = Number.parseInt(hex.slice(1, 3), 16)
+ const green = Number.parseInt(hex.slice(3, 5), 16)
+ const blue = Number.parseInt(hex.slice(5, 7), 16)
+ const luminance = (red * 299 + green * 587 + blue * 114) / 1000
+ return {
+ backgroundColor: hex,
+ borderColor: luminance > 235 ? '#94a3b8' : 'rgba(15, 23, 42, 0.38)',
+ color: luminance > 165 ? '#1e293b' : '#ffffff',
+ }
+ }
+
+ function normalizeInventoryList (response) {
+ if (Array.isArray(response)) return response
+ if (response && Array.isArray(response.content)) return response.content
+ if (response && Array.isArray(response.list)) return response.list
+ if (response && Array.isArray(response.data)) return response.data
+ return []
  }
 
  function getProductSizes (product) {
@@ -374,6 +355,11 @@
  if (productStore.variants.length === 0) await productStore.fetchVariants()
  if (productStore.brands.length === 0) await productStore.fetchBrands()
  if (productStore.categories.length === 0) await productStore.fetchCategories()
+ try {
+ inventoryColors.value = normalizeInventoryList(await colorsApi.getAll())
+ } catch {
+ inventoryColors.value = []
+ }
  })
 
  onUnmounted(() => {
@@ -388,20 +374,64 @@
 </script>
 
 <style scoped>
-/* Custom scrollbar for dark theme */
+.compare-page {
+	background: #f8fafc;
+}
+
+.compare-page .bg-surface-dark,
+.compare-page .bg-background-dark,
+.compare-page .bg-surface-dark-highlight\/20,
+.compare-page .bg-surface-dark-highlight\/5,
+.compare-page .bg-surface-dark\/20 {
+	background-color: #f8fafc;
+}
+
+.compare-page .border-border-dark,
+.compare-page .border-l-border-dark\/50 {
+	border-color: #e2e8f0;
+}
+
+.compare-page .hover\:bg-surface-dark\/50:hover {
+	background-color: #fff7ed;
+}
+
+.compare-page .bg-surface-dark-highlight {
+	background-color: #f1f5f9;
+}
+
+.compare-page .text-text-secondary {
+	color: #64748b;
+}
+
+.compare-page .compare-size-token {
+	border-color: #cbd5e1;
+	background-color: #fff;
+	color: #334155;
+}
+
+.compare-page .compare-color-token {
+	min-height: 30px;
+	box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18);
+}
+
+.compare-page tbody td:first-child {
+	color: #475569;
+}
+
+/* Custom scrollbar */
 ::-webkit-scrollbar {
  width: 8px;
  height: 8px;
 }
 ::-webkit-scrollbar-track {
- background: #111418;
+ background: #f1f5f9;
 }
 ::-webkit-scrollbar-thumb {
- background: #3b4754;
+ background: #cbd5e1;
  border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
- background: #4b5866;
+ background: #94a3b8;
 }
 </style>
 
