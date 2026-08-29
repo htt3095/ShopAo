@@ -108,6 +108,9 @@ public class OrderController {
         if (payload.get("shippingFee") != null) {
             shippingFee = new BigDecimal(payload.get("shippingFee").toString());
         }
+        if (shippingFee.compareTo(BigDecimal.ZERO) < 0) {
+            throw new BadRequestException("Phí ship không hợp lệ!");
+        }
         order.setShippingFee(shippingFee);
 
         BigDecimal totalMoney = BigDecimal.ZERO;
@@ -150,17 +153,20 @@ public class OrderController {
 
         order.setTotalMoney(totalMoney);
 
+        // Dùng totalMoney + shippingFee để đồng bộ logic với Frontend
+        BigDecimal totalBeforeDiscount = totalMoney.add(shippingFee);
+
         if (voucher != null) {
-            validateVoucherForOrder(voucher, totalMoney, accountId);
+            validateVoucherForOrder(voucher, totalBeforeDiscount, accountId);
         }
 
-        BigDecimal discount = calculateDiscount(voucher, totalMoney);
-        if (discount.compareTo(totalMoney) > 0) {
-            discount = totalMoney;
+        BigDecimal discount = calculateDiscount(voucher, totalBeforeDiscount);
+        if (discount.compareTo(totalBeforeDiscount) > 0) {
+            discount = totalBeforeDiscount;
         }
         order.setDiscountAmount(discount);
         
-        BigDecimal finalAmount = totalMoney.add(shippingFee).subtract(discount);
+        BigDecimal finalAmount = totalBeforeDiscount.subtract(discount);
         if (finalAmount.compareTo(BigDecimal.ZERO) < 0) {
             finalAmount = BigDecimal.ZERO;
         }
@@ -174,9 +180,10 @@ public class OrderController {
 
         if (savedOrder.getVoucher() != null) {
             Voucher v = savedOrder.getVoucher();
-            int currentUsed = (v.getUsedCount() != null) ? v.getUsedCount() : 0;
-            v.setUsedCount(currentUsed + 1);
-            voucherRepo.save(v);
+            int updatedRows = voucherRepo.incrementUsedCountIfAvailable(v.getId());
+            if (updatedRows == 0) {
+                throw new BadRequestException("Mã giảm giá đã hết lượt sử dụng!");
+            }
 
             AccountVoucher av = new AccountVoucher();
             av.setAccount(account);
@@ -218,17 +225,17 @@ public class OrderController {
         // ----------------------------------
 
         // --- VÁ LỖI 3: CỘNG LẠI KHO KHI HỦY/HOÀN ĐƠN ---
-        boolean restoreStock = req.containsKey("restoreStock") ? Boolean.parseBoolean(req.get("restoreStock").toString()) : true;
-        if (oldStatus != null && !oldStatus.equals(newStatus) &&
-                ("CANCELLED".equals(newStatus) || "RETURNED".equals(newStatus) || "DAMAGED".equals(newStatus) || "LOST".equals(newStatus))) {
-
-            if (restoreStock) {
-                for (OrderItem item : order.getOrderItems()) {
-                    ProductVariant variant = item.getVariant();
-                    if (variant != null) {
-                        variant.setStockQuantity(variant.getStockQuantity() + item.getQuantity());
-                        variantRepo.save(variant);
-                    }
+        Object restoreStockObj = req.get("restoreStock");
+        boolean restoreStock = restoreStockObj != null ? Boolean.parseBoolean(restoreStockObj.toString()) : true;
+        List<String> stockRestoredStatuses = List.of("CANCELLED", "RETURNED", "DAMAGED", "LOST");
+        boolean wasAlreadyRestored = oldStatus != null && stockRestoredStatuses.contains(oldStatus);
+        boolean isNowRestored = newStatus != null && stockRestoredStatuses.contains(newStatus);
+        if (!wasAlreadyRestored && isNowRestored && restoreStock) {
+            for (OrderItem item : order.getOrderItems()) {
+                ProductVariant variant = item.getVariant();
+                if (variant != null) {
+                    variant.setStockQuantity(variant.getStockQuantity() + item.getQuantity());
+                    variantRepo.save(variant);
                 }
             }
         }
