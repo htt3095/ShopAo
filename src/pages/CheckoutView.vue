@@ -619,7 +619,7 @@ function initMap() {
 async function reverseGeocode(lat, lng) {
   routeError.value = ""; // Clear previous errors
   try {
-    const res = await fetch(`/nominatim/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`);
+    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`);
     if (!res.ok) {
       if (res.status === 429) throw new Error('Dịch vụ bản đồ đang quá tải, vui lòng thử lại sau.');
       const txt = await safeParseResponse(res);
