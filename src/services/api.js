@@ -1653,11 +1653,15 @@ export const adminApi = {
         };
     },
 
-    async restoreOrder(orderId, status) {
+    async restoreOrder(orderId, status, paymentStatus) {
         const id = asFiniteNumber(orderId, null);
+        const body = { status: status || "PENDING" };
+        if (paymentStatus) {
+            body.paymentStatus = paymentStatus;
+        }
         await tryApiRequests([
-            { endpoint: `/orders/${id}`, method: "PUT", body: { status: status || "PENDING" } },
-            { endpoint: `/orders/${id}`, method: "PATCH", body: { status: status || "PENDING" } }
+            { endpoint: `/orders/${id}`, method: "PUT", body },
+            { endpoint: `/orders/${id}`, method: "PATCH", body }
         ]);
         return true;
     },

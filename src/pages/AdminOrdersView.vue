@@ -1942,7 +1942,7 @@ async function doDelete() {
 
 async function restoreOrder(order) {
   try {
-    await adminApi.restoreOrder(order.id, order.status);
+    await adminApi.restoreOrder(order.id, order.status, order.paymentStatus);
     const restoredId = Number(order?.id);
     hiddenOrders.value = hiddenOrders.value.filter(
       (hidden) => Number(hidden.id) !== restoredId,
@@ -1956,7 +1956,7 @@ async function restoreOrder(order) {
 async function restoreAllHiddenOrders() {
   try {
     for (const order of hiddenOrders.value) {
-      await adminApi.restoreOrder(order.id, order.status);
+      await adminApi.restoreOrder(order.id, order.status, order.paymentStatus);
     }
     hiddenOrders.value = [];
     await loadOrders();

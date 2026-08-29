@@ -265,17 +265,26 @@
                   >
                     {{ formatMoney(order.finalAmount) }}
                   </td>
-                  <td class="px-5 py-4 text-right">
+                  <td class="px-5 py-4 text-right whitespace-nowrap">
                     <button
                       type="button"
-                      class="inline-flex items-center gap-1 rounded-full border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700 transition-colors hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-60  "
+                      class="inline-flex items-center gap-1 rounded-full border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700 transition-colors hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-60"
                       :disabled="isDetailLoading"
                       @click="openOrderDetailsFromList(order)"
                     >
-                      <span class="material-symbols-outlined text-[15px]"
-                        >visibility</span
-                      >
+                      <span class="material-symbols-outlined text-[15px]">visibility</span>
                       Xem
+                    </button>
+                    
+                    <button
+                      v-if="order.paymentStatus === 'PENDING' && order.paymentMethod && order.paymentMethod.id === 2"
+                      type="button"
+                      class="ml-2 inline-flex items-center gap-1 rounded-full bg-primary text-white px-3 py-1.5 text-xs font-semibold transition-colors hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-60"
+                      :disabled="isRepaying"
+                      @click="handleRepayVnpay(order)"
+                    >
+                      <span class="material-symbols-outlined text-[15px]">payment</span>
+                      Thanh toán lại
                     </button>
                   </td>
                 </tr>
@@ -361,14 +370,22 @@
 
             <button
               type="button"
-              class="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 transition-colors hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-60  "
+              class="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 transition-colors hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-60"
               :disabled="isDetailLoading"
               @click="openOrderDetailsFromList(order)"
             >
-              <span class="material-symbols-outlined text-[18px]"
-                >receipt_long</span
-              >
+              <span class="material-symbols-outlined text-[18px]">receipt_long</span>
               Xem chi tiết đơn
+            </button>
+            <button
+              v-if="order.paymentStatus === 'PENDING' && order.paymentMethod && order.paymentMethod.id === 2"
+              type="button"
+              class="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary text-white px-3 py-2 text-sm font-semibold transition-colors hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-60"
+              :disabled="isRepaying"
+              @click="handleRepayVnpay(order)"
+            >
+              <span class="material-symbols-outlined text-[18px]">payment</span>
+              Thanh toán lại VNPay
             </button>
           </div>
         </article>
@@ -1121,7 +1138,6 @@ function isWaitingForProcessingStatus(status) {
     key === "WAITING" ||
     key === "CHUA_XU_LY" ||
     key === "CHO_XU_LY" ||
-    key === "PROCESSING" ||
     key === "NEW" ||
     key === "AWAITING_PAYMENT" ||
     key === "AWAITING_CONFIRMATION" ||
@@ -1822,6 +1838,29 @@ async function openOrderDetailsFromList(order) {
   }
 
   await openOrderDetails(order);
+}
+
+const isRepaying = ref(false);
+
+async function handleRepayVnpay(order) {
+  if (!order || !order.id) return;
+  try {
+    isRepaying.value = true;
+    const { data } = await axios.post(`${API_BASE_URL}/payment/vnpay/create`, {
+      orderId: order.id,
+      amount: order.finalAmount || order.totalMoney
+    });
+    if (data && data.success && data.paymentUrl) {
+      window.location.href = data.paymentUrl;
+    } else {
+      alert("Lỗi khi tạo link thanh toán VNPay: " + (data?.message || "Không có link trả về"));
+    }
+  } catch (error) {
+    console.error("Lỗi thanh toán lại:", error);
+    alert("Có lỗi xảy ra, vui lòng thử lại sau.");
+  } finally {
+    isRepaying.value = false;
+  }
 }
 
 async function openOrderDetailsById(orderId) {

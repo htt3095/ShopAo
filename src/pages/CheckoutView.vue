@@ -675,16 +675,16 @@ async function fetchGeocode(q) {
   }
   lastGeocodeTime = Date.now();
   const targetUrl = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&limit=1&q=${encodeURIComponent(q + ", Việt Nam")}`;
-  const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`);
-  if (!res.ok) return { ok: false, status: res.status };
-  const allOriginsData = await res.json();
-  let data = [];
-  if (allOriginsData.contents) {
-    try { data = JSON.parse(allOriginsData.contents); } catch (e) {}
+  try {
+    const res = await fetch(targetUrl);
+    if (!res.ok) return { ok: false, status: res.status };
+    const data = await res.json();
+    const result = { ok: true, data };
+    geocodeCache.set(q, result);
+    return result;
+  } catch (error) {
+    return { ok: false, status: -1 };
   }
-  const result = { ok: true, data };
-  geocodeCache.set(q, result);
-  return result;
 }
 
 

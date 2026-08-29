@@ -381,8 +381,9 @@ export function buildRevenueBuckets(orders, { mode = "day", startDate = null, en
             bucket.netRevenue += amount;
             bucket.paidCount += 1;
         } else if (deductedPaymentStatuses.includes(paymentStatus)) {
+            bucket.grossRevenue += amount;
             bucket.refundedRevenue += amount;
-            bucket.netRevenue -= amount;
+            // netRevenue = grossRevenue - refundedRevenue = 0 cho đơn này
             bucket.refundedCount += 1;
         }
     }
