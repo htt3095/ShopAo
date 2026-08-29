@@ -130,7 +130,7 @@
               <tr class="border-b border-slate-200 dark:border-[#3c342e]"><td class="px-4 py-3 text-slate-500 dark:text-[#b9aa9a]">Đơn hoàn tiền</td><td class="px-4 py-3 text-right font-semibold">{{ refundedOrdersCount }}</td></tr>
               <tr class="border-b border-slate-200 dark:border-[#3c342e]"><td class="px-4 py-3 text-slate-500 dark:text-[#b9aa9a]">Doanh thu vào</td><td class="px-4 py-3 text-right font-semibold">{{ formatCurrency(filteredProfitRevenue) }}</td></tr>
               <tr class="border-b border-slate-200 dark:border-[#3c342e]"><td class="px-4 py-3 text-slate-500 dark:text-[#b9aa9a]">Hoàn tiền</td><td class="px-4 py-3 text-right font-semibold text-red-500 dark:text-red-400">{{ formatCurrency(Math.abs(filteredRefundRevenue)) }}</td></tr>
-              <tr class="border-b border-slate-200 bg-slate-50 dark:border-[#3c342e] dark:bg-[#181310]"><td class="px-4 py-3 font-semibold">Doanh thu ròng</td><td class="px-4 py-3 text-right font-bold" :class="filteredNetRevenue >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-500 dark:text-red-400'">{{ formatCurrency(filteredNetRevenue) }}</td></tr>
+              <tr class="border-b border-slate-200 bg-slate-50 dark:border-[#3c342e] dark:bg-[#181310]"><td class="px-4 py-3 font-semibold">Doanh thu ròng</td><td class="px-4 py-3 text-right font-bold text-green-600 dark:text-green-400">{{ formatCurrency(Math.max(0, filteredNetRevenue)) }}</td></tr>
               <tr><td class="px-4 py-3 text-slate-500 dark:text-[#b9aa9a]">Trung bình mỗi đơn</td><td class="px-4 py-3 text-right font-semibold">{{ formatCurrency(averageOrderValue) }}</td></tr>
             </tbody>
           </table>
