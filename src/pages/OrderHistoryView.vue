@@ -277,7 +277,7 @@
                     </button>
                     
                     <button
-                      v-if="order.paymentStatus === 'PENDING' && order.paymentMethod && order.paymentMethod.id === 2"
+                      v-if="(order.paymentStatus === 'PENDING' || order.paymentStatus === 'FAILED') && order.paymentMethod && order.paymentMethod.id === 2"
                       type="button"
                       class="ml-2 inline-flex items-center gap-1 rounded-full bg-primary text-white px-3 py-1.5 text-xs font-semibold transition-colors hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-60"
                       :disabled="isRepaying"
