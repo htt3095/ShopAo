@@ -637,7 +637,7 @@ async function reverseGeocode(lat, lng) {
           await nextTick();
           
           // Find matching District
-          const districtOrCounty = data.address.county || data.address.district || data.address.suburb || data.address.town || data.address.city_district;
+          const districtOrCounty = data.address.county || data.address.district || data.address.city_district || data.address.town || data.address.suburb;
           if (districtOrCounty && selectedProvince.value.districts) {
             const matchedDist = findBestMatchByName(selectedProvince.value.districts, districtOrCounty);
             if (matchedDist) {
@@ -646,7 +646,7 @@ async function reverseGeocode(lat, lng) {
               await nextTick();
               
               // Find matching Ward
-              const wardOrVillage = data.address.ward || data.address.village || data.address.hamlet || data.address.quarter || data.address.suburb || data.address.neighbourhood;
+              const wardOrVillage = data.address.ward || data.address.suburb || data.address.village || data.address.hamlet || data.address.quarter || data.address.neighbourhood;
               if (wardOrVillage && selectedDistrict.value.wards) {
                 const matchedWard = findBestMatchByName(selectedDistrict.value.wards, wardOrVillage);
                 if (matchedWard) {
