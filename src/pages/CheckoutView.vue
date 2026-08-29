@@ -533,6 +533,16 @@ const shippingForm = reactive({
 const savedAddresses = ref([]);
 const selectedAddressId = ref("new");
 
+watch(selectedAddressId, (newVal) => {
+  if (newVal === 'new') {
+    setTimeout(() => {
+      if (typeof map !== 'undefined' && map) {
+        map.invalidateSize();
+      }
+    }, 150);
+  }
+});
+
 async function fetchAddresses() {
   if (currentAccountId.value) {
     try {
