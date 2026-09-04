@@ -613,6 +613,36 @@
       return
     }
 
+    const discountValue = Number(f.discountValue)
+    const discountType = String(f.discountType || 'PERCENT').toUpperCase()
+
+    if (discountType === 'PERCENT') {
+      if (discountValue > 80) {
+        modalError.value = 'Phần trăm giảm giá tối đa là 80%.'
+        return
+      }
+      const maxDiscount = f.maxDiscountAmount
+      if (
+        maxDiscount !== ''
+        && maxDiscount !== null
+        && maxDiscount !== undefined
+        && Number(maxDiscount) <= 0
+      ) {
+        modalError.value = 'Giảm tối đa phải lớn hơn 0 nếu có nhập.'
+        return
+      }
+    } else {
+      if (discountValue > 500000) {
+        modalError.value = 'Số tiền giảm giá tối đa là 500.000đ.'
+        return
+      }
+      const minOrder = Number(f.minOrderValue || 0)
+      if (minOrder > 0 && discountValue >= minOrder) {
+        modalError.value = 'Số tiền giảm giá phải nhỏ hơn đơn tối thiểu để áp dụng.'
+        return
+      }
+    }
+
     saving.value = true
     try {
       const payload = {

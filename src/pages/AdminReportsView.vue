@@ -127,8 +127,9 @@
               <tr class="border-b border-slate-200 dark:border-[#3c342e]"><td class="px-4 py-3 text-slate-500 dark:text-[#b9aa9a]">Tổng đơn</td><td class="px-4 py-3 text-right font-semibold">{{ filteredOrders.length }}</td></tr>
               <tr class="border-b border-slate-200 dark:border-[#3c342e]"><td class="px-4 py-3 text-slate-500 dark:text-[#b9aa9a]">Đơn đã thanh toán</td><td class="px-4 py-3 text-right font-semibold">{{ paidOrdersCount }}</td></tr>
               <tr class="border-b border-slate-200 dark:border-[#3c342e]"><td class="px-4 py-3 text-slate-500 dark:text-[#b9aa9a]">Đơn chưa thanh toán</td><td class="px-4 py-3 text-right font-semibold">{{ unpaidOrdersCount }}</td></tr>
-              <tr class="border-b border-slate-200 dark:border-[#3c342e]"><td class="px-4 py-3 text-slate-500 dark:text-[#b9aa9a]">Đơn hoàn tiền</td><td class="px-4 py-3 text-right font-semibold">{{ refundedOrdersCount }}</td></tr>
+              <tr class="border-b border-slate-200 dark:border-[#3c342e]"><td class="px-4 py-3 text-slate-500 dark:text-[#b9aa9a]">Số lượng hoàn tiền</td><td class="px-4 py-3 text-right font-semibold">{{ refundedOrdersCount }}</td></tr>
               <tr class="border-b border-slate-200 dark:border-[#3c342e]"><td class="px-4 py-3 text-slate-500 dark:text-[#b9aa9a]">Doanh thu vào</td><td class="px-4 py-3 text-right font-semibold">{{ formatCurrency(filteredProfitRevenue) }}</td></tr>
+              <tr class="border-b border-slate-200 dark:border-[#3c342e]"><td class="px-4 py-3 text-slate-500 dark:text-[#b9aa9a]">Phí ship</td><td class="px-4 py-3 text-right font-semibold">{{ formatCurrency(filteredShippingFee) }}</td></tr>
               <tr class="border-b border-slate-200 dark:border-[#3c342e]"><td class="px-4 py-3 text-slate-500 dark:text-[#b9aa9a]">Hoàn tiền</td><td class="px-4 py-3 text-right font-semibold text-red-500 dark:text-red-400">{{ formatCurrency(Math.abs(filteredRefundRevenue)) }}</td></tr>
               <tr class="border-b border-slate-200 bg-slate-50 dark:border-[#3c342e] dark:bg-[#181310]"><td class="px-4 py-3 font-semibold">Doanh thu ròng</td><td class="px-4 py-3 text-right font-bold text-green-600 dark:text-green-400">{{ formatCurrency(Math.max(0, filteredNetRevenue)) }}</td></tr>
               <tr><td class="px-4 py-3 text-slate-500 dark:text-[#b9aa9a]">Trung bình mỗi đơn</td><td class="px-4 py-3 text-right font-semibold">{{ formatCurrency(averageOrderValue) }}</td></tr>
@@ -375,6 +376,7 @@
               <tbody>
                 <tr class="border-b border-slate-200 dark:border-[#3c342e]"><td class="px-4 py-3 text-slate-500 dark:text-[#b9aa9a]">Khoảng báo cáo</td><td class="px-4 py-3 text-right font-semibold">{{ selectedRangeText }}</td></tr>
                 <tr class="border-b border-slate-200 dark:border-[#3c342e]"><td class="px-4 py-3 text-slate-500 dark:text-[#b9aa9a]">Doanh thu vào</td><td class="px-4 py-3 text-right font-semibold">{{ formatCurrency(filteredProfitRevenue) }}</td></tr>
+                <tr class="border-b border-slate-200 dark:border-[#3c342e]"><td class="px-4 py-3 text-slate-500 dark:text-[#b9aa9a]">Phí ship</td><td class="px-4 py-3 text-right font-semibold">{{ formatCurrency(filteredShippingFee) }}</td></tr>
                 <tr class="border-b border-slate-200 dark:border-[#3c342e]"><td class="px-4 py-3 text-slate-500 dark:text-[#b9aa9a]">Hoàn tiền</td><td class="px-4 py-3 text-right font-semibold text-red-500 dark:text-red-400">{{ formatCurrency(Math.abs(filteredRefundRevenue)) }}</td></tr>
                 <tr class="border-b border-slate-200 bg-slate-50 dark:border-[#3c342e] dark:bg-[#181310]"><td class="px-4 py-3 font-semibold">Lợi nhuận ròng kế toán</td><td class="px-4 py-3 text-right font-bold" :class="filteredNetRevenue >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-500 dark:text-red-400'">{{ formatCurrency(filteredNetRevenue) }}</td></tr>
                 <tr><td class="px-4 py-3 text-slate-500 dark:text-[#b9aa9a]">Tỷ lệ hoàn tiền</td><td class="px-4 py-3 text-right font-semibold">{{ refundRate }}%</td></tr>
@@ -556,6 +558,9 @@
   const filteredNetRevenue = computed(() => sumNetRevenue(filteredOrders.value))
   const filteredProfitRevenue = computed(() => sumPositiveRevenue(filteredOrders.value))
   const filteredRefundRevenue = computed(() => sumRefundRevenue(filteredOrders.value))
+  const filteredShippingFee = computed(() =>
+    filteredOrders.value.reduce((sum, order) => sum + (Number(order?.shippingFee) || 0), 0),
+  )
 
   const paymentBreakdown = computed(() => getPaymentBreakdown(filteredOrders.value))
 
@@ -789,8 +794,9 @@
       ['Tổng đơn', filteredOrders.value.length],
       ['Đơn đã thanh toán', paidOrdersCount.value],
       ['Đơn chưa thanh toán', unpaidOrdersCount.value],
-      ['Đơn hoàn tiền', refundedOrdersCount.value],
+      ['Số lượng hoàn tiền', refundedOrdersCount.value],
       ['Doanh thu vào', filteredProfitRevenue.value],
+      ['Phí ship', filteredShippingFee.value],
       ['Hoàn tiền', filteredRefundRevenue.value],
       ['Doanh thu ròng', filteredNetRevenue.value],
     ]
@@ -1025,8 +1031,9 @@
             <tr><td>Tổng đơn</td><td class="right">${escaped(filteredOrders.value.length)}</td></tr>
             <tr><td>Đơn đã thanh toán</td><td class="right">${escaped(paidOrdersCount.value)}</td></tr>
             <tr><td>Đơn chưa thanh toán</td><td class="right">${escaped(unpaidOrdersCount.value)}</td></tr>
-            <tr><td>Đơn hoàn tiền</td><td class="right">${escaped(refundedOrdersCount.value)}</td></tr>
+            <tr><td>Số lượng hoàn tiền</td><td class="right">${escaped(refundedOrdersCount.value)}</td></tr>
             <tr><td>Doanh thu vào</td><td class="right">${escaped(formatCurrency(filteredProfitRevenue.value))}</td></tr>
+            <tr><td>Phí ship</td><td class="right">${escaped(formatCurrency(filteredShippingFee.value))}</td></tr>
             <tr><td>Hoàn tiền</td><td class="right">${escaped(formatCurrency(Math.abs(filteredRefundRevenue.value)))}</td></tr>
             <tr><td>Doanh thu ròng</td><td class="right">${escaped(formatCurrency(filteredNetRevenue.value))}</td></tr>
             <tr><td>Trung bình mỗi đơn</td><td class="right">${escaped(formatCurrency(averageOrderValue.value))}</td></tr>

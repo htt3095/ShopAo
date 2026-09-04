@@ -129,7 +129,7 @@
   const router = useRouter()
 
   const navItems = [
-    { path: '/admin', label: 'Tổng quan', icon: 'dashboard' },
+    { path: '/admin/reports', label: 'Báo cáo', icon: 'bar_chart' },
     { path: '/admin/pos', label: 'Bán hàng POS', icon: 'point_of_sale' },
     { path: '/admin/products', label: 'Quản lý sản phẩm', icon: 'inventory_2' },
     { path: '/admin/orders', label: 'Đơn hàng', icon: 'shopping_bag' },
@@ -137,7 +137,6 @@
     { path: '/admin/brands', label: 'Thương hiệu', icon: 'branding_watermark' },
     { path: '/admin/customers', label: 'Quản Lý Tài Khoản', icon: 'group' },
     { path: '/admin/vouchers', label: 'Voucher', icon: 'local_activity' },
-    { path: '/admin/reports', label: 'Báo cáo', icon: 'bar_chart' },
     { path: '/admin/settings', label: 'Cài đặt', icon: 'settings' },
   ]
 

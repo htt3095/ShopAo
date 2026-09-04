@@ -4,7 +4,6 @@ import AboutView from '@/pages/AboutView.vue'
 import AdminBrandsView from '@/pages/AdminBrandsView.vue'
 import AdminCategoriesView from '@/pages/AdminCategoriesView.vue'
 import AdminCustomersView from '@/pages/AdminCustomersView.vue'
-import AdminHomeView from '@/pages/AdminHomeView.vue'
 import AdminOrdersView from '@/pages/AdminOrdersView.vue'
 import AdminPOSView from '@/pages/AdminPOSView.vue'
 import AdminProductsView from '@/pages/AdminProductsView.vue'
@@ -125,7 +124,7 @@ const router = createRouter({
     {
       path: '/admin',
       name: 'admin-home',
-      component: AdminHomeView,
+      redirect: { name: 'admin-reports' },
       meta: { requiresAdmin: true },
     },
     {
