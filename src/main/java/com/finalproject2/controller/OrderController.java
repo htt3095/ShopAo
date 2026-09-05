@@ -12,6 +12,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import com.cloudinary.Cloudinary;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -33,6 +35,7 @@ public class OrderController {
     private final CartRepository cartRepo;
     private final CartItemRepository cartItemRepo;
     private final Cloudinary cloudinary;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     public OrderController(OrderRepository orderRepo,
             OrderItemRepository orderItemRepo,
@@ -291,6 +294,151 @@ public class OrderController {
         return ResponseEntity.ok(Map.of("success", true));
     }
 
+    /**
+     * TRẢ HÀNG TỪNG MÓN (tách riêng khỏi hoàn tiền).
+     * Cho phép trả một phần: chọn đúng món đúng số lượng. Kho cộng lại theo từng món.
+     * Tiền hoàn từng món tính theo tỷ lệ tiền đã trả / tổng tiền hàng:
+     *   ratio = final_amount / (total_money + shipping_fee)
+     * Kết quả lưu dạng JSON vào cột return_reason (KHÔNG thay đổi schema).
+     */
+    @PostMapping("/{id}/returns")
+    @Transactional
+    public ResponseEntity<?> processReturn(
+            @PathVariable Long id,
+            @RequestBody Map<String, Object> req) {
+        Order order = orderRepo.findById(id)
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy đơn hàng"));
+
+        List<Map<String, Object>> itemsReq = extractReturnItems(req);
+        if (itemsReq == null || itemsReq.isEmpty()) {
+            throw new BadRequestException("Vui lòng chọn ít nhất một sản phẩm để trả hàng");
+        }
+        boolean restoreStock = req.containsKey("restoreStock")
+                ? Boolean.parseBoolean(req.get("restoreStock").toString()) : true;
+        String reason = asString(req.get("reason"));
+
+        ReturnRecord existing = parseReturnRecord(order.getReturnReason());
+        if (existing.isFinalized()) {
+            throw new BadRequestException("Đơn hàng này đã được xử lý trả hàng toàn bộ rồi!");
+        }
+
+        BigDecimal totalRefund = BigDecimal.ZERO;
+        int totalOrderedQty = 0;
+        int returnedQty = 0;
+        List<Map<String, Object>> recordItems = new ArrayList<>();
+
+        for (Map<String, Object> itemReq : itemsReq) {
+            Long oiId = asLong(itemReq.get("orderItemId"));
+            if (oiId == null) oiId = asLong(itemReq.get("id"));
+            Integer qty = asInteger(itemReq.get("quantity"));
+            if (oiId == null || qty == null || qty <= 0) {
+                throw new BadRequestException("Số lượng sản phẩm trả không hợp lệ");
+            }
+            final Long itemId = oiId;
+            OrderItem oi = order.getOrderItems().stream()
+                    .filter(it -> itemId.equals(it.getId()))
+                    .findFirst()
+                    .orElseThrow(() -> new BadRequestException("Sản phẩm không thuộc đơn hàng này"));
+
+            int alreadyReturned = existing.returnedQtyOf(itemId);
+            int maxReturnable = oi.getQuantity() - alreadyReturned;
+            if (qty > maxReturnable) {
+                throw new BadRequestException("Số lượng trả vượt mức cho phép của sản phẩm");
+            }
+
+            BigDecimal unitRefund = oi.getPrice() == null ? BigDecimal.ZERO : oi.getPrice();
+            BigDecimal lineRefund = unitRefund.multiply(BigDecimal.valueOf(qty)).setScale(2, RoundingMode.HALF_UP);
+            totalRefund = totalRefund.add(lineRefund);
+            returnedQty += qty;
+            totalOrderedQty += oi.getQuantity();
+
+            if (restoreStock && oi.getVariant() != null) {
+                ProductVariant v = oi.getVariant();
+                v.setStockQuantity((v.getStockQuantity() == null ? 0 : v.getStockQuantity()) + qty);
+                variantRepo.save(v);
+            }
+
+            Map<String, Object> recItem = new HashMap<>();
+            recItem.put("orderItemId", oi.getId());
+            recItem.put("variantId", oi.getVariant() != null ? oi.getVariant().getId() : null);
+            recItem.put("productName", oi.getVariant() != null && oi.getVariant().getProduct() != null
+                    ? oi.getVariant().getProduct().getName() : null);
+            recItem.put("unitPrice", oi.getPrice());
+            recItem.put("quantity", qty);
+            recItem.put("refundPerUnit", unitRefund);
+            recItem.put("refund", lineRefund);
+            recordItems.add(recItem);
+        }
+
+        boolean fullReturn = totalOrderedQty > 0 && returnedQty >= totalOrderedQty;
+        order.setStatus(fullReturn ? (restoreStock ? "RETURNED" : "DAMAGED") : "RETURN_REQUEST");
+
+        existing.addItems(recordItems);
+        existing.setReason(reason);
+        existing.setRestoreStock(restoreStock);
+        existing.setFullReturn(fullReturn);
+        existing.setProcessedAt(Instant.now());
+        order.setReturnReason(toReturnRecordJson(existing));
+
+        orderRepo.save(order);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("success", true);
+        result.put("fullReturn", fullReturn);
+        result.put("totalRefund", totalRefund.setScale(0, RoundingMode.HALF_UP));
+        result.put("items", recordItems);
+        result.put("order", mapOrderToMap(order));
+        result.put("message", fullReturn
+                ? "Đã xử lý trả hàng toàn bộ đơn hàng"
+                : "Đã xử lý trả hàng một phần");
+        return ResponseEntity.ok(result);
+    }
+
+    /**
+     * HOÀN TIỀN (tách riêng khỏi trả hàng). Ghi số tiền hoàn, phương thức, ghi chú
+     * và đánh dấu payment_status = REFUNDED. Không thay đổi schema.
+     */
+    @PostMapping("/{id}/refunds")
+    @Transactional
+    public ResponseEntity<?> processRefund(
+            @PathVariable Long id,
+            @RequestBody Map<String, Object> req) {
+        Order order = orderRepo.findById(id)
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy đơn hàng"));
+
+        BigDecimal amount = req.get("amount") == null ? null : new BigDecimal(req.get("amount").toString());
+        if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new BadRequestException("Số tiền hoàn phải lớn hơn 0");
+        }
+        if ("REFUNDED".equalsIgnoreCase(normalizePaymentStatus(order.getPaymentStatus()))) {
+            throw new BadRequestException("Đơn hàng này đã được hoàn tiền rồi!");
+        }
+        BigDecimal paid = order.getFinalAmount() == null ? BigDecimal.ZERO : order.getFinalAmount();
+        if (amount.compareTo(paid) > 0) {
+            throw new BadRequestException("Số tiền hoàn không được vượt quá " + paid.toPlainString() + "đ");
+        }
+
+        ReturnRecord record = parseReturnRecord(order.getReturnReason());
+        Map<String, Object> refundEntry = new HashMap<>();
+        refundEntry.put("amount", amount.setScale(0, RoundingMode.HALF_UP));
+        refundEntry.put("method", asString(req.get("method")));
+        refundEntry.put("note", asString(req.get("note")));
+        refundEntry.put("processedAt", Instant.now().toString());
+        record.getRefunds().add(refundEntry);
+        record.setProcessedAt(Instant.now());
+
+        order.setPaymentStatus("REFUNDED");
+        order.setReturnReason(toReturnRecordJson(record));
+        orderRepo.save(order);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("success", true);
+        result.put("refundedAmount", amount.setScale(0, RoundingMode.HALF_UP));
+        result.put("paymentStatus", "REFUNDED");
+        result.put("order", mapOrderToMap(order));
+        return ResponseEntity.ok(result);
+    }
+
     @PostMapping("/{id}/return-images")
     @Transactional
     public ResponseEntity<?> uploadReturnImages(
@@ -457,10 +605,6 @@ public class OrderController {
             throw new BadRequestException("Mã giảm giá đã đạt giới hạn sử dụng");
         }
 
-        if (accountId != null && accountVoucherRepo.existsByAccountIdAndVoucherId(accountId, voucher.getId())) {
-            throw new BadRequestException("Bạn đã sử dụng mã giảm giá này rồi!");
-        }
-
         if (orderTotal != null && voucher.getMinOrderValue() != null && orderTotal.compareTo(voucher.getMinOrderValue()) < 0) {
             throw new BadRequestException("Giá trị đơn hàng chưa đạt mức tối thiểu để sử dụng mã giảm giá");
         }
@@ -562,5 +706,141 @@ public class OrderController {
 
     private String asString(Object v) {
         return v == null ? null : v.toString();
+    }
+
+    // ---------------------------------------------------------------
+    // HELPER: Xử lý record trả hàng / hoàn tiền (lưu JSON trong return_reason)
+    // ---------------------------------------------------------------
+
+    private List<Map<String, Object>> extractReturnItems(Map<String, Object> req) {
+        Object items = req.get("items");
+        if (items instanceof List<?> list) {
+            List<Map<String, Object>> result = new ArrayList<>();
+            for (Object o : list) {
+                if (o instanceof Map<?, ?> m) {
+                    Map<String, Object> map = new HashMap<>();
+                    m.forEach((k, v) -> map.put(String.valueOf(k), v));
+                    result.add(map);
+                }
+            }
+            return result;
+        }
+        return null;
+    }
+
+    private String normalizePaymentStatus(String status) {
+        if (status == null) return null;
+        String s = status.trim().toUpperCase();
+        return switch (s) {
+            case "DA_THANH_TOAN", "CAPTURED", "SETTLED" -> "PAID";
+            case "HOAN_TIEN", "REFUNDED" -> "REFUNDED";
+            default -> s;
+        };
+    }
+
+    private ReturnRecord parseReturnRecord(String raw) {
+        ReturnRecord record = new ReturnRecord();
+        if (raw == null || raw.isBlank()) return record;
+        if (!raw.trim().startsWith("{")) return record;
+        try {
+            Map<String, Object> parsed = objectMapper.readValue(raw, Map.class);
+            if (!"RETURN_RECORD".equals(parsed.get("__type"))) return record;
+            record.reason = parsed.get("reason") == null ? null : String.valueOf(parsed.get("reason"));
+            record.restoreStock = Boolean.TRUE.equals(parsed.get("restoreStock"));
+            record.fullReturn = Boolean.TRUE.equals(parsed.get("fullReturn"));
+            record.processedAt = parsed.get("processedAt") == null ? null : String.valueOf(parsed.get("processedAt"));
+            Object items = parsed.get("items");
+            if (items instanceof List<?> list) {
+                for (Object o : list) {
+                    if (o instanceof Map<?, ?> m) {
+                        Map<String, Object> map = new HashMap<>();
+                        m.forEach((k, v) -> map.put(String.valueOf(k), v));
+                        record.items.add(map);
+                    }
+                }
+            }
+            Object refunds = parsed.get("refunds");
+            if (refunds instanceof List<?> list) {
+                for (Object o : list) {
+                    if (o instanceof Map<?, ?> m) {
+                        Map<String, Object> map = new HashMap<>();
+                        m.forEach((k, v) -> map.put(String.valueOf(k), v));
+                        record.refunds.add(map);
+                    }
+                }
+            }
+        } catch (Exception ignored) {
+            // Không phải JSON hợp lệ -> coi như chưa có record
+        }
+        return record;
+    }
+
+    private String toReturnRecordJson(ReturnRecord record) {
+        Map<String, Object> json = new HashMap<>();
+        json.put("__type", "RETURN_RECORD");
+        json.put("reason", record.reason);
+        json.put("restoreStock", record.restoreStock);
+        json.put("fullReturn", record.fullReturn);
+        json.put("processedAt", record.processedAt);
+        json.put("items", record.items);
+        json.put("refunds", record.refunds);
+        try {
+            return objectMapper.writeValueAsString(json);
+        } catch (JsonProcessingException e) {
+            // Nếu serialize lỗi thì giữ nguyên text đơn giản
+            return record.reason == null ? "" : record.reason;
+        }
+    }
+
+    /**
+     * Lưu thông tin trả hàng & hoàn tiền (chỉ đọc, không đổi schema).
+     */
+    private static class ReturnRecord {
+        private String reason = null;
+        private boolean restoreStock = false;
+        private boolean fullReturn = false;
+        private String processedAt = null;
+        private final List<Map<String, Object>> items = new ArrayList<>();
+        private final List<Map<String, Object>> refunds = new ArrayList<>();
+
+        private boolean isFinalized() {
+            return fullReturn;
+        }
+
+        private int returnedQtyOf(Long orderItemId) {
+            int qty = 0;
+            for (Map<String, Object> item : items) {
+                Object id = item.get("orderItemId");
+                if (id != null && Long.valueOf(id.toString()).equals(orderItemId)) {
+                    Object q = item.get("quantity");
+                    if (q != null) qty += Integer.parseInt(q.toString());
+                }
+            }
+            return qty;
+        }
+
+        private void addItems(List<Map<String, Object>> newItems) {
+            items.addAll(newItems);
+        }
+
+        private List<Map<String, Object>> getRefunds() {
+            return refunds;
+        }
+
+        private void setReason(String reason) {
+            if (reason != null && !reason.isBlank()) this.reason = reason.trim();
+        }
+
+        private void setRestoreStock(boolean restoreStock) {
+            this.restoreStock = restoreStock;
+        }
+
+        private void setFullReturn(boolean fullReturn) {
+            this.fullReturn = fullReturn;
+        }
+
+        private void setProcessedAt(Instant time) {
+            this.processedAt = time.toString();
+        }
     }
 }

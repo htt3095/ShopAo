@@ -35,7 +35,8 @@ public class OrderStatusConstraintUpdater implements CommandLineRunner {
                 ALTER TABLE Orders ADD CONSTRAINT CK_Orders_Status
                 CHECK (status IN ('NEW','CONFIRMED','SHIPPING','SUCCESS','CANCELLED',
                                   'RETURN_REQUEST','RETURNING','RETURNED',
-                                  'DAMAGED','LOST'))
+                                  'DAMAGED','LOST','PENDING','PROCESSING',
+                                  'DELIVERING','DELIVERED'))
             """);
 
             System.out.println("[OK] Da cap nhat CHECK constraint Orders.status thanh cong!");

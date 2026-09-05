@@ -115,6 +115,20 @@ public class VoucherController {
                 ));
             }
 
+            {
+                String ruleError = validateDiscountRules(
+                        discountType,
+                        new java.math.BigDecimal(discountValueObj.toString()),
+                        new java.math.BigDecimal(minOrderValueObj.toString())
+                );
+                if (ruleError != null) {
+                    return ResponseEntity.badRequest().body(Map.of(
+                            "success", false,
+                            "message", ruleError
+                    ));
+                }
+            }
+
             if (voucherRepo.findByCode(code).isPresent()) {
                 return ResponseEntity.badRequest().body(Map.of(
                         "success", false,
@@ -226,6 +240,20 @@ public class VoucherController {
             if (payload.containsKey("maxDiscountAmount")) {
                 Object maxObj = payload.get("maxDiscountAmount");
                 voucher.setMaxDiscountAmount(maxObj != null ? new java.math.BigDecimal(maxObj.toString()) : null);
+            }
+
+            {
+                String ruleError = validateDiscountRules(
+                        voucher.getDiscountType(),
+                        voucher.getDiscountValue(),
+                        voucher.getMinOrderValue()
+                );
+                if (ruleError != null) {
+                    return ResponseEntity.badRequest().body(Map.of(
+                            "success", false,
+                            "message", ruleError
+                    ));
+                }
             }
 
             voucher.setUpdatedAt(Instant.now());
@@ -504,6 +532,29 @@ public class VoucherController {
             response.put("updatedAt", voucher.getUpdatedAt());
         }
         return response;
+    }
+
+    private String validateDiscountRules(String discountType, java.math.BigDecimal discountValue, java.math.BigDecimal minOrderValue) {
+        if (discountValue == null) {
+            return "Giá trị giảm phải lớn hơn 0";
+        }
+        if (discountValue.compareTo(java.math.BigDecimal.ZERO) <= 0) {
+            return "Giá trị giảm phải lớn hơn 0";
+        }
+        if ("PERCENT".equals(discountType)) {
+            if (discountValue.compareTo(new java.math.BigDecimal("80")) > 0) {
+                return "Phần trăm giảm giá tối đa là 80%";
+            }
+        } else if ("AMOUNT".equals(discountType)) {
+            if (discountValue.compareTo(new java.math.BigDecimal("500000")) > 0) {
+                return "Số tiền giảm giá tối đa là 500.000đ";
+            }
+            if (minOrderValue != null && minOrderValue.compareTo(java.math.BigDecimal.ZERO) > 0
+                    && discountValue.compareTo(minOrderValue) >= 0) {
+                return "Số tiền giảm giá phải nhỏ hơn đơn tối thiểu để áp dụng";
+            }
+        }
+        return null;
     }
 
     private String determineVoucherStatus(Voucher voucher) {
