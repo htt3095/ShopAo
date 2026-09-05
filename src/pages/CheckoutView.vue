@@ -1266,6 +1266,14 @@
     if (voucher?.isActive === false || voucher?.is_active === false) return 'Voucher không còn hoạt động'
 
     const now = new Date()
+    const startDateRaw = voucher?.startDate || voucher?.start_date
+    if (startDateRaw) {
+      const startDate = new Date(startDateRaw)
+      if (!Number.isNaN(startDate.getTime()) && startDate.getTime() > now.getTime()) {
+        return 'Voucher chưa đến hạn sử dụng'
+      }
+    }
+
     const endDateRaw = voucher?.endDate || voucher?.end_date || voucher?.expiryDate || voucher?.expire_date
     if (endDateRaw) {
       const endDate = new Date(endDateRaw)
@@ -1303,6 +1311,7 @@
           reason,
         }
       })
+      .filter(voucher => !voucher.reason)
       .sort((a, b) => (b.expectedDiscount || 0) - (a.expectedDiscount || 0))
   })
 

@@ -495,6 +495,10 @@
             }}
           </h3>
 
+          <div v-if="isOrderLocked" class="mb-4 rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-700">
+            Đơn hàng đang giao hoặc đã thành công — đã khóa sửa thông tin khách hàng và số tiền.
+          </div>
+
           <div class="grid gap-3 md:grid-cols-2">
             <div>
               <label class="mb-1 block text-xs font-medium text-slate-500">
@@ -509,6 +513,7 @@
                 class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-1.5 text-sm "
                 min="1"
                 type="number"
+                :disabled="isOrderLocked"
               >
             </div>
 
@@ -518,6 +523,7 @@
                 v-model.trim="form.fullName"
                 class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm "
                 type="text"
+                :disabled="isOrderLocked"
               >
             </div>
 
@@ -527,6 +533,7 @@
                 v-model.trim="form.phone"
                 class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm "
                 type="text"
+                :disabled="isOrderLocked"
               >
             </div>
 
@@ -536,6 +543,7 @@
                 v-model.trim="form.email"
                 class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm "
                 type="email"
+                :disabled="isOrderLocked"
               >
             </div>
 
@@ -546,6 +554,7 @@
                 class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm "
                 min="0"
                 type="number"
+                :disabled="isOrderLocked"
               >
             </div>
 
@@ -556,6 +565,27 @@
                 class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm "
                 min="0"
                 type="number"
+                :disabled="isOrderLocked"
+              >
+            </div>
+
+            <div>
+              <label class="mb-1 block text-xs font-medium text-slate-500">Phí giao hàng</label>
+              <input
+                class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 "
+                readonly
+                title="Phí ship (chỉ hiển thị)"
+                :value="formatCurrency(form.shippingFee || 0)"
+              >
+            </div>
+
+            <div>
+              <label class="mb-1 block text-xs font-medium text-slate-500">Giảm giá (voucher)</label>
+              <input
+                class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-red-500 "
+                readonly
+                title="Số tiền giảm từ mã giảm giá (chỉ hiển thị)"
+                :value="`-${formatCurrency(form.discountAmount || 0)}`"
               >
             </div>
 
@@ -673,6 +703,7 @@
                 v-model.trim="form.address"
                 class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm "
                 rows="2"
+                :disabled="isOrderLocked"
               />
             </div>
           </div>
@@ -1112,6 +1143,11 @@
 
   const returnOrder = computed(() =>
     orders.value.find(o => Number(o.id) === Number(returnForm.value.orderId)) || null,
+  )
+
+  const lockedOrderStatuses = ['SHIPPING', 'DELIVERING', 'SUCCESS']
+  const isOrderLocked = computed(() =>
+    editingOrderId.value && lockedOrderStatuses.includes(String(form.value.status || '').trim().toUpperCase()),
   )
 
   async function submitReturn () {
