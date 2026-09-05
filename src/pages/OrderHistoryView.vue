@@ -668,7 +668,7 @@
                     Lý do trả hàng
                   </p>
                   <p class="mt-2 text-sm text-slate-700 ">
-                    {{ activeDetailOrder.returnReason }}
+                    {{ returnReasonText(activeDetailOrder.returnReason) }}
                   </p>
                   <div v-if="activeDetailOrder.returnImages && activeDetailOrder.returnImages.length > 0" class="mt-3">
                     <p class="mb-1.5 text-xs font-semibold text-slate-500 ">Ảnh minh chứng</p>
@@ -1385,6 +1385,29 @@
       hour: '2-digit',
       minute: '2-digit',
     }).format(date)
+  }
+
+  function returnReasonText (raw) {
+    if (!raw || typeof raw !== 'string') return raw || ''
+    const clean = raw.trim()
+    if (!clean.startsWith('{')) return clean
+    try {
+      const parsed = JSON.parse(clean)
+      if (parsed && parsed.__type === 'RETURN_RECORD') {
+        const lines = []
+        if (parsed.reason) lines.push(parsed.reason)
+        if (Array.isArray(parsed.items) && parsed.items.length > 0) {
+          lines.push(`Trả ${parsed.items.length} món`)
+        }
+        if (Array.isArray(parsed.refunds) && parsed.refunds.length > 0) {
+          lines.push('Đã hoàn tiền')
+        }
+        return lines.join(' · ') || 'Đơn đã có yêu cầu trả hoàn'
+      }
+    } catch {
+      /* fallthrough */
+    }
+    return clean
   }
 
   function formatMoney (value) {

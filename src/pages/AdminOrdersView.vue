@@ -118,11 +118,18 @@
             </h3>
             <div class="flex items-center gap-4">
               <button
+                v-if="canProcessReturn(activeTrackedOrder)"
+                class="rounded-lg bg-blue-500 px-3 py-1.5 text-xs font-bold text-white transition-colors hover:bg-blue-600 shadow-sm"
+                @click="openReturnModal(activeTrackedOrder)"
+              >
+                Trả hàng
+              </button>
+              <button
                 v-if="canRefund(activeTrackedOrder)"
                 class="rounded-lg bg-red-500 px-3 py-1.5 text-xs font-bold text-white transition-colors hover:bg-red-600 shadow-sm"
                 @click="openRefundModal(activeTrackedOrder)"
               >
-                Hoàn tiền / Trả hàng
+                Hoàn tiền
               </button>
               <span class="text-xs text-slate-500 ">Khách hàng: {{ activeTrackedOrder.fullName || activeTrackedOrder.fullname || 'Khách hàng' }}</span>
             </div>
@@ -389,6 +396,30 @@
                       >check_circle</span>
                     </button>
 
+                    <!-- Trả hàng (RETURN_REQUEST / RETURNING) -->
+                    <button
+                      v-if="canProcessReturn(order)"
+                      class="rounded-lg p-1.5 hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                      title="Xử lý trả hàng"
+                      @click="openReturnModal(order)"
+                    >
+                      <span
+                        class="material-symbols-outlined text-[18px] text-blue-500"
+                      >assignment_return</span>
+                    </button>
+
+                    <!-- Hoàn tiền -->
+                    <button
+                      v-if="canRefund(order)"
+                      class="rounded-lg p-1.5 hover:bg-red-50 dark:hover:bg-red-900/20"
+                      title="Hoàn tiền"
+                      @click="openRefundModal(order)"
+                    >
+                      <span
+                        class="material-symbols-outlined text-[18px] text-red-500"
+                      >payments</span>
+                    </button>
+
                     <button
                       class="rounded-lg p-1.5 hover:bg-red-50 dark:hover:bg-red-900/20"
                       title="Xóa"
@@ -577,7 +608,7 @@
               <div
                 class="w-full rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 /20 whitespace-pre-wrap"
               >
-                {{ form.returnReason }}
+                {{ displayReturnReason(form.returnReason) }}
               </div>
             </div>
 
@@ -726,6 +757,86 @@
       </div>
     </Teleport>
 
+    <!-- Modal Trả Hàng -->
+    <Teleport to="body">
+      <div
+        v-if="showReturnModal"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+        @click.self="closeReturnModal"
+      >
+        <div class="w-full max-w-xl max-h-[90vh] overflow-y-auto rounded-2xl bg-white p-5 shadow-2xl">
+          <div class="mb-4 flex items-center gap-2">
+            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-blue-500">
+              <span class="material-symbols-outlined">assignment_return</span>
+            </div>
+            <div>
+              <h3 class="text-base font-bold text-slate-900">Trả hàng</h3>
+              <p class="text-xs text-slate-500">Đơn hàng #{{ returnForm.orderId }}</p>
+            </div>
+          </div>
+
+          <div class="space-y-4">
+            <div>
+              <label class="mb-1 block text-xs font-medium text-slate-500">Chọn sản phẩm & số lượng trả</label>
+              <div class="overflow-hidden rounded-xl border border-slate-200">
+                <div v-for="row in returnForm.items" :key="row.orderItemId" class="flex items-center gap-3 border-b border-slate-100 px-3 py-2 last:border-b-0">
+                  <div class="min-w-0 flex-1">
+                    <p class="truncate text-sm font-medium text-slate-800">{{ row.label }}</p>
+                    <p class="text-xs text-slate-500">{{ formatCurrency(row.price) }}/sp · có thể trả: {{ row.maxReturnable }}</p>
+                  </div>
+                  <div class="flex w-28 items-center gap-1">
+                    <button class="rounded-lg border border-slate-200 px-2 py-1 text-slate-600 hover:bg-slate-100 transition" type="button" :disabled="row.qty <= 0" @click="row.qty = Math.max(0, row.qty - 1)">−</button>
+                    <input v-model.number="row.qty" class="w-12 rounded-lg border border-slate-200 px-1 py-1 text-center text-sm font-bold outline-none" type="number" min="0" :max="row.maxReturnable">
+                    <button class="rounded-lg border border-slate-200 px-2 py-1 text-slate-600 hover:bg-slate-100 transition" type="button" :disabled="row.qty >= row.maxReturnable" @click="row.qty = Math.min(row.maxReturnable, row.qty + 1)">+</button>
+                  </div>
+                  <div class="w-24 text-right">
+                    <p class="text-sm font-bold text-blue-600">{{ formatCurrency(returnPreview.byId[row.orderItemId]?.refund ?? 0) }}</p>
+                    <button class="text-[11px] font-semibold text-blue-500 hover:underline" type="button" @click="row.qty = row.maxReturnable">Tất cả</button>
+                  </div>
+                </div>
+                <div v-if="returnForm.items.length === 0" class="px-3 py-4 text-center text-sm text-slate-500">
+                  Không còn sản phẩm nào để trả
+                </div>
+              </div>
+            </div>
+
+            <div class="rounded-xl border border-blue-100 bg-blue-50 p-3">
+              <p class="text-xs text-blue-700">
+                Tiền hoàn mỗi món tính theo <b>giá gốc</b> × số lượng trả (không chia theo mã giảm giá).
+              </p>
+              <p class="mt-1 text-sm font-bold text-blue-800">
+                Tổng tiền hoàn dự kiến: {{ formatCurrency(returnPreview.totalRefund) }}
+              </p>
+            </div>
+
+            <div class="flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3">
+              <input id="restoreStockCheckbox" v-model="returnForm.restoreStock" class="mt-0.5 rounded border-amber-300 text-amber-600 focus:ring-amber-500" type="checkbox">
+              <label class="text-sm font-medium text-amber-800" for="restoreStockCheckbox">
+                Cộng lại số lượng vào kho
+                <span class="block mt-1 text-xs text-amber-700 font-normal">Chỉ nên chọn nếu khách trả lại hàng nguyên vẹn. Không tick nếu hàng bị lỗi hỏng không bán được.</span>
+              </label>
+            </div>
+
+            <div>
+              <label class="mb-1 block text-xs font-medium text-slate-500">Lý do trả hàng <span class="text-red-500">*</span></label>
+              <textarea v-model="returnForm.reason" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-primary" placeholder="Nhập lý do chi tiết..." rows="3" />
+            </div>
+          </div>
+
+          <div class="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
+            <button class="rounded-xl px-4 py-2 text-sm font-bold text-slate-500 hover:bg-slate-100 transition" @click="closeReturnModal">Đóng</button>
+            <button v-if="normalizeOrderStatusValue(returnOrder?.status) === 'RETURN_REQUEST'" class="flex items-center justify-center gap-2 rounded-xl bg-slate-200 px-6 py-2 text-sm font-bold text-slate-700 shadow-sm hover:bg-slate-300 transition disabled:opacity-50" :disabled="returning" @click="rejectReturnRequest">
+              Từ chối (Giữ nguyên)
+            </button>
+            <button class="flex items-center justify-center gap-2 rounded-xl bg-blue-500 px-6 py-2 text-sm font-bold text-white shadow-lg hover:bg-blue-600 transition disabled:opacity-50" :disabled="returning || returnPreview.totalRefund <= 0" @click="submitReturn">
+              <span v-if="returning" class="material-symbols-outlined animate-spin text-[18px]">progress_activity</span>
+              Xác nhận Trả Hàng
+            </button>
+          </div>
+        </div>
+      </div>
+    </Teleport>
+
     <!-- Modal Hoàn Tiền -->
     <Teleport to="body">
       <div
@@ -736,10 +847,10 @@
         <div class="w-full max-w-md rounded-2xl bg-white p-5 shadow-2xl">
           <div class="mb-4 flex items-center gap-2">
             <div class="flex h-10 w-10 items-center justify-center rounded-full bg-red-100 text-red-500">
-              <span class="material-symbols-outlined">assignment_return</span>
+              <span class="material-symbols-outlined">payments</span>
             </div>
             <div>
-              <h3 class="text-base font-bold text-slate-900">Hoàn tiền / Trả hàng</h3>
+              <h3 class="text-base font-bold text-slate-900">Hoàn tiền</h3>
               <p class="text-xs text-slate-500">Đơn hàng #{{ refundForm.orderId }}</p>
             </div>
           </div>
@@ -747,12 +858,25 @@
           <div class="space-y-4">
             <div>
               <label class="mb-1 block text-xs font-medium text-slate-500">Số tiền hoàn (VND)</label>
-              <input v-model.number="refundForm.amount" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-bold text-red-500 outline-none" readonly type="number">
+              <input v-model.number="refundForm.amount" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm font-bold text-red-500 outline-none" type="number" min="0">
             </div>
 
-            <!-- Phản hồi của khách hàng (nếu có) -->
+            <div>
+              <label class="mb-1 block text-xs font-medium text-slate-500">Phương thức hoàn</label>
+              <select v-model="refundForm.method" class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none">
+                <option value="VNPay">VNPay</option>
+                <option value="COD">COD</option>
+                <option value="Khác">Khác</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="mb-1 block text-xs font-medium text-slate-500">Ghi chú hoàn tiền</label>
+              <textarea v-model="refundForm.note" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-primary" placeholder="Nhập ghi chú..." rows="3" />
+            </div>
+
             <div v-if="refundForm.customerReason || (refundForm.customerImages && refundForm.customerImages.length > 0)" class="rounded-xl border border-slate-200 bg-slate-50 p-3">
-              <p class="mb-2 text-xs font-bold uppercase text-slate-500">Khách hàng yêu cầu hoàn trả</p>
+              <p class="mb-2 text-xs font-bold uppercase text-slate-500">Phản hồi khách hàng</p>
               <div v-if="refundForm.customerReason" class="mb-2 text-sm text-slate-800 italic">
                 "{{ refundForm.customerReason }}"
               </div>
@@ -762,28 +886,13 @@
                 </div>
               </div>
             </div>
-
-            <div>
-              <label class="mb-1 block text-xs font-medium text-slate-500">Lý do hoàn tiền / trả hàng <span class="text-red-500">*</span></label>
-              <textarea v-model="refundForm.reason" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-primary" placeholder="Nhập lý do chi tiết..." rows="3" />
-            </div>
-            <div class="flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3">
-              <input id="restoreStockCheckbox" v-model="refundForm.restoreStock" class="mt-0.5 rounded border-amber-300 text-amber-600 focus:ring-amber-500" type="checkbox">
-              <label class="text-sm font-medium text-amber-800" for="restoreStockCheckbox">
-                Cộng lại số lượng vào kho
-                <span class="block mt-1 text-xs text-amber-700 font-normal">Chỉ nên chọn nếu khách trả lại hàng nguyên vẹn. Không tick nếu khách hủy trước khi đóng gói hoặc hàng bị lỗi hỏng không bán được.</span>
-              </label>
-            </div>
           </div>
 
           <div class="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
             <button class="rounded-xl px-4 py-2 text-sm font-bold text-slate-500 hover:bg-slate-100 transition" @click="closeRefundModal">Đóng</button>
-            <button v-if="activeTrackedOrder?.status === 'RETURN_REQUEST'" class="flex items-center justify-center gap-2 rounded-xl bg-slate-200 px-6 py-2 text-sm font-bold text-slate-700 shadow-sm hover:bg-slate-300 transition disabled:opacity-50" :disabled="refunding" @click="rejectReturnRequest">
-              Từ chối (Giữ nguyên)
-            </button>
-            <button class="flex items-center justify-center gap-2 rounded-xl bg-red-500 px-6 py-2 text-sm font-bold text-white shadow-lg hover:bg-red-600 transition disabled:opacity-50" :disabled="refunding || !refundForm.reason" @click="submitRefund">
+            <button class="flex items-center justify-center gap-2 rounded-xl bg-red-500 px-6 py-2 text-sm font-bold text-white shadow-lg hover:bg-red-600 transition disabled:opacity-50" :disabled="refunding || !refundForm.amount || refundForm.amount <= 0" @click="submitRefund">
               <span v-if="refunding" class="material-symbols-outlined animate-spin text-[18px]">progress_activity</span>
-              Chấp nhận Hoàn Tiền
+              Xác nhận Hoàn Tiền
             </button>
           </div>
         </div>
@@ -809,23 +918,78 @@
 
   const showModal = ref(false)
   const showRefundModal = ref(false)
+  const showReturnModal = ref(false)
   const refundForm = ref({
     orderId: null,
     amount: 0,
-    reason: '',
-    restoreStock: true,
+    method: 'VNPay',
+    note: '',
     customerReason: '',
     customerImages: [],
   })
   const refunding = ref(false)
+  const returnForm = ref({
+    orderId: null,
+    reason: '',
+    restoreStock: true,
+    items: [],
+  })
+  const returning = ref(false)
+
+  function displayReturnReason (raw) {
+    if (!raw || typeof raw !== 'string') return raw || ''
+    const record = parseReturnRecord(raw)
+    if (!record) return raw
+    const lines = []
+    if (record.reason) lines.push(record.reason)
+    if (Array.isArray(record.items) && record.items.length > 0) {
+      const qtyTotal = record.items.reduce((sum, it) => sum + asNumber(it.quantity), 0)
+      lines.push(`Trả ${record.items.length} món (${qtyTotal} sản phẩm)`)
+    }
+    if (Array.isArray(record.refunds) && record.refunds.length > 0) {
+      for (const f of record.refunds) {
+        lines.push(`Hoàn ${formatCurrency(f.amount)} (${f.method})`)
+      }
+    }
+    return lines.join(' · ')
+  }
+
+  function parseReturnRecord (returnReason) {
+    if (!returnReason || typeof returnReason !== 'string') return null
+    const raw = returnReason.trim()
+    if (!raw.startsWith('{')) return null
+    try {
+      const parsed = JSON.parse(raw)
+      if (parsed && parsed.__type === 'RETURN_RECORD') return parsed
+    } catch {
+      // không phải JSON record
+    }
+    return null
+  }
+
+  function mergeOrder (updatedOrder) {
+    if (!updatedOrder) return
+    const id = Number(updatedOrder.id)
+    const idx = orders.value.findIndex(o => Number(o.id) === id)
+    if (idx >= 0) {
+      orders.value[idx] = { ...orders.value[idx], ...updatedOrder }
+    }
+  }
 
   function canRefund (order) {
     if (!order) return false
-    const status = normalizeOrderStatusValue(order.status)
     const paymentStatus = normalizePaymentStatusValue(order.paymentStatus)
-    if (status === 'RETURNED' || status === 'HOAN_TRA' || status === 'CANCELLED' || status === 'DA_HUY') return false
-    if (paymentStatus === 'HOAN_TIEN' || paymentStatus === 'REFUNDED') return false
-    return (paymentStatus === 'PAID' || paymentStatus === 'DA_THANH_TOAN') || (status === 'DELIVERED' || status === 'DA_GIAO') || status === 'RETURN_REQUEST'
+    if (paymentStatus === 'REFUNDED' || paymentStatus === 'HOAN_TIEN') return false
+    const status = normalizeOrderStatusValue(order.status)
+    if (['NEW', 'PENDING', 'PROCESSING', 'SHIPPING', 'SUCCESS'].includes(status)) return false
+    return true
+  }
+
+  function canProcessReturn (order) {
+    if (!order) return false
+    const status = normalizeOrderStatusValue(order.status)
+    if (status === 'RETURNED' || status === 'DAMAGED' || status === 'LOST') return false
+    return status === 'RETURN_REQUEST' || status === 'RETURNING'
   }
 
   function openRefundModal (order) {
@@ -842,12 +1006,22 @@
       }
     }
 
+    const record = parseReturnRecord(order.returnReason)
+    const rawReason = order.returnReason || ''
+    const reasonText = record
+      ? (record.reason || '')
+      : (rawReason.startsWith('{') ? '' : rawReason)
+    const defaultAmount = 0
+    const defaultMethod = (order.paymentMethodName || '').toLowerCase().includes('vnpay')
+      ? 'VNPay'
+      : 'COD'
+
     refundForm.value = {
       orderId: order.id,
-      amount: asNumber(order.finalAmount) || asNumber(order.totalMoney) || 0,
-      reason: order.returnReason || '',
-      restoreStock: true,
-      customerReason: order.returnReason || '',
+      amount: defaultAmount,
+      method: defaultMethod,
+      note: reasonText,
+      customerReason: reasonText,
       customerImages: images,
     }
     showRefundModal.value = true
@@ -859,17 +1033,24 @@
 
   async function submitRefund () {
     if (refunding.value) return
+    const amount = asNumber(refundForm.value.amount)
+    if (amount <= 0) {
+      alert('Vui lòng nhập số tiền hoàn hợp lệ')
+      return
+    }
     refunding.value = true
     try {
       const payload = {
-        status: refundForm.value.restoreStock ? 'RETURNED' : 'DAMAGED',
-        paymentStatus: 'HOAN_TIEN',
-        returnReason: refundForm.value.reason,
-        restoreStock: refundForm.value.restoreStock,
+        amount,
+        method: refundForm.value.method,
+        note: refundForm.value.note,
       }
-      await adminApi.updateOrder(refundForm.value.orderId, payload)
+      const result = await adminApi.processOrderRefund(refundForm.value.orderId, payload)
       showRefundModal.value = false
       await loadOrders(true)
+      if (result && result.order) {
+        mergeOrder(result.order)
+      }
     } catch (error_) {
       alert(error_.message || 'Lỗi khi xử lý hoàn tiền!')
     } finally {
@@ -877,20 +1058,106 @@
     }
   }
 
+  function openReturnModal (order) {
+    const record = parseReturnRecord(order.returnReason)
+    const alreadyReturned = {}
+    if (record && Array.isArray(record.items)) {
+      for (const item of record.items) {
+        const key = String(item.orderItemId ?? '')
+        alreadyReturned[key] = (alreadyReturned[key] || 0) + asNumber(item.quantity)
+      }
+    }
+
+    const rawItems = extractOrderItems(order)
+    const items = rawItems.map(rawItem => {
+      const price = Number(rawItem.price || rawItem.unitPrice || rawItem.variant?.price || 0)
+      const quantity = Number(rawItem.quantity || rawItem.qty || 1)
+      const already = asNumber(alreadyReturned[String(rawItem.id)])
+      return {
+        orderItemId: Number(rawItem.id),
+        label: formatOrderItemText(rawItem),
+        price: Number.isFinite(price) ? price : 0,
+        quantity,
+        maxReturnable: Math.max(0, quantity - already),
+        qty: 0,
+      }
+    }).filter(item => item.maxReturnable > 0)
+
+    returnForm.value = {
+      orderId: order.id,
+      reason: (record && record.reason) || order.returnReason || '',
+      restoreStock: true,
+      items,
+    }
+    showReturnModal.value = true
+  }
+
+  function closeReturnModal () {
+    showReturnModal.value = false
+  }
+
+  const returnPreview = computed(() => {
+    let totalRefund = 0
+    const byId = {}
+    const lines = (returnForm.value.items || []).map(item => {
+      const qty = Math.min(asNumber(item.qty), item.maxReturnable)
+      const refund = Math.round(item.price * qty)
+      totalRefund += refund
+      const row = { ...item, qty: Math.max(0, qty), refund }
+      byId[String(item.orderItemId)] = row
+      return row
+    })
+    return { totalRefund: Math.round(totalRefund), lines, byId }
+  })
+
+  const returnOrder = computed(() =>
+    orders.value.find(o => Number(o.id) === Number(returnForm.value.orderId)) || null,
+  )
+
+  async function submitReturn () {
+    if (returning.value) return
+    const selected = returnPreview.value.lines
+      .filter(item => item.qty > 0)
+      .map(item => ({ orderItemId: item.orderItemId, quantity: item.qty }))
+    if (selected.length === 0) {
+      alert('Vui lòng chọn ít nhất một sản phẩm và số lượng cần trả')
+      return
+    }
+    returning.value = true
+    try {
+      const payload = {
+        items: selected,
+        reason: returnForm.value.reason,
+        restoreStock: returnForm.value.restoreStock,
+      }
+      const result = await adminApi.processOrderReturn(returnForm.value.orderId, payload)
+      showReturnModal.value = false
+      await loadOrders(true)
+      if (result && result.order) {
+        mergeOrder(result.order)
+      }
+    } catch (error_) {
+      alert(error_.message || 'Lỗi khi xử lý trả hàng!')
+    } finally {
+      returning.value = false
+    }
+  }
+
   async function rejectReturnRequest () {
-    if (refunding.value) return
-    refunding.value = true
+    if (returning.value) return
+    returning.value = true
     try {
       const payload = {
         status: 'SUCCESS',
       }
-      await adminApi.updateOrder(refundForm.value.orderId, payload)
+      await adminApi.updateOrder(returnForm.value.orderId || refundForm.value.orderId, payload)
+      showReturnModal.value = false
       showRefundModal.value = false
       await loadOrders(true)
     } catch (error_) {
       alert(error_.message || 'Lỗi khi từ chối yêu cầu!')
     } finally {
-      refunding.value = false
+      returning.value = false
     }
   }
 

@@ -1685,6 +1685,28 @@ export const adminApi = {
     )
   },
 
+  async processOrderReturn (orderId, returnData) {
+    const id = asFiniteNumber(orderId, null)
+    if (id === null) {
+      throw new Error('Thiếu orderId hợp lệ')
+    }
+    return apiCall(`/orders/${id}/returns`, {
+      method: 'POST',
+      body: JSON.stringify(returnData),
+    })
+  },
+
+  async processOrderRefund (orderId, refundData) {
+    const id = asFiniteNumber(orderId, null)
+    if (id === null) {
+      throw new Error('Thiếu orderId hợp lệ')
+    }
+    return apiCall(`/orders/${id}/refunds`, {
+      method: 'POST',
+      body: JSON.stringify(refundData),
+    })
+  },
+
   async deleteOrder (orderId) {
     const id = asFiniteNumber(orderId, null)
     if (id === null) {

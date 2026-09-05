@@ -246,26 +246,6 @@
                       :class="isProductOutOfStock(product) ? 'pointer-events-none text-slate-500' : 'group-hover:text-primary'"
                       :to="`/product/${product.id}`"
                     >{{ product.name }}</router-link>
-                    <div class="flex items-center gap-2 mt-2">
-                      <div class="flex gap-0.5 text-yellow-500">
-                        <span
-                          class="material-symbols-outlined text-[16px] fill-current"
-                        >star</span>
-                        <span
-                          class="material-symbols-outlined text-[16px] fill-current"
-                        >star</span>
-                        <span
-                          class="material-symbols-outlined text-[16px] fill-current"
-                        >star</span>
-                        <span
-                          class="material-symbols-outlined text-[16px] fill-current"
-                        >star</span>
-                        <span
-                          class="material-symbols-outlined text-[16px] fill-current"
-                        >star_half</span>
-                      </div>
-                      <span class="text-xs text-slate-500">(124)</span>
-                    </div>
                     <div class="mt-auto pt-4 flex items-center justify-between">
                       <p
                         class="text-xl font-bold text-slate-900"
