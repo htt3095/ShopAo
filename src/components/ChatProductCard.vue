@@ -1,18 +1,18 @@
 <template>
   <router-link
-    :to="{ name: 'product-detail', params: { id: product.id } }"
     class="chat-product-card group flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-2.5 transition-all hover:border-primary/50 hover:shadow-md dark:border-[#3c342e] dark:bg-[#1f1a17] dark:hover:border-primary/50"
+    :to="{ name: 'product-detail', params: { id: product.id } }"
   >
     <div
       class="size-14 flex-shrink-0 overflow-hidden rounded-lg bg-slate-100 dark:bg-[#2b241f]"
     >
       <img
         v-if="resolvedImage"
-        :src="resolvedImage"
         :alt="product.name"
         class="h-full w-full object-cover transition-transform group-hover:scale-110"
+        :src="resolvedImage"
         @error="handleImageError"
-      />
+      >
       <div
         v-else
         class="flex h-full w-full items-center justify-center text-slate-400"
@@ -41,41 +41,41 @@
 </template>
 
 <script setup>
-import { computed, ref } from "vue";
+  import { computed, ref } from 'vue'
 
-const props = defineProps({
-  product: {
-    type: Object,
-    required: true,
-  },
-});
+  const props = defineProps({
+    product: {
+      type: Object,
+      required: true,
+    },
+  })
 
-const imgBroken = ref(false);
+  const imgBroken = ref(false)
 
-const resolvedImage = computed(() => {
-  if (imgBroken.value) return null;
-  const url =
-    props.product._imageUrl ||
-    props.product.imageUrl ||
-    props.product.image_url ||
-    props.product.imgUrl ||
-    null;
-  return url || null;
-});
+  const resolvedImage = computed(() => {
+    if (imgBroken.value) return null
+    const url
+      = props.product._imageUrl
+        || props.product.imageUrl
+        || props.product.image_url
+        || props.product.imgUrl
+        || null
+    return url || null
+  })
 
-function handleImageError() {
-  imgBroken.value = true;
-}
+  function handleImageError () {
+    imgBroken.value = true
+  }
 
-const formattedPrice = computed(() => {
-  const price = Number(
-    props.product._minPrice || props.product.price || props.product.minPrice || 0,
-  );
-  if (!Number.isFinite(price) || price === 0) return null;
-  return new Intl.NumberFormat("vi-VN", {
-    style: "currency",
-    currency: "VND",
-    maximumFractionDigits: 0,
-  }).format(price);
-});
+  const formattedPrice = computed(() => {
+    const price = Number(
+      props.product._minPrice || props.product.price || props.product.minPrice || 0,
+    )
+    if (!Number.isFinite(price) || price === 0) return null
+    return new Intl.NumberFormat('vi-VN', {
+      style: 'currency',
+      currency: 'VND',
+      maximumFractionDigits: 0,
+    }).format(price)
+  })
 </script>

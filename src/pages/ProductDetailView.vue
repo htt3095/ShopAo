@@ -11,9 +11,9 @@
           class="fixed inset-0 z-[120] flex items-center justify-center px-4 py-6"
         >
           <button
-            type="button"
-            class="absolute inset-0 bg-black/45 backdrop-blur-sm"
             aria-label="Đóng thông báo đăng nhập"
+            class="absolute inset-0 bg-black/45 backdrop-blur-sm"
+            type="button"
             @click="closeAuthRequiredPopup"
           />
 
@@ -32,25 +32,62 @@
 
             <div class="mt-6 flex flex-wrap gap-3">
               <button
-                type="button"
                 class="flex-1 rounded-lg border border-[#d1d5db] px-4 py-2.5 text-sm font-semibold text-[#111418] transition-colors hover:bg-[#f3f4f6]   :bg-[#283039]"
+                type="button"
                 @click="closeAuthRequiredPopup"
               >
                 Hủy
               </button>
               <button
-                type="button"
                 class="flex-1 rounded-lg border border-primary px-4 py-2.5 text-sm font-semibold text-primary transition-colors hover:bg-primary/10"
+                type="button"
                 @click="goToRegisterFromPopup"
               >
                 Đăng ký
               </button>
               <button
-                type="button"
                 class="flex-1 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-600"
+                type="button"
                 @click="goToLoginFromPopup"
               >
                 Đăng nhập
+              </button>
+            </div>
+          </article>
+        </div>
+      </transition>
+
+      <transition name="fade-scale">
+        <div
+          v-if="showStockWarning"
+          class="fixed inset-0 z-[120] flex items-center justify-center px-4 py-6"
+        >
+          <button
+            aria-label="Đóng thông báo tồn kho"
+            class="absolute inset-0 bg-black/45 backdrop-blur-sm"
+            type="button"
+            @click="closeStockWarning"
+          />
+
+          <article
+            class="relative w-full max-w-md rounded-2xl border border-[#fecaca] bg-white p-6 shadow-2xl  "
+          >
+            <h3 class="text-xl font-bold text-red-600 ">
+              Không đủ hàng trong kho
+            </h3>
+            <p
+              class="mt-3 text-sm leading-6 text-[#4f5b69] "
+            >
+              {{ stockWarningMessage }}
+            </p>
+
+            <div class="mt-6 flex justify-end">
+              <button
+                class="rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-600"
+                type="button"
+                @click="closeStockWarning"
+              >
+                Đóng
               </button>
             </div>
           </article>
@@ -66,32 +103,22 @@
               <router-link
                 class="text-[#9cabba] text-sm font-medium leading-normal hover:underline"
                 to="/"
-                >Trang chủ</router-link
-              >
-              <span class="text-[#9cabba] text-sm font-medium leading-normal"
-                >/</span
-              >
+              >Trang chủ</router-link>
+              <span class="text-[#9cabba] text-sm font-medium leading-normal">/</span>
               <router-link
                 class="text-[#9cabba] text-sm font-medium leading-normal hover:underline"
                 to="/shop"
-                >Cửa hàng</router-link
-              >
+              >Cửa hàng</router-link>
               <template v-if="categoryName && categoryName !== 'San pham'">
-                <span class="text-[#9cabba] text-sm font-medium leading-normal"
-                  >/</span
-                >
+                <span class="text-[#9cabba] text-sm font-medium leading-normal">/</span>
                 <span
                   class="text-[#9cabba] text-sm font-medium leading-normal"
-                  >{{ categoryName }}</span
-                >
+                >{{ categoryName }}</span>
               </template>
-              <span class="text-[#9cabba] text-sm font-medium leading-normal"
-                >/</span
-              >
+              <span class="text-[#9cabba] text-sm font-medium leading-normal">/</span>
               <span
                 class="text-[#111418]  text-sm font-medium leading-normal"
-                >{{ productName }}</span
-              >
+              >{{ productName }}</span>
             </div>
 
             <div class="flex flex-col lg:flex-row gap-10 px-4 py-6">
@@ -104,7 +131,7 @@
                     class="w-full h-full object-cover object-center"
                     :src="mainImageUrl"
                     @error="handleImgError"
-                  />
+                  >
                 </div>
                 <div class="grid grid-cols-5 gap-3">
                   <button
@@ -134,15 +161,13 @@
                           ? 'bg-green-500/20 text-green-600 '
                           : 'bg-red-500/20 text-red-600 '
                       "
-                      >{{ inStock ? "Còn hàng" : "Hết hàng" }}</span
-                    >
+                    >{{ inStock ? "Còn hàng" : "Hết hàng" }}</span>
                     <span
                       class="flex items-center text-yellow-500 gap-1 text-sm font-medium"
                     >
                       <span
                         class="material-symbols-outlined text-[18px] fill-current"
-                        >star</span
-                      >
+                      >star</span>
                       <template v-if="averageRating !== null">
                         {{ averageRating.toFixed(1) }} ({{ reviewCount }} đánh
                         giá)
@@ -176,7 +201,6 @@
                   </p>
                 </div>
 
-
                 <div class="flex flex-col gap-4">
                   <div class="grid grid-cols-2 gap-4">
                     <label class="flex flex-col flex-1 gap-2">
@@ -208,9 +232,7 @@
                         <div
                           class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-[#9cabba]"
                         >
-                          <span class="material-symbols-outlined"
-                            >expand_more</span
-                          >
+                          <span class="material-symbols-outlined">expand_more</span>
                         </div>
                       </div>
                     </label>
@@ -243,9 +265,7 @@
                         <div
                           class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-[#9cabba]"
                         >
-                          <span class="material-symbols-outlined"
-                            >expand_more</span
-                          >
+                          <span class="material-symbols-outlined">expand_more</span>
                         </div>
                       </div>
                     </label>
@@ -253,8 +273,7 @@
                   <router-link
                     class="text-primary text-sm font-medium hover:underline"
                     to="/size-guide"
-                    >Bảng size</router-link
-                  >
+                  >Bảng size</router-link>
                 </div>
 
                 <div class="flex flex-col sm:flex-row gap-3 mt-4">
@@ -277,9 +296,7 @@
                     type="button"
                     @click="handleCompare"
                   >
-                    <span class="material-symbols-outlined"
-                      >compare_arrows</span
-                    >
+                    <span class="material-symbols-outlined">compare_arrows</span>
                     <span>{{ isCompared ? "Đã so sánh" : "So sánh" }}</span>
                   </button>
                 </div>
@@ -288,17 +305,13 @@
                   <div
                     class="flex items-center gap-2 text-[#4f5b69] "
                   >
-                    <span class="material-symbols-outlined text-[20px]"
-                      >local_shipping</span
-                    >
+                    <span class="material-symbols-outlined text-[20px]">local_shipping</span>
                     <span class="text-sm">Miễn phí vận chuyển</span>
                   </div>
                   <div
                     class="flex items-center gap-2 text-[#4f5b69] "
                   >
-                    <span class="material-symbols-outlined text-[20px]"
-                      >sync</span
-                    >
+                    <span class="material-symbols-outlined text-[20px]">sync</span>
                     <span class="text-sm">Đổi trả trong 30 ngày</span>
                   </div>
                 </div>
@@ -310,7 +323,7 @@
                 Thông tin chi tiết sản phẩm
               </h2>
               <div class="prose max-w-none text-[#4f5b69]">
-                <p class="whitespace-pre-line text-base leading-relaxed" v-html="productDescription"></p>
+                <p class="whitespace-pre-line text-base leading-relaxed" v-html="productDescription" />
               </div>
             </div>
 
@@ -335,21 +348,11 @@
                       }}
                     </span>
                     <div class="flex text-yellow-500 my-2">
-                      <span class="material-symbols-outlined fill-current"
-                        >star</span
-                      >
-                      <span class="material-symbols-outlined fill-current"
-                        >star</span
-                      >
-                      <span class="material-symbols-outlined fill-current"
-                        >star</span
-                      >
-                      <span class="material-symbols-outlined fill-current"
-                        >star</span
-                      >
-                      <span class="material-symbols-outlined fill-current"
-                        >star_half</span
-                      >
+                      <span class="material-symbols-outlined fill-current">star</span>
+                      <span class="material-symbols-outlined fill-current">star</span>
+                      <span class="material-symbols-outlined fill-current">star</span>
+                      <span class="material-symbols-outlined fill-current">star</span>
+                      <span class="material-symbols-outlined fill-current">star_half</span>
                     </div>
                     <span class="text-[#4f5b69]  text-sm">
                       {{
@@ -391,8 +394,7 @@
                                 ? 'fill-current text-[16px]'
                                 : 'text-[#d1d5db]  text-[16px]'
                             "
-                            >star</span
-                          >
+                          >star</span>
                         </div>
                       </div>
                       <span class="text-[#9cabba] text-xs">
@@ -429,481 +431,494 @@
 </template>
 
 <script setup>
-import { computed, onMounted, onUnmounted, ref, watch } from "vue";
-import { useRoute, useRouter } from "vue-router";
-import { useCartStore } from "@/stores/cart";
-import { useCompareStore } from "@/stores/compare";
-import { useProductStore } from "@/stores/products";
-import { useReviewsStore } from "@/stores/reviews";
-import {
-  resolveColorFromVariant,
-  resolveSizeFromVariant,
-} from "@/utils/variantValues";
-import { getProductImageUrl } from "@/utils/productImages";
+  import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+  import { useRoute, useRouter } from 'vue-router'
+  import { useCartStore } from '@/stores/cart'
+  import { useCompareStore } from '@/stores/compare'
+  import { useProductStore } from '@/stores/products'
+  import { useReviewsStore } from '@/stores/reviews'
+  import { getProductImageUrl } from '@/utils/productImages'
+  import {
+    resolveColorFromVariant,
+    resolveSizeFromVariant,
+  } from '@/utils/variantValues'
 
-const route = useRoute();
-const router = useRouter();
-const productStore = useProductStore();
-const cartStore = useCartStore();
-const reviewsStore = useReviewsStore();
-const compareStore = useCompareStore();
+  const route = useRoute()
+  const router = useRouter()
+  const productStore = useProductStore()
+  const cartStore = useCartStore()
+  const reviewsStore = useReviewsStore()
+  const compareStore = useCompareStore()
 
-const activeImageIndex = ref(0);
-const selectedColorId = ref("");
-const selectedSizeId = ref("");
-const isLoggedIn = ref(false);
-const showAuthRequiredPopup = ref(false);
-const showUserMenu = ref(false);
+  const activeImageIndex = ref(0)
+  const selectedColorId = ref('')
+  const selectedSizeId = ref('')
+  const isLoggedIn = ref(false)
+  const showAuthRequiredPopup = ref(false)
+  const showStockWarning = ref(false)
+  const stockWarningMessage = ref('')
+  const showUserMenu = ref(false)
 
-const productId = computed(() => Number.parseInt(route.params.id, 10));
+  const productId = computed(() => Number.parseInt(route.params.id, 10))
 
-const productRef = ref(null);
-const product = computed(() => productRef.value);
-const isCompared = computed(
-  () => Number.isFinite(productId.value) && compareStore.has(productId.value),
-);
-
-const variants = ref([]);
-
-const productName = computed(() => product.value?.name || "Sản phẩm");
-const productDescription = computed(
-  () =>
-    product.value?.description || "Sản phẩm này hiện chưa có mô tả chi tiết.",
-);
-const categoryName = computed(
-  () => product.value?.category?.name || "Sản phẩm",
-);
-
-const reviews = computed(() => reviewsStore.getByProductId(productId.value));
-const reviewCount = computed(() => reviews.value.length);
-const averageRating = computed(() =>
-  reviewsStore.getAverageRating(productId.value),
-);
-
-function getVariantColorId(variant) {
-  return resolveColorFromVariant(variant).id;
-}
-
-function getVariantSizeId(variant) {
-  return resolveSizeFromVariant(variant).id;
-}
-
-function getVariantNumericPrice(variant) {
-  const parsed = Number(variant?.price);
-  return Number.isFinite(parsed) && parsed >= 0 ? parsed : null;
-}
-
-function normalizeVariantStatus(variant) {
-  const rawStock = variant?.stockQuantity ?? variant?.stock_quantity;
-  const hasKnownStock = rawStock !== null && rawStock !== undefined && rawStock !== "";
-  const stock = Number(rawStock);
-  const raw = String(
-    variant?.status || variant?.variantStatus || variant?.variant_status || "",
+  const productRef = ref(null)
+  const product = computed(() => productRef.value)
+  const isCompared = computed(
+    () => Number.isFinite(productId.value) && compareStore.has(productId.value),
   )
-    .trim()
-    .toUpperCase();
 
-  if (["HIDDEN", "INACTIVE", "DISCONTINUED", "STOP_SELLING"].includes(raw)) {
-    return "HIDDEN";
+  const variants = ref([])
+
+  const productName = computed(() => product.value?.name || 'Sản phẩm')
+  const productDescription = computed(
+    () =>
+      product.value?.description || 'Sản phẩm này hiện chưa có mô tả chi tiết.',
+  )
+  const categoryName = computed(
+    () => product.value?.category?.name || 'Sản phẩm',
+  )
+
+  const reviews = computed(() => reviewsStore.getByProductId(productId.value))
+  const reviewCount = computed(() => reviews.value.length)
+  const averageRating = computed(() =>
+    reviewsStore.getAverageRating(productId.value),
+  )
+
+  function getVariantColorId (variant) {
+    return resolveColorFromVariant(variant).id
   }
-  if (["OUT_OF_STOCK", "SOLD_OUT", "OUTOFSTOCK"].includes(raw)) {
-    return "OUT_OF_STOCK";
+
+  function getVariantSizeId (variant) {
+    return resolveSizeFromVariant(variant).id
   }
-  return !hasKnownStock || (Number.isFinite(stock) && stock > 0)
-    ? "SELLING"
-    : "OUT_OF_STOCK";
-}
 
-function isVariantSellable(variant) {
-  return normalizeVariantStatus(variant) === "SELLING";
-}
+  function getVariantNumericPrice (variant) {
+    const parsed = Number(variant?.price)
+    return Number.isFinite(parsed) && parsed >= 0 ? parsed : null
+  }
 
-function getLowestPriceVariant(list) {
-  if (!Array.isArray(list) || list.length === 0) return null;
+  function normalizeVariantStatus (variant) {
+    const rawStock = variant?.stockQuantity ?? variant?.stock_quantity
+    const hasKnownStock = rawStock !== null && rawStock !== undefined && rawStock !== ''
+    const stock = Number(rawStock)
+    const raw = String(
+      variant?.status || variant?.variantStatus || variant?.variant_status || '',
+    )
+      .trim()
+      .toUpperCase()
 
-  let lowest = null;
-  let lowestPrice = null;
-
-  const visibleList = list.filter((variant) => normalizeVariantStatus(variant) !== "HIDDEN");
-  const sellableList = visibleList.filter(isVariantSellable);
-  const candidates = sellableList.length > 0 ? sellableList : visibleList;
-
-  for (const variant of candidates) {
-    const price = getVariantNumericPrice(variant);
-    if (price === null) continue;
-    if (lowestPrice === null || price < lowestPrice) {
-      lowest = variant;
-      lowestPrice = price;
+    if (['HIDDEN', 'INACTIVE', 'DISCONTINUED', 'STOP_SELLING'].includes(raw)) {
+      return 'HIDDEN'
     }
+    if (['OUT_OF_STOCK', 'SOLD_OUT', 'OUTOFSTOCK'].includes(raw)) {
+      return 'OUT_OF_STOCK'
+    }
+    return !hasKnownStock || (Number.isFinite(stock) && stock > 0)
+      ? 'SELLING'
+      : 'OUT_OF_STOCK'
   }
 
-  return lowest || candidates[0] || null;
-}
-
-const colorOptions = computed(() => {
-  const mapped = new Map();
-  for (const variant of variants.value || []) {
-    if (normalizeVariantStatus(variant) === "HIDDEN") continue;
-    const colorMeta = resolveColorFromVariant(variant);
-    const id = colorMeta.id;
-    if (id === null || mapped.has(id)) continue;
-
-    mapped.set(id, {
-      value: String(id),
-      label: colorMeta.name || `Màu ${id}`,
-    });
+  function isVariantSellable (variant) {
+    return normalizeVariantStatus(variant) === 'SELLING'
   }
 
-  return [...mapped.values()];
-});
+  function getLowestPriceVariant (list) {
+    if (!Array.isArray(list) || list.length === 0) return null
 
-const sizeOptions = computed(() => {
-  const colorId = selectedColorId.value
-    ? Number.parseInt(selectedColorId.value, 10)
-    : null;
+    let lowest = null
+    let lowestPrice = null
 
-  const mapped = new Map();
-  for (const variant of variants.value || []) {
-    if (normalizeVariantStatus(variant) === "HIDDEN") continue;
-    const variantColorId = getVariantColorId(variant);
-    if (colorId !== null && variantColorId !== colorId) continue;
+    const visibleList = list.filter(variant => normalizeVariantStatus(variant) !== 'HIDDEN')
+    const sellableList = visibleList.filter(isVariantSellable)
+    const candidates = sellableList.length > 0 ? sellableList : visibleList
 
-    const sizeMeta = resolveSizeFromVariant(variant);
-    const id = sizeMeta.id;
-    if (id === null || mapped.has(id)) continue;
+    for (const variant of candidates) {
+      const price = getVariantNumericPrice(variant)
+      if (price === null) continue
+      if (lowestPrice === null || price < lowestPrice) {
+        lowest = variant
+        lowestPrice = price
+      }
+    }
 
-    mapped.set(id, {
-      value: String(id),
-      label: `${sizeMeta.name || `Size ${id}`}${isVariantSellable(variant) ? "" : " - Hết hàng"}`,
-    });
+    return lowest || candidates[0] || null
   }
 
-  return [...mapped.values()];
-});
+  const colorOptions = computed(() => {
+    const mapped = new Map()
+    for (const variant of variants.value || []) {
+      if (normalizeVariantStatus(variant) === 'HIDDEN') continue
+      const colorMeta = resolveColorFromVariant(variant)
+      const id = colorMeta.id
+      if (id === null || mapped.has(id)) continue
 
-const selectedVariant = computed(() => {
-  if (!variants.value || variants.value.length === 0) return null;
-  const colorId = selectedColorId.value
-    ? Number.parseInt(selectedColorId.value, 10)
-    : null;
-  const sizeId = selectedSizeId.value
-    ? Number.parseInt(selectedSizeId.value, 10)
-    : null;
+      mapped.set(id, {
+        value: String(id),
+        label: colorMeta.name || `Màu ${id}`,
+      })
+    }
 
-  // Prefer exact match (color+size), then fallback to a product variant.
-  return (
-    variants.value.find((v) => {
-      const variantColorId = getVariantColorId(v);
-      const variantSizeId = getVariantSizeId(v);
-      const colorMatch = colorId === null || variantColorId === colorId;
-      const sizeMatch = sizeId === null || variantSizeId === sizeId;
-      return colorMatch && sizeMatch;
-    }) ||
-    getLowestPriceVariant(variants.value) ||
-    null
-  );
-});
+    return [...mapped.values()]
+  })
 
-const inStock = computed(() => {
-  const v = selectedVariant.value;
-  if (!v) return false;
-  const qty = Number(v.stockQuantity ?? v.stock_quantity ?? 0);
-  return isVariantSellable(v) && (Number.isFinite(qty) ? qty > 0 : false);
-});
+  const sizeOptions = computed(() => {
+    const colorId = selectedColorId.value
+      ? Number.parseInt(selectedColorId.value, 10)
+      : null
 
-const selectedStockQuantity = computed(() => {
-  const qty = Number(
-    selectedVariant.value?.stockQuantity ?? selectedVariant.value?.stock_quantity,
-  );
-  return Number.isFinite(qty) ? Math.max(0, qty) : null;
-});
+    const mapped = new Map()
+    for (const variant of variants.value || []) {
+      if (normalizeVariantStatus(variant) === 'HIDDEN') continue
+      const variantColorId = getVariantColorId(variant)
+      if (colorId !== null && variantColorId !== colorId) continue
 
-const selectedVariantStatusLabel = computed(() => {
-  const status = normalizeVariantStatus(selectedVariant.value);
-  if (status === "HIDDEN") return "Ngừng bán";
-  if (status === "OUT_OF_STOCK") return "Hết hàng";
-  return "Đang bán";
-});
+      const sizeMeta = resolveSizeFromVariant(variant)
+      const id = sizeMeta.id
+      if (id === null || mapped.has(id)) continue
 
-const displayPrice = computed(() => {
-  const price = selectedVariant.value?.price ?? product.value?.price;
-  if (price === null || price === undefined) return "Liên hệ";
-  const n = Number(price);
-  if (!Number.isFinite(n)) return String(price);
-  return new Intl.NumberFormat("vi-VN", {
-    style: "currency",
-    currency: "VND",
-    maximumFractionDigits: 0,
-  }).format(n);
-});
+      mapped.set(id, {
+        value: String(id),
+        label: `${sizeMeta.name || `Size ${id}`}${isVariantSellable(variant) ? '' : ' - Hết hàng'}`,
+      })
+    }
 
-const baseImageUrl = computed(() => {
-  if (selectedVariant.value?.imageUrl) {
-    return selectedVariant.value.imageUrl;
-  }
-  return getProductImageUrl({
-    product: product.value,
-    variants: variants.value,
-    width: 800,
-    height: 600,
-  });
-});
+    return [...mapped.values()]
+  })
 
-// 1. CẬP NHẬT LẠI DANH SÁCH ẢNH THUMBNAIL (ẢNH NHỎ)
-const thumbnailUrls = computed(() => {
-  const urls = [];
+  const selectedVariant = computed(() => {
+    if (!variants.value || variants.value.length === 0) return null
+    const colorId = selectedColorId.value
+      ? Number.parseInt(selectedColorId.value, 10)
+      : null
+    const sizeId = selectedSizeId.value
+      ? Number.parseInt(selectedSizeId.value, 10)
+      : null
 
-  // Thêm ảnh chính vào đầu tiên
-  if (baseImageUrl.value) {
-    urls.push(baseImageUrl.value);
-  }
-
-  // Thêm mảng ảnh phụ (extraImages) từ Backend trả về
-  if (
-    selectedVariant.value &&
-    selectedVariant.value.extraImages &&
-    selectedVariant.value.extraImages.length > 0
-  ) {
-    urls.push(...selectedVariant.value.extraImages);
-  }
-
-  return [...new Set(urls)].slice(0, 5);
-});
-
-// 2. CẬP NHẬT ẢNH CHÍNH (THAY ĐỔI KHI BẤM VÀO ẢNH NHỎ)
-const mainImageUrl = computed(() => {
-  if (thumbnailUrls.value.length > 0) {
-    // Trả về ảnh dựa trên cái index người dùng đang bấm
+    // Prefer exact match (color+size), then fallback to a product variant.
     return (
-      thumbnailUrls.value[activeImageIndex.value] || thumbnailUrls.value[0]
-    );
+      variants.value.find(v => {
+        const variantColorId = getVariantColorId(v)
+        const variantSizeId = getVariantSizeId(v)
+        const colorMatch = colorId === null || variantColorId === colorId
+        const sizeMatch = sizeId === null || variantSizeId === sizeId
+        return colorMatch && sizeMatch
+      })
+      || getLowestPriceVariant(variants.value)
+      || null
+    )
+  })
+
+  const inStock = computed(() => {
+    const v = selectedVariant.value
+    if (!v) return false
+    const qty = Number(v.stockQuantity ?? v.stock_quantity ?? 0)
+    return isVariantSellable(v) && (Number.isFinite(qty) ? qty > 0 : false)
+  })
+
+  const selectedStockQuantity = computed(() => {
+    const qty = Number(
+      selectedVariant.value?.stockQuantity ?? selectedVariant.value?.stock_quantity,
+    )
+    return Number.isFinite(qty) ? Math.max(0, qty) : null
+  })
+
+  const selectedVariantStatusLabel = computed(() => {
+    const status = normalizeVariantStatus(selectedVariant.value)
+    if (status === 'HIDDEN') return 'Ngừng bán'
+    if (status === 'OUT_OF_STOCK') return 'Hết hàng'
+    return 'Đang bán'
+  })
+
+  const displayPrice = computed(() => {
+    const price = selectedVariant.value?.price ?? product.value?.price
+    if (price === null || price === undefined) return 'Liên hệ'
+    const n = Number(price)
+    if (!Number.isFinite(n)) return String(price)
+    return new Intl.NumberFormat('vi-VN', {
+      style: 'currency',
+      currency: 'VND',
+      maximumFractionDigits: 0,
+    }).format(n)
+  })
+
+  const baseImageUrl = computed(() => {
+    if (selectedVariant.value?.imageUrl) {
+      return selectedVariant.value.imageUrl
+    }
+    return getProductImageUrl({
+      product: product.value,
+      variants: variants.value,
+      width: 800,
+      height: 600,
+    })
+  })
+
+  // 1. CẬP NHẬT LẠI DANH SÁCH ẢNH THUMBNAIL (ẢNH NHỎ)
+  const thumbnailUrls = computed(() => {
+    const urls = []
+
+    // Thêm ảnh chính vào đầu tiên
+    if (baseImageUrl.value) {
+      urls.push(baseImageUrl.value)
+    }
+
+    // Thêm mảng ảnh phụ (extraImages) từ Backend trả về
+    if (
+      selectedVariant.value
+      && selectedVariant.value.extraImages
+      && selectedVariant.value.extraImages.length > 0
+    ) {
+      urls.push(...selectedVariant.value.extraImages)
+    }
+
+    return [...new Set(urls)].slice(0, 5)
+  })
+
+  // 2. CẬP NHẬT ẢNH CHÍNH (THAY ĐỔI KHI BẤM VÀO ẢNH NHỎ)
+  const mainImageUrl = computed(() => {
+    if (thumbnailUrls.value.length > 0) {
+      // Trả về ảnh dựa trên cái index người dùng đang bấm
+      return (
+        thumbnailUrls.value[activeImageIndex.value] || thumbnailUrls.value[0]
+      )
+    }
+    return getProductImageUrl({
+      product: product.value,
+      variants: variants.value,
+      width: 800,
+      height: 600,
+    })
+  })
+
+  // 3. THÊM ĐOẠN NÀY ĐỂ RESET LẠI ẢNH CHÍNH KHI ĐỔI MÀU Áo KHÁC
+  watch(selectedVariant, () => {
+    activeImageIndex.value = 0
+  })
+
+  watch(selectedColorId, () => {
+    const options = sizeOptions.value
+    if (options.length === 0) {
+      selectedSizeId.value = ''
+      return
+    }
+
+    const hasCurrentSize = options.some(opt => opt.value === selectedSizeId.value)
+    if (!hasCurrentSize) {
+      selectedSizeId.value = options[0].value
+    }
+  })
+
+  const canAddToCart = computed(
+    () => !!product.value && !!selectedVariant.value && inStock.value,
+  )
+
+  function getAccountIdFromUser (user) {
+    const source = user && typeof user === 'object' ? user : null
+    if (!source) {
+      return null
+    }
+
+    const candidate
+      = source.accountId !== undefined && source.accountId !== null
+        ? source.accountId
+        : (source.account_id !== undefined && source.account_id !== null
+          ? source.account_id
+          : source.id)
+
+    const parsed = Number(candidate)
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : null
   }
-  return getProductImageUrl({
-    product: product.value,
-    variants: variants.value,
-    width: 800,
-    height: 600,
-  });
-});
 
-// 3. THÊM ĐOẠN NÀY ĐỂ RESET LẠI ẢNH CHÍNH KHI ĐỔI MÀU Áo KHÁC
-watch(selectedVariant, () => {
-  activeImageIndex.value = 0;
-});
+  async function load () {
+    if (!Number.isFinite(productId.value)) {
+      router.replace('/shop')
+      return
+    }
 
-watch(selectedColorId, () => {
-  const options = sizeOptions.value;
-  if (!options.length) {
-    selectedSizeId.value = "";
-    return;
-  }
+    // Ensure base lists exist (brand/category enrichment + variant lookups).
+    // Fetch the specific product by id to ensure name/category are correct.
+    productRef.value = await productStore.fetchProductById(productId.value)
 
-  const hasCurrentSize = options.some((opt) => opt.value === selectedSizeId.value);
-  if (!hasCurrentSize) {
-    selectedSizeId.value = options[0].value;
-  }
-});
+    // Backfill lists if needed for other pages/components.
+    if (productStore.products.length === 0) await productStore.fetchProducts()
+    if (productStore.variants.length === 0) {
+      await productStore.fetchVariants()
+    }
+    if (productStore.brands.length === 0) {
+      await productStore.fetchBrands()
+    }
+    if (productStore.categories.length === 0) {
+      await productStore.fetchCategories()
+    }
 
-const canAddToCart = computed(
-  () => !!product.value && !!selectedVariant.value && inStock.value,
-);
-
-function getAccountIdFromUser(user) {
-  const source = user && typeof user === "object" ? user : null;
-  if (!source) {
-    return null;
-  }
-
-  const candidate =
-    source.accountId !== undefined && source.accountId !== null
-      ? source.accountId
-      : source.account_id !== undefined && source.account_id !== null
-        ? source.account_id
-        : source.id;
-
-  const parsed = Number(candidate);
-  return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
-}
-
-async function load() {
-  if (!Number.isFinite(productId.value)) {
-    router.replace("/shop");
-    return;
-  }
-
-  // Ensure base lists exist (brand/category enrichment + variant lookups).
-  // Fetch the specific product by id to ensure name/category are correct.
-  productRef.value = await productStore.fetchProductById(productId.value);
-
-  // Backfill lists if needed for other pages/components.
-  if (productStore.products.length === 0) await productStore.fetchProducts();
-  if (productStore.variants.length === 0) {
-    await productStore.fetchVariants();
-  }
-  if (productStore.brands.length === 0) {
-    await productStore.fetchBrands();
-  }
-  if (productStore.categories.length === 0) {
-    await productStore.fetchCategories();
-  }
-
-  // Load variants for this product.
-  try {
-    variants.value = await productStore.fetchVariantsByProductId(
-      productId.value,
-    );
-  } catch {
-    variants.value = productStore.variants.filter(
-      (v) => v.productId === productId.value,
-    );
-  }
-
-  await reviewsStore.fetchAccounts();
-  await reviewsStore.fetchReviews({ force: true });
-
-  // Default selections based on the lowest-priced variant.
-  const lowestVariant = getLowestPriceVariant(variants.value);
-  if (lowestVariant) {
-    const lowestColorId = getVariantColorId(lowestVariant);
-    const lowestSizeId = getVariantSizeId(lowestVariant);
-    if (lowestColorId !== null) selectedColorId.value = String(lowestColorId);
-    if (lowestSizeId !== null) selectedSizeId.value = String(lowestSizeId);
-  }
-  activeImageIndex.value = 0;
-}
-
-function handleAddToCart() {
-  if (!canAddToCart.value) return;
-
-  if (!isLoggedIn.value) {
-    showAuthRequiredPopup.value = true;
-    return;
-  }
-
-  const added = cartStore.addToCart(product.value, selectedVariant.value, 1);
-  if (added === false) {
-    showAuthRequiredPopup.value = true;
-    return;
-  }
-
-  router.push("/cart");
-}
-
-function handleCompare() {
-  if (!Number.isFinite(productId.value)) return;
-  compareStore.toggle(productId.value);
-}
-
-function checkLoginStatus() {
-  const user = localStorage.getItem("user");
-
-  let parsedUser = null;
-  if (user) {
+    // Load variants for this product.
     try {
-      parsedUser = JSON.parse(user);
+      variants.value = await productStore.fetchVariantsByProductId(
+        productId.value,
+      )
     } catch {
-      parsedUser = null;
+      variants.value = productStore.variants.filter(
+        v => v.productId === productId.value,
+      )
+    }
+
+    await reviewsStore.fetchAccounts()
+    await reviewsStore.fetchReviews({ force: true })
+
+    // Default selections based on the lowest-priced variant.
+    const lowestVariant = getLowestPriceVariant(variants.value)
+    if (lowestVariant) {
+      const lowestColorId = getVariantColorId(lowestVariant)
+      const lowestSizeId = getVariantSizeId(lowestVariant)
+      if (lowestColorId !== null) selectedColorId.value = String(lowestColorId)
+      if (lowestSizeId !== null) selectedSizeId.value = String(lowestSizeId)
+    }
+    activeImageIndex.value = 0
+  }
+
+  async function handleAddToCart () {
+    if (!canAddToCart.value) return
+
+    if (!isLoggedIn.value) {
+      showAuthRequiredPopup.value = true
+      return
+    }
+
+    const added = await cartStore.addToCart(product.value, selectedVariant.value, 1)
+    if (added === false) {
+      // Show stock / failure warning immediately instead of redirecting
+      const stockMsg = cartStore.error
+      if (stockMsg && /hàng|kho|stock|tồn/i.test(stockMsg)) {
+        stockWarningMessage.value = stockMsg
+        showStockWarning.value = true
+      } else {
+        showAuthRequiredPopup.value = true
+      }
+      return
+    }
+
+    router.push('/cart')
+  }
+
+  function closeStockWarning () {
+    showStockWarning.value = false
+  }
+
+  function handleCompare () {
+    if (!Number.isFinite(productId.value)) return
+    compareStore.toggle(productId.value)
+  }
+
+  function checkLoginStatus () {
+    const user = localStorage.getItem('user')
+
+    let parsedUser = null
+    if (user) {
+      try {
+        parsedUser = JSON.parse(user)
+      } catch {
+        parsedUser = null
+      }
+    }
+
+    const parsedAccountId = getAccountIdFromUser(parsedUser)
+    isLoggedIn.value = parsedAccountId !== null
+
+    if (parsedAccountId !== null) {
+      cartStore.accountId = parsedAccountId
+      return
+    }
+
+    cartStore.accountId = null
+    showUserMenu.value = false
+  }
+
+  function closeAuthRequiredPopup () {
+    showAuthRequiredPopup.value = false
+  }
+
+  function goToLoginFromPopup () {
+    showAuthRequiredPopup.value = false
+    router.push({
+      name: 'login',
+      query: {
+        redirect: route.fullPath,
+      },
+    })
+  }
+
+  function goToRegisterFromPopup () {
+    showAuthRequiredPopup.value = false
+    router.push({
+      name: 'register',
+      query: {
+        redirect: route.fullPath,
+      },
+    })
+  }
+
+  function toggleUserMenu (event) {
+    event.stopPropagation()
+    showUserMenu.value = !showUserMenu.value
+  }
+
+  function handleLogout () {
+    localStorage.removeItem('user')
+    localStorage.removeItem('token')
+    isLoggedIn.value = false
+    showUserMenu.value = false
+    router.push('/')
+  }
+
+  function handleClickOutside (event) {
+    const target = event.target
+    if (!(target instanceof Element) || !target.closest('.account-menu')) {
+      showUserMenu.value = false
     }
   }
 
-  const parsedAccountId = getAccountIdFromUser(parsedUser);
-  isLoggedIn.value = parsedAccountId !== null;
-
-  if (parsedAccountId !== null) {
-    cartStore.accountId = parsedAccountId;
-    return;
+  function handleImgError (e) {
+    // Always fall back to a placeholder if the backend image is missing.
+    e.target.src
+      = 'https://via.placeholder.com/800x600?text='
+        + encodeURIComponent(productName.value)
   }
 
-  cartStore.accountId = null;
-  showUserMenu.value = false;
-}
-
-function closeAuthRequiredPopup() {
-  showAuthRequiredPopup.value = false;
-}
-
-function goToLoginFromPopup() {
-  showAuthRequiredPopup.value = false;
-  router.push({
-    name: "login",
-    query: {
-      redirect: route.fullPath,
-    },
-  });
-}
-
-function goToRegisterFromPopup() {
-  showAuthRequiredPopup.value = false;
-  router.push({
-    name: "register",
-    query: {
-      redirect: route.fullPath,
-    },
-  });
-}
-
-function toggleUserMenu(event) {
-  event.stopPropagation();
-  showUserMenu.value = !showUserMenu.value;
-}
-
-function handleLogout() {
-  localStorage.removeItem("user");
-  localStorage.removeItem("token");
-  isLoggedIn.value = false;
-  showUserMenu.value = false;
-  router.push("/");
-}
-
-function handleClickOutside(event) {
-  const target = event.target;
-  if (!(target instanceof Element) || !target.closest(".account-menu")) {
-    showUserMenu.value = false;
+  function formatReviewDate (iso) {
+    if (!iso) return ''
+    const d = new Date(iso)
+    if (Number.isNaN(d.getTime())) return ''
+    return d.toLocaleDateString('vi-VN')
   }
-}
 
-function handleImgError(e) {
-  // Always fall back to a placeholder if the backend image is missing.
-  e.target.src =
-    "https://via.placeholder.com/800x600?text=" +
-    encodeURIComponent(productName.value);
-}
+  function getReviewAuthorName (review) {
+    return reviewsStore.getAuthorName(review)
+  }
 
-function formatReviewDate(iso) {
-  if (!iso) return "";
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return "";
-  return d.toLocaleDateString("vi-VN");
-}
+  onMounted(() => {
+    checkLoginStatus()
+    load()
+    document.addEventListener('click', handleClickOutside)
+    window.addEventListener('storage', checkLoginStatus)
+  })
 
-function getReviewAuthorName(review) {
-  return reviewsStore.getAuthorName(review);
-}
+  onUnmounted(() => {
+    document.removeEventListener('click', handleClickOutside)
+    window.removeEventListener('storage', checkLoginStatus)
+  })
 
-onMounted(() => {
-  checkLoginStatus();
-  load();
-  document.addEventListener("click", handleClickOutside);
-  window.addEventListener("storage", checkLoginStatus);
-});
+  watch(
+    () => route.fullPath,
+    () => {
+      checkLoginStatus()
+      showUserMenu.value = false
+    },
+  )
 
-onUnmounted(() => {
-  document.removeEventListener("click", handleClickOutside);
-  window.removeEventListener("storage", checkLoginStatus);
-});
-
-watch(
-  () => route.fullPath,
-  () => {
-    checkLoginStatus();
-    showUserMenu.value = false;
-  },
-);
-
-watch(
-  () => route.params.id,
-  () => {
-    load();
-  },
-);
+  watch(
+    () => route.params.id,
+    () => {
+      load()
+    },
+  )
 </script>

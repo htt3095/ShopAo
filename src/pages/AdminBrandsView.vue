@@ -11,8 +11,8 @@
 
         <div class="flex flex-wrap items-center gap-2">
           <button
-            type="button"
             class="inline-flex items-center gap-1.5 rounded-xl bg-primary px-3 py-1.5 text-sm font-semibold text-white hover:opacity-90"
+            type="button"
             @click="openCreateModal"
           >
             <span class="material-symbols-outlined text-[18px]">add</span>
@@ -20,8 +20,8 @@
           </button>
 
           <button
-            type="button"
             class="inline-flex items-center gap-1.5  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-1.5 text-sm font-medium hover:border-primary hover:text-primary "
+            type="button"
             @click="fetchBrands"
           >
             <span class="material-symbols-outlined text-[18px]">refresh</span>
@@ -36,15 +36,13 @@
         <label
           class="flex items-center gap-2  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-1.5 "
         >
-          <span class="material-symbols-outlined text-[18px] text-slate-400"
-            >search</span
-          >
+          <span class="material-symbols-outlined text-[18px] text-slate-400">search</span>
           <input
             v-model="searchQuery"
-            type="text"
-            placeholder="Tìm theo tên thương hiệu, ID..."
             class="w-full bg-transparent text-sm outline-none"
-          />
+            placeholder="Tìm theo tên thương hiệu, ID..."
+            type="text"
+          >
         </label>
       </section>
 
@@ -68,9 +66,9 @@
                 Bạn có thể khôi phục lại khi cần.
               </p>
             </div>
-            
+
           </div>
-          
+
         </div>
 
         <div
@@ -117,11 +115,11 @@
                   >
                     <img
                       v-if="brand.logoUrl"
-                      :src="brand.logoUrl"
                       :alt="brand.name"
                       class="h-full w-full object-cover"
+                      :src="brand.logoUrl"
                       @error="handleImageError"
-                    />
+                    >
                     <span
                       v-else
                       class="material-symbols-outlined text-2xl text-slate-400"
@@ -143,8 +141,7 @@
                     >
                       <span
                         class="material-symbols-outlined text-[18px] text-slate-500"
-                        >edit</span
-                      >
+                      >edit</span>
                     </button>
 
                     <button
@@ -154,8 +151,7 @@
                     >
                       <span
                         class="material-symbols-outlined text-[18px] text-red-500"
-                        >delete</span
-                      >
+                      >delete</span>
                     </button>
                   </div>
                 </td>
@@ -176,9 +172,9 @@
           </p>
           <div class="flex gap-1">
             <button
-              @click="currentPage--"
-              :disabled="currentPage === 1"
               class="rounded-lg border border-slate-200 px-2.5 py-1 text-xs transition-colors hover:bg-slate-50 disabled:opacity-50 dark:hover:bg-white"
+              :disabled="currentPage === 1"
+              @click="currentPage--"
             >
               Trước
             </button>
@@ -186,9 +182,9 @@
               Trang {{ currentPage }} / {{ totalPages }}
             </span>
             <button
-              @click="currentPage++"
-              :disabled="currentPage === totalPages"
               class="rounded-lg border border-slate-200 px-2.5 py-1 text-xs transition-colors hover:bg-slate-50 disabled:opacity-50 dark:hover:bg-white"
+              :disabled="currentPage === totalPages"
+              @click="currentPage++"
             >
               Sau
             </button>
@@ -217,26 +213,29 @@
 
           <div class="grid gap-3">
             <div>
-              <label class="mb-1 block text-xs font-medium text-slate-500"
-                >Tên thương hiệu *</label
-              >
+              <label class="mb-1 block text-xs font-medium text-slate-500">Tên thương hiệu *</label>
               <input
                 v-model.trim="form.name"
-                type="text"
                 class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-1.5 text-sm "
-                placeholder="VD: Nike, Adidas, Puma..."
                 :class="{ 'border-red-500': errors.name }"
-              />
+                placeholder="VD: Nike, Adidas, Puma..."
+                type="text"
+              >
               <p v-if="errors.name" class="mt-1 text-xs text-red-500">
                 {{ errors.name }}
               </p>
             </div>
 
-
             <div>
               <label class="mb-1 block text-xs font-medium text-slate-500">Ảnh thương hiệu</label>
-              <input ref="imageInput" type="file" accept="image/*" class="hidden" @change="handleImageUpload" />
-              <button type="button" class="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-slate-300 bg-slate-50 px-3 py-2 text-sm font-medium text-slate-600 transition-colors hover:border-primary hover:text-primary " @click="$refs.imageInput?.click()">
+              <input
+                ref="imageInput"
+                accept="image/*"
+                class="hidden"
+                type="file"
+                @change="handleImageUpload"
+              >
+              <button class="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-slate-300 bg-slate-50 px-3 py-2 text-sm font-medium text-slate-600 transition-colors hover:border-primary hover:text-primary " type="button" @click="$refs.imageInput?.click()">
                 <span class="material-symbols-outlined text-[18px]">upload</span>
                 Chọn ảnh từ máy tính
               </button>
@@ -247,23 +246,22 @@
               v-if="form.logoUrl"
               class="rounded-xl bg-slate-50 p-3 "
             >
-              <label class="mb-2 block text-xs font-medium text-slate-500"
-                >Xem trước logo</label
-              >
+              <label class="mb-2 block text-xs font-medium text-slate-500">Xem trước logo</label>
               <div class="flex items-center gap-3">
                 <div
                   class="flex h-16 w-16 items-center justify-center overflow-hidden rounded-lg bg-white p-1 shadow-sm"
                 >
                   <img
-                    :src="form.logoUrl"
                     alt="Preview"
                     class="h-full w-full object-contain"
+                    :src="form.logoUrl"
                     @error="previewError = true"
-                  />
+                  >
                 </div>
-                <span v-if="previewError" class="text-xs text-red-500"
-                  >Không thể tải ảnh</span
-                >
+                <span
+                  v-if="previewError"
+                  class="text-xs text-red-500"
+                >Không thể tải ảnh</span>
               </div>
             </div>
           </div>
@@ -274,17 +272,17 @@
 
           <div class="mt-4 flex justify-end gap-2">
             <button
-              type="button"
               class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium hover:border-slate-400 "
+              type="button"
               @click="closeModal"
             >
               Hủy
             </button>
 
             <button
-              type="button"
-              :disabled="saving"
               class="rounded-xl bg-primary px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-60"
+              :disabled="saving"
+              type="button"
               @click="submitForm"
             >
               {{
@@ -330,8 +328,8 @@
               Hủy
             </button>
             <button
-              :disabled="deleting"
               class="rounded-xl bg-red-500 px-4 py-2 text-sm font-medium text-white hover:bg-red-600 disabled:opacity-60"
+              :disabled="deleting"
               @click="deleteBrand"
             >
               {{ deleting ? "Đang xóa..." : "Xóa" }}
@@ -344,333 +342,328 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from "vue";
-import AdminShell from "@/components/admin/AdminShell.vue";
-import { brandsApi, adminApi, resolveImageUrl } from "@/services/api";
+  import { computed, onMounted, ref, watch } from 'vue'
+  import AdminShell from '@/components/admin/AdminShell.vue'
+  import { adminApi, brandsApi, resolveImageUrl } from '@/services/api'
 
-// State
-const brands = ref([]);
-const hiddenBrands = ref([]);
-const loading = ref(false);
-const error = ref("");
-const searchQuery = ref("");
-const currentPage = ref(1);
-const pageSize = ref(10);
+  // State
+  const brands = ref([])
+  const hiddenBrands = ref([])
+  const loading = ref(false)
+  const error = ref('')
+  const searchQuery = ref('')
+  const currentPage = ref(1)
+  const pageSize = ref(10)
 
+  // Modal state
+  const showModal = ref(false)
+  const editingBrandId = ref(null)
+  const saving = ref(false)
+  const modalError = ref('')
+  const previewError = ref(false)
+  const brandImageFile = ref(null)
 
-// Modal state
-const showModal = ref(false);
-const editingBrandId = ref(null);
-const saving = ref(false);
-const modalError = ref("");
-const previewError = ref(false);
-const brandImageFile = ref(null);
+  const visibleBrands = computed(() => {
+    return brands.value.filter(
+      brand =>
+        !hiddenBrands.value.some(
+          hidden => Number(brand.id) === Number(hidden.id),
+        ),
+    )
+  })
 
-const visibleBrands = computed(() => {
-  return brands.value.filter(
-    (brand) =>
-      !hiddenBrands.value.some(
-        (hidden) => Number(brand.id) === Number(hidden.id),
-      ),
-  );
-});
+  // Delete state
+  const deleteTarget = ref(null)
+  const deleting = ref(false)
 
-// Delete state
-const deleteTarget = ref(null);
-const deleting = ref(false);
+  // Form data
+  const form = ref({
+    name: '',
+    slug: '',
+    logoUrl: '',
+  })
 
-// Form data
-const form = ref({
-  name: "",
-  slug: "",
-  logoUrl: "",
-});
+  const errors = ref({})
 
-const errors = ref({});
-
-// Computed
-const filteredBrands = computed(() => {
-  const keyword = searchQuery.value.trim().toLowerCase();
-  if (!keyword) {
-    return visibleBrands.value;
-  }
-
-  return visibleBrands.value.filter((brand) => {
-    const haystack = [brand.name, brand.slug, brand.slugDisplay, brand.id]
-      .filter((item) => item !== undefined && item !== null)
-      .join(" ")
-      .toLowerCase();
-
-    return haystack.includes(keyword);
-  });
-});
-
-const totalPages = computed(() =>
-  Math.ceil(filteredBrands.value.length / pageSize.value),
-);
-
-const paginatedBrands = computed(() => {
-  const start = (currentPage.value - 1) * pageSize.value;
-  const end = start + pageSize.value;
-  return filteredBrands.value.slice(start, end);
-});
-
-// Methods
-function handleImageUpload(event) {
-  const file = event.target?.files?.[0];
-  if (!file) return;
-
-  if (!file.type.startsWith("image/")) {
-    modalError.value = "Vui lòng chọn tệp ảnh hợp lệ.";
-    return;
-  }
-
-  if (file.size > 5 * 1024 * 1024) {
-    modalError.value = "Kích thước ảnh không được vượt quá 5MB.";
-    return;
-  }
-
-  modalError.value = "";
-  brandImageFile.value = file;
-  
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    form.value.logoUrl = e.target?.result || "";
-  };
-  reader.readAsDataURL(file);
-  event.target.value = "";
-}
-
-function resetForm() {
-  form.value = {
-    name: "",
-    slug: "",
-    logoUrl: "",
-  };
-  errors.value = {};
-  previewError.value = false;
-  editingBrandId.value = null;
-  modalError.value = "";
-}
-
-function openCreateModal() {
-  resetForm();
-  showModal.value = true;
-}
-
-function openEditModal(brand) {
-  resetForm();
-  editingBrandId.value = brand.id;
-  form.value = {
-    name: brand.name || "",
-    slug: brand.slugDisplay || "",
-    logoUrl: brand.logoUrl || "",
-  };
-  showModal.value = true;
-}
-
-function closeModal() {
-  showModal.value = false;
-  resetForm();
-}
-
-function validateForm() {
-  errors.value = {};
-
-  if (!form.value.name || form.value.name.trim() === "") {
-    errors.value.name = "Vui lòng nhập tên thương hiệu";
-    return false;
-  }
-
-  if (form.value.name.length > 100) {
-    errors.value.name = "Tên thương hiệu không được vượt quá 100 ký tự";
-    return false;
-  }
-
-  return true;
-}
-
-function generateSlug(name) {
-  if (!name) return "";
-  return name
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}
-
-function pickBrandSlug(source) {
-  const item = source && typeof source === "object" ? source : {};
-  return (
-    item.slug ??
-    item.slugName ??
-    item.slug_name ??
-    item.seoSlug ??
-    item.seo_slug ??
-    ""
-  );
-}
-
-function normalizeBrandRecord(source) {
-  const item = source && typeof source === "object" ? source : {};
-  const name = String(item.name || "").trim();
-  const slugValue = String(pickBrandSlug(item) || "").trim();
-
-  return {
-    ...item,
-    name,
-    slugDisplay: slugValue || (name ? generateSlug(name) : ""),
-    logoUrl:
-      item.logoUrl || item.logo_url
-        ? resolveImageUrl(item.logoUrl || item.logo_url)
-        : null,
-  };
-}
-
-// Watch name to auto-generate slug
-watch(
-  () => form.value.name,
-  (newName, oldName) => {
-    if (!form.value.slug || form.value.slug === generateSlug(oldName || "")) {
-      form.value.slug = generateSlug(newName);
+  // Computed
+  const filteredBrands = computed(() => {
+    const keyword = searchQuery.value.trim().toLowerCase()
+    if (!keyword) {
+      return visibleBrands.value
     }
-  },
-);
 
-async function submitForm() {
-  if (!validateForm()) return;
+    return visibleBrands.value.filter(brand => {
+      const haystack = [brand.name, brand.slug, brand.slugDisplay, brand.id]
+        .filter(item => item !== undefined && item !== null)
+        .join(' ')
+        .toLowerCase()
 
-  saving.value = true;
-  modalError.value = "";
+      return haystack.includes(keyword)
+    })
+  })
 
-  try {
-    let finalImageUrl = form.value.logoUrl;
-    if (brandImageFile.value) {
-      try {
-        const uploadRes = await adminApi.uploadImage(brandImageFile.value);
-        if (uploadRes && uploadRes.imageUrl) {
-          finalImageUrl = uploadRes.imageUrl;
-        }
-      } catch (uploadErr) {
-        modalError.value = "Lỗi khi upload ảnh. Vui lòng thử lại.";
-        saving.value = false;
-        return;
+  const totalPages = computed(() =>
+    Math.ceil(filteredBrands.value.length / pageSize.value),
+  )
+
+  const paginatedBrands = computed(() => {
+    const start = (currentPage.value - 1) * pageSize.value
+    const end = start + pageSize.value
+    return filteredBrands.value.slice(start, end)
+  })
+
+  // Methods
+  function handleImageUpload (event) {
+    const file = event.target?.files?.[0]
+    if (!file) return
+
+    if (!file.type.startsWith('image/')) {
+      modalError.value = 'Vui lòng chọn tệp ảnh hợp lệ.'
+      return
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      modalError.value = 'Kích thước ảnh không được vượt quá 5MB.'
+      return
+    }
+
+    modalError.value = ''
+    brandImageFile.value = file
+
+    const reader = new FileReader()
+    reader.addEventListener('load', e => {
+      form.value.logoUrl = e.target?.result || ''
+    })
+    reader.readAsDataURL(file)
+    event.target.value = ''
+  }
+
+  function resetForm () {
+    form.value = {
+      name: '',
+      slug: '',
+      logoUrl: '',
+    }
+    errors.value = {}
+    previewError.value = false
+    editingBrandId.value = null
+    modalError.value = ''
+  }
+
+  function openCreateModal () {
+    resetForm()
+    showModal.value = true
+  }
+
+  function openEditModal (brand) {
+    resetForm()
+    editingBrandId.value = brand.id
+    form.value = {
+      name: brand.name || '',
+      slug: brand.slugDisplay || '',
+      logoUrl: brand.logoUrl || '',
+    }
+    showModal.value = true
+  }
+
+  function closeModal () {
+    showModal.value = false
+    resetForm()
+  }
+
+  function validateForm () {
+    errors.value = {}
+
+    if (!form.value.name || form.value.name.trim() === '') {
+      errors.value.name = 'Vui lòng nhập tên thương hiệu'
+      return false
+    }
+
+    if (form.value.name.length > 100) {
+      errors.value.name = 'Tên thương hiệu không được vượt quá 100 ký tự'
+      return false
+    }
+
+    return true
+  }
+
+  function generateSlug (name) {
+    if (!name) return ''
+    return name
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036F]/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+  }
+
+  function pickBrandSlug (source) {
+    const item = source && typeof source === 'object' ? source : {}
+    return (
+      item.slug
+      ?? item.slugName
+      ?? item.slug_name
+      ?? item.seoSlug
+      ?? item.seo_slug
+      ?? ''
+    )
+  }
+
+  function normalizeBrandRecord (source) {
+    const item = source && typeof source === 'object' ? source : {}
+    const name = String(item.name || '').trim()
+    const slugValue = String(pickBrandSlug(item) || '').trim()
+
+    return {
+      ...item,
+      name,
+      slugDisplay: slugValue || (name ? generateSlug(name) : ''),
+      logoUrl:
+        item.logoUrl || item.logo_url
+          ? resolveImageUrl(item.logoUrl || item.logo_url)
+          : null,
+    }
+  }
+
+  // Watch name to auto-generate slug
+  watch(
+    () => form.value.name,
+    (newName, oldName) => {
+      if (!form.value.slug || form.value.slug === generateSlug(oldName || '')) {
+        form.value.slug = generateSlug(newName)
       }
-    }
-    const payload = {
-      name: form.value.name.trim(),
-      slug: form.value.slug?.trim() || generateSlug(form.value.name),
-      logoUrl: finalImageUrl || null,
-    };
+    },
+  )
 
-    if (editingBrandId.value) {
-      await brandsApi.update(editingBrandId.value, payload);
-    } else {
-      await brandsApi.create(payload);
-    }
+  async function submitForm () {
+    if (!validateForm()) return
 
-    closeModal();
-    await fetchBrands();
-  } catch (err) {
-    console.error("Lỗi khi lưu thương hiệu:", err);
-    modalError.value =
-      err?.message ||
-      (editingBrandId.value
-        ? "Không thể cập nhật thương hiệu"
-        : "Không thể thêm thương hiệu");
-  } finally {
-    saving.value = false;
-  }
-}
+    saving.value = true
+    modalError.value = ''
 
-function confirmDelete(brand) {
-  deleteTarget.value = brand;
-}
-
-async function deleteBrand() {
-    if (!deleteTarget.value) return;
-    deleting.value = true;
     try {
-      await brandsApi.delete(deleteTarget.value.id);
-      brands.value = brands.value.filter((item) => Number(item.id) !== Number(deleteTarget.value.id));
-      deleteTarget.value = null;
-    } catch (err) {
-      alert("Lỗi khi xóa: " + err.message);
+      let finalImageUrl = form.value.logoUrl
+      if (brandImageFile.value) {
+        try {
+          const uploadRes = await adminApi.uploadImage(brandImageFile.value)
+          if (uploadRes && uploadRes.imageUrl) {
+            finalImageUrl = uploadRes.imageUrl
+          }
+        } catch {
+          modalError.value = 'Lỗi khi upload ảnh. Vui lòng thử lại.'
+          saving.value = false
+          return
+        }
+      }
+      const payload = {
+        name: form.value.name.trim(),
+        slug: form.value.slug?.trim() || generateSlug(form.value.name),
+        logoUrl: finalImageUrl || null,
+      }
+
+      await (editingBrandId.value ? brandsApi.update(editingBrandId.value, payload) : brandsApi.create(payload))
+
+      closeModal()
+      await fetchBrands()
+    } catch (error_) {
+      console.error('Lỗi khi lưu thương hiệu:', error_)
+      modalError.value
+        = error_?.message
+          || (editingBrandId.value
+            ? 'Không thể cập nhật thương hiệu'
+            : 'Không thể thêm thương hiệu')
     } finally {
-      deleting.value = false;
+      saving.value = false
     }
   }
 
-async function fetchBrands() {
-  loading.value = true;
-  error.value = "";
+  function confirmDelete (brand) {
+    deleteTarget.value = brand
+  }
 
-  try {
-    const response = await brandsApi.getAll();
-    let brandList = [];
-
-    if (Array.isArray(response)) {
-      brandList = response;
-    } else if (
-      response &&
-      response.content &&
-      Array.isArray(response.content)
-    ) {
-      brandList = response.content;
-    } else if (response && response.data && Array.isArray(response.data)) {
-      brandList = response.data;
+  async function deleteBrand () {
+    if (!deleteTarget.value) return
+    deleting.value = true
+    try {
+      await brandsApi.delete(deleteTarget.value.id)
+      brands.value = brands.value.filter(item => Number(item.id) !== Number(deleteTarget.value.id))
+      deleteTarget.value = null
+    } catch (error_) {
+      alert('Lỗi khi xóa: ' + error_.message)
+    } finally {
+      deleting.value = false
     }
-
-    brands.value = brandList.map(normalizeBrandRecord);
-  } catch (err) {
-    console.error("Lỗi khi tải danh sách thương hiệu:", err);
-    error.value =
-      "Không thể tải danh sách thương hiệu. Vui lòng kiểm tra backend API.";
-  } finally {
-    loading.value = false;
   }
-}
 
-function handleImageError(e) {
-  previewError.value = true;
-  e.target.style.display = "none";
-}
+  async function fetchBrands () {
+    loading.value = true
+    error.value = ''
 
-async function restoreBrand(brand) {
-  try {
-    await brandsApi.restoreBrand(brand.id);
-    const restoredId = Number(brand?.id);
-    hiddenBrands.value = hiddenBrands.value.filter(
-      (hidden) => Number(hidden.id) !== restoredId,
-    );
-    await fetchBrands();
-  } catch (err) {
-    error.value = "Không thể khôi phục thương hiệu.";
-  }
-}
+    try {
+      const response = await brandsApi.getAll()
+      let brandList = []
 
-async function restoreAllHiddenBrands() {
-  try {
-    for (const brand of hiddenBrands.value) {
-      await brandsApi.restoreBrand(brand.id);
+      if (Array.isArray(response)) {
+        brandList = response
+      } else if (
+        response
+        && response.content
+        && Array.isArray(response.content)
+      ) {
+        brandList = response.content
+      } else if (response && response.data && Array.isArray(response.data)) {
+        brandList = response.data
+      }
+
+      brands.value = brandList.map(normalizeBrandRecord)
+    } catch (error_) {
+      console.error('Lỗi khi tải danh sách thương hiệu:', error_)
+      error.value
+        = 'Không thể tải danh sách thương hiệu. Vui lòng kiểm tra backend API.'
+    } finally {
+      loading.value = false
     }
-    hiddenBrands.value = [];
-    await fetchBrands();
-  } catch (err) {
-    error.value = "Có lỗi xảy ra khi khôi phục.";
   }
-}
 
-// Watch search to reset page
-watch(searchQuery, () => {
-  currentPage.value = 1;
-});
+  function handleImageError (e) {
+    previewError.value = true
+    e.target.style.display = 'none'
+  }
 
-// Lifecycle
-onMounted(() => {
-  fetchBrands();
-});
+  async function restoreBrand (brand) {
+    try {
+      await brandsApi.restoreBrand(brand.id)
+      const restoredId = Number(brand?.id)
+      hiddenBrands.value = hiddenBrands.value.filter(
+        hidden => Number(hidden.id) !== restoredId,
+      )
+      await fetchBrands()
+    } catch {
+      error.value = 'Không thể khôi phục thương hiệu.'
+    }
+  }
+
+  async function restoreAllHiddenBrands () {
+    try {
+      for (const brand of hiddenBrands.value) {
+        await brandsApi.restoreBrand(brand.id)
+      }
+      hiddenBrands.value = []
+      await fetchBrands()
+    } catch {
+      error.value = 'Có lỗi xảy ra khi khôi phục.'
+    }
+  }
+
+  // Watch search to reset page
+  watch(searchQuery, () => {
+    currentPage.value = 1
+  })
+
+  // Lifecycle
+  onMounted(() => {
+    fetchBrands()
+  })
 </script>
 
 <style scoped>

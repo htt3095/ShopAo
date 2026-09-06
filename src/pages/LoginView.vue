@@ -12,10 +12,10 @@
       >
         <div class="relative flex w-full items-end">
           <img
-            class="absolute inset-0 h-full w-full object-cover"
             alt="Athletic runner sprinting on a modern track wearing SportX sportswear"
+            class="absolute inset-0 h-full w-full object-cover"
             src="https://images.unsplash.com/photo-1460353581641-37baddab0fa2?auto=format&fit=crop&w=1400&q=80"
-          />
+          >
           <div
             class="absolute inset-0 bg-gradient-to-t from-[#14100d]/90 via-[#14100d]/45 to-transparent"
           />
@@ -23,8 +23,7 @@
           <div class="relative z-10 flex w-full flex-col gap-6 p-10 text-slate-800">
             <span
               class="retail-kicker w-fit border-white/30 bg-white/15 text-slate-800"
-              >Tài khoản SportX</span
-            >
+            >Tài khoản SportX</span>
             <div>
               <h1 class="text-[42px] font-black leading-[1.02] tracking-tight">
                 Đăng nhập để mua nhanh và theo dõi đơn thuận tiện hơn.
@@ -109,46 +108,36 @@
             <label class="flex flex-col gap-1.5">
               <span
                 class="text-slate-900  text-sm font-medium leading-normal"
-                >Email liên hệ <span class="text-red-500">*</span></span
-              >
+              >Email liên hệ <span class="text-red-500">*</span></span>
               <div
                 class="flex items-center rounded-xl border border-slate-300  bg-white  overflow-hidden focus-within:border-primary focus-within:ring-1 focus-within:ring-primary transition-all"
               >
-                <span class="pl-4 text-slate-400 "
-                  ><span class="material-symbols-outlined text-[20px]"
-                    >mail</span
-                  ></span
-                >
+                <span class="pl-4 text-slate-400 "><span class="material-symbols-outlined text-[20px]">mail</span></span>
                 <input
                   v-model="formData.gmail"
                   class="w-full border-none bg-transparent p-3.5 text-base text-slate-900  placeholder:text-slate-400 :text-[#9cabba] focus:ring-0 outline-none"
                   placeholder="you@gmail.com"
                   required
                   type="email"
-                />
+                >
               </div>
             </label>
 
             <label class="flex flex-col gap-1.5">
               <span
                 class="text-slate-900  text-sm font-medium leading-normal"
-                >Mật khẩu <span class="text-red-500">*</span></span
-              >
+              >Mật khẩu <span class="text-red-500">*</span></span>
               <div
                 class="flex items-center rounded-xl border border-slate-300  bg-white  overflow-hidden focus-within:border-primary focus-within:ring-1 focus-within:ring-primary transition-all"
               >
-                <span class="pl-4 text-slate-400 "
-                  ><span class="material-symbols-outlined text-[20px]"
-                    >lock</span
-                  ></span
-                >
+                <span class="pl-4 text-slate-400 "><span class="material-symbols-outlined text-[20px]">lock</span></span>
                 <input
                   v-model="formData.password"
                   class="w-full border-none bg-transparent p-3.5 text-base text-slate-900  placeholder:text-slate-400 :text-[#9cabba] focus:ring-0 outline-none"
                   placeholder="••••••••"
                   required
                   :type="showPassword ? 'text' : 'password'"
-                />
+                >
                 <button
                   class="pr-4 text-slate-400  hover:text-primary transition-colors cursor-pointer"
                   type="button"
@@ -165,8 +154,7 @@
               <router-link
                 class="font-medium text-primary hover:text-[#a84f24] hover:underline transition-colors text-sm"
                 to="/forgot-password"
-                >Quên mật khẩu?</router-link
-              >
+              >Quên mật khẩu?</router-link>
             </div>
 
             <button
@@ -202,22 +190,21 @@
             <div class="relative flex items-center py-4">
               <div
                 class="flex-grow border-t border-slate-200 "
-              ></div>
+              />
               <span
                 class="flex-shrink-0 mx-4 text-slate-400 text-xs uppercase tracking-wider font-semibold"
-                >Hoặc tiếp tục với</span
-              >
+              >Hoặc tiếp tục với</span>
               <div
                 class="flex-grow border-t border-slate-200 "
-              ></div>
+              />
             </div>
 
             <div class="flex justify-center w-full mb-2">
               <GoogleLogin
                 :callback="handleGoogleLogin"
-                theme="filled_black"
                 shape="rectangular"
                 text="continue_with"
+                theme="filled_black"
                 :width="350"
               />
             </div>
@@ -229,197 +216,197 @@
 </template>
 
 <script setup>
-import { reactive, ref } from "vue";
-import { useRouter } from "vue-router";
-import { authApi } from "../services/api";
-import { GoogleLogin } from "vue3-google-login"; // BẮT BUỘC PHẢI CÓ DÒNG NÀY ĐỂ HIỆN NÚT
+  import { reactive, ref } from 'vue'
+  import { GoogleLogin } from 'vue3-google-login' // BẮT BUỘC PHẢI CÓ DÒNG NÀY ĐỂ HIỆN NÚT
+  import { useRouter } from 'vue-router'
+  import { authApi } from '../services/api'
 
-const router = useRouter();
+  const router = useRouter()
 
-const showPassword = ref(false);
-const isLoading = ref(false);
-const errorMessage = ref("");
-const successMessage = ref("");
+  const showPassword = ref(false)
+  const isLoading = ref(false)
+  const errorMessage = ref('')
+  const successMessage = ref('')
 
-const formData = reactive({
-  gmail: "",
-  password: "",
-});
+  const formData = reactive({
+    gmail: '',
+    password: '',
+  })
 
-function normalizeIsActive(value, fallback = true) {
-  if (value === true || value === 1 || value === "1" || value === "true")
-    return true;
-  if (value === false || value === 0 || value === "0" || value === "false")
-    return false;
-  return fallback;
-}
-
-function extractAccountPayload(response) {
-  if (!response || typeof response !== "object") return null;
-  if (response.account && typeof response.account === "object")
-    return response.account;
-  if (response.accountResponse && typeof response.accountResponse === "object")
-    return response.accountResponse;
-  if (response.data?.account && typeof response.data.account === "object")
-    return response.data.account;
-  if (response.data && typeof response.data === "object" && response.data.id)
-    return response.data;
-  if (response.id) return response;
-  return null;
-}
-
-function normalizeRoleName(roleValue) {
-  if (typeof roleValue !== "string") return null;
-  const normalized = roleValue.trim().toUpperCase();
-  if (!normalized) return null;
-  return normalized.startsWith("ROLE_") ? normalized.slice(5) : normalized;
-}
-
-function extractRoleFromAccount(account) {
-  if (!account || typeof account !== "object") return null;
-
-  const directRole =
-    normalizeRoleName(account.role) ||
-    normalizeRoleName(account.roleName) ||
-    normalizeRoleName(account.authority);
-
-  if (directRole) return directRole;
-
-  if (!Array.isArray(account.roles)) return null;
-
-  const roleNames = account.roles
-    .map((item) => {
-      if (typeof item === "string") return normalizeRoleName(item);
-      if (!item || typeof item !== "object") return null;
-      return (
-        normalizeRoleName(item.name) ||
-        normalizeRoleName(item.role) ||
-        normalizeRoleName(item.roleName) ||
-        normalizeRoleName(item.authority)
-      );
-    })
-    .filter(Boolean);
-
-  if (roleNames.includes("ADMIN")) return "ADMIN";
-  if (roleNames.includes("USER")) return "USER";
-  if (roleNames.includes("GUEST")) return "GUEST";
-  return roleNames[0] || null;
-}
-
-// --- HÀM LƯU THÔNG TIN ĐĂNG NHẬP VÀ CHUYỂN HƯỚNG ---
-function handleLoginSuccess(response, account) {
-  successMessage.value = "Đăng nhập thành công! Đang chuyển hướng...";
-
-  let role = extractRoleFromAccount(account);
-  if (
-    !role &&
-    (account.gmail === "admin@shopgiay.com" ||
-      account.gmail === "admin@example.com")
-  ) {
-    role = "ADMIN";
-  }
-  if (!role) {
-    role = "CUSTOMER";
+  function normalizeIsActive (value, fallback = true) {
+    if (value === true || value === 1 || value === '1' || value === 'true')
+      return true
+    if (value === false || value === 0 || value === '0' || value === 'false')
+      return false
+    return fallback
   }
 
-  console.log("User role detected:", role);
-
-  const normalizedUser = {
-    id: account.id,
-    accountCode: account.accountCode,
-    username: account.username,
-    gmail: account.gmail,
-    phone: account.phone,
-    address: account.address,
-    imgUrl: account.imgUrl || null,
-    isActive: normalizeIsActive(account.isActive, true),
-    role: role,
-    roles: Array.isArray(account.roles) ? account.roles : [],
-  };
-
-  localStorage.setItem("user", JSON.stringify(normalizedUser));
-  localStorage.setItem("userRole", role);
-
-  if (response.token) {
-    localStorage.setItem("token", response.token);
+  function extractAccountPayload (response) {
+    if (!response || typeof response !== 'object') return null
+    if (response.account && typeof response.account === 'object')
+      return response.account
+    if (response.accountResponse && typeof response.accountResponse === 'object')
+      return response.accountResponse
+    if (response.data?.account && typeof response.data.account === 'object')
+      return response.data.account
+    if (response.data && typeof response.data === 'object' && response.data.id)
+      return response.data
+    if (response.id) return response
+    return null
   }
 
-  setTimeout(() => {
-    if (role === "ADMIN") {
-      router.push({ name: "admin-home" });
-    } else {
-      router.push({ name: "home" });
+  function normalizeRoleName (roleValue) {
+    if (typeof roleValue !== 'string') return null
+    const normalized = roleValue.trim().toUpperCase()
+    if (!normalized) return null
+    return normalized.startsWith('ROLE_') ? normalized.slice(5) : normalized
+  }
+
+  function extractRoleFromAccount (account) {
+    if (!account || typeof account !== 'object') return null
+
+    const directRole
+      = normalizeRoleName(account.role)
+        || normalizeRoleName(account.roleName)
+        || normalizeRoleName(account.authority)
+
+    if (directRole) return directRole
+
+    if (!Array.isArray(account.roles)) return null
+
+    const roleNames = account.roles
+      .map(item => {
+        if (typeof item === 'string') return normalizeRoleName(item)
+        if (!item || typeof item !== 'object') return null
+        return (
+          normalizeRoleName(item.name)
+          || normalizeRoleName(item.role)
+          || normalizeRoleName(item.roleName)
+          || normalizeRoleName(item.authority)
+        )
+      })
+      .filter(Boolean)
+
+    if (roleNames.includes('ADMIN')) return 'ADMIN'
+    if (roleNames.includes('USER')) return 'USER'
+    if (roleNames.includes('GUEST')) return 'GUEST'
+    return roleNames[0] || null
+  }
+
+  // --- HÀM LƯU THÔNG TIN ĐĂNG NHẬP VÀ CHUYỂN HƯỚNG ---
+  function handleLoginSuccess (response, account) {
+    successMessage.value = 'Đăng nhập thành công! Đang chuyển hướng...'
+
+    let role = extractRoleFromAccount(account)
+    if (
+      !role
+      && (account.gmail === 'admin@shopgiay.com'
+        || account.gmail === 'admin@example.com')
+    ) {
+      role = 'ADMIN'
     }
-  }, 500);
-}
-
-// --- ĐĂNG NHẬP BẰNG TÀI KHOẢN MẬT KHẨU ---
-async function handleLogin() {
-  errorMessage.value = "";
-  successMessage.value = "";
-
-  if (!formData.gmail || !formData.password) {
-    errorMessage.value = "Vui lòng điền đầy đủ thông tin";
-    return;
-  }
-
-  isLoading.value = true;
-
-  try {
-    const response = await authApi.login({
-      gmail: formData.gmail,
-      password: formData.password,
-    });
-
-    const account = extractAccountPayload(response);
-
-    if (response && response.success && account) {
-      handleLoginSuccess(response, account);
-    } else {
-      errorMessage.value =
-        response?.message || "Đăng nhập thất bại. Kiểm tra lại Email/Mật khẩu.";
+    if (!role) {
+      role = 'CUSTOMER'
     }
-  } catch (error) {
-    errorMessage.value =
-      error.message || "Có lỗi xảy ra. Vui lòng thử lại sau.";
-  } finally {
-    isLoading.value = false;
-  }
-}
 
-// --- ĐĂNG NHẬP BẰNG GOOGLE ---
-async function handleGoogleLogin(googleResponse) {
-  console.log("Mã Token Google trả về:", googleResponse); // In ra để debug nếu cần
+    console.log('User role detected:', role)
 
-  errorMessage.value = "";
-  successMessage.value = "";
-
-  if (!googleResponse || !googleResponse.credential) {
-    errorMessage.value =
-      "Không lấy được mã xác thực từ Google. Vui lòng thử lại.";
-    return;
-  }
-
-  isLoading.value = true;
-
-  try {
-    const googleToken = googleResponse.credential;
-    const response = await authApi.loginWithGoogle({ token: googleToken });
-
-    const account = extractAccountPayload(response);
-
-    if (response && response.success && account) {
-      handleLoginSuccess(response, account);
-    } else {
-      errorMessage.value =
-        response?.message || "Tài khoản Google của bạn bị từ chối truy cập.";
+    const normalizedUser = {
+      id: account.id,
+      accountCode: account.accountCode,
+      username: account.username,
+      gmail: account.gmail,
+      phone: account.phone,
+      address: account.address,
+      imgUrl: account.imgUrl || null,
+      isActive: normalizeIsActive(account.isActive, true),
+      role: role,
+      roles: Array.isArray(account.roles) ? account.roles : [],
     }
-  } catch (error) {
-    console.error("Lỗi khi gửi Token xuống Backend:", error);
-    errorMessage.value =
-      "Máy chủ đang bận hoặc có lỗi cấu hình. Vui lòng thử lại sau.";
-  } finally {
-    isLoading.value = false;
+
+    localStorage.setItem('user', JSON.stringify(normalizedUser))
+    localStorage.setItem('userRole', role)
+
+    if (response.token) {
+      localStorage.setItem('token', response.token)
+    }
+
+    setTimeout(() => {
+      if (role === 'ADMIN') {
+        router.push({ name: 'admin-home' })
+      } else {
+        router.push({ name: 'home' })
+      }
+    }, 500)
   }
-}
+
+  // --- ĐĂNG NHẬP BẰNG TÀI KHOẢN MẬT KHẨU ---
+  async function handleLogin () {
+    errorMessage.value = ''
+    successMessage.value = ''
+
+    if (!formData.gmail || !formData.password) {
+      errorMessage.value = 'Vui lòng điền đầy đủ thông tin'
+      return
+    }
+
+    isLoading.value = true
+
+    try {
+      const response = await authApi.login({
+        gmail: formData.gmail,
+        password: formData.password,
+      })
+
+      const account = extractAccountPayload(response)
+
+      if (response && response.success && account) {
+        handleLoginSuccess(response, account)
+      } else {
+        errorMessage.value
+          = response?.message || 'Đăng nhập thất bại. Kiểm tra lại Email/Mật khẩu.'
+      }
+    } catch (error) {
+      errorMessage.value
+        = error.message || 'Có lỗi xảy ra. Vui lòng thử lại sau.'
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  // --- ĐĂNG NHẬP BẰNG GOOGLE ---
+  async function handleGoogleLogin (googleResponse) {
+    console.log('Mã Token Google trả về:', googleResponse) // In ra để debug nếu cần
+
+    errorMessage.value = ''
+    successMessage.value = ''
+
+    if (!googleResponse || !googleResponse.credential) {
+      errorMessage.value
+        = 'Không lấy được mã xác thực từ Google. Vui lòng thử lại.'
+      return
+    }
+
+    isLoading.value = true
+
+    try {
+      const googleToken = googleResponse.credential
+      const response = await authApi.loginWithGoogle({ token: googleToken })
+
+      const account = extractAccountPayload(response)
+
+      if (response && response.success && account) {
+        handleLoginSuccess(response, account)
+      } else {
+        errorMessage.value
+          = response?.message || 'Tài khoản Google của bạn bị từ chối truy cập.'
+      }
+    } catch (error) {
+      console.error('Lỗi khi gửi Token xuống Backend:', error)
+      errorMessage.value
+        = 'Máy chủ đang bận hoặc có lỗi cấu hình. Vui lòng thử lại sau.'
+    } finally {
+      isLoading.value = false
+    }
+  }
 </script>

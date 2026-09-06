@@ -1,18 +1,18 @@
-const fs = require('fs');
+const fs = require('node:fs')
 
-let content = fs.readFileSync('src/pages/CheckoutView.vue', 'utf8');
+let content = fs.readFileSync('src/pages/CheckoutView.vue', 'utf8')
 
-const startStr = "    const geoRes = await fetch(";
-const endStr = "    const first = Array.isArray(geoData) ? geoData[0] : null;";
+const startStr = '    const geoRes = await fetch('
+const endStr = '    const first = Array.isArray(geoData) ? geoData[0] : null;'
 
-const startIdx = content.indexOf(startStr);
-const endIdx = content.indexOf(endStr);
+const startIdx = content.indexOf(startStr)
+const endIdx = content.indexOf(endStr)
 
-if (startIdx > -1 && endIdx > -1) {
-    const before = content.substring(0, startIdx);
-    const after = content.substring(endIdx + endStr.length);
-    
-    const fixBlock = `    let first = null;
+if (startIdx !== -1 && endIdx !== -1) {
+  const before = content.slice(0, Math.max(0, startIdx))
+  const after = content.slice(Math.max(0, endIdx + endStr.length))
+
+  const fixBlock = `    let first = null;
     const parts = addressText.split(',').map(s => s.trim()).filter(Boolean);
     while (parts.length > 0) {
       const q = parts.join(', ');
@@ -34,11 +34,11 @@ if (startIdx > -1 && endIdx > -1) {
         break;
       }
       parts.shift();
-    }`;
+    }`
 
-    content = before + fixBlock + after;
-    fs.writeFileSync('src/pages/CheckoutView.vue', content);
-    console.log('Fixed');
+  content = before + fixBlock + after
+  fs.writeFileSync('src/pages/CheckoutView.vue', content)
+  console.log('Fixed')
 } else {
-    console.log('Not found');
+  console.log('Not found')
 }

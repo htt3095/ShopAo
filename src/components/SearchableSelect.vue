@@ -1,5 +1,5 @@
 <template>
-  <div class="relative w-full" ref="dropdownRef">
+  <div ref="dropdownRef" class="relative w-full">
     <div
       class="flex items-center justify-between rounded-xl border bg-white px-4 py-3 text-sm cursor-pointer outline-none focus:ring-2 focus:border-primary dark:bg-[#1b2127] dark:text-white dark:border-[#3b4754]"
       :class="{'ring-2 border-primary': isOpen, 'opacity-50 cursor-not-allowed': disabled}"
@@ -18,11 +18,11 @@
         <input
           ref="searchInputRef"
           v-model="searchQuery"
-          type="text"
           class="w-full rounded-lg bg-slate-100 px-3 py-2 text-sm outline-none dark:bg-[#252c34] dark:text-white"
           placeholder="Tìm kiếm..."
+          type="text"
           @click.stop
-        />
+        >
       </div>
       <ul class="max-h-60 overflow-y-auto py-1">
         <li
@@ -43,74 +43,74 @@
 </template>
 
 <script setup>
-import { ref, computed, nextTick, onMounted, onUnmounted } from "vue";
+  import { computed, nextTick, onMounted, onUnmounted, ref } from 'vue'
 
-const props = defineProps({
-  modelValue: {
-    type: Object,
-    default: null
-  },
-  options: {
-    type: Array,
-    default: () => []
-  },
-  placeholder: {
-    type: String,
-    default: "Chọn một mục"
-  },
-  labelKey: {
-    type: String,
-    default: "name"
-  },
-  disabled: {
-    type: Boolean,
-    default: false
+  const props = defineProps({
+    modelValue: {
+      type: Object,
+      default: null,
+    },
+    options: {
+      type: Array,
+      default: () => [],
+    },
+    placeholder: {
+      type: String,
+      default: 'Chọn một mục',
+    },
+    labelKey: {
+      type: String,
+      default: 'name',
+    },
+    disabled: {
+      type: Boolean,
+      default: false,
+    },
+  })
+
+  const emit = defineEmits(['update:modelValue', 'change'])
+
+  const isOpen = ref(false)
+  const searchQuery = ref('')
+  const dropdownRef = ref(null)
+  const searchInputRef = ref(null)
+
+  const filteredOptions = computed(() => {
+    if (!searchQuery.value) return props.options
+    const query = searchQuery.value.toLowerCase().trim()
+    return props.options.filter(opt =>
+      String(opt[props.labelKey] || '').toLowerCase().includes(query),
+    )
+  })
+
+  function toggleDropdown () {
+    if (props.disabled) return
+    isOpen.value = !isOpen.value
+    if (isOpen.value) {
+      searchQuery.value = ''
+      nextTick(() => {
+        searchInputRef.value?.focus()
+      })
+    }
   }
-});
 
-const emit = defineEmits(["update:modelValue", "change"]);
-
-const isOpen = ref(false);
-const searchQuery = ref("");
-const dropdownRef = ref(null);
-const searchInputRef = ref(null);
-
-const filteredOptions = computed(() => {
-  if (!searchQuery.value) return props.options;
-  const query = searchQuery.value.toLowerCase().trim();
-  return props.options.filter(opt => 
-    String(opt[props.labelKey] || "").toLowerCase().includes(query)
-  );
-});
-
-function toggleDropdown() {
-  if (props.disabled) return;
-  isOpen.value = !isOpen.value;
-  if (isOpen.value) {
-    searchQuery.value = "";
-    nextTick(() => {
-      searchInputRef.value?.focus();
-    });
+  function selectOption (option) {
+    emit('update:modelValue', option)
+    emit('change', option)
+    isOpen.value = false
   }
-}
 
-function selectOption(option) {
-  emit("update:modelValue", option);
-  emit("change", option);
-  isOpen.value = false;
-}
-
-function handleClickOutside(event) {
-  if (dropdownRef.value && !dropdownRef.value.contains(event.target)) {
-    isOpen.value = false;
+  function handleClickOutside (event) {
+    if (dropdownRef.value && !dropdownRef.value.contains(event.target)) {
+      isOpen.value = false
+    }
   }
-}
 
-onMounted(() => {
-  document.addEventListener("click", handleClickOutside);
-});
+  onMounted(() => {
+    document.addEventListener('click', handleClickOutside)
+  })
 
-onUnmounted(() => {
-  document.removeEventListener("click", handleClickOutside);
-});
+  onUnmounted(() => {
+    document.removeEventListener('click', handleClickOutside)
+  })
 </script>

@@ -67,57 +67,66 @@
               <h3 class="text-sm font-bold text-slate-700 mb-3">Chọn địa chỉ đã lưu:</h3>
               <div class="space-y-3">
                 <label v-for="addr in savedAddresses" :key="addr.id" class="flex items-start gap-3 p-3 border rounded-xl cursor-pointer transition-colors" :class="selectedAddressId === addr.id ? 'border-primary bg-primary/5' : 'border-slate-200 hover:bg-slate-50'">
-                  <input type="radio" v-model="selectedAddressId" :value="addr.id" class="mt-1" @change="handleSelectSavedAddress(addr)">
+                  <input
+                    v-model="selectedAddressId"
+                    class="mt-1"
+                    type="radio"
+                    :value="addr.id"
+                    @change="handleSelectSavedAddress(addr)"
+                  >
                   <div>
                     <p class="font-bold text-sm">{{ addr.fullname }} - {{ addr.phone }} <span v-if="addr.isDefault" class="ml-2 text-[10px] bg-primary text-white px-1.5 py-0.5 rounded">Mặc định</span></p>
                     <p class="text-sm text-slate-600">{{ addr.address }}</p>
                   </div>
                 </label>
                 <label class="flex items-start gap-3 p-3 border rounded-xl cursor-pointer transition-colors" :class="selectedAddressId === 'new' ? 'border-primary bg-primary/5' : 'border-slate-200 hover:bg-slate-50'">
-                  <input type="radio" v-model="selectedAddressId" value="new" class="mt-1" @change="resetShippingForm">
+                  <input
+                    v-model="selectedAddressId"
+                    class="mt-1"
+                    type="radio"
+                    value="new"
+                    @change="resetShippingForm"
+                  >
                   <span class="font-bold text-sm">Nhập địa chỉ mới</span>
                 </label>
               </div>
             </div>
 
-            <div class="grid grid-cols-1 gap-4 md:grid-cols-2" v-show="selectedAddressId === 'new'">
+            <div v-show="selectedAddressId === 'new'" class="grid grid-cols-1 gap-4 md:grid-cols-2">
               <label class="flex flex-col gap-2 md:col-span-2">
                 <span
                   class="text-xs font-semibold uppercase tracking-wide text-slate-500 "
-                  >Email liên hệ</span
-                >
+                >Email liên hệ</span>
                 <input
                   v-model.trim="shippingForm.gmail"
-                  type="email"
                   class="rounded-xl border bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:ring-2 focus:border-primary   "
                   placeholder="peak@example.com"
-                />
+                  type="email"
+                >
               </label>
 
               <label class="flex flex-col gap-2">
                 <span
                   class="text-xs font-semibold uppercase tracking-wide text-slate-500 "
-                  >Họ và tên</span
-                >
+                >Họ và tên</span>
                 <input
                   v-model.trim="shippingForm.fullname"
-                  type="text"
                   class="rounded-xl border bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:border-primary   "
                   placeholder="Nguyen Van A"
-                />
+                  type="text"
+                >
               </label>
 
               <label class="flex flex-col gap-2">
                 <span
                   class="text-xs font-semibold uppercase tracking-wide text-slate-500 "
-                  >Số điện thoại</span
-                >
+                >Số điện thoại</span>
                 <input
                   v-model.trim="shippingForm.phone"
-                  type="text"
                   class="rounded-xl border bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:border-primary   "
                   placeholder="09xxxxxxxx"
-                />
+                  type="text"
+                >
               </label>
 
               <label class="flex flex-col gap-2">
@@ -134,9 +143,9 @@
                 <span class="text-xs font-semibold uppercase tracking-wide text-slate-500 ">Quận/Huyện</span>
                 <SearchableSelect
                   v-model="selectedDistrict"
+                  :disabled="!selectedProvince"
                   :options="selectedProvince?.districts || []"
                   placeholder="Chọn Quận/Huyện"
-                  :disabled="!selectedProvince"
                   @change="selectedWard = ''"
                 />
               </label>
@@ -145,9 +154,9 @@
                 <span class="text-xs font-semibold uppercase tracking-wide text-slate-500 ">Phường/Xã</span>
                 <SearchableSelect
                   v-model="selectedWard"
+                  :disabled="!selectedDistrict"
                   :options="selectedDistrict?.wards || []"
                   placeholder="Chọn Phường/Xã"
-                  :disabled="!selectedDistrict"
                 />
               </label>
 
@@ -155,17 +164,17 @@
                 <span class="text-xs font-semibold uppercase tracking-wide text-slate-500 ">Địa chỉ chi tiết</span>
                 <input
                   v-model.trim="streetAddress"
-                  type="text"
                   class="rounded-xl border bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:border-primary   "
                   placeholder="Ví dụ: 42 Kim Giang"
+                  type="text"
                   @blur="checkAndCalculateRoute(true)"
                   @keyup.enter="checkAndCalculateRoute(true)"
-                />
+                >
               </label>
 
               <label class="flex flex-col gap-2 md:col-span-2">
                 <span class="text-xs font-semibold uppercase tracking-wide text-slate-500 ">Hoặc chọn trên bản đồ</span>
-                <div id="checkout-map" class="h-64 w-full rounded-xl border border-slate-200  z-10 relative overflow-hidden"></div>
+                <div id="checkout-map" class="h-64 w-full rounded-xl border border-slate-200  z-10 relative overflow-hidden" />
                 <p class="text-[11px] text-slate-500">Bấm vào bản đồ để chọn vị trí giao hàng.</p>
               </label>
             </div>
@@ -184,37 +193,27 @@
                 <div
                   class="flex items-start justify-between border-b border-green-500/20 pb-3"
                 >
-                  <span class="font-semibold text-slate-600 "
-                    >Kho hàng:</span
-                  >
-                  <span class="text-right font-medium"
-                    >123 Đ. Nguyễn Ngọc Vũ, Trung Hoà, Cầu Giấy, Hà Nội</span
-                  >
+                  <span class="font-semibold text-slate-600 ">Kho hàng:</span>
+                  <span class="text-right font-medium">123 Đ. Nguyễn Ngọc Vũ, Trung Hoà, Cầu Giấy, Hà Nội</span>
                 </div>
                 <div
                   class="flex items-start justify-between border-b border-green-500/20 pb-3"
                 >
-                  <span class="font-semibold text-slate-600 "
-                    >Giao đến:</span
-                  >
+                  <span class="font-semibold text-slate-600 ">Giao đến:</span>
                   <span class="text-right font-medium max-w-[70%]">{{
                     fullAddressString
                   }}</span>
                 </div>
-                <div class="flex items-center justify-between" v-if="Number(distanceKm) > 0">
+                <div v-if="Number(distanceKm) > 0" class="flex items-center justify-between">
                   <span class="font-semibold text-slate-600 ">Khoảng cách:</span>
                   <span class="font-bold">{{ distanceKm }} km</span>
                 </div>
                 <div class="flex items-center justify-between">
-                  <span class="font-semibold text-slate-600 "
-                    >Dự kiến giao:</span
-                  >
+                  <span class="font-semibold text-slate-600 ">Dự kiến giao:</span>
                   <span class="font-bold">{{ estimatedDays }} ngày</span>
                 </div>
                 <div class="flex items-center justify-between pt-2">
-                  <span class="font-semibold text-slate-600 "
-                    >Phí vận chuyển:</span
-                  >
+                  <span class="font-semibold text-slate-600 ">Phí vận chuyển:</span>
                   <span class="text-lg font-black text-red-500">{{
                     formatMoney(calculatedShippingFee)
                   }}</span>
@@ -255,10 +254,10 @@
                 <span class="flex items-center gap-3">
                   <input
                     v-model="selectedPayment"
+                    class="size-4 accent-primary"
                     type="radio"
                     :value="method.id"
-                    class="size-4 accent-primary"
-                  />
+                  >
                   <span class="text-sm font-semibold">{{ method.name }}</span>
                 </span>
                 <span class="material-symbols-outlined text-base">{{
@@ -273,8 +272,7 @@
             >
               <label
                 class="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500 "
-                >Chọn kênh thanh toán online</label
-              >
+              >Chọn kênh thanh toán online</label>
               <select
                 v-model.number="selectedDigitalPayment"
                 class="w-full cursor-pointer  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-4 py-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20  "
@@ -318,10 +316,10 @@
                       class="h-16 w-16 overflow-hidden rounded-lg bg-slate-100 "
                     >
                       <img
-                        :src="getItemImage(item)"
                         :alt="getItemName(item)"
                         class="h-full w-full object-cover"
-                      />
+                        :src="getItemImage(item)"
+                      >
                     </div>
                     <div class="min-w-0 flex-1">
                       <p class="truncate text-sm font-semibold">
@@ -341,19 +339,18 @@
                 <div class="mt-6 rounded-xl bg-slate-50 p-4 ">
                   <label
                     class="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500 "
-                    >Mã giảm giá</label
-                  >
+                  >Mã giảm giá</label>
                   <div class="flex gap-2">
                     <input
                       v-model.trim="voucherInput"
-                      type="text"
-                      placeholder="Nhập mã voucher"
                       class="flex-1 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-primary  "
-                    />
+                      placeholder="Nhập mã voucher"
+                      type="text"
+                    >
                     <button
-                      type="button"
                       class="rounded-lg bg-slate-100 px-4 py-2 text-sm font-semibold hover:bg-slate-200 disabled:opacity-60 "
                       :disabled="isApplyingVoucher"
+                      type="button"
                       @click="applyVoucher"
                     >
                       {{ isApplyingVoucher ? "Đang xử lý" : "Áp dụng" }}
@@ -367,11 +364,10 @@
                     >
                       <span
                         class="font-semibold text-green-600 "
-                        >Đang dùng mã: {{ appliedVoucher.code }}</span
-                      >
+                      >Đang dùng mã: {{ appliedVoucher.code }}</span>
                       <button
-                        type="button"
                         class="font-semibold text-red-500 hover:text-red-600"
+                        type="button"
                         @click="clearVoucher"
                       >
                         Gỡ
@@ -409,10 +405,10 @@
                             </p>
                           </div>
                           <button
-                            type="button"
                             class="rounded-md px-3 py-1 text-xs font-semibold"
                             :class="voucher.isActive && voucher.isEligible ? 'bg-primary text-white hover:bg-blue-600' : 'bg-slate-200 text-slate-500 cursor-not-allowed'"
                             :disabled="!voucher.isActive || !voucher.isEligible"
+                            type="button"
                             @click="applySuggestedVoucher(voucher)"
                           >
                             {{ voucher.isActive ? (voucher.isEligible ? 'Dùng mã' : 'Chưa đủ ĐK') : 'Tắt' }}
@@ -432,8 +428,7 @@
                     <span>Tạm tính</span>
                     <span
                       class="font-semibold text-slate-900 "
-                      >{{ formatMoney(subtotal) }}</span
-                    >
+                    >{{ formatMoney(subtotal) }}</span>
                   </div>
                   <div
                     class="flex items-center justify-between text-sm text-slate-600 "
@@ -446,17 +441,14 @@
                     </span>
                     <span
                       class="font-semibold text-slate-900 "
-                      >{{ formatMoney(shipping) }}</span
-                    >
+                    >{{ formatMoney(shipping) }}</span>
                   </div>
                   <div
                     v-if="discountAmount > 0"
                     class="flex items-center justify-between text-sm text-green-600 "
                   >
                     <span>Giảm giá</span>
-                    <span class="font-bold"
-                      >-{{ formatMoney(discountAmount) }}</span
-                    >
+                    <span class="font-bold">-{{ formatMoney(discountAmount) }}</span>
                   </div>
                   <div
                     class="flex items-center justify-between border-t border-slate-200 pt-4 text-lg "
@@ -469,9 +461,9 @@
                 </div>
 
                 <button
-                  type="button"
                   class="mt-6 w-full rounded-xl bg-primary px-4 py-3 text-sm font-bold text-white transition-colors hover:bg-blue-600 disabled:opacity-60"
                   :disabled="isProcessing || cartItems.length === 0"
+                  type="button"
                   @click="handlePlaceOrder"
                 >
                   {{ isProcessing ? "Đang xử lý..." : "Xác nhận đặt hàng" }}
@@ -486,1348 +478,1380 @@
 </template>
 
 <script setup>
-import { computed, onMounted, reactive, ref, watch, nextTick } from "vue";
-import { useRoute, useRouter } from "vue-router";
-import { useCartStore } from "@/stores/cart";
-import SearchableSelect from "@/components/SearchableSelect.vue";
-import L from "leaflet";
-import "leaflet/dist/leaflet.css";
+  import L from 'leaflet'
+  // Fix Leaflet marker icons
+  import iconRetinaUrl from 'leaflet/dist/images/marker-icon-2x.png'
+  import iconUrl from 'leaflet/dist/images/marker-icon.png'
+  import shadowUrl from 'leaflet/dist/images/marker-shadow.png'
+  import { computed, nextTick, onMounted, reactive, ref, watch } from 'vue'
+  import { useRoute, useRouter } from 'vue-router'
 
-// Fix Leaflet marker icons
-import iconRetinaUrl from 'leaflet/dist/images/marker-icon-2x.png';
-import iconUrl from 'leaflet/dist/images/marker-icon.png';
-import shadowUrl from 'leaflet/dist/images/marker-shadow.png';
+  import SearchableSelect from '@/components/SearchableSelect.vue'
+  import { addressApi, paymentApi, stockApi } from '@/services/api'
+  import { orderAPI, orderUtils, voucherAPI } from '@/services/orders'
+  import { useCartStore } from '@/stores/cart'
+  import { resolveColorMeta, resolveSizeMeta } from '@/utils/variantValues'
+  import 'leaflet/dist/leaflet.css'
 
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl,
-  iconUrl,
-  shadowUrl,
-});
-import { orderAPI, orderUtils, voucherAPI } from "@/services/orders";
-import { paymentApi, addressApi } from "@/services/api";
-import { resolveColorMeta, resolveSizeMeta } from "@/utils/variantValues";
+  L.Icon.Default.mergeOptions({
+    iconRetinaUrl,
+    iconUrl,
+    shadowUrl,
+  })
 
-const cartStore = useCartStore();
-const route = useRoute();
-const router = useRouter();
+  const cartStore = useCartStore()
+  const route = useRoute()
+  const router = useRouter()
 
-const currentUser = ref(null);
-const currentAccountId = ref(null);
-const isProcessing = ref(false);
-const isApplyingVoucher = ref(false);
+  const currentUser = ref(null)
+  const currentAccountId = ref(null)
+  const isProcessing = ref(false)
+  const isApplyingVoucher = ref(false)
 
-const modal = reactive({
-  show: false,
-  title: "",
-  message: "",
-  type: "success",
-});
+  const modal = reactive({
+    show: false,
+    title: '',
+    message: '',
+    type: 'success',
+  })
 
-const shippingForm = reactive({
-  gmail: "",
-  fullname: "",
-  phone: "",
-  address: "",
-});
+  const shippingForm = reactive({
+    gmail: '',
+    fullname: '',
+    phone: '',
+    address: '',
+  })
 
-const savedAddresses = ref([]);
-const selectedAddressId = ref("new");
+  const savedAddresses = ref([])
+  const selectedAddressId = ref('new')
 
-watch(selectedAddressId, (newVal) => {
-  if (newVal === 'new') {
-    setTimeout(() => {
-      if (typeof map !== 'undefined' && map) {
-        map.invalidateSize();
+  watch(selectedAddressId, newVal => {
+    if (newVal === 'new') {
+      setTimeout(() => {
+        if (map !== undefined && map) {
+          map.invalidateSize()
+        }
+      }, 150)
+    }
+  })
+
+  async function fetchAddresses () {
+    if (currentAccountId.value) {
+      try {
+        const res = await addressApi.getByAccountId(currentAccountId.value)
+        savedAddresses.value = Array.isArray(res) ? res : (res.data || [])
+
+        const defaultAddr = savedAddresses.value.find(a => a.isDefault)
+        if (defaultAddr) {
+          selectedAddressId.value = defaultAddr.id
+          handleSelectSavedAddress(defaultAddr)
+        } else if (savedAddresses.value.length > 0) {
+          selectedAddressId.value = savedAddresses.value[0].id
+          handleSelectSavedAddress(savedAddresses.value[0])
+        }
+      } catch (error) {
+        console.error(error)
       }
-    }, 150);
+    }
   }
-});
 
-async function fetchAddresses() {
-  if (currentAccountId.value) {
+  function handleSelectSavedAddress (addr) {
+    shippingForm.fullname = addr.fullname || ''
+    shippingForm.phone = addr.phone || ''
+    shippingForm.address = addr.address || ''
+    streetAddress.value = addr.address || ''
+
+    // Trigger map re-calculation
+    checkAndCalculateRoute(true)
+  }
+
+  function resetShippingForm () {
+    shippingForm.fullname = currentUser.value?.fullname || currentUser.value?.username || ''
+    shippingForm.phone = currentUser.value?.phone || ''
+    shippingForm.address = ''
+    streetAddress.value = ''
+    selectedProvince.value = ''
+    selectedDistrict.value = ''
+    selectedWard.value = ''
+    isRouteCalculated.value = false
+  }
+
+  let map = null
+  let marker = null
+
+  function initMap () {
+    const mapElement = document.querySelector('#checkout-map')
+    if (!mapElement) return
+
+    // Default coordinate (Hanoi)
+    const defaultCoord = [21.028_511, 105.804_817]
+
+    map = L.map('checkout-map').setView(defaultCoord, 12)
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors',
+    }).addTo(map)
+
+    marker = L.marker(defaultCoord).addTo(map)
+
+    let geocodeTimeout = null
+    map.on('click', e => {
+      const lat = e.latlng.lat
+      const lng = e.latlng.lng
+      marker.setLatLng([lat, lng])
+
+      if (geocodeTimeout) clearTimeout(geocodeTimeout)
+      geocodeTimeout = setTimeout(async () => {
+        await reverseGeocode(lat, lng)
+      }, 600) // Debounce to avoid 429 Too Many Requests
+    })
+  }
+
+  async function reverseGeocode (lat, lng) {
+    routeError.value = '' // Clear previous errors
     try {
-      const res = await addressApi.getByAccountId(currentAccountId.value);
-      savedAddresses.value = Array.isArray(res) ? res : (res.data || []);
-      
-      const defaultAddr = savedAddresses.value.find(a => a.isDefault);
-      if (defaultAddr) {
-        selectedAddressId.value = defaultAddr.id;
-        handleSelectSavedAddress(defaultAddr);
-      } else if (savedAddresses.value.length > 0) {
-        selectedAddressId.value = savedAddresses.value[0].id;
-        handleSelectSavedAddress(savedAddresses.value[0]);
+      const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`)
+      if (!res.ok) {
+        if (res.status === 429) throw new Error('Dịch vụ bản đồ đang quá tải, vui lòng thử lại sau.')
+        const txt = await safeParseResponse(res)
+        throw new Error(typeof txt === 'string' ? txt : `Lỗi bản đồ (HTTP ${res.status})`)
       }
-    } catch (err) {
-      console.error(err);
-    }
-  }
-}
+      const data = await safeParseResponse(res)
+      if (data && data.address) {
+        // Find matching Province
+        const cityOrProvince = data.address.city || data.address.state || data.address.province
+        if (cityOrProvince) {
+          const matchedProv = findBestMatchByName(provinces.value, cityOrProvince)
+          if (matchedProv) {
+            selectedProvince.value = matchedProv
 
-function handleSelectSavedAddress(addr) {
-  shippingForm.fullname = addr.fullname || "";
-  shippingForm.phone = addr.phone || "";
-  shippingForm.address = addr.address || "";
-  streetAddress.value = addr.address || "";
-  
-  // Trigger map re-calculation
-  checkAndCalculateRoute(true);
-}
+            await nextTick()
 
-function resetShippingForm() {
-  shippingForm.fullname = currentUser.value?.fullname || currentUser.value?.username || "";
-  shippingForm.phone = currentUser.value?.phone || "";
-  shippingForm.address = "";
-  streetAddress.value = "";
-  selectedProvince.value = "";
-  selectedDistrict.value = "";
-  selectedWard.value = "";
-  isRouteCalculated.value = false;
-}
+            // Find matching District
+            const districtOrCounty = data.address.county || data.address.district || data.address.city_district || data.address.town || data.address.suburb
+            if (districtOrCounty && selectedProvince.value.districts) {
+              const matchedDist = findBestMatchByName(selectedProvince.value.districts, districtOrCounty)
+              if (matchedDist) {
+                selectedDistrict.value = matchedDist
 
+                await nextTick()
 
-
-let map = null;
-let marker = null;
-
-function initMap() {
-  const mapElement = document.getElementById("checkout-map");
-  if (!mapElement) return;
-
-  // Default coordinate (Hanoi)
-  const defaultCoord = [21.028511, 105.804817];
-  
-  map = L.map("checkout-map").setView(defaultCoord, 12);
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    attribution: "© OpenStreetMap contributors",
-  }).addTo(map);
-
-  marker = L.marker(defaultCoord).addTo(map);
-
-  let geocodeTimeout = null;
-  map.on("click", (e) => {
-    const lat = e.latlng.lat;
-    const lng = e.latlng.lng;
-    marker.setLatLng([lat, lng]);
-    
-    if (geocodeTimeout) clearTimeout(geocodeTimeout);
-    geocodeTimeout = setTimeout(async () => {
-      await reverseGeocode(lat, lng);
-    }, 600); // Debounce to avoid 429 Too Many Requests
-  });
-}
-
-async function reverseGeocode(lat, lng) {
-  routeError.value = ""; // Clear previous errors
-  try {
-    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`);
-    if (!res.ok) {
-      if (res.status === 429) throw new Error('Dịch vụ bản đồ đang quá tải, vui lòng thử lại sau.');
-      const txt = await safeParseResponse(res);
-      throw new Error(typeof txt === 'string' ? txt : `Lỗi bản đồ (HTTP ${res.status})`);
-    }
-    const data = await safeParseResponse(res);
-    if (data && data.address) {
-      // Find matching Province
-      const cityOrProvince = data.address.city || data.address.state || data.address.province;
-      if (cityOrProvince) {
-        const matchedProv = findBestMatchByName(provinces.value, cityOrProvince);
-        if (matchedProv) {
-          selectedProvince.value = matchedProv;
-          
-          await nextTick();
-          
-          // Find matching District
-          const districtOrCounty = data.address.county || data.address.district || data.address.city_district || data.address.town || data.address.suburb;
-          if (districtOrCounty && selectedProvince.value.districts) {
-            const matchedDist = findBestMatchByName(selectedProvince.value.districts, districtOrCounty);
-            if (matchedDist) {
-              selectedDistrict.value = matchedDist;
-              
-              await nextTick();
-              
-              // Find matching Ward
-              const wardOrVillage = data.address.ward || data.address.suburb || data.address.village || data.address.hamlet || data.address.quarter || data.address.neighbourhood;
-              if (wardOrVillage && selectedDistrict.value.wards) {
-                const matchedWard = findBestMatchByName(selectedDistrict.value.wards, wardOrVillage);
-                if (matchedWard) {
-                  selectedWard.value = matchedWard;
+                // Find matching Ward
+                const wardOrVillage = data.address.ward || data.address.suburb || data.address.village || data.address.hamlet || data.address.quarter || data.address.neighbourhood
+                if (wardOrVillage && selectedDistrict.value.wards) {
+                  const matchedWard = findBestMatchByName(selectedDistrict.value.wards, wardOrVillage)
+                  if (matchedWard) {
+                    selectedWard.value = matchedWard
+                  }
                 }
               }
             }
           }
         }
+
+        // Update street address
+        const road = data.address.road || ''
+        const houseNumber = data.address.house_number || ''
+        streetAddress.value = [houseNumber, road].filter(Boolean).join(' ')
       }
-      
-      // Update street address
-      const road = data.address.road || "";
-      const houseNumber = data.address.house_number || "";
-      streetAddress.value = [houseNumber, road].filter(Boolean).join(" ");
-    }
-  } catch (err) {
-    console.error("Lỗi khi reverse geocoding", err);
-    routeError.value = err.message || "Không thể lấy địa chỉ tự động.";
-  }
-}
-
-// -----------------------------------------===== LOGIC CHỌN TỈNH THÀNH & TÍNH SHIP =====
-const provinces = ref([]);
-const districts = ref([]);
-const wards = ref([]);
-
-const geocodeCache = new Map();
-let lastGeocodeTime = 0;
-async function fetchGeocode(q) {
-  if (geocodeCache.has(q)) return geocodeCache.get(q);
-  const now = Date.now();
-  const timeSinceLast = now - lastGeocodeTime;
-  if (timeSinceLast < 1100) {
-    await new Promise(r => setTimeout(r, 1100 - timeSinceLast));
-  }
-  lastGeocodeTime = Date.now();
-  const targetUrl = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&limit=1&q=${encodeURIComponent(q + ", Việt Nam")}`;
-  try {
-    const res = await fetch(targetUrl);
-    if (!res.ok) return { ok: false, status: res.status };
-    const data = await res.json();
-    const result = { ok: true, data };
-    geocodeCache.set(q, result);
-    return result;
-  } catch (error) {
-    return { ok: false, status: -1 };
-  }
-}
-
-
-const selectedProvince = ref(null);
-const selectedDistrict = ref(null);
-const selectedWard = ref(null);
-const streetAddress = ref("");
-
-const isRouteCalculated = ref(false);
-const distanceKm = ref(0);
-const calculatedShippingFee = ref(0);
-const estimatedDays = ref(0);
-const fullAddressString = ref("");
-const routeError = ref("");
-let autoRouteTimer = null;
-let autoAddressFillTimer = null;
-const isAutoFillingAddress = ref(false);
-const skipNextWatcherUpdate = ref(false);
-
-// Tọa độ kho hàng (123 Nguyễn Ngọc Vũ, Trung Hoà, Cầu Giấy, Hà Nội)
-const SHOP_COORD = [21.008882, 105.802883];
-
-function normalizeAddressText(value) {
-  return String(value || "")
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-z0-9\s]/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
-function normalizePhone(value) {
-  return String(value || "").replace(/\D/g, "").trim();
-}
-
-function resolveUserAddress(user) {
-  const source = user && typeof user === "object" ? user : {};
-  return (
-    source.address ||
-    source.shippingAddress ||
-    source.shipping_address ||
-    source.fullAddress ||
-    source.full_address ||
-    source.diaChi ||
-    ""
-  );
-}
-
-function applyTextFallbackShipping(addressText = "") {
-  const normalized = normalizeAddressText(addressText);
-  const isHaNoi = normalized.includes("ha noi");
-
-  distanceKm.value = "0.0";
-  estimatedDays.value = isHaNoi ? 1 : 3;
-  calculatedShippingFee.value = isHaNoi ? 30000 : 40000;
-  fullAddressString.value = buildCurrentAddressString(addressText);
-  
-  routeError.value = "";
-  isRouteCalculated.value = true;
-}
-
-function buildDetectedAddressString() {
-  return [
-    selectedWard.value?.name,
-    selectedDistrict.value?.name,
-    selectedProvince.value?.name,
-  ]
-    .filter(Boolean)
-    .join(", ");
-}
-
-function buildCurrentAddressString() {
-  return [
-    streetAddress.value,
-    selectedWard.value?.name,
-    selectedDistrict.value?.name,
-    selectedProvince.value?.name,
-  ]
-    .filter(Boolean)
-    .join(", ");
-}
-
-function scheduleAutoRouteCalculation() {
-  if (autoRouteTimer) {
-    clearTimeout(autoRouteTimer);
-  }
-
-  autoRouteTimer = setTimeout(() => {
-    void checkAndCalculateRoute(true);
-  }, 500);
-}
-
-function scheduleAddressAutoFill() {
-  if (autoAddressFillTimer) {
-    clearTimeout(autoAddressFillTimer);
-  }
-
-  autoAddressFillTimer = setTimeout(async () => {
-    if (isAutoFillingAddress.value) return;
-    if (String(streetAddress.value || "").trim().length < 3) return;
-    await autoFillAddressHierarchyFromText(streetAddress.value);
-  }, 800);
-}
-
-function splitAddressCandidates(...values) {
-  return values
-    .flatMap((value) => String(value || "").split(","))
-    .map((part) => part.trim())
-    .filter(Boolean);
-}
-
-function stripAdministrativePrefix(value) {
-  return normalizeAddressText(value)
-    .replace(/\b(phuong|p|xa|x|thi tran|tt|quan|q|huyen|h|thi xa|tx|thanh pho|tp|tinh)\b/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
-function findBestMatchByName(options, ...rawNames) {
-  const list = Array.isArray(options) ? options : [];
-  const candidates = splitAddressCandidates(...rawNames)
-    .map((part) => stripAdministrativePrefix(part))
-    .filter(Boolean);
-
-  if (!list.length || !candidates.length) return null;
-
-  let best = null;
-  let bestScore = -1;
-
-  for (const item of list) {
-    const name = stripAdministrativePrefix(item?.name);
-    if (!name) continue;
-
-    let score = 0;
-    for (const target of candidates) {
-      if (!target) continue;
-      if (target === name) score = Math.max(score, 100);
-      else if (target.includes(name)) score = Math.max(score, 80);
-      else if (name.includes(target)) score = Math.max(score, 70);
-      else {
-        const targetTokens = target.split(" ").filter(Boolean);
-        const nameTokens = name.split(" ").filter(Boolean);
-        const overlap = targetTokens.filter((token) => nameTokens.includes(token)).length;
-        if (overlap > 0) {
-          const tokenScore = overlap * 10;
-          score = Math.max(score, tokenScore);
-        }
-      }
-    }
-
-    if (score > bestScore) {
-      bestScore = score;
-      best = item;
+    } catch (error) {
+      console.error('Lỗi khi reverse geocoding', error)
+      routeError.value = error.message || 'Không thể lấy địa chỉ tự động.'
     }
   }
 
-  return bestScore >= 20 ? best : null;
-}
+  // -----------------------------------------===== LOGIC CHỌN TỈNH THÀNH & TÍNH SHIP =====
+  const provinces = ref([])
+  const districts = ref([])
+  const wards = ref([])
 
-async function safeParseResponse(res) {
-  if (!res) return null;
-  try {
-    const data = await res.json();
-    return data;
-  } catch (err) {
+  const geocodeCache = new Map()
+  let lastGeocodeTime = 0
+  async function fetchGeocode (q) {
+    if (geocodeCache.has(q)) return geocodeCache.get(q)
+    const now = Date.now()
+    const timeSinceLast = now - lastGeocodeTime
+    if (timeSinceLast < 1100) {
+      await new Promise(r => setTimeout(r, 1100 - timeSinceLast))
+    }
+    lastGeocodeTime = Date.now()
+    const targetUrl = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&limit=1&q=${encodeURIComponent(q + ', Việt Nam')}`
     try {
-      const text = await res.text();
-      return text;
+      const res = await fetch(targetUrl)
+      if (!res.ok) return { ok: false, status: res.status }
+      const data = await res.json()
+      const result = { ok: true, data }
+      geocodeCache.set(q, result)
+      return result
     } catch {
-      return null;
+      return { ok: false, status: -1 }
     }
   }
-}
 
-async function autoFillAddressHierarchyFromText(rawAddress) {
-  const input = String(rawAddress || "").trim();
-  if (!input || !provinces.value.length) return;
+  const selectedProvince = ref(null)
+  const selectedDistrict = ref(null)
+  const selectedWard = ref(null)
+  const streetAddress = ref('')
 
-  isAutoFillingAddress.value = true;
-  skipNextWatcherUpdate.value = true;
+  const isRouteCalculated = ref(false)
+  const distanceKm = ref(0)
+  const calculatedShippingFee = ref(0)
+  const estimatedDays = ref(0)
+  const fullAddressString = ref('')
+  const routeError = ref('')
+  let autoRouteTimer = null
+  let autoAddressFillTimer = null
+  const isAutoFillingAddress = ref(false)
+  const skipNextWatcherUpdate = ref(false)
 
-  try {
-    let first = null;
-    const parts = input.split(',').map(s => s.trim()).filter(Boolean);
-    while (parts.length > 0) {
-      const q = parts.join(', ');
-      const geoRes = await fetchGeocode(q);
-      if (!geoRes.ok) {
-        if (geoRes.status === 429) {
-          routeError.value = "Geocoding service busy — tính ship tạm thời bằng ước lượng.";
-          applyTextFallbackShipping(input);
-          return true;
-        }
-        throw new Error(`Geocoding failed (HTTP ${geoRes.status})`);
-      }
-      const geoData = geoRes.data;
-      if (Array.isArray(geoData) && geoData.length > 0) {
-        first = geoData[0];
-        break;
-      }
-      parts.shift();
+  // Tọa độ kho hàng (123 Nguyễn Ngọc Vũ, Trung Hoà, Cầu Giấy, Hà Nội)
+  const SHOP_COORD = [21.008_882, 105.802_883]
+
+  function normalizeAddressText (value) {
+    return String(value || '')
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036F]/g, '')
+      .replace(/[^a-z0-9\s]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim()
+  }
+
+  function normalizePhone (value) {
+    return String(value || '').replace(/\D/g, '').trim()
+  }
+
+  function resolveUserAddress (user) {
+    const source = user && typeof user === 'object' ? user : {}
+    return (
+      source.address
+      || source.shippingAddress
+      || source.shipping_address
+      || source.fullAddress
+      || source.full_address
+      || source.diaChi
+      || ''
+    )
+  }
+
+  function applyTextFallbackShipping (addressText = '') {
+    const normalized = normalizeAddressText(addressText)
+    const isHaNoi = normalized.includes('ha noi')
+
+    distanceKm.value = '0.0'
+    estimatedDays.value = isHaNoi ? 1 : 3
+    calculatedShippingFee.value = isHaNoi ? 30_000 : 40_000
+    fullAddressString.value = buildCurrentAddressString(addressText)
+
+    routeError.value = ''
+    isRouteCalculated.value = true
+  }
+
+  function buildDetectedAddressString () {
+    return [
+      selectedWard.value?.name,
+      selectedDistrict.value?.name,
+      selectedProvince.value?.name,
+    ]
+      .filter(Boolean)
+      .join(', ')
+  }
+
+  function buildCurrentAddressString () {
+    return [
+      streetAddress.value,
+      selectedWard.value?.name,
+      selectedDistrict.value?.name,
+      selectedProvince.value?.name,
+    ]
+      .filter(Boolean)
+      .join(', ')
+  }
+
+  function scheduleAutoRouteCalculation () {
+    if (autoRouteTimer) {
+      clearTimeout(autoRouteTimer)
     }
-    
-    // Extract from Nominatim ONLY for basic hints
-    const addressMeta = first?.address || {};
-    const provinceHint =
-      addressMeta.state ||
-      addressMeta.city ||
-      addressMeta.province ||
-      addressMeta.region ||
-      "";
-    const districtHint =
-      addressMeta.county ||
-      addressMeta.city_district ||
-      addressMeta.district ||
-      addressMeta.suburb ||
-      "";
-    const wardHint =
-      addressMeta.ward ||
-      addressMeta.suburb ||
-      addressMeta.quarter ||
-      addressMeta.neighbourhood ||
-      "";
-    const displayNameHint = first?.display_name || "";
 
-    // STEP 1: Match Province - try hint first, then fallback to input search
-    let matchedProvince =
-      findBestMatchByName(provinces.value, provinceHint, displayNameHint) ||
-      findBestMatchByName(provinces.value, input, displayNameHint);
-      
-    if (!matchedProvince) {
-      skipNextWatcherUpdate.value = false;
-      scheduleAutoRouteCalculation();
-      return;
+    autoRouteTimer = setTimeout(() => {
+      void checkAndCalculateRoute(true)
+    }, 500)
+  }
+
+  function scheduleAddressAutoFill () {
+    if (autoAddressFillTimer) {
+      clearTimeout(autoAddressFillTimer)
     }
 
-    selectedProvince.value = matchedProvince;
-    districts.value = matchedProvince.districts || [];
+    autoAddressFillTimer = setTimeout(async () => {
+      if (isAutoFillingAddress.value) return
+      if (String(streetAddress.value || '').trim().length < 3) return
+      await autoFillAddressHierarchyFromText(streetAddress.value)
+    }, 800)
+  }
 
-    // STEP 2: Match District - try hint first, then search whole input text
-    let matchedDistrict =
-      findBestMatchByName(districts.value, districtHint, displayNameHint) ||
-      findBestMatchByName(districts.value, input, displayNameHint);
+  function splitAddressCandidates (...values) {
+    return values
+      .flatMap(value => String(value || '').split(','))
+      .map(part => part.trim())
+      .filter(Boolean)
+  }
 
-    if (matchedDistrict) {
-      selectedDistrict.value = matchedDistrict;
-      wards.value = matchedDistrict.wards || [];
+  function stripAdministrativePrefix (value) {
+    return normalizeAddressText(value)
+      .replace(/\b(phuong|p|xa|x|thi tran|tt|quan|q|huyen|h|thi xa|tx|thanh pho|tp|tinh)\b/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim()
+  }
 
-      // STEP 3: Match Ward - try hint first, then search whole input
-      const matchedWard =
-        findBestMatchByName(wards.value, wardHint, displayNameHint) ||
-        findBestMatchByName(wards.value, input, displayNameHint);
-      
-      if (matchedWard) {
-        selectedWard.value = matchedWard;
-      } else {
-        // No ward match - keep district but leave ward empty
-        selectedWard.value = "";
-      }
-    } else {
-      // District hint didn't work - try searching inside each district's wards for the hint
-      let foundDistrictAndWard = false;
-      
-      for (const dist of districts.value) {
-        const districtWards = dist.wards || [];
-        
-        // Try to find ward using ward hint
-        const wardByHint = findBestMatchByName(
-          districtWards,
-          wardHint,
-          displayNameHint,
-          input,
-        );
-        if (wardByHint) {
-          selectedDistrict.value = dist;
-          selectedWard.value = wardByHint;
-          wards.value = districtWards;
-          foundDistrictAndWard = true;
-          break;
-        }
-      }
+  function findBestMatchByName (options, ...rawNames) {
+    const list = Array.isArray(options) ? options : []
+    const candidates = splitAddressCandidates(...rawNames)
+      .map(part => stripAdministrativePrefix(part))
+      .filter(Boolean)
 
-      // If still no match, try searching entire input text across all districts/wards
-      if (!foundDistrictAndWard) {
-        for (const dist of districts.value) {
-          const districtWards = dist.wards || [];
-          
-          // Try to find by input text
-          const wardByInput = findBestMatchByName(
-            districtWards,
-            input,
-            displayNameHint,
-          );
-          if (wardByInput) {
-            selectedDistrict.value = dist;
-            selectedWard.value = wardByInput;
-            wards.value = districtWards;
-            foundDistrictAndWard = true;
-            break;
+    if (list.length === 0 || candidates.length === 0) return null
+
+    let best = null
+    let bestScore = -1
+
+    for (const item of list) {
+      const name = stripAdministrativePrefix(item?.name)
+      if (!name) continue
+
+      let score = 0
+      for (const target of candidates) {
+        if (!target) continue
+        if (target === name) score = Math.max(score, 100)
+        else if (target.includes(name)) score = Math.max(score, 80)
+        else if (name.includes(target)) score = Math.max(score, 70)
+        else {
+          const targetTokens = target.split(' ').filter(Boolean)
+          const nameTokens = new Set(name.split(' ').filter(Boolean))
+          const overlap = targetTokens.filter(token => nameTokens.has(token)).length
+          if (overlap > 0) {
+            const tokenScore = overlap * 10
+            score = Math.max(score, tokenScore)
           }
         }
       }
 
-      // If still no exact match found, just leave ward empty but keep district set
-      if (!foundDistrictAndWard) {
-        selectedWard.value = "";
-        // Set wards array to empty so user can manually select
-        wards.value = [];
+      if (score > bestScore) {
+        bestScore = score
+        best = item
       }
     }
 
-    fullAddressString.value = buildCurrentAddressString(input);
-  } catch (error) {
-    console.error("Auto-fill error:", error);
-  } finally {
-    isAutoFillingAddress.value = false;
-    // Reset flag AFTER this microtask completes so watcher definitely skips
-    Promise.resolve().then(() => {
-      skipNextWatcherUpdate.value = false;
-    });
-  }
-}
-
-async function calculateRouteFromFreeformAddress(rawAddress, silent = false) {
-  const addressText = String(rawAddress || "").trim();
-  if (!addressText) {
-    if (!silent) {
-      routeError.value = "Vui lòng nhập địa chỉ giao hàng để tính phí ship.";
-    }
-    return false;
+    return bestScore >= 20 ? best : null
   }
 
-  try {
-    let first = null;
-    const parts = input.split(',').map(s => s.trim()).filter(Boolean);
-    while (parts.length > 0) {
-      const q = parts.join(', ');
-      const geoRes = await fetchGeocode(q);
-      if (!geoRes.ok) {
-        if (geoRes.status === 429) {
-          routeError.value = 'Geocoding service busy — tính ship tạm thời bằng ước lượng.';
-          applyTextFallbackShipping(addressText);
-          return true;
-        }
-        throw new Error(`Geocoding failed (HTTP ${geoRes.status})`);
-      }
-      const geoData = geoRes.data;
-      if (Array.isArray(geoData) && geoData.length > 0) {
-        first = geoData[0];
-        break;
-      }
-      parts.shift();
-    }
-    if (!first) {
-      applyTextFallbackShipping(addressText);
-      return true;
-    }
-
-    const userLat = Number(first.lat);
-    const userLon = Number(first.lon);
-    if (!Number.isFinite(userLat) || !Number.isFinite(userLon)) {
-      applyTextFallbackShipping(addressText);
-      return true;
-    }
-
-    const routeUrl = `https://router.project-osrm.org/route/v1/driving/${SHOP_COORD[1]},${SHOP_COORD[0]};${userLon},${userLat}?overview=false`;
-    const routeRes = await fetch(routeUrl);
-    const routeData = await routeRes.json();
-    if (routeData.code !== "Ok") {
-      applyTextFallbackShipping(addressText);
-      return true;
-    }
-
-    const km = Number(routeData.routes?.[0]?.distance || 0) / 1000;
-    const provinceText = String(
-      first.address?.state || first.address?.city || first.address?.province || "",
-    );
-    const isHaNoi = normalizeAddressText(provinceText).includes("ha noi");
-
-    distanceKm.value = Number.isFinite(km) ? km.toFixed(1) : "0.0";
-    if (isHaNoi) {
-      if (km < 5) calculatedShippingFee.value = 15000;
-      else if (km < 10) calculatedShippingFee.value = 25000;
-      else calculatedShippingFee.value = 35000;
-      estimatedDays.value = 1;
-    } else {
-      calculatedShippingFee.value = 40000;
-      estimatedDays.value = km < 100 ? 2 : 3;
-    }
-
-    fullAddressString.value = buildCurrentAddressString(addressText);
-    
-    routeError.value = "";
-    isRouteCalculated.value = true;
-    return true;
-  } catch {
-    applyTextFallbackShipping(addressText);
-    return true;
-  }
-}
-
-async function autoCalculateShippingOnEnter() {
-  const rawAddress = String(streetAddress.value || shippingForm.address || "").trim();
-  if (!rawAddress) {
-    return;
-  }
-
-  if (!streetAddress.value) {
-    streetAddress.value = rawAddress;
-  }
-
-  const ok = await checkAndCalculateRoute(true);
-  if (!ok) {
-    applyTextFallbackShipping(rawAddress);
-  }
-}
-
-onMounted(async () => {
-  window.scrollTo(0, 0);
-
-  setTimeout(() => {
-    initMap();
-  }, 100);
-
-  await hydrateCheckout();
-  await fetchAddresses();
-  try {
-    const res = await fetch("https://esgoo.net/api-tinhthanh/4/0.htm");
-    const json = await res.json();
-    if (json.error === 0 && json.data) {
-      provinces.value = json.data.map((p) => ({
-        name: p.full_name || p.name,
-        code: p.id,
-        districts: (p.data2 || []).map((d) => ({
-          name: d.full_name || d.name,
-          code: d.id,
-          wards: (d.data3 || []).map((w) => ({
-            name: w.full_name || w.name,
-            code: w.id,
-          })),
-        })),
-      }));
-    } else {
-      provinces.value = [];
-    }
-
-    if (shippingForm.address) {
-      await autoFillAddressHierarchyFromText(shippingForm.address);
-    }
-
-    await autoCalculateShippingOnEnter();
-  } catch (error) {
-    console.error("Không tải được API Tỉnh Thành", error);
-    await autoCalculateShippingOnEnter();
-  }
-});
-
-async function checkAndCalculateRoute(silent = false) {
-  if (!streetAddress.value && shippingForm.address) {
-    streetAddress.value = String(shippingForm.address).trim();
-  }
-
-  if (streetAddress.value) {
-    await autoFillAddressHierarchyFromText(streetAddress.value);
-  }
-
-  if (!streetAddress.value) {
-    if (!silent) {
-      routeError.value = "Vui lòng nhập địa chỉ giao hàng để tính phí ship.";
-    }
-    isRouteCalculated.value = false;
-    return false;
-  }
-
-  const calculatedFromFreeform = await calculateRouteFromFreeformAddress(
-    streetAddress.value,
-    silent,
-  );
-  return calculatedFromFreeform;
-}
-
-function applyFallbackShipping() {
-  distanceKm.value = 0;
-  const addressForFee = buildCurrentAddressString();
-  const detectedProvince = selectedProvince.value?.name || "";
-  const isHaNoi =
-    normalizeAddressText(addressForFee).includes("ha noi") ||
-    normalizeAddressText(detectedProvince).includes("ha noi");
-  estimatedDays.value = isHaNoi ? 1 : 3;
-  calculatedShippingFee.value = isHaNoi ? 30000 : 40000;
-  fullAddressString.value = addressForFee;
-  routeError.value = "";
-  isRouteCalculated.value = true;
-}
-// ===== END LOGIC ROUTING =====
-
-// ===== LOGIC THANH TOÁN VÀ VOUCHER =====
-const selectedPayment = ref(1);
-const paymentMethods = [
-  { id: 1, name: "Thanh toán khi nhận hàng", icon: "local_shipping" },
-  { id: 2, name: "VNPay QR / Ví điện tử", icon: "qr_code_2" },
-];
-const selectedDigitalPayment = ref(2);
-const digitalPaymentMethods = [
-  { id: 2, name: "VNPay" },
-  { id: 3, name: "Momo" },
-  { id: 4, name: "Bank Transfer" },
-  { id: 5, name: "ZaloPay" },
-];
-const effectivePaymentMethodId = computed(() =>
-  selectedPayment.value === 1 ? 1 : Number(selectedDigitalPayment.value || 2),
-);
-
-const voucherInput = ref("");
-const appliedVoucher = ref(null);
-const availableVouchers = ref([]);
-
-function getVoucherMinOrder(voucher) {
-  return Number(voucher?.minOrderValue ?? voucher?.min_order_value ?? 0) || 0;
-}
-
-function getVoucherUsageState(voucher) {
-  const limit = Number(voucher?.usageLimit ?? voucher?.usage_limit ?? voucher?.limit ?? 0) || 0;
-  const used = Number(voucher?.usedCount ?? voucher?.used_count ?? voucher?.used ?? 0) || 0;
-  return {
-    limit,
-    used,
-    remaining: limit > 0 ? Math.max(0, limit - used) : null,
-    exhausted: limit > 0 && used >= limit,
-  };
-}
-
-function getVoucherByCode(code) {
-  const normalizedCode = String(code || "").trim().toUpperCase();
-  if (!normalizedCode) return null;
-
-  return (
-    (availableVouchers.value || []).find(
-      (voucher) => String(voucher?.code || "").trim().toUpperCase() === normalizedCode,
-    ) || null
-  );
-}
-
-function enforceVoucherMinOrder(voucher, orderBaseAmount) {
-  const fromList = getVoucherByCode(voucher?.code);
-  const minOrder = Math.max(
-    getVoucherMinOrder(voucher),
-    getVoucherMinOrder(fromList),
-  );
-
-  if (minOrder > 0 && Number(orderBaseAmount) < minOrder) {
-    throw new Error(
-      `Đơn tối thiểu ${formatMoney(minOrder)} mới áp dụng được mã ${voucher?.code || ""}.`,
-    );
-  }
-}
-
-function computeVoucherDiscount(voucher, baseAmount) {
-  const type = voucher?.discountType || voucher?.discount_type;
-  const value = Number(voucher?.discountValue ?? voucher?.discount_value ?? 0) || 0;
-  const safeBase = Math.max(0, Number(baseAmount) || 0);
-  const maxCap = Number(voucher?.maxDiscountAmount ?? voucher?.max_discount_amount ?? 0) || 0;
-
-  if (type === "AMOUNT") {
-    return Math.min(safeBase, value);
-  }
-  if (type === "PERCENT") {
-    const raw = (safeBase * value) / 100;
-    // Áp dụng giới hạn giảm tối đa nếu có
-    return maxCap > 0 ? Math.min(raw, maxCap) : raw;
-  }
-  return Number(voucher?.discountAmount || 0);
-}
-
-function getVoucherAvailabilityReason(voucher) {
-  const statusRaw = String(voucher?.status || voucher?.state || "").trim().toUpperCase();
-  if (["INACTIVE", "DISABLED", "DELETED"].includes(statusRaw)) return "Voucher không còn hoạt động";
-  if (statusRaw === "EXPIRED") return "Voucher đã hết hạn";
-  if (statusRaw === "USED") return "Voucher đã hết lượt sử dụng";
-
-  if (voucher?.isActive === false || voucher?.is_active === false) return "Voucher không còn hoạt động";
-
-  const now = new Date();
-  const endDateRaw = voucher?.endDate || voucher?.end_date || voucher?.expiryDate || voucher?.expire_date;
-  if (endDateRaw) {
-    const endDate = new Date(endDateRaw);
-    if (!Number.isNaN(endDate.getTime()) && endDate.getTime() < now.getTime()) {
-      return "Voucher đã hết hạn";
-    }
-  }
-
-  const usageState = getVoucherUsageState(voucher);
-  if (usageState.exhausted) return "Voucher đã hết lượt sử dụng";
-
-  return null;
-}
-
-function isVoucherActive(voucher) {
-  return !getVoucherAvailabilityReason(voucher);
-}
-
-const processedAvailableVouchers = computed(() => {
-  const orderBase = Math.max(0, orderTotalBeforeDiscount.value);
-
-  return (availableVouchers.value || [])
-    .map((voucher) => {
-      const minOrder = getVoucherMinOrder(voucher);
-      const isEligible = orderBase >= minOrder;
-      const expectedDiscount = isEligible
-        ? computeVoucherDiscount(voucher, orderBase)
-        : 0;
-      const reason = getVoucherAvailabilityReason(voucher);
-      return {
-        ...voucher,
-        isEligible,
-        expectedDiscount,
-        isActive: !reason,
-        reason,
-      };
-    })
-    .sort((a, b) => (b.expectedDiscount || 0) - (a.expectedDiscount || 0));
-});
-
-const cartItems = computed(() => cartStore.cartItems);
-const subtotal = computed(() => cartStore.cartTotal);
-const shipping = computed(() =>
-  cartItems.value.length > 0 ? calculatedShippingFee.value : 0,
-);
-
-// TÍNH TIỀN GIẢM GIÁ
-const discountAmount = computed(() => {
-  if (!appliedVoucher.value) return 0;
-
-  // Ưu tiên dùng discountAmount từ API (đã áp dụng cap maxDiscountAmount bên backend)
-  if (appliedVoucher.value.discountAmount != null) {
-    return Math.min(
-      Math.max(0, orderTotalBeforeDiscount.value),
-      Math.max(0, Number(appliedVoucher.value.discountAmount) || 0),
-    );
-  }
-
-  // Fallback: tự tính nếu chưa có discountAmount từ API
-  const currentCode = appliedVoucher.value.code || voucherInput.value;
-  const found = availableVouchers.value.find(
-    (v) => v.code.toUpperCase() === String(currentCode).toUpperCase(),
-  );
-
-  const type = found
-    ? found.discountType
-    : appliedVoucher.value.discountType || appliedVoucher.value.discount_type;
-  const val = found
-    ? found.discountValue
-    : appliedVoucher.value.discountValue || appliedVoucher.value.discount_value;
-  const maxCap = found
-    ? (found.maxDiscountAmount ?? null)
-    : (appliedVoucher.value.maxDiscountAmount ?? null);
-
-  const base = Math.max(0, orderTotalBeforeDiscount.value);
-  if (type === "AMOUNT") {
-    return Math.min(base, Number(val) || 0);
-  } else if (type === "PERCENT") {
-    const raw = (base * (Number(val) || 0)) / 100;
-    // Áp dụng cap maxDiscountAmount nếu có
-    if (maxCap != null && Number(maxCap) > 0) {
-      return Math.min(base, raw, Number(maxCap));
-    }
-    return Math.min(base, raw);
-  }
-
-  return 0;
-});
-
-const orderTotalBeforeDiscount = computed(() =>
-  Math.max(0, subtotal.value + shipping.value),
-);
-const total = computed(() =>
-  Math.max(0, orderTotalBeforeDiscount.value - discountAmount.value),
-);
-
-function extractListPayload(payload) {
-  if (Array.isArray(payload)) return payload;
-  if (!payload || typeof payload !== "object") return [];
-  if (Array.isArray(payload.data)) return payload.data;
-  if (Array.isArray(payload.content)) return payload.content;
-  if (Array.isArray(payload.items)) return payload.items;
-  if (payload.data && Array.isArray(payload.data.content)) return payload.data.content;
-  if (payload.data && Array.isArray(payload.data.items)) return payload.data.items;
-  return [];
-}
-
-function showAlert(title, message, type = "success") {
-  modal.title = title;
-  modal.message = message;
-  modal.type = type;
-  modal.show = true;
-}
-
-function formatMoney(value) {
-  return orderUtils.formatPrice(value || 0);
-}
-function getItemName(item) {
-  return item.productName || item.name || "Sản phẩm";
-}
-function getItemImage(item) {
-  return item.imageUrl || item.image || "https://via.placeholder.com/150";
-}
-function getSizeLabel(item) {
-  return (
-    resolveSizeMeta({ id: item.sizeId, name: item.sizeName || item.size })
-      .name || "--"
-  );
-}
-function getColorLabel(item) {
-  return (
-    resolveColorMeta({
-      id: item.colorId,
-      name: item.colorName || item.color,
-      hexCode: item.colorHexCode,
-    }).name || "--"
-  );
-}
-
-function getAccountId(user) {
-  const source = user && typeof user === "object" ? user : {};
-  const candidate = source.accountId ?? source.account_id ?? source.id;
-  const n = Number(candidate);
-  return Number.isFinite(n) && n > 0 ? n : null;
-}
-
-function redirectToLoginForCheckout() {
-  router.replace({ name: "login", query: { redirect: "/checkout" } });
-}
-
-// =====================================
-// ĐÂY LÀ CHỖ ĐỂ TÍCH HỢP PAYLOAD ĐẶT HÀNG!
-// =====================================
-async function handlePlaceOrder() {
-  if (isProcessing.value) return;
-
-  if (!isRouteCalculated.value) {
-    const autoCalculated = await checkAndCalculateRoute(true);
-    if (autoCalculated && isRouteCalculated.value) {
-      // Continue placing order below.
-    } else {
-      showAlert(
-        "Thiếu thông tin",
-        'Vui lòng nhập địa chỉ giao hàng đầy đủ để hệ thống tự tính phí ship.',
-        "error",
-      );
-      return;
-    }
-  }
-
-  const normalizedName = String(shippingForm.fullname || "").trim();
-  const normalizedPhone = normalizePhone(shippingForm.phone);
-  if (normalizedName.length < 2) {
-    showAlert(
-      "Thiếu thông tin",
-      "Vui lòng nhập họ tên hợp lệ (ít nhất 2 ký tự).",
-      "error",
-    );
-    return;
-  }
-  if (!/^\d{7,15}$/.test(normalizedPhone)) {
-    showAlert(
-      "Thiếu thông tin",
-      "Số điện thoại chỉ gồm chữ số và dài từ 7 đến 15 ký tự.",
-      "error",
-    );
-    return;
-  }
-
-  // voucher validation is performed after shipping is known so discount applies to subtotal+shipping
-
-  isProcessing.value = true;
-
-  try {
-    const finalShippingAddress = fullAddressString.value || buildCurrentAddressString();
-    if (!isRouteCalculated.value && finalShippingAddress) {
-      applyFallbackShipping();
-    }
-    const effectiveShippingFee = Math.max(
-      0,
-      Number(
-        // prefer calculatedShippingFee (from route) but fall back to precomputed calculatedShippingFee
-        typeof calculatedShippingFee.value === 'number' && !Number.isNaN(Number(calculatedShippingFee.value))
-          ? calculatedShippingFee.value
-          : (typeof shipping.value === 'number' ? shipping.value : 0)
-      ),
-    );
-    const effectiveTotalBeforeDiscount = Math.max(
-      0,
-      Number(subtotal.value || 0) + effectiveShippingFee,
-    );
-    const effectiveDiscountAmount = Math.min(
-      effectiveTotalBeforeDiscount,
-      Math.max(0, Number(discountAmount.value || 0)),
-    );
-    const effectiveFinalAmount = Math.max(
-      0,
-      effectiveTotalBeforeDiscount - effectiveDiscountAmount,
-    );
-    const effectiveDistanceKm = Number(distanceKm.value || 0) || 0;
-
-    // Now validate voucher against the effective total (subtotal + shipping)
-    if (appliedVoucher.value?.code) {
-      try {
-        const validatedVoucher = await voucherAPI.applyVoucher(
-          appliedVoucher.value.code,
-          effectiveTotalBeforeDiscount,
-        );
-        const usageState = getVoucherUsageState(validatedVoucher);
-        if (usageState.exhausted) {
-          throw new Error("Mã giảm giá đã hết lượt sử dụng.");
-        }
-        enforceVoucherMinOrder(validatedVoucher, effectiveTotalBeforeDiscount);
-        appliedVoucher.value = validatedVoucher;
-        voucherInput.value = validatedVoucher.code || appliedVoucher.value.code;
-      } catch (voucherError) {
-        showAlert(
-          "Voucher không hợp lệ",
-          voucherError?.message || "Mã giảm giá không còn đủ điều kiện áp dụng.",
-          "error",
-        );
-        clearVoucher();
-        isProcessing.value = false;
-        return;
-      }
-    }
-
-    const orderData = {
-      accountId: currentAccountId.value,
-      fullname: normalizedName,
-      gmail: shippingForm.gmail || null,
-      email: shippingForm.gmail || null,
-      phone: normalizedPhone,
-      shippingAddress: finalShippingAddress,
-      streetAddress: streetAddress.value || null,
-      wardName: selectedWard.value?.name || null,
-      districtName: selectedDistrict.value?.name || null,
-      provinceName: selectedProvince.value?.name || null,
-      paymentMethodId: effectivePaymentMethodId.value,
-      voucherId: appliedVoucher.value?.id || null,
-      voucherCode: appliedVoucher.value?.code || null,
-      subtotalAmount: subtotal.value,
-      subtotal: subtotal.value,
-      subtotal_amount: subtotal.value,
-      shippingFee: effectiveShippingFee,
-      shipping_fee: effectiveShippingFee,
-      shipping: effectiveShippingFee,
-      shippingAmount: effectiveShippingFee,
-      shipping_amount: effectiveShippingFee,
-      deliveryFee: effectiveShippingFee,
-      delivery_fee: effectiveShippingFee,
-      shipFee: effectiveShippingFee,
-      ship_fee: effectiveShippingFee,
-      feeShip: effectiveShippingFee,
-      fee_ship: effectiveShippingFee,
-      shippingDistanceKm: effectiveDistanceKm,
-      shipping_distance_km: effectiveDistanceKm,
-      distanceKm: effectiveDistanceKm,
-      distance_km: effectiveDistanceKm,
-      orderShipping: {
-        fee: effectiveShippingFee,
-        shippingFee: effectiveShippingFee,
-        distanceKm: effectiveDistanceKm,
-      },
-      shippingInfo: {
-        fee: effectiveShippingFee,
-        shippingFee: effectiveShippingFee,
-        distanceKm: effectiveDistanceKm,
-      },
-      totalMoney: effectiveFinalAmount,
-      total_money: effectiveFinalAmount,
-      totalAmount: effectiveFinalAmount,
-      total_amount: effectiveFinalAmount,
-      discountAmount: effectiveDiscountAmount,
-      discount_amount: effectiveDiscountAmount,
-      finalAmount: effectiveFinalAmount,
-      final_amount: effectiveFinalAmount,
-
-      // >>> DANH SÁCH Áo GỬI KÈM MỚI Ở ĐÂY NÈ! <<<
-      items: cartItems.value.map((item) => ({
-        variantId:
-          item.variantId || item.id || (item.variant && item.variant.id),
-        quantity: item.quantity,
-      })),
-    };
-
-    const result = await orderAPI.placeOrder(orderData);
-    const createdOrderId =
-      result?.orderId ||
-      result?.id ||
-      result?.data?.orderId ||
-      result?.data?.id;
-
-    if (createdOrderId) {
-      try {
-        await orderAPI.updateOrder(createdOrderId, {
-          ...orderData,
-          id: createdOrderId,
-          orderId: createdOrderId,
-        });
-      } catch (updateError) {
-        console.warn("Không thể cập nhật lại phí vận chuyển cho đơn hàng:", updateError);
-      }
-    }
-
-    // ── VNPay: nếu chọn thanh toán online → redirect sang VNPay ──
-    if (selectedPayment.value === 2) {
-      try {
-        if (!createdOrderId) {
-          throw new Error("Không lấy được mã đơn hàng để thanh toán VNPay.");
-        }
-
-        const vnpayResult = await paymentApi.createVnpayPayment(
-          createdOrderId,
-          effectiveFinalAmount,
-        );
-
-        if (vnpayResult?.paymentUrl) {
-          // Redirect user to VNPay payment page
-          window.location.href = vnpayResult.paymentUrl;
-          return; // stop here — user will be redirected
-        } else {
-          throw new Error("Không tạo được link thanh toán VNPay.");
-        }
-      } catch (vnpayError) {
-        showAlert(
-          "Lỗi thanh toán VNPay",
-          vnpayError?.message || "Không thể kết nối cổng thanh toán. Đơn hàng đã được tạo, vui lòng thử thanh toán lại.",
-          "error",
-        );
-        isProcessing.value = false;
-        return;
-      }
-    }
-    // ── End VNPay ──
-
-    if (currentAccountId.value !== null) await cartStore.clearCartBackend();
-    else cartStore.clearCart();
-
-    showAlert(
-      "Đặt hàng thành công",
-      "Đơn hàng của bạn đã được ghi nhận.",
-      "success",
-    );
-    setTimeout(() => {
-      router.push("/orders");
-    }, 1000);
-  } catch (error) {
-    showAlert(
-      "Không thể đặt hàng",
-      error.message || "Vui lòng thử lại sau",
-      "error",
-    );
-  } finally {
-    isProcessing.value = false;
-  }
-}
-
-async function loadAvailableVouchers() {
-  try {
-    // Đã xóa phần "payload" nhầm lẫn ở đây để hàm load Voucher chạy đúng chức năng!
-    const response = await voucherAPI.getAllVouchers(
-      0,
-      100,
-      "createdAt",
-      "DESC",
-    );
-
-    const rows = extractListPayload(response);
-    const estimateDiscount = (voucher) =>
-      computeVoucherDiscount(voucher, orderTotalBeforeDiscount.value);
-
-    availableVouchers.value = rows
-      .filter((v) => isVoucherActive(v))
-      .sort((a, b) => estimateDiscount(b) - estimateDiscount(a))
-      .slice(0, 20);
-  } catch (e) {
-    availableVouchers.value = [];
-  }
-}
-
-async function applyVoucher() {
-  const code = String(voucherInput.value || "").trim();
-  if (!code) return;
-
-  isApplyingVoucher.value = true;
-  try {
-    const validated = await voucherAPI.applyVoucher(
-      code,
-      orderTotalBeforeDiscount.value,
-    );
-    const usageState = getVoucherUsageState(validated);
-    if (usageState.exhausted) {
-      throw new Error("Mã giảm giá đã hết lượt sử dụng.");
-    }
-    enforceVoucherMinOrder(validated, orderTotalBeforeDiscount.value);
-    appliedVoucher.value = validated;
-    voucherInput.value = validated.code || code;
-  } catch (error) {
-    showAlert(
-      "Voucher không hợp lệ",
-      error?.message || "Mã giảm giá không thể áp dụng cho đơn hiện tại.",
-      "error",
-    );
-    clearVoucher();
-  } finally {
-    isApplyingVoucher.value = false;
-  }
-}
-
-function applySuggestedVoucher(v) {
-  if (!v?.isEligible) {
-    showAlert(
-      "Chưa đủ điều kiện",
-      `Đơn cần tối thiểu ${formatMoney(v.minOrderValue || v.min_order_value || 0)} để dùng mã này.`,
-      "error",
-    );
-    return;
-  }
-  const usageState = getVoucherUsageState(v);
-  if (usageState.exhausted) {
-    showAlert("Voucher không khả dụng", "Mã giảm giá này đã hết lượt sử dụng.", "error");
-    return;
-  }
-  voucherInput.value = v.code;
-  appliedVoucher.value = v;
-}
-
-function clearVoucher() {
-  appliedVoucher.value = null;
-  voucherInput.value = "";
-}
-
-function autoPickBestEligibleVoucher() {
-  const bestVoucher = processedAvailableVouchers.value.find(
-    (voucher) => voucher.isEligible,
-  );
-
-  if (!bestVoucher) {
-    return;
-  }
-
-  const currentCode = String(appliedVoucher.value?.code || "").toUpperCase();
-  const bestCode = String(bestVoucher.code || "").toUpperCase();
-  if (currentCode && currentCode === bestCode) {
-    return;
-  }
-
-  voucherInput.value = bestVoucher.code || "";
-  appliedVoucher.value = bestVoucher;
-}
-
-async function hydrateCheckout() {
-  const userData = localStorage.getItem("user");
-  if (userData) {
+  async function safeParseResponse (res) {
+    if (!res) return null
     try {
-      currentUser.value = JSON.parse(userData);
+      const data = await res.json()
+      return data
     } catch {
-      currentUser.value = null;
+      try {
+        const text = await res.text()
+        return text
+      } catch {
+        return null
+      }
     }
   }
-  currentAccountId.value = getAccountId(currentUser.value);
-  if (currentAccountId.value === null) {
-    showAlert("Yêu cầu đăng nhập", "Bạn cần đăng nhập để thanh toán", "error");
-    setTimeout(() => redirectToLoginForCheckout(), 250);
-    return;
+
+  async function autoFillAddressHierarchyFromText (rawAddress) {
+    const input = String(rawAddress || '').trim()
+    if (!input || provinces.value.length === 0) return
+
+    isAutoFillingAddress.value = true
+    skipNextWatcherUpdate.value = true
+
+    try {
+      let first = null
+      const parts = input.split(',').map(s => s.trim()).filter(Boolean)
+      while (parts.length > 0) {
+        const q = parts.join(', ')
+        const geoRes = await fetchGeocode(q)
+        if (!geoRes.ok) {
+          if (geoRes.status === 429) {
+            routeError.value = 'Geocoding service busy — tính ship tạm thời bằng ước lượng.'
+            applyTextFallbackShipping(input)
+            return true
+          }
+          throw new Error(`Geocoding failed (HTTP ${geoRes.status})`)
+        }
+        const geoData = geoRes.data
+        if (Array.isArray(geoData) && geoData.length > 0) {
+          first = geoData[0]
+          break
+        }
+        parts.shift()
+      }
+
+      // Extract from Nominatim ONLY for basic hints
+      const addressMeta = first?.address || {}
+      const provinceHint
+        = addressMeta.state
+          || addressMeta.city
+          || addressMeta.province
+          || addressMeta.region
+          || ''
+      const districtHint
+        = addressMeta.county
+          || addressMeta.city_district
+          || addressMeta.district
+          || addressMeta.suburb
+          || ''
+      const wardHint
+        = addressMeta.ward
+          || addressMeta.suburb
+          || addressMeta.quarter
+          || addressMeta.neighbourhood
+          || ''
+      const displayNameHint = first?.display_name || ''
+
+      // STEP 1: Match Province - try hint first, then fallback to input search
+      const matchedProvince
+        = findBestMatchByName(provinces.value, provinceHint, displayNameHint)
+          || findBestMatchByName(provinces.value, input, displayNameHint)
+
+      if (!matchedProvince) {
+        skipNextWatcherUpdate.value = false
+        scheduleAutoRouteCalculation()
+        return
+      }
+
+      selectedProvince.value = matchedProvince
+      districts.value = matchedProvince.districts || []
+
+      // STEP 2: Match District - try hint first, then search whole input text
+      const matchedDistrict
+        = findBestMatchByName(districts.value, districtHint, displayNameHint)
+          || findBestMatchByName(districts.value, input, displayNameHint)
+
+      if (matchedDistrict) {
+        selectedDistrict.value = matchedDistrict
+        wards.value = matchedDistrict.wards || []
+
+        // STEP 3: Match Ward - try hint first, then search whole input
+        const matchedWard
+          = findBestMatchByName(wards.value, wardHint, displayNameHint)
+            || findBestMatchByName(wards.value, input, displayNameHint)
+
+        if (matchedWard) {
+          selectedWard.value = matchedWard
+        } else {
+          // No ward match - keep district but leave ward empty
+          selectedWard.value = ''
+        }
+      } else {
+        // District hint didn't work - try searching inside each district's wards for the hint
+        let foundDistrictAndWard = false
+
+        for (const dist of districts.value) {
+          const districtWards = dist.wards || []
+
+          // Try to find ward using ward hint
+          const wardByHint = findBestMatchByName(
+            districtWards,
+            wardHint,
+            displayNameHint,
+            input,
+          )
+          if (wardByHint) {
+            selectedDistrict.value = dist
+            selectedWard.value = wardByHint
+            wards.value = districtWards
+            foundDistrictAndWard = true
+            break
+          }
+        }
+
+        // If still no match, try searching entire input text across all districts/wards
+        if (!foundDistrictAndWard) {
+          for (const dist of districts.value) {
+            const districtWards = dist.wards || []
+
+            // Try to find by input text
+            const wardByInput = findBestMatchByName(
+              districtWards,
+              input,
+              displayNameHint,
+            )
+            if (wardByInput) {
+              selectedDistrict.value = dist
+              selectedWard.value = wardByInput
+              wards.value = districtWards
+              foundDistrictAndWard = true
+              break
+            }
+          }
+        }
+
+        // If still no exact match found, just leave ward empty but keep district set
+        if (!foundDistrictAndWard) {
+          selectedWard.value = ''
+          // Set wards array to empty so user can manually select
+          wards.value = []
+        }
+      }
+
+      fullAddressString.value = buildCurrentAddressString(input)
+    } catch (error) {
+      console.error('Auto-fill error:', error)
+    } finally {
+      isAutoFillingAddress.value = false
+      // Reset flag AFTER this microtask completes so watcher definitely skips
+      Promise.resolve().then(() => {
+        skipNextWatcherUpdate.value = false
+      })
+    }
   }
-  cartStore.accountId = currentAccountId.value;
-  await cartStore.loadCartFromBackend(currentAccountId.value);
-  await loadAvailableVouchers();
-  autoPickBestEligibleVoucher();
 
-  shippingForm.fullname =
-    currentUser.value?.fullName || currentUser.value?.username || "";
-  shippingForm.gmail =
-    currentUser.value?.email || currentUser.value?.gmail || "";
-  shippingForm.phone = currentUser.value?.phone || "";
-  shippingForm.address = resolveUserAddress(currentUser.value);
-  streetAddress.value = shippingForm.address || "";
-}
-
-watch(
-  () => streetAddress.value,
-  () => {
-    fullAddressString.value = buildCurrentAddressString();
-    scheduleAutoRouteCalculation();
-  },
-);
-
-watch(
-  () => selectedWard.value,
-  () => {
-    if (skipNextWatcherUpdate.value) return;
-    
-    // Only recalculate if we have at least province + district
-    if (!selectedProvince.value || !selectedDistrict.value) {
-      isRouteCalculated.value = false;
-      calculatedShippingFee.value = 0;
-      return;
-    }
-    
-    // Update address string and trigger route calculation
-    fullAddressString.value = buildCurrentAddressString();
-    scheduleAutoRouteCalculation();
-  },
-);
-
-watch(
-  () => orderTotalBeforeDiscount.value,
-  () => {
-    if (!appliedVoucher.value?.code) {
-      autoPickBestEligibleVoucher();
-      return;
+  async function calculateRouteFromFreeformAddress (rawAddress, silent = false) {
+    const addressText = String(rawAddress || '').trim()
+    if (!addressText) {
+      if (!silent) {
+        routeError.value = 'Vui lòng nhập địa chỉ giao hàng để tính phí ship.'
+      }
+      return false
     }
 
-    const currentCode = String(appliedVoucher.value.code || "").toUpperCase();
-    const matched = processedAvailableVouchers.value.find(
-      (voucher) => String(voucher.code || "").toUpperCase() === currentCode,
-    );
+    try {
+      let first = null
+      const parts = input.split(',').map(s => s.trim()).filter(Boolean)
+      while (parts.length > 0) {
+        const q = parts.join(', ')
+        const geoRes = await fetchGeocode(q)
+        if (!geoRes.ok) {
+          if (geoRes.status === 429) {
+            routeError.value = 'Geocoding service busy — tính ship tạm thời bằng ước lượng.'
+            applyTextFallbackShipping(addressText)
+            return true
+          }
+          throw new Error(`Geocoding failed (HTTP ${geoRes.status})`)
+        }
+        const geoData = geoRes.data
+        if (Array.isArray(geoData) && geoData.length > 0) {
+          first = geoData[0]
+          break
+        }
+        parts.shift()
+      }
+      if (!first) {
+        applyTextFallbackShipping(addressText)
+        return true
+      }
 
-    if (matched && matched.isEligible) {
-      appliedVoucher.value = matched;
-      return;
+      const userLat = Number(first.lat)
+      const userLon = Number(first.lon)
+      if (!Number.isFinite(userLat) || !Number.isFinite(userLon)) {
+        applyTextFallbackShipping(addressText)
+        return true
+      }
+
+      const routeUrl = `https://router.project-osrm.org/route/v1/driving/${SHOP_COORD[1]},${SHOP_COORD[0]};${userLon},${userLat}?overview=false`
+      const routeRes = await fetch(routeUrl)
+      const routeData = await routeRes.json()
+      if (routeData.code !== 'Ok') {
+        applyTextFallbackShipping(addressText)
+        return true
+      }
+
+      const km = Number(routeData.routes?.[0]?.distance || 0) / 1000
+      const provinceText = String(
+        first.address?.state || first.address?.city || first.address?.province || '',
+      )
+      const isHaNoi = normalizeAddressText(provinceText).includes('ha noi')
+
+      distanceKm.value = Number.isFinite(km) ? km.toFixed(1) : '0.0'
+      if (isHaNoi) {
+        if (km < 5) calculatedShippingFee.value = 15_000
+        else if (km < 10) calculatedShippingFee.value = 25_000
+        else calculatedShippingFee.value = 35_000
+        estimatedDays.value = 1
+      } else {
+        calculatedShippingFee.value = 40_000
+        estimatedDays.value = km < 100 ? 2 : 3
+      }
+
+      fullAddressString.value = buildCurrentAddressString(addressText)
+
+      routeError.value = ''
+      isRouteCalculated.value = true
+      return true
+    } catch {
+      applyTextFallbackShipping(addressText)
+      return true
+    }
+  }
+
+  async function autoCalculateShippingOnEnter () {
+    const rawAddress = String(streetAddress.value || shippingForm.address || '').trim()
+    if (!rawAddress) {
+      return
     }
 
-    clearVoucher();
-    autoPickBestEligibleVoucher();
-  },
-);
+    if (!streetAddress.value) {
+      streetAddress.value = rawAddress
+    }
+
+    const ok = await checkAndCalculateRoute(true)
+    if (!ok) {
+      applyTextFallbackShipping(rawAddress)
+    }
+  }
+
+  onMounted(async () => {
+    window.scrollTo(0, 0)
+
+    setTimeout(() => {
+      initMap()
+    }, 100)
+
+    await hydrateCheckout()
+    await fetchAddresses()
+    try {
+      const res = await fetch('https://esgoo.net/api-tinhthanh/4/0.htm')
+      const json = await res.json()
+      provinces.value = json.error === 0 && json.data
+        ? json.data.map(p => ({
+          name: p.full_name || p.name,
+          code: p.id,
+          districts: (p.data2 || []).map(d => ({
+            name: d.full_name || d.name,
+            code: d.id,
+            wards: (d.data3 || []).map(w => ({
+              name: w.full_name || w.name,
+              code: w.id,
+            })),
+          })),
+        }))
+        : []
+
+      if (shippingForm.address) {
+        await autoFillAddressHierarchyFromText(shippingForm.address)
+      }
+
+      await autoCalculateShippingOnEnter()
+    } catch (error) {
+      console.error('Không tải được API Tỉnh Thành', error)
+      await autoCalculateShippingOnEnter()
+    }
+  })
+
+  async function checkAndCalculateRoute (silent = false) {
+    if (!streetAddress.value && shippingForm.address) {
+      streetAddress.value = String(shippingForm.address).trim()
+    }
+
+    if (streetAddress.value) {
+      await autoFillAddressHierarchyFromText(streetAddress.value)
+    }
+
+    if (!streetAddress.value) {
+      if (!silent) {
+        routeError.value = 'Vui lòng nhập địa chỉ giao hàng để tính phí ship.'
+      }
+      isRouteCalculated.value = false
+      return false
+    }
+
+    const calculatedFromFreeform = await calculateRouteFromFreeformAddress(
+      streetAddress.value,
+      silent,
+    )
+    return calculatedFromFreeform
+  }
+
+  function applyFallbackShipping () {
+    distanceKm.value = 0
+    const addressForFee = buildCurrentAddressString()
+    const detectedProvince = selectedProvince.value?.name || ''
+    const isHaNoi
+      = normalizeAddressText(addressForFee).includes('ha noi')
+        || normalizeAddressText(detectedProvince).includes('ha noi')
+    estimatedDays.value = isHaNoi ? 1 : 3
+    calculatedShippingFee.value = isHaNoi ? 30_000 : 40_000
+    fullAddressString.value = addressForFee
+    routeError.value = ''
+    isRouteCalculated.value = true
+  }
+  // ===== END LOGIC ROUTING =====
+
+  // ===== LOGIC THANH TOÁN VÀ VOUCHER =====
+  const selectedPayment = ref(1)
+  const paymentMethods = [
+    { id: 1, name: 'Thanh toán khi nhận hàng', icon: 'local_shipping' },
+    { id: 2, name: 'VNPay QR / Ví điện tử', icon: 'qr_code_2' },
+  ]
+  const selectedDigitalPayment = ref(2)
+  const digitalPaymentMethods = [
+    { id: 2, name: 'VNPay' },
+    { id: 3, name: 'Momo' },
+    { id: 4, name: 'Bank Transfer' },
+    { id: 5, name: 'ZaloPay' },
+  ]
+  const effectivePaymentMethodId = computed(() =>
+    selectedPayment.value === 1 ? 1 : Number(selectedDigitalPayment.value || 2),
+  )
+
+  const voucherInput = ref('')
+  const appliedVoucher = ref(null)
+  const availableVouchers = ref([])
+
+  function getVoucherMinOrder (voucher) {
+    return Number(voucher?.minOrderValue ?? voucher?.min_order_value ?? 0) || 0
+  }
+
+  function getVoucherUsageState (voucher) {
+    const limit = Number(voucher?.usageLimit ?? voucher?.usage_limit ?? voucher?.limit ?? 0) || 0
+    const used = Number(voucher?.usedCount ?? voucher?.used_count ?? voucher?.used ?? 0) || 0
+    return {
+      limit,
+      used,
+      remaining: limit > 0 ? Math.max(0, limit - used) : null,
+      exhausted: limit > 0 && used >= limit,
+    }
+  }
+
+  function getVoucherByCode (code) {
+    const normalizedCode = String(code || '').trim().toUpperCase()
+    if (!normalizedCode) return null
+
+    return (
+      (availableVouchers.value || []).find(
+        voucher => String(voucher?.code || '').trim().toUpperCase() === normalizedCode,
+      ) || null
+    )
+  }
+
+  function enforceVoucherMinOrder (voucher, orderBaseAmount) {
+    const fromList = getVoucherByCode(voucher?.code)
+    const minOrder = Math.max(
+      getVoucherMinOrder(voucher),
+      getVoucherMinOrder(fromList),
+    )
+
+    if (minOrder > 0 && Number(orderBaseAmount) < minOrder) {
+      throw new Error(
+        `Đơn tối thiểu ${formatMoney(minOrder)} mới áp dụng được mã ${voucher?.code || ''}.`,
+      )
+    }
+  }
+
+  function computeVoucherDiscount (voucher, baseAmount) {
+    const type = voucher?.discountType || voucher?.discount_type
+    const value = Number(voucher?.discountValue ?? voucher?.discount_value ?? 0) || 0
+    const safeBase = Math.max(0, Number(baseAmount) || 0)
+    const maxCap = Number(voucher?.maxDiscountAmount ?? voucher?.max_discount_amount ?? 0) || 0
+
+    if (type === 'AMOUNT') {
+      return Math.min(safeBase, value)
+    }
+    if (type === 'PERCENT') {
+      const raw = (safeBase * value) / 100
+      // Áp dụng giới hạn giảm tối đa nếu có
+      return maxCap > 0 ? Math.min(raw, maxCap) : raw
+    }
+    return Number(voucher?.discountAmount || 0)
+  }
+
+  function getVoucherAvailabilityReason (voucher) {
+    const statusRaw = String(voucher?.status || voucher?.state || '').trim().toUpperCase()
+    if (['INACTIVE', 'DISABLED', 'DELETED'].includes(statusRaw)) return 'Voucher không còn hoạt động'
+    if (statusRaw === 'EXPIRED') return 'Voucher đã hết hạn'
+    if (statusRaw === 'USED') return 'Voucher đã hết lượt sử dụng'
+
+    if (voucher?.isActive === false || voucher?.is_active === false) return 'Voucher không còn hoạt động'
+
+    const now = new Date()
+    const startDateRaw = voucher?.startDate || voucher?.start_date
+    if (startDateRaw) {
+      const startDate = new Date(startDateRaw)
+      if (!Number.isNaN(startDate.getTime()) && startDate.getTime() > now.getTime()) {
+        return 'Voucher chưa đến hạn sử dụng'
+      }
+    }
+
+    const endDateRaw = voucher?.endDate || voucher?.end_date || voucher?.expiryDate || voucher?.expire_date
+    if (endDateRaw) {
+      const endDate = new Date(endDateRaw)
+      if (!Number.isNaN(endDate.getTime()) && endDate.getTime() < now.getTime()) {
+        return 'Voucher đã hết hạn'
+      }
+    }
+
+    const usageState = getVoucherUsageState(voucher)
+    if (usageState.exhausted) return 'Voucher đã hết lượt sử dụng'
+
+    return null
+  }
+
+  function isVoucherActive (voucher) {
+    return !getVoucherAvailabilityReason(voucher)
+  }
+
+  const processedAvailableVouchers = computed(() => {
+    const orderBase = Math.max(0, orderTotalBeforeDiscount.value)
+
+    return (availableVouchers.value || [])
+      .map(voucher => {
+        const minOrder = getVoucherMinOrder(voucher)
+        const isEligible = orderBase >= minOrder
+        const expectedDiscount = isEligible
+          ? computeVoucherDiscount(voucher, orderBase)
+          : 0
+        const reason = getVoucherAvailabilityReason(voucher)
+        return {
+          ...voucher,
+          isEligible,
+          expectedDiscount,
+          isActive: !reason,
+          reason,
+        }
+      })
+      .filter(voucher => !voucher.reason)
+      .sort((a, b) => (b.expectedDiscount || 0) - (a.expectedDiscount || 0))
+  })
+
+  const cartItems = computed(() => cartStore.cartItems)
+  const subtotal = computed(() => cartStore.cartTotal)
+  const shipping = computed(() =>
+    cartItems.value.length > 0 ? calculatedShippingFee.value : 0,
+  )
+
+  // TÍNH TIỀN GIẢM GIÁ
+  const discountAmount = computed(() => {
+    if (!appliedVoucher.value) return 0
+
+    // Ưu tiên dùng discountAmount từ API (đã áp dụng cap maxDiscountAmount bên backend)
+    if (appliedVoucher.value.discountAmount != null) {
+      return Math.min(
+        Math.max(0, orderTotalBeforeDiscount.value),
+        Math.max(0, Number(appliedVoucher.value.discountAmount) || 0),
+      )
+    }
+
+    // Fallback: tự tính nếu chưa có discountAmount từ API
+    const currentCode = appliedVoucher.value.code || voucherInput.value
+    const found = availableVouchers.value.find(
+      v => v.code.toUpperCase() === String(currentCode).toUpperCase(),
+    )
+
+    const type = found
+      ? found.discountType
+      : appliedVoucher.value.discountType || appliedVoucher.value.discount_type
+    const val = found
+      ? found.discountValue
+      : appliedVoucher.value.discountValue || appliedVoucher.value.discount_value
+    const maxCap = found
+      ? (found.maxDiscountAmount ?? null)
+      : (appliedVoucher.value.maxDiscountAmount ?? null)
+
+    const base = Math.max(0, orderTotalBeforeDiscount.value)
+    if (type === 'AMOUNT') {
+      return Math.min(base, Number(val) || 0)
+    } else if (type === 'PERCENT') {
+      const raw = (base * (Number(val) || 0)) / 100
+      // Áp dụng cap maxDiscountAmount nếu có
+      if (maxCap != null && Number(maxCap) > 0) {
+        return Math.min(base, raw, Number(maxCap))
+      }
+      return Math.min(base, raw)
+    }
+
+    return 0
+  })
+
+  const orderTotalBeforeDiscount = computed(() =>
+    Math.max(0, subtotal.value + shipping.value),
+  )
+  const total = computed(() =>
+    Math.max(0, orderTotalBeforeDiscount.value - discountAmount.value),
+  )
+
+  function extractListPayload (payload) {
+    if (Array.isArray(payload)) return payload
+    if (!payload || typeof payload !== 'object') return []
+    if (Array.isArray(payload.data)) return payload.data
+    if (Array.isArray(payload.content)) return payload.content
+    if (Array.isArray(payload.items)) return payload.items
+    if (payload.data && Array.isArray(payload.data.content)) return payload.data.content
+    if (payload.data && Array.isArray(payload.data.items)) return payload.data.items
+    return []
+  }
+
+  function showAlert (title, message, type = 'success') {
+    modal.title = title
+    modal.message = message
+    modal.type = type
+    modal.show = true
+  }
+
+  function formatMoney (value) {
+    return orderUtils.formatPrice(value || 0)
+  }
+  function getItemName (item) {
+    return item.productName || item.name || 'Sản phẩm'
+  }
+  function getItemImage (item) {
+    return item.imageUrl || item.image || 'https://via.placeholder.com/150'
+  }
+  function getSizeLabel (item) {
+    return (
+      resolveSizeMeta({ id: item.sizeId, name: item.sizeName || item.size })
+        .name || '--'
+    )
+  }
+  function getColorLabel (item) {
+    return (
+      resolveColorMeta({
+        id: item.colorId,
+        name: item.colorName || item.color,
+        hexCode: item.colorHexCode,
+      }).name || '--'
+    )
+  }
+
+  function getAccountId (user) {
+    const source = user && typeof user === 'object' ? user : {}
+    const candidate = source.accountId ?? source.account_id ?? source.id
+    const n = Number(candidate)
+    return Number.isFinite(n) && n > 0 ? n : null
+  }
+
+  function redirectToLoginForCheckout () {
+    router.replace({ name: 'login', query: { redirect: '/checkout' } })
+  }
+
+  // =====================================
+  // ĐÂY LÀ CHỖ ĐỂ TÍCH HỢP PAYLOAD ĐẶT HÀNG!
+  // =====================================
+  async function handlePlaceOrder () {
+    if (isProcessing.value) return
+
+    if (!isRouteCalculated.value) {
+      const autoCalculated = await checkAndCalculateRoute(true)
+      if (autoCalculated && isRouteCalculated.value) {
+      // Continue placing order below.
+      } else {
+        showAlert(
+          'Thiếu thông tin',
+          'Vui lòng nhập địa chỉ giao hàng đầy đủ để hệ thống tự tính phí ship.',
+          'error',
+        )
+        return
+      }
+    }
+
+    const normalizedName = String(shippingForm.fullname || '').trim()
+    const normalizedPhone = normalizePhone(shippingForm.phone)
+    if (normalizedName.length < 2) {
+      showAlert(
+        'Thiếu thông tin',
+        'Vui lòng nhập họ tên hợp lệ (ít nhất 2 ký tự).',
+        'error',
+      )
+      return
+    }
+    if (!/^\d{7,15}$/.test(normalizedPhone)) {
+      showAlert(
+        'Thiếu thông tin',
+        'Số điện thoại chỉ gồm chữ số và dài từ 7 đến 15 ký tự.',
+        'error',
+      )
+      return
+    }
+
+    // voucher validation is performed after shipping is known so discount applies to subtotal+shipping
+
+    isProcessing.value = true
+
+    try {
+      const finalShippingAddress = fullAddressString.value || buildCurrentAddressString()
+      if (!isRouteCalculated.value && finalShippingAddress) {
+        applyFallbackShipping()
+      }
+      const effectiveShippingFee = Math.max(
+        0,
+        Number(
+          // prefer calculatedShippingFee (from route) but fall back to precomputed calculatedShippingFee
+          typeof calculatedShippingFee.value === 'number' && !Number.isNaN(Number(calculatedShippingFee.value))
+            ? calculatedShippingFee.value
+            : (typeof shipping.value === 'number' ? shipping.value : 0),
+        ),
+      )
+      const effectiveTotalBeforeDiscount = Math.max(
+        0,
+        Number(subtotal.value || 0) + effectiveShippingFee,
+      )
+      const effectiveDiscountAmount = Math.min(
+        effectiveTotalBeforeDiscount,
+        Math.max(0, Number(discountAmount.value || 0)),
+      )
+      const effectiveFinalAmount = Math.max(
+        0,
+        effectiveTotalBeforeDiscount - effectiveDiscountAmount,
+      )
+      const effectiveDistanceKm = Number(distanceKm.value || 0) || 0
+
+      // Now validate voucher against the effective total (subtotal + shipping)
+      if (appliedVoucher.value?.code) {
+        try {
+          const validatedVoucher = await voucherAPI.applyVoucher(
+            appliedVoucher.value.code,
+            effectiveTotalBeforeDiscount,
+          )
+          const usageState = getVoucherUsageState(validatedVoucher)
+          if (usageState.exhausted) {
+            throw new Error('Mã giảm giá đã hết lượt sử dụng.')
+          }
+          enforceVoucherMinOrder(validatedVoucher, effectiveTotalBeforeDiscount)
+          appliedVoucher.value = validatedVoucher
+          voucherInput.value = validatedVoucher.code || appliedVoucher.value.code
+        } catch (voucherError) {
+          showAlert(
+            'Voucher không hợp lệ',
+            voucherError?.message || 'Mã giảm giá không còn đủ điều kiện áp dụng.',
+            'error',
+          )
+          clearVoucher()
+          isProcessing.value = false
+          return
+        }
+      }
+
+      // ── STOCK VALIDATION: Kiểm tra tồn kho trước khi đặt hàng ──
+      const stockCheckItems = cartItems.value.map(item => ({
+        variantId: item.variantId || item.variant_id || (item.variant && item.variant.id),
+        quantity: item.quantity,
+        productName: item.productName || item.name,
+      }))
+      const stockResult = await stockApi.checkStock(stockCheckItems)
+      if (!stockResult.valid) {
+        const errorMessages = stockResult.errors.map(e => e.message).join('\n')
+        showAlert(
+          'Hết hàng',
+          `Một số sản phẩm không còn đủ tồn kho:\n${errorMessages}`,
+          'error',
+        )
+        await cartStore.loadCartFromBackend(currentAccountId.value)
+        isProcessing.value = false
+        return
+      }
+      // ── End STOCK VALIDATION ──
+
+      const orderData = {
+        accountId: currentAccountId.value,
+        orderSource: 'ONLINE',
+        salesChannel: 'ONLINE',
+        fullname: normalizedName,
+        gmail: shippingForm.gmail || null,
+        email: shippingForm.gmail || null,
+        phone: normalizedPhone,
+        shippingAddress: finalShippingAddress,
+        streetAddress: streetAddress.value || null,
+        wardName: selectedWard.value?.name || null,
+        districtName: selectedDistrict.value?.name || null,
+        provinceName: selectedProvince.value?.name || null,
+        paymentMethodId: effectivePaymentMethodId.value,
+        voucherId: appliedVoucher.value?.id || null,
+        voucherCode: appliedVoucher.value?.code || null,
+        subtotalAmount: subtotal.value,
+        subtotal: subtotal.value,
+        subtotal_amount: subtotal.value,
+        shippingFee: effectiveShippingFee,
+        shipping_fee: effectiveShippingFee,
+        shipping: effectiveShippingFee,
+        shippingAmount: effectiveShippingFee,
+        shipping_amount: effectiveShippingFee,
+        deliveryFee: effectiveShippingFee,
+        delivery_fee: effectiveShippingFee,
+        shipFee: effectiveShippingFee,
+        ship_fee: effectiveShippingFee,
+        feeShip: effectiveShippingFee,
+        fee_ship: effectiveShippingFee,
+        shippingDistanceKm: effectiveDistanceKm,
+        shipping_distance_km: effectiveDistanceKm,
+        distanceKm: effectiveDistanceKm,
+        distance_km: effectiveDistanceKm,
+        orderShipping: {
+          fee: effectiveShippingFee,
+          shippingFee: effectiveShippingFee,
+          distanceKm: effectiveDistanceKm,
+        },
+        shippingInfo: {
+          fee: effectiveShippingFee,
+          shippingFee: effectiveShippingFee,
+          distanceKm: effectiveDistanceKm,
+        },
+        totalMoney: effectiveFinalAmount,
+        total_money: effectiveFinalAmount,
+        totalAmount: effectiveFinalAmount,
+        total_amount: effectiveFinalAmount,
+        discountAmount: effectiveDiscountAmount,
+        discount_amount: effectiveDiscountAmount,
+        finalAmount: effectiveFinalAmount,
+        final_amount: effectiveFinalAmount,
+
+        // >>> DANH SÁCH Áo GỬI KÈM MỚI Ở ĐÂY NÈ! <<<
+        items: cartItems.value.map(item => ({
+          variantId:
+            item.variantId
+              || item.variant_id
+              || (item.variant && item.variant.id)
+              || (item.product && item.product.defaultVariantId),
+          quantity: item.quantity,
+        })),
+      }
+
+      const result = await orderAPI.placeOrder(orderData)
+      const createdOrderId
+        = result?.orderId
+          || result?.id
+          || result?.data?.orderId
+          || result?.data?.id
+
+      if (createdOrderId) {
+        try {
+          await orderAPI.updateOrder(createdOrderId, {
+            ...orderData,
+            id: createdOrderId,
+            orderId: createdOrderId,
+          })
+        } catch (updateError) {
+          console.warn('Không thể cập nhật lại phí vận chuyển cho đơn hàng:', updateError)
+        }
+      }
+
+      // ── VNPay: nếu chọn thanh toán online → redirect sang VNPay ──
+      if (selectedPayment.value === 2) {
+        try {
+          if (!createdOrderId) {
+            throw new Error('Không lấy được mã đơn hàng để thanh toán VNPay.')
+          }
+
+          const vnpayResult = await paymentApi.createVnpayPayment(
+            createdOrderId,
+            effectiveFinalAmount,
+          )
+
+          if (vnpayResult?.paymentUrl) {
+            // Redirect user to VNPay payment page
+            window.location.href = vnpayResult.paymentUrl
+            return // stop here — user will be redirected
+          } else {
+            throw new Error('Không tạo được link thanh toán VNPay.')
+          }
+        } catch (vnpayError) {
+          showAlert(
+            'Lỗi thanh toán VNPay',
+            vnpayError?.message || 'Không thể kết nối cổng thanh toán. Đơn hàng đã được tạo, vui lòng thử thanh toán lại.',
+            'error',
+          )
+          isProcessing.value = false
+          return
+        }
+      }
+      // ── End VNPay ──
+
+      if (currentAccountId.value === null) {
+        cartStore.clearCart()
+      } else {
+        await cartStore.clearCartBackend()
+      }
+
+      showAlert(
+        'Đặt hàng thành công',
+        'Đơn hàng của bạn đã được ghi nhận.',
+        'success',
+      )
+      setTimeout(() => {
+        router.push('/orders')
+      }, 1000)
+    } catch (error) {
+      showAlert(
+        'Không thể đặt hàng',
+        error.message || 'Vui lòng thử lại sau',
+        'error',
+      )
+    } finally {
+      isProcessing.value = false
+    }
+  }
+
+  async function loadAvailableVouchers () {
+    try {
+      // Đã xóa phần "payload" nhầm lẫn ở đây để hàm load Voucher chạy đúng chức năng!
+      const response = await voucherAPI.getAllVouchers(
+        0,
+        100,
+        'createdAt',
+        'DESC',
+      )
+
+      const rows = extractListPayload(response)
+      const estimateDiscount = voucher =>
+        computeVoucherDiscount(voucher, orderTotalBeforeDiscount.value)
+
+      availableVouchers.value = rows
+        .filter(v => isVoucherActive(v))
+        .sort((a, b) => estimateDiscount(b) - estimateDiscount(a))
+        .slice(0, 20)
+    } catch {
+      availableVouchers.value = []
+    }
+  }
+
+  async function applyVoucher () {
+    const code = String(voucherInput.value || '').trim()
+    if (!code) return
+
+    isApplyingVoucher.value = true
+    try {
+      const validated = await voucherAPI.applyVoucher(
+        code,
+        orderTotalBeforeDiscount.value,
+      )
+      const usageState = getVoucherUsageState(validated)
+      if (usageState.exhausted) {
+        throw new Error('Mã giảm giá đã hết lượt sử dụng.')
+      }
+      enforceVoucherMinOrder(validated, orderTotalBeforeDiscount.value)
+      appliedVoucher.value = validated
+      voucherInput.value = validated.code || code
+    } catch (error) {
+      showAlert(
+        'Voucher không hợp lệ',
+        error?.message || 'Mã giảm giá không thể áp dụng cho đơn hiện tại.',
+        'error',
+      )
+      clearVoucher()
+    } finally {
+      isApplyingVoucher.value = false
+    }
+  }
+
+  function applySuggestedVoucher (v) {
+    if (!v?.isEligible) {
+      showAlert(
+        'Chưa đủ điều kiện',
+        `Đơn cần tối thiểu ${formatMoney(v.minOrderValue || v.min_order_value || 0)} để dùng mã này.`,
+        'error',
+      )
+      return
+    }
+    const usageState = getVoucherUsageState(v)
+    if (usageState.exhausted) {
+      showAlert('Voucher không khả dụng', 'Mã giảm giá này đã hết lượt sử dụng.', 'error')
+      return
+    }
+    voucherInput.value = v.code
+    appliedVoucher.value = v
+  }
+
+  function clearVoucher () {
+    appliedVoucher.value = null
+    voucherInput.value = ''
+  }
+
+  function autoPickBestEligibleVoucher () {
+    const bestVoucher = processedAvailableVouchers.value.find(
+      voucher => voucher.isEligible,
+    )
+
+    if (!bestVoucher) {
+      return
+    }
+
+    const currentCode = String(appliedVoucher.value?.code || '').toUpperCase()
+    const bestCode = String(bestVoucher.code || '').toUpperCase()
+    if (currentCode && currentCode === bestCode) {
+      return
+    }
+
+    voucherInput.value = bestVoucher.code || ''
+    appliedVoucher.value = bestVoucher
+  }
+
+  async function hydrateCheckout () {
+    const userData = localStorage.getItem('user')
+    if (userData) {
+      try {
+        currentUser.value = JSON.parse(userData)
+      } catch {
+        currentUser.value = null
+      }
+    }
+    currentAccountId.value = getAccountId(currentUser.value)
+    if (currentAccountId.value === null) {
+      showAlert('Yêu cầu đăng nhập', 'Bạn cần đăng nhập để thanh toán', 'error')
+      setTimeout(() => redirectToLoginForCheckout(), 250)
+      return
+    }
+    cartStore.accountId = currentAccountId.value
+    await cartStore.loadCartFromBackend(currentAccountId.value)
+    await loadAvailableVouchers()
+    autoPickBestEligibleVoucher()
+
+    shippingForm.fullname
+      = currentUser.value?.fullName || currentUser.value?.username || ''
+    shippingForm.gmail
+      = currentUser.value?.email || currentUser.value?.gmail || ''
+    shippingForm.phone = currentUser.value?.phone || ''
+    shippingForm.address = resolveUserAddress(currentUser.value)
+    streetAddress.value = shippingForm.address || ''
+  }
+
+  watch(
+    () => streetAddress.value,
+    () => {
+      fullAddressString.value = buildCurrentAddressString()
+      scheduleAutoRouteCalculation()
+    },
+  )
+
+  watch(
+    () => selectedWard.value,
+    () => {
+      if (skipNextWatcherUpdate.value) return
+
+      // Only recalculate if we have at least province + district
+      if (!selectedProvince.value || !selectedDistrict.value) {
+        isRouteCalculated.value = false
+        calculatedShippingFee.value = 0
+        return
+      }
+
+      // Update address string and trigger route calculation
+      fullAddressString.value = buildCurrentAddressString()
+      scheduleAutoRouteCalculation()
+    },
+  )
+
+  watch(
+    () => orderTotalBeforeDiscount.value,
+    () => {
+      if (!appliedVoucher.value?.code) {
+        autoPickBestEligibleVoucher()
+        return
+      }
+
+      const currentCode = String(appliedVoucher.value.code || '').toUpperCase()
+      const matched = processedAvailableVouchers.value.find(
+        voucher => String(voucher.code || '').toUpperCase() === currentCode,
+      )
+
+      if (matched && matched.isEligible) {
+        appliedVoucher.value = matched
+        return
+      }
+
+      clearVoucher()
+      autoPickBestEligibleVoucher()
+    },
+  )
 </script>
 
 <style scoped>

@@ -2,8 +2,8 @@
   <!-- Floating Chat Button -->
   <button
     v-if="!isOpen"
-    type="button"
     class="chat-fab fixed bottom-6 right-6 z-50 flex size-14 items-center justify-center rounded-full bg-gradient-to-br from-primary to-orange-600 text-white shadow-lg shadow-primary/30 transition-all hover:scale-110 hover:shadow-xl hover:shadow-primary/40 active:scale-95"
+    type="button"
     @click="openChat"
   >
     <span class="material-symbols-outlined text-[28px]">chat_bubble</span>
@@ -32,8 +32,8 @@
             </div>
           </div>
           <button
-            type="button"
             class="rounded-lg p-1 transition hover:bg-white/20"
+            type="button"
             @click="closeChat"
           >
             <span class="material-symbols-outlined text-[20px]">close</span>
@@ -109,8 +109,8 @@
             <button
               v-for="chip in quickChips"
               :key="chip"
-              type="button"
               class="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 transition-all hover:border-primary hover:bg-primary/5 hover:text-primary dark:border-[#3c342e] dark:bg-[#1f1a17] dark:text-[#d5c6b7]"
+              type="button"
               @click="sendQuickChip(chip)"
             >
               {{ chip }}
@@ -124,16 +124,16 @@
             <input
               ref="chatInput"
               v-model="inputText"
-              type="text"
-              placeholder="Nhập câu hỏi..."
-              :disabled="isTyping"
               class="flex-1 rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm outline-none transition-colors placeholder:text-slate-400 focus:border-primary focus:bg-white dark:border-[#3c342e] dark:bg-[#1f1a17] dark:focus:bg-[#2b241f]"
+              :disabled="isTyping"
+              placeholder="Nhập câu hỏi..."
+              type="text"
               @keydown.enter.prevent="handleSend"
-            />
+            >
             <button
-              type="submit"
-              :disabled="isTyping || !inputText.trim()"
               class="flex size-10 items-center justify-center rounded-xl bg-primary text-white transition-all hover:bg-orange-600 disabled:opacity-40 disabled:hover:bg-primary"
+              :disabled="isTyping || !inputText.trim()"
+              type="submit"
             >
               <span class="material-symbols-outlined text-[20px]">send</span>
             </button>
@@ -148,681 +148,515 @@
 </template>
 
 <script setup>
-import { ref, nextTick, onMounted } from "vue";
-import ChatProductCard from "@/components/ChatProductCard.vue";
-import { sendChatMessage, initGemini, isGeminiConfigured, resetChat } from "@/services/geminiService";
+  import { nextTick, onMounted, ref } from 'vue'
+  import ChatProductCard from '@/components/ChatProductCard.vue'
+  import { initGemini, isGeminiConfigured, resetChat, sendChatMessage } from '@/services/geminiService'
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8080/api";
+  const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api'
 
-const isOpen = ref(false);
-const isTyping = ref(false);
-const inputText = ref("");
-const messages = ref([]);
-const messagesContainer = ref(null);
-const chatInput = ref(null);
+  const isOpen = ref(false)
+  const isTyping = ref(false)
+  const inputText = ref('')
+  const messages = ref([])
+  const messagesContainer = ref(null)
+  const chatInput = ref(null)
 
-const allProducts = ref([]);
-const productsLoaded = ref(false);
+  const allProducts = ref([])
+  const productsLoaded = ref(false)
 
-const quickChips = [
-  "Áo thể thao",
-  "Áo polo",
-  "Áo chạy bộ",
-  "Dưới 300k",
-  "Áo Adidas",
-  "Áo Nike",
-];
+  const quickChips = [
+    'Áo thể thao',
+    'Áo polo',
+    'Áo chạy bộ',
+    'Dưới 300k',
+    'Áo Adidas',
+    'Áo Nike',
+  ]
 
-async function loadProducts() {
-  if (productsLoaded.value) return;
-  try {
-    const [prodRes, varRes, brandRes, categoryRes] = await Promise.all([
-      fetch(`${API_BASE_URL}/products?page=0&size=200`),
-      fetch(`${API_BASE_URL}/variants?page=0&size=500`),
-      fetch(`${API_BASE_URL}/brands`),
-      fetch(`${API_BASE_URL}/categories`),
-    ]);
+  async function loadProducts () {
+    if (productsLoaded.value) return
+    try {
+      const [prodRes, varRes, brandRes, categoryRes] = await Promise.all([
+        fetch(`${API_BASE_URL}/products?page=0&size=200`),
+        fetch(`${API_BASE_URL}/variants?page=0&size=500`),
+        fetch(`${API_BASE_URL}/brands`),
+        fetch(`${API_BASE_URL}/categories`),
+      ])
 
-    const [prodData, varData, brandData, categoryData] = await Promise.all([
-      prodRes.json(),
-      varRes.json(),
-      brandRes.json(),
-      categoryRes.json(),
-    ]);
+      const [prodData, varData, brandData, categoryData] = await Promise.all([
+        prodRes.json(),
+        varRes.json(),
+        brandRes.json(),
+        categoryRes.json(),
+      ])
 
-    const products = Array.isArray(prodData)
-      ? prodData
-      : Array.isArray(prodData?.content)
-        ? prodData.content
-        : Array.isArray(prodData?.data)
-          ? prodData.data
-          : [];
+      const products = Array.isArray(prodData)
+        ? prodData
+        : Array.isArray(prodData?.content)
+          ? prodData.content
+          : Array.isArray(prodData?.data)
+            ? prodData.data
+            : []
 
-    const variants = Array.isArray(varData)
-      ? varData
-      : Array.isArray(varData?.content)
-        ? varData.content
-        : Array.isArray(varData?.data)
-          ? varData.data
-          : [];
+      const variants = Array.isArray(varData)
+        ? varData
+        : Array.isArray(varData?.content)
+          ? varData.content
+          : Array.isArray(varData?.data)
+            ? varData.data
+            : []
 
-    const brands = Array.isArray(brandData)
-      ? brandData
-      : Array.isArray(brandData?.list)
-        ? brandData.list
-        : Array.isArray(brandData?.data)
-          ? brandData.data
-          : [];
+      const brands = Array.isArray(brandData)
+        ? brandData
+        : Array.isArray(brandData?.list)
+          ? brandData.list
+          : Array.isArray(brandData?.data)
+            ? brandData.data
+            : []
 
-    const categories = Array.isArray(categoryData)
-      ? categoryData
-      : Array.isArray(categoryData?.list)
-        ? categoryData.list
-        : Array.isArray(categoryData?.data)
-          ? categoryData.data
-          : [];
+      const categories = Array.isArray(categoryData)
+        ? categoryData
+        : Array.isArray(categoryData?.list)
+          ? categoryData.list
+          : Array.isArray(categoryData?.data)
+            ? categoryData.data
+            : []
 
-    const brandMap = new Map(
-      brands.map((brand) => [Number(brand.id), brand.name || brand.brandName || ""]),
-    );
-    const categoryMap = new Map(
-      categories.map((category) => [Number(category.id), category.name || category.categoryName || ""]),
-    );
+      const brandMap = new Map(
+        brands.map(brand => [Number(brand.id), brand.name || brand.brandName || '']),
+      )
+      const categoryMap = new Map(
+        categories.map(category => [Number(category.id), category.name || category.categoryName || '']),
+      )
 
-    // Build price and image map: productId -> { minPrice, imageUrl }
-    const variantInfoMap = new Map();
-    for (const v of variants) {
-      const pid = Number(v.productId || v.product_id);
-      const price = Number(v.price || 0);
-      const img = v.imageUrl || v.image_url || v.imgUrl;
-      
-      if (!pid) continue;
-      
-      const current = variantInfoMap.get(pid) || { minPrice: Infinity, imageUrl: null };
-      
-      if (price > 0 && price < current.minPrice) {
-        current.minPrice = price;
+      // Build price and image map: productId -> { minPrice, imageUrl }
+      const variantInfoMap = new Map()
+      for (const v of variants) {
+        const pid = Number(v.productId || v.product_id)
+        const price = Number(v.price || 0)
+        const img = v.imageUrl || v.image_url || v.imgUrl
+
+        if (!pid) continue
+
+        const current = variantInfoMap.get(pid) || { minPrice: Infinity, imageUrl: null }
+
+        if (price > 0 && price < current.minPrice) {
+          current.minPrice = price
+        }
+        if (!current.imageUrl && img) {
+          current.imageUrl = img
+        }
+
+        variantInfoMap.set(pid, current)
       }
-      if (!current.imageUrl && img) {
-        current.imageUrl = img;
+
+      // Merge info into products
+      allProducts.value = products.map(p => {
+        const vInfo = variantInfoMap.get(Number(p.id)) || { minPrice: 0, imageUrl: null }
+        const brandId = Number(p.brandId || p.brand_id)
+        const categoryId = Number(p.categoryId || p.category_id)
+        return {
+          ...p,
+          brandName: p.brandName || p.brand?.name || p.brand || brandMap.get(brandId) || '',
+          categoryName: p.categoryName || p.category?.name || p.category || categoryMap.get(categoryId) || '',
+          _minPrice: vInfo.minPrice === Infinity ? 0 : vInfo.minPrice,
+          _imageUrl: p.imageUrl || p.image_url || p.imgUrl || vInfo.imageUrl,
+        }
+      })
+
+      productsLoaded.value = true
+    } catch (error) {
+      console.error('[Chatbot] Không tải được sản phẩm:', error)
+      allProducts.value = []
+    }
+  }
+
+  function findProductsByIds (ids) {
+    if (!Array.isArray(ids) || ids.length === 0) return []
+    return ids
+      .map(id => allProducts.value.find(p => Number(p.id) === Number(id)))
+      .filter(Boolean)
+      .slice(0, 4)
+  }
+
+  function scrollToBottom () {
+    nextTick(() => {
+      if (messagesContainer.value) {
+        messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
       }
-      
-      variantInfoMap.set(pid, current);
-    }
-
-    // Merge info into products
-    allProducts.value = products.map((p) => {
-      const vInfo = variantInfoMap.get(Number(p.id)) || { minPrice: 0, imageUrl: null };
-      const brandId = Number(p.brandId || p.brand_id);
-      const categoryId = Number(p.categoryId || p.category_id);
-      return {
-        ...p,
-        brandName: p.brandName || p.brand?.name || p.brand || brandMap.get(brandId) || "",
-        categoryName: p.categoryName || p.category?.name || p.category || categoryMap.get(categoryId) || "",
-        _minPrice: vInfo.minPrice === Infinity ? 0 : vInfo.minPrice,
-        _imageUrl: p.imageUrl || p.image_url || p.imgUrl || vInfo.imageUrl,
-      };
-    });
-
-    productsLoaded.value = true;
-  } catch (err) {
-    console.error("[Chatbot] Không tải được sản phẩm:", err);
-    allProducts.value = [];
-  }
-}
-
-function findProductsByIds(ids) {
-  if (!Array.isArray(ids) || ids.length === 0) return [];
-  return ids
-    .map((id) => allProducts.value.find((p) => Number(p.id) === Number(id)))
-    .filter(Boolean)
-    .slice(0, 4);
-}
-
-function scrollToBottom() {
-  nextTick(() => {
-    if (messagesContainer.value) {
-      messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight;
-    }
-  });
-}
-
-async function openChat() {
-  isOpen.value = true;
-  await loadProducts();
-  initGemini();
-  nextTick(() => {
-    chatInput.value?.focus();
-  });
-}
-
-function closeChat() {
-  isOpen.value = false;
-}
-
-function sendQuickChip(text) {
-  inputText.value = text;
-  handleSend();
-}
-
-async function handleSend() {
-  const text = inputText.value.trim();
-  if (!text || isTyping.value) return;
-
-  // Add user message
-  messages.value.push({ role: "user", text });
-  inputText.value = "";
-  scrollToBottom();
-
-  // Show typing indicator
-  isTyping.value = true;
-  scrollToBottom();
-
-  if (!isGeminiConfigured()) {
-    // Fallback: simple keyword matching when no API key
-    await new Promise((r) => setTimeout(r, 600));
-    const fallbackResult = fallbackSearch(text);
-    messages.value.push({
-      role: "bot",
-      text: buildExplainedReply(text, fallbackResult.message, fallbackResult.products),
-      products: fallbackResult.products,
-    });
-    isTyping.value = false;
-    scrollToBottom();
-    return;
-  }
-
-  try {
-    const response = await sendChatMessage(text, allProducts.value);
-    const matchedProducts = findProductsByIds(response.productIds);
-    const refinedProducts = filterAndRankProductsForQuery(text, matchedProducts);
-    const shouldUseFallback = shouldUseLocalFallback(text, response, refinedProducts);
-
-    if (shouldUseFallback) {
-      const fallbackResult = fallbackSearch(text);
-      messages.value.push({
-        role: "bot",
-        text: buildExplainedReply(text, fallbackResult.message, fallbackResult.products),
-        products: fallbackResult.products,
-      });
-      return;
-    }
-
-    const displayMessage = resolveBotMessage(text, response.message, refinedProducts);
-
-    messages.value.push({
-      role: "bot",
-      text: displayMessage,
-      products: refinedProducts,
-    });
-  } catch {
-    messages.value.push({
-      role: "bot",
-      text: "Xin lỗi, tôi gặp sự cố khi xử lý. Vui lòng thử lại nhé!",
-      products: [],
-    });
-  } finally {
-    isTyping.value = false;
-    scrollToBottom();
-  }
-}
-
-function normalizeQueryText(value) {
-  return String(value || "")
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .trim();
-}
-
-function formatMoney(value) {
-  return new Intl.NumberFormat("vi-VN").format(Number(value || 0));
-}
-
-function toWordSet(value) {
-  return new Set(
-    normalizeQueryText(value)
-      .split(/\s+/)
-      .map((word) => word.trim())
-      .filter(Boolean),
-  );
-}
-
-function getProductSearchText(product) {
-  return normalizeQueryText([
-    product?.name,
-    product?.brandName || product?.brand,
-    product?.categoryName || product?.category,
-    product?.description,
-  ].join(" "));
-}
-
-function detectProductIntent(query) {
-  const q = normalizeQueryText(query);
-
-  const hasJacketIntent =
-    q.includes("ao khoac") ||
-    q.includes("khoac") ||
-    q.includes("jacket") ||
-    q.includes("windbreaker") ||
-    q.includes("hoodie");
-
-  const hasPoloIntent = q.includes("polo");
-  const hasRunningIntent =
-    q.includes("chay bo") ||
-    q.includes("running") ||
-    q.includes("runner") ||
-    q.includes("tap luyen");
-
-  return {
-    hasJacketIntent,
-    hasPoloIntent,
-    hasRunningIntent,
-    queryText: q,
-  };
-}
-
-function matchesIntent(product, intent) {
-  const text = getProductSearchText(product);
-
-  if (intent.hasJacketIntent) {
-    const isJacket =
-      text.includes("ao khoac") ||
-      text.includes("khoac") ||
-      text.includes("jacket") ||
-      text.includes("windbreaker") ||
-      text.includes("hoodie");
-
-    if (!isJacket) return false;
-  }
-
-  if (intent.hasPoloIntent) {
-    const isPolo = text.includes("polo");
-    if (!isPolo) return false;
-  }
-
-  if (intent.hasRunningIntent) {
-    const isRunning =
-      text.includes("chay bo") ||
-      text.includes("running") ||
-      text.includes("tap luyen") ||
-      text.includes("dry") ||
-      text.includes("thoang khi");
-    if (!isRunning) return false;
-  }
-
-  return true;
-}
-
-function scoreProductByQuery(product, normalizedQuery) {
-  const text = getProductSearchText(product);
-  const words = Array.from(toWordSet(normalizedQuery));
-  const stopWords = new Set([
-    "co",
-    "khong",
-    "nao",
-    "cho",
-    "toi",
-    "xem",
-    "muon",
-    "mua",
-    "tim",
-    "nhung",
-    "loai",
-    "trong",
-    "shop",
-    "ao",
-    "a",
-    "the",
-    "thao",
-  ]);
-
-  let score = 0;
-  for (const word of words) {
-    if (word.length < 2 || stopWords.has(word) || /^\d+k?$/i.test(word)) continue;
-    if (text.includes(word)) {
-      score += 1;
-      if (normalizeQueryText(product?.description || "").includes(word)) {
-        score += 2;
-      }
-    }
-  }
-
-  return score;
-}
-
-function filterAndRankProductsForQuery(query, products) {
-  const normalizedQuery = normalizeQueryText(query);
-  const intent = detectProductIntent(normalizedQuery);
-
-  const filtered = (Array.isArray(products) ? products : []).filter((product) => matchesIntent(product, intent));
-
-  return filtered
-    .map((product) => ({
-      product,
-      score: scoreProductByQuery(product, normalizedQuery),
-    }))
-    .sort((a, b) => b.score - a.score)
-    .map((entry) => entry.product)
-    .slice(0, 4);
-}
-
-function getDescriptionSnippet(text, maxLen = 100) {
-  const cleaned = String(text || "").replace(/\s+/g, " ").trim();
-  if (!cleaned) return "";
-  if (cleaned.length <= maxLen) return cleaned;
-  return `${cleaned.slice(0, maxLen).trim()}...`;
-}
-
-function buildExplainedReply(query, baseMessage, products) {
-  const selected = (Array.isArray(products) ? products : []).slice(0, 3);
-  if (selected.length === 0) return baseMessage;
-
-  const header = baseMessage && String(baseMessage).trim()
-    ? String(baseMessage).trim()
-    : "Mình đã lọc các mẫu sát với nhu cầu của bạn.";
-
-  const details = selected.map((product) => {
-    const name = product?.name || "Sản phẩm";
-    const category = product?.categoryName || product?.category || "áo thể thao";
-    const desc = getDescriptionSnippet(product?.description, 90);
-    const price = Number(product?._minPrice || product?.price || product?.minPrice || 0);
-    const pricePart = price > 0 ? `, giá từ ${formatMoney(price)}đ` : "";
-    const descPart = desc ? `, mô tả: ${desc}` : "";
-    return `- ${name}: thuộc nhóm ${category}${pricePart}${descPart}`;
-  });
-
-  return `${header}\n${details.join("\n")}\nNếu muốn, mình có thể lọc chặt hơn theo ngân sách, size hoặc thương hiệu bạn thích.`;
-}
-
-function isOverviewQuery(normalizedQuery) {
-  return [
-    "co nhung loai",
-    "co loai nao",
-    "co gi trong shop",
-    "shop co gi",
-    "co gi hay",
-    "san pham nao",
-    "quan ao trong shop",
-    "nhung hang nao",
-    "co hang nao",
-    "biet them",
-    "them ve ao",
-    "ao trong shop",
-    "xem ao",
-    "tell me about",
-    "what can you tell me",
-    "what do you have",
-    "what is in the shop",
-    "what shirts",
-    "shirts in the shop",
-    "about the shirts",
-    "about shirts",
-    "any brands",
-    "what brands",
-  ].some((pattern) => normalizedQuery.includes(pattern));
-}
-
-function collectUniqueValues(items, getter, limit = 4) {
-  const values = [];
-  const seen = new Set();
-
-  for (const item of items) {
-    const raw = getter(item);
-    const value = String(raw || "").trim();
-    if (!value) continue;
-
-    const key = value.toLowerCase();
-    if (seen.has(key)) continue;
-
-    seen.add(key);
-    values.push(value);
-
-    if (values.length >= limit) break;
-  }
-
-  return values;
-}
-
-function isMechanicalProductReply(message) {
-  const normalized = normalizeQueryText(message);
-  return (
-    normalized.startsWith("toi tim thay") ||
-    normalized.startsWith("i found") ||
-    normalized.includes("san pham phu hop") ||
-    normalized.includes("products that match")
-  );
-}
-
-function buildNaturalRecommendationReply(query, products) {
-  const safeProducts = Array.isArray(products) ? products.filter(Boolean) : [];
-  if (safeProducts.length === 0) {
-    return "";
-  }
-
-  const normalizedQuery = normalizeQueryText(query);
-  const categories = collectUniqueValues(safeProducts, (item) => item.categoryName || item.category, 3);
-  const brands = collectUniqueValues(safeProducts, (item) => item.brandName || item.brand, 3);
-  const prices = safeProducts
-    .map((item) => Number(item._minPrice || item.price || item.minPrice || 0))
-    .filter((value) => Number.isFinite(value) && value > 0);
-  const minPrice = prices.length > 0 ? Math.min(...prices) : null;
-  const maxPrice = prices.length > 0 ? Math.max(...prices) : null;
-  const productNames = safeProducts
-    .map((item) => String(item.name || "").trim())
-    .filter(Boolean)
-    .slice(0, 3);
-
-  const priceText = minPrice !== null && maxPrice !== null
-    ? minPrice === maxPrice
-      ? `Mức giá hiện quanh ${formatMoney(minPrice)}đ.`
-      : `Giá đang trải từ ${formatMoney(minPrice)}đ đến ${formatMoney(maxPrice)}đ.`
-    : "";
-
-  if (normalizedQuery.includes("tot") || normalizedQuery.includes("good") || normalizedQuery.includes("best")) {
-    const categoryText = categories.length > 0 ? categories.join(", ") : "áo thể thao và áo polo";
-    const brandText = brands.length > 0 ? `, từ các hãng như ${brands.join(", ")}` : "";
-    return `Nếu bạn muốn xem nhanh những mẫu đang dễ chọn trong shop, hiện có ${categoryText}${brandText}. ${priceText} Trước mắt bạn có thể tham khảo ${productNames.join(", ")}.`;
-  }
-
-  if (isOverviewQuery(normalizedQuery)) {
-    const categoryText = categories.length > 0 ? categories.join(", ") : "nhiều dòng áo thể thao";
-    return `Hiện shop có vài nhóm dễ xem như ${categoryText}. ${priceText} Nếu bạn muốn bắt đầu nhanh, mình đã để sẵn vài mẫu tiêu biểu bên dưới để bạn nhìn tổng quan trước.`;
-  }
-
-  return `Mình đã chọn ra vài mẫu khá sát với câu hỏi của bạn để bạn xem nhanh trước. ${priceText} Nếu muốn, mình có thể lọc tiếp theo kiểu áo, thương hiệu hoặc ngân sách.`;
-}
-
-function resolveBotMessage(query, rawMessage, matchedProducts) {
-  if (matchedProducts.length === 0) {
-    return rawMessage;
-  }
-
-  const normalizedRaw = normalizeQueryText(rawMessage);
-  const needsRewrite = isMechanicalProductReply(rawMessage) || normalizedRaw.length < 12;
-
-  if (needsRewrite) {
-    const rewritten = buildNaturalRecommendationReply(query, matchedProducts);
-    return buildExplainedReply(query, rewritten || rawMessage, matchedProducts);
-  }
-
-  return buildExplainedReply(query, rawMessage, matchedProducts);
-}
-
-function buildOverviewReply(query) {
-  const normalizedQuery = normalizeQueryText(query);
-  const apparelProducts = allProducts.value.filter((product) => {
-    const haystack = normalizeQueryText([
-      product.name,
-      product.categoryName,
-      product.category,
-      product.brandName,
-      product.brand,
-    ].join(" "));
-    return (
-      haystack.includes("ao") ||
-      haystack.includes("shirt") ||
-      haystack.includes("polo") ||
-      haystack.includes("thun") ||
-      haystack.includes("tee")
-    );
-  });
-  const source = apparelProducts.length > 0 ? apparelProducts : allProducts.value;
-  const categories = collectUniqueValues(source, (item) => item.categoryName || item.category, 4);
-  const brands = collectUniqueValues(source, (item) => item.brandName || item.brand, 4);
-  const showcaseProducts = source
-    .filter((item) => {
-      const name = normalizeQueryText(item.name);
-      const price = Number(item._minPrice || item.price || item.minPrice || 0);
-      return !name.includes("test") && price >= 50000;
     })
-    .slice(0, 3);
-  const products = (showcaseProducts.length > 0 ? showcaseProducts : source.slice(0, 3));
-  const prices = source
-    .map((item) => Number(item._minPrice || item.price || item.minPrice || 0))
-    .filter((value) => Number.isFinite(value) && value > 0);
-  const minPrice = prices.length > 0 ? Math.min(...prices) : null;
-  const maxPrice = prices.length > 0 ? Math.max(...prices) : null;
-
-  if (source.length === 0) {
-    return {
-      message: "Hiện tại tôi chưa lấy được danh sách sản phẩm từ shop. Bạn thử lại sau ít phút nhé!",
-      products: [],
-    };
   }
 
-  if (normalizedQuery.includes("hang") || normalizedQuery.includes("thuong hieu")) {
-    const brandText = brands.length > 0 ? brands.join(", ") : "nhiều thương hiệu khác nhau";
+  async function openChat () {
+    isOpen.value = true
+    await loadProducts()
+    initGemini()
+    nextTick(() => {
+      chatInput.value?.focus()
+    })
+  }
+
+  function closeChat () {
+    isOpen.value = false
+  }
+
+  function sendQuickChip (text) {
+    inputText.value = text
+    handleSend()
+  }
+
+  async function handleSend () {
+    const text = inputText.value.trim()
+    if (!text || isTyping.value) return
+
+    // Add user message
+    messages.value.push({ role: 'user', text })
+    inputText.value = ''
+    scrollToBottom()
+
+    // Show typing indicator
+    isTyping.value = true
+    scrollToBottom()
+
+    if (!isGeminiConfigured()) {
+      // Fallback: simple keyword matching when no API key
+      await new Promise(r => setTimeout(r, 600))
+      const fallbackResult = fallbackSearch(text)
+      messages.value.push({
+        role: 'bot',
+        text: fallbackResult.message,
+        products: fallbackResult.products,
+      })
+      isTyping.value = false
+      scrollToBottom()
+      return
+    }
+
+    try {
+      const response = await sendChatMessage(text, allProducts.value)
+      const matchedProducts = findProductsByIds(response.productIds)
+      const shouldUseFallback = shouldUseLocalFallback(text, response, matchedProducts)
+
+      if (shouldUseFallback) {
+        const fallbackResult = fallbackSearch(text)
+        messages.value.push({
+          role: 'bot',
+          text: fallbackResult.message,
+          products: fallbackResult.products,
+        })
+        return
+      }
+
+      const displayMessage = resolveBotMessage(text, response.message, matchedProducts)
+
+      messages.value.push({
+        role: 'bot',
+        text: displayMessage,
+        products: matchedProducts,
+      })
+    } catch {
+      messages.value.push({
+        role: 'bot',
+        text: 'Xin lỗi, tôi gặp sự cố khi xử lý. Vui lòng thử lại nhé!',
+        products: [],
+      })
+    } finally {
+      isTyping.value = false
+      scrollToBottom()
+    }
+  }
+
+  function normalizeQueryText (value) {
+    return String(value || '')
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036F]/g, '')
+      .trim()
+  }
+
+  function formatMoney (value) {
+    return new Intl.NumberFormat('vi-VN').format(Number(value || 0))
+  }
+
+  function isOverviewQuery (normalizedQuery) {
+    return [
+      'co nhung loai',
+      'co loai nao',
+      'co gi trong shop',
+      'shop co gi',
+      'co gi hay',
+      'san pham nao',
+      'quan ao trong shop',
+      'nhung hang nao',
+      'co hang nao',
+      'biet them',
+      'them ve ao',
+      'ao trong shop',
+      'xem ao',
+      'tell me about',
+      'what can you tell me',
+      'what do you have',
+      'what is in the shop',
+      'what shirts',
+      'shirts in the shop',
+      'about the shirts',
+      'about shirts',
+      'any brands',
+      'what brands',
+    ].some(pattern => normalizedQuery.includes(pattern))
+  }
+
+  function collectUniqueValues (items, getter, limit = 4) {
+    const values = []
+    const seen = new Set()
+
+    for (const item of items) {
+      const raw = getter(item)
+      const value = String(raw || '').trim()
+      if (!value) continue
+
+      const key = value.toLowerCase()
+      if (seen.has(key)) continue
+
+      seen.add(key)
+      values.push(value)
+
+      if (values.length >= limit) break
+    }
+
+    return values
+  }
+
+  function isMechanicalProductReply (message) {
+    const normalized = normalizeQueryText(message)
+    return (
+      normalized.startsWith('toi tim thay')
+      || normalized.startsWith('i found')
+      || normalized.includes('san pham phu hop')
+      || normalized.includes('products that match')
+    )
+  }
+
+  function buildNaturalRecommendationReply (query, products) {
+    const safeProducts = Array.isArray(products) ? products.filter(Boolean) : []
+    if (safeProducts.length === 0) {
+      return ''
+    }
+
+    const normalizedQuery = normalizeQueryText(query)
+    const categories = collectUniqueValues(safeProducts, item => item.categoryName || item.category, 3)
+    const brands = collectUniqueValues(safeProducts, item => item.brandName || item.brand, 3)
+    const prices = safeProducts
+      .map(item => Number(item._minPrice || item.price || item.minPrice || 0))
+      .filter(value => Number.isFinite(value) && value > 0)
+    const minPrice = prices.length > 0 ? Math.min(...prices) : null
+    const maxPrice = prices.length > 0 ? Math.max(...prices) : null
+    const productNames = safeProducts
+      .map(item => String(item.name || '').trim())
+      .filter(Boolean)
+      .slice(0, 3)
+
+    const priceText = minPrice !== null && maxPrice !== null
+      ? (minPrice === maxPrice
+        ? `Mức giá hiện quanh ${formatMoney(minPrice)}đ.`
+        : `Giá đang trải từ ${formatMoney(minPrice)}đ đến ${formatMoney(maxPrice)}đ.`)
+      : ''
+
+    if (normalizedQuery.includes('tot') || normalizedQuery.includes('good') || normalizedQuery.includes('best')) {
+      const categoryText = categories.length > 0 ? categories.join(', ') : 'áo thể thao và áo polo'
+      const brandText = brands.length > 0 ? `, từ các hãng như ${brands.join(', ')}` : ''
+      return `Nếu bạn muốn xem nhanh những mẫu đang dễ chọn trong shop, hiện có ${categoryText}${brandText}. ${priceText} Trước mắt bạn có thể tham khảo ${productNames.join(', ')}.`
+    }
+
+    if (isOverviewQuery(normalizedQuery)) {
+      const categoryText = categories.length > 0 ? categories.join(', ') : 'nhiều dòng áo thể thao'
+      return `Hiện shop có vài nhóm dễ xem như ${categoryText}. ${priceText} Nếu bạn muốn bắt đầu nhanh, mình đã để sẵn vài mẫu tiêu biểu bên dưới để bạn nhìn tổng quan trước.`
+    }
+
+    return `Mình đã chọn ra vài mẫu khá sát với câu hỏi của bạn để bạn xem nhanh trước. ${priceText} Nếu muốn, mình có thể lọc tiếp theo kiểu áo, thương hiệu hoặc ngân sách.`
+  }
+
+  function resolveBotMessage (query, rawMessage, matchedProducts) {
+    if (!isMechanicalProductReply(rawMessage) || matchedProducts.length === 0) {
+      return rawMessage
+    }
+
+    const rewritten = buildNaturalRecommendationReply(query, matchedProducts)
+    return rewritten || rawMessage
+  }
+
+  function buildOverviewReply (query) {
+    const normalizedQuery = normalizeQueryText(query)
+    const apparelProducts = allProducts.value.filter(product => {
+      const haystack = normalizeQueryText([
+        product.name,
+        product.categoryName,
+        product.category,
+        product.brandName,
+        product.brand,
+      ].join(' '))
+      return (
+        haystack.includes('ao')
+        || haystack.includes('shirt')
+        || haystack.includes('polo')
+        || haystack.includes('thun')
+        || haystack.includes('tee')
+      )
+    })
+    const source = apparelProducts.length > 0 ? apparelProducts : allProducts.value
+    const categories = collectUniqueValues(source, item => item.categoryName || item.category, 4)
+    const brands = collectUniqueValues(source, item => item.brandName || item.brand, 4)
+    const showcaseProducts = source
+      .filter(item => {
+        const name = normalizeQueryText(item.name)
+        const price = Number(item._minPrice || item.price || item.minPrice || 0)
+        return !name.includes('test') && price >= 50_000
+      })
+      .slice(0, 3)
+    const products = (showcaseProducts.length > 0 ? showcaseProducts : source.slice(0, 3))
+    const prices = source
+      .map(item => Number(item._minPrice || item.price || item.minPrice || 0))
+      .filter(value => Number.isFinite(value) && value > 0)
+    const minPrice = prices.length > 0 ? Math.min(...prices) : null
+    const maxPrice = prices.length > 0 ? Math.max(...prices) : null
+
+    if (source.length === 0) {
+      return {
+        message: 'Hiện tại tôi chưa lấy được danh sách sản phẩm từ shop. Bạn thử lại sau ít phút nhé!',
+        products: [],
+      }
+    }
+
+    if (normalizedQuery.includes('hang') || normalizedQuery.includes('thuong hieu')) {
+      const brandText = brands.length > 0 ? brands.join(', ') : 'nhiều thương hiệu khác nhau'
+      return {
+        message: `Bên mình hiện có các thương hiệu như ${brandText}. Nếu bạn thích một hãng cụ thể, tôi có thể lọc ngay những mẫu dễ mặc hoặc đang có mức giá ổn trong shop cho bạn.`,
+        products,
+      }
+    }
+
+    const categoryText = categories.length > 0 ? categories.join(', ') : 'nhiều dòng áo thể thao'
+    const priceText = minPrice !== null && maxPrice !== null
+      ? `Giá hiện trải từ ${new Intl.NumberFormat('vi-VN').format(minPrice)}đ đến ${new Intl.NumberFormat('vi-VN').format(maxPrice)}đ.`
+      : ''
     return {
-      message: `Bên mình hiện có các thương hiệu như ${brandText}. Nếu bạn thích một hãng cụ thể, tôi có thể lọc ngay những mẫu dễ mặc hoặc đang có mức giá ổn trong shop cho bạn.`,
+      message: `Bên mình hiện có một vài dòng chính như ${categoryText}. ${priceText} Nếu bạn muốn, tôi có thể gợi ý tiếp theo kiểu áo mặc hằng ngày, áo polo, áo tập luyện hoặc theo ngân sách của bạn.`,
       products,
-    };
+    }
   }
 
-  const categoryText = categories.length > 0 ? categories.join(", ") : "nhiều dòng áo thể thao";
-  const priceText = minPrice !== null && maxPrice !== null
-    ? `Giá hiện trải từ ${new Intl.NumberFormat("vi-VN").format(minPrice)}đ đến ${new Intl.NumberFormat("vi-VN").format(maxPrice)}đ.`
-    : "";
-  return {
-    message: `Bên mình hiện có một vài dòng chính như ${categoryText}. ${priceText} Nếu bạn muốn, tôi có thể gợi ý tiếp theo kiểu áo mặc hằng ngày, áo polo, áo tập luyện hoặc theo ngân sách của bạn.`,
-    products,
-  };
-}
+  function shouldUseLocalFallback (query, response, matchedProducts) {
+    const normalizedQuery = normalizeQueryText(query)
+    const responseMessage = normalizeQueryText(response?.message || '')
 
-function shouldUseLocalFallback(query, response, matchedProducts) {
-  const normalizedQuery = normalizeQueryText(query);
-  const responseMessage = normalizeQueryText(response?.message || "");
-  const intent = detectProductIntent(normalizedQuery);
-  const hasStrictIntent = intent.hasJacketIntent || intent.hasPoloIntent || intent.hasRunningIntent;
-
-  if (matchedProducts.length > 0) {
-    return false;
-  }
-
-  return (
-    responseMessage.includes("khong tim thay") ||
-    responseMessage.includes("khong co san pham phu hop") ||
-    (isOverviewQuery(normalizedQuery) && !responseMessage) ||
-    hasStrictIntent
-  );
-}
-
-// Fallback search when Gemini API key is not configured
-function fallbackSearch(query) {
-  const q = normalizeQueryText(query);
-
-  if (isOverviewQuery(q)) {
-    return buildOverviewReply(query);
-  }
-
-  // Extract price filter
-  let maxPrice = null;
-  const priceMatch = query.match(/(\d+)\s*k/i);
-  if (priceMatch) {
-    maxPrice = parseInt(priceMatch[1]) * 1000;
-  }
-  const priceMatchFull = query.match(/duoi\s*(\d+)/i) || query.match(/under\s*(\d+)/i);
-  if (!maxPrice && priceMatchFull) {
-    maxPrice = parseInt(priceMatchFull[1]);
-    if (maxPrice < 1000) maxPrice *= 1000;
-  }
-
-  const intent = detectProductIntent(q);
-
-  const scored = allProducts.value.map((p) => {
-    if (!matchesIntent(p, intent)) {
-      return { product: p, score: -100 };
+    if (matchedProducts.length > 0) {
+      return false
     }
 
-    const name = normalizeQueryText(p.name || "");
-    const brand = normalizeQueryText(p.brandName || p.brand || "");
-    const category = normalizeQueryText(p.categoryName || p.category || "");
-    const description = normalizeQueryText(p.description || "");
+    return (
+      responseMessage.includes('khong tim thay')
+      || responseMessage.includes('khong co san pham phu hop')
+      || (isOverviewQuery(normalizedQuery) && !responseMessage)
+    )
+  }
 
-    const stopWords = ["giay", "quan", "mau", "size", "co", "khong", "nao", "cho", "toi", "xem", "muon", "mua", "tim", "nhung", "loai", "trong", "shop"];
-    let score = 0;
-    const words = q.split(/\s+/).filter((w) => w.length > 1 && !/^\d+k?$/i.test(w) && w !== "duoi" && w !== "tren" && !stopWords.includes(w));
+  // Fallback search when Gemini API key is not configured
+  function fallbackSearch (query) {
+    const q = normalizeQueryText(query)
 
-    if (words.length === 0 && maxPrice === null) return { product: p, score: 0 };
+    if (isOverviewQuery(q)) {
+      return buildOverviewReply(query)
+    }
 
-    for (const word of words) {
-      if (name.includes(word)) score += 3;
-      if (brand.includes(word)) score += 5;
-      if (category.includes(word)) score += 2;
-      if (description.includes(word)) score += 4;
-      if (word === "ao" && (name.includes("ao") || category.includes("ao") || name.includes("thun") || name.includes("polo") || name.includes("khoac"))) {
-        score += 2;
+    // Extract price filter
+    let maxPrice = null
+    const priceMatch = query.match(/(\d+)\s*k/i)
+    if (priceMatch) {
+      maxPrice = Number.parseInt(priceMatch[1]) * 1000
+    }
+    const priceMatchFull = query.match(/duoi\s*(\d+)/i) || query.match(/under\s*(\d+)/i)
+    if (!maxPrice && priceMatchFull) {
+      maxPrice = Number.parseInt(priceMatchFull[1])
+      if (maxPrice < 1000) maxPrice *= 1000
+    }
+
+    const scored = allProducts.value.map(p => {
+      const name = String(p.name || '')
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036F]/g, '')
+      const brand = String(p.brandName || p.brand || '')
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036F]/g, '')
+      const category = String(p.categoryName || p.category || '')
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036F]/g, '')
+
+      const stopWords = new Set(['giay', 'quan', 'mau', 'size', 'co', 'khong', 'nao', 'cho', 'toi', 'xem', 'muon', 'mua', 'tim', 'nhung', 'loai', 'trong', 'shop'])
+      let score = 0
+      const words = q.split(/\s+/).filter(w => w.length > 1 && !/^\d+k?$/i.test(w) && w !== 'duoi' && w !== 'tren' && !stopWords.has(w))
+
+      // If no significant words and no price filter, return score 0
+      if (words.length === 0 && maxPrice === null) return { product: p, score: 0 }
+
+      for (const word of words) {
+        if (name.includes(word)) score += 3
+        if (brand.includes(word)) score += 5 // Brand match is more important
+        if (category.includes(word)) score += 2
+        if (word === 'ao' && (name.includes('ao') || category.includes('ao') || name.includes('thun') || name.includes('polo'))) {
+          score += 2
+        }
+      }
+
+      // If there were significant words but NONE matched, penalize heavily
+      if (words.length > 0 && score === 0) {
+        score = -100
+      }
+      const price = Number(p._minPrice || 0)
+      if (maxPrice !== null) {
+        if (price > 0 && price <= maxPrice) {
+          score += 2
+        } else {
+          // Product doesn't meet price requirement - exclude it
+          score = -100
+        }
+      }
+
+      return { product: p, score }
+    })
+
+    const results = scored
+      .filter(s => s.score > 0)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 4)
+      .map(s => s.product)
+
+    if (results.length > 0) {
+      return {
+        message: `Tôi tìm thấy ${results.length} sản phẩm phù hợp với yêu cầu của bạn:`,
+        products: results,
       }
     }
 
-    if (words.length > 0 && score === 0) {
-      score = -100;
-    }
-
-    const price = Number(p._minPrice || 0);
+    // No match - say so honestly instead of showing random products
     if (maxPrice !== null) {
-      if (price > 0 && price <= maxPrice) {
-        score += 2;
-      } else {
-        score = -100;
+      return {
+        message: `Xin lỗi, hiện tại shop chưa có sản phẩm nào dưới ${new Intl.NumberFormat('vi-VN').format(maxPrice)}đ phù hợp với yêu cầu của bạn. Bạn thử tăng ngân sách hoặc hỏi loại áo khác nhé!`,
+        products: [],
       }
     }
 
-    return { product: p, score };
-  });
-
-  const results = scored
-    .filter((s) => s.score > 0)
-    .sort((a, b) => b.score - a.score)
-    .slice(0, 6)
-    .map((s) => s.product);
-
-  const refinedResults = filterAndRankProductsForQuery(query, results);
-
-  if (refinedResults.length > 0) {
     return {
-      message: `Mình đã tìm thấy ${refinedResults.length} sản phẩm phù hợp với yêu cầu của bạn.`,
-      products: refinedResults,
-    };
-  }
-
-  // No match - say so honestly instead of showing random products
-  if (maxPrice !== null) {
-    return {
-      message: `Xin lỗi, hiện tại shop chưa có sản phẩm nào dưới ${new Intl.NumberFormat("vi-VN").format(maxPrice)}đ phù hợp với yêu cầu của bạn. Bạn thử tăng ngân sách hoặc hỏi loại áo khác nhé!`,
+      message: 'Tôi chưa lọc ra đúng mẫu bạn cần. Bạn thử nói rõ hơn một chút như áo chạy bộ, áo polo, áo dưới 300k hoặc thương hiệu bạn thích nhé.',
       products: [],
-    };
+    }
   }
 
-  return {
-    message: "Tôi chưa lọc ra đúng mẫu bạn cần. Bạn thử nói rõ hơn một chút như áo chạy bộ, áo polo, áo dưới 300k hoặc thương hiệu bạn thích nhé.",
-    products: [],
-  };
-}
-
-onMounted(() => {
-  loadProducts();
-});
+  onMounted(() => {
+    loadProducts()
+  })
 </script>
 
 <style scoped>

@@ -215,8 +215,8 @@
                       >{{ getUnavailableVariantCount(product) }} hết/ngừng</span>
                     </div>
                     <router-link
-                      :to="`/product/${product.id}`"
                       :class="isProductOutOfStock(product) ? 'pointer-events-none' : ''"
+                      :to="`/product/${product.id}`"
                     >
                       <img
                         :alt="product.name"
@@ -246,26 +246,6 @@
                       :class="isProductOutOfStock(product) ? 'pointer-events-none text-slate-500' : 'group-hover:text-primary'"
                       :to="`/product/${product.id}`"
                     >{{ product.name }}</router-link>
-                    <div class="flex items-center gap-2 mt-2">
-                      <div class="flex gap-0.5 text-yellow-500">
-                        <span
-                          class="material-symbols-outlined text-[16px] fill-current"
-                        >star</span>
-                        <span
-                          class="material-symbols-outlined text-[16px] fill-current"
-                        >star</span>
-                        <span
-                          class="material-symbols-outlined text-[16px] fill-current"
-                        >star</span>
-                        <span
-                          class="material-symbols-outlined text-[16px] fill-current"
-                        >star</span>
-                        <span
-                          class="material-symbols-outlined text-[16px] fill-current"
-                        >star_half</span>
-                      </div>
-                      <span class="text-xs text-slate-500">(124)</span>
-                    </div>
                     <div class="mt-auto pt-4 flex items-center justify-between">
                       <p
                         class="text-xl font-bold text-slate-900"
@@ -291,9 +271,9 @@
                     </router-link>
                     <button
                       v-else
-                      type="button"
-                      disabled
                       class="mt-4 w-full cursor-not-allowed rounded-lg bg-slate-300 py-2 px-4 font-medium text-slate-600"
+                      disabled
+                      type="button"
                     >
                       Đã hết hàng
                     </button>
@@ -413,8 +393,8 @@
   const currentPage = ref(1)
 
   function normalizeQueryIds (value) {
-    const values = Array.isArray(value) ? value : value !== undefined ? [value] : []
-    return [...new Set(values.map(item => Number(item)).filter(Number.isFinite))]
+    const values = Array.isArray(value) ? value : (value === undefined ? [] : [value])
+    return [...new Set(values.map(Number).filter(Number.isFinite))]
   }
 
   function areIdListsEqual (left, right) {
@@ -468,10 +448,10 @@
   const allFilteredProducts = computed(() => {
     const filtered = productStore.products.filter(product => {
       const productVariants = getProductVariants(product)
-      const hasVisibleVariant = productVariants.length === 0 ||
-        productVariants.some(v => normalizeVariantStatus(v) !== 'HIDDEN')
+      const hasVisibleVariant = productVariants.length === 0
+        || productVariants.some(v => normalizeVariantStatus(v) !== 'HIDDEN')
       const isNotHidden = product.status !== 'HIDDEN' && hasVisibleVariant
-      
+
       const matchCategory = selectedCategories.value.length === 0
         || selectedCategories.value.includes(product.categoryId)
       const matchBrand = selectedBrands.value.length === 0
@@ -787,5 +767,3 @@
     compareStore.toggle(productId)
   }
 </script>
-
-

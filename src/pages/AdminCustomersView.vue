@@ -20,19 +20,17 @@
 
         <div class="flex flex-wrap items-center gap-2">
           <button
-            type="button"
             class="inline-flex items-center gap-1.5 rounded-xl bg-primary px-3 py-1.5 text-sm font-semibold text-white hover:opacity-90"
+            type="button"
             @click="openCreate"
           >
-            <span class="material-symbols-outlined text-[18px]"
-              >person_add</span
-            >
+            <span class="material-symbols-outlined text-[18px]">person_add</span>
             Thêm người dùng
           </button>
 
           <button
-            type="button"
             class="inline-flex items-center gap-1.5  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-1.5 text-sm font-medium hover:border-primary hover:text-primary "
+            type="button"
             @click="loadAccounts"
           >
             <span class="material-symbols-outlined text-[18px]">refresh</span>
@@ -48,15 +46,13 @@
           <label
             class="flex items-center gap-2  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-1.5 "
           >
-            <span class="material-symbols-outlined text-[18px] text-slate-400"
-              >search</span
-            >
+            <span class="material-symbols-outlined text-[18px] text-slate-400">search</span>
             <input
               v-model="search"
-              type="text"
-              placeholder="Tìm theo tên, email, số điện thoại"
               class="w-full bg-transparent text-sm outline-none"
-            />
+              placeholder="Tìm theo tên, email, số điện thoại"
+              type="text"
+            >
           </label>
 
           <select
@@ -138,10 +134,10 @@
                     >
                       <img
                         v-if="account.imgUrl"
-                        :src="account.imgUrl"
                         alt="Avatar"
                         class="h-full w-full object-cover"
-                      />
+                        :src="account.imgUrl"
+                      >
                       <span
                         v-else
                         class="flex h-full items-center justify-center text-xs text-slate-500 "
@@ -162,8 +158,8 @@
 
                 <td class="px-2 py-2">
                   <span
-                    :class="getRoleBadgeClasses(account.role)"
                     class="rounded-full px-2 py-1 text-xs font-semibold"
+                    :class="getRoleBadgeClasses(account.role)"
                   >
                     {{ formatRoleLabel(account.role) }}
                   </span>
@@ -200,8 +196,7 @@
                     >
                       <span
                         class="material-symbols-outlined text-[18px] text-slate-500"
-                        >edit</span
-                      >
+                      >edit</span>
                     </button>
 
                     <button
@@ -219,7 +214,6 @@
                         {{ account.isActive ? "lock" : "lock_open" }}
                       </span>
                     </button>
-
 
                   </div>
                 </td>
@@ -249,33 +243,27 @@
 
           <div class="grid gap-3 md:grid-cols-2">
             <div>
-              <label class="mb-1 block text-xs font-medium text-slate-500"
-                >Tên đăng nhập *</label
-              >
+              <label class="mb-1 block text-xs font-medium text-slate-500">Tên đăng nhập *</label>
               <input
                 v-model.trim="form.username"
-                type="text"
                 class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-1.5 text-sm "
                 placeholder="Nhập tên đăng nhập"
-              />
+                type="text"
+              >
             </div>
 
             <div>
-              <label class="mb-1 block text-xs font-medium text-slate-500"
-                >Email *</label
-              >
+              <label class="mb-1 block text-xs font-medium text-slate-500">Email *</label>
               <input
                 v-model.trim="form.gmail"
-                type="email"
                 class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm "
                 placeholder="example@email.com"
-              />
+                type="email"
+              >
             </div>
 
             <div v-if="canManageRoles">
-              <label class="mb-1 block text-xs font-medium text-slate-500"
-                >Vai trò</label
-              >
+              <label class="mb-1 block text-xs font-medium text-slate-500">Vai trò</label>
               <select
                 v-model="form.role"
                 class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm "
@@ -286,15 +274,13 @@
             </div>
 
             <div>
-              <label class="mb-1 block text-xs font-medium text-slate-500"
-                >Số điện thoại</label
-              >
+              <label class="mb-1 block text-xs font-medium text-slate-500">Số điện thoại</label>
               <input
                 v-model.trim="form.phone"
-                type="text"
                 class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm "
                 placeholder="09..."
-              />
+                type="text"
+              >
             </div>
 
             <div>
@@ -307,26 +293,24 @@
               </label>
               <input
                 v-model="form.password"
-                type="password"
                 class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm "
                 placeholder="Tối thiểu 6 ký tự"
-              />
+                type="password"
+              >
             </div>
 
             <div class="md:col-span-2">
-              <label class="mb-1 block text-xs font-medium text-slate-500"
-                >Địa chỉ</label
-              >
+              <label class="mb-1 block text-xs font-medium text-slate-500">Địa chỉ</label>
               <textarea
                 v-model.trim="form.address"
-                rows="3"
                 class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-1.5 text-sm "
                 placeholder="Nhập địa chỉ khách hàng"
+                rows="3"
               />
             </div>
 
             <label class="md:col-span-2 inline-flex items-center gap-2 text-sm">
-              <input v-model="form.isActive" type="checkbox" />
+              <input v-model="form.isActive" type="checkbox">
               <span>Tài khoản đang hoạt động</span>
             </label>
           </div>
@@ -337,17 +321,17 @@
 
           <div class="mt-4 flex justify-end gap-2">
             <button
-              type="button"
               class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium hover:border-slate-400 "
+              type="button"
               @click="closeModal"
             >
               Hủy
             </button>
 
             <button
-              type="button"
-              :disabled="saving"
               class="rounded-xl bg-primary px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-60"
+              :disabled="saving"
+              type="button"
               @click="saveAccount"
             >
               {{
@@ -366,223 +350,217 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from "vue";
+  import { computed, onMounted, ref } from 'vue'
 
-import AdminShell from "@/components/admin/AdminShell.vue";
-import { adminApi } from "@/services/api";
+  import AdminShell from '@/components/admin/AdminShell.vue'
+  import { adminApi } from '@/services/api'
 
-const loading = ref(false);
-const error = ref("");
-const accounts = ref([]);
-const search = ref("");
-const statusFilter = ref("ALL");
-const currentUserRole = ref(localStorage.getItem("userRole") || null);
+  const loading = ref(false)
+  const error = ref('')
+  const accounts = ref([])
+  const search = ref('')
+  const statusFilter = ref('ALL')
+  const currentUserRole = ref(localStorage.getItem('userRole') || null)
 
-const showModal = ref(false);
-const editingAccountId = ref(null);
-const saving = ref(false);
-const modalError = ref("");
-const form = ref(emptyForm());
+  const showModal = ref(false)
+  const editingAccountId = ref(null)
+  const saving = ref(false)
+  const modalError = ref('')
+  const form = ref(emptyForm())
 
-const isAdmin = computed(() => currentUserRole.value === "ADMIN");
-const canManageRoles = computed(() => isAdmin.value);
+  const isAdmin = computed(() => currentUserRole.value === 'ADMIN')
+  const canManageRoles = computed(() => isAdmin.value)
 
+  const filteredAccounts = computed(() => {
+    const keyword = search.value.trim().toLowerCase()
 
+    return accounts.value.filter(account => {
+      const activeMatch
+        = statusFilter.value === 'ALL'
+          || (statusFilter.value === 'ACTIVE'
+            ? !!account.isActive
+            : !account.isActive)
 
-const filteredAccounts = computed(() => {
-  const keyword = search.value.trim().toLowerCase();
+      if (!activeMatch) {
+        return false
+      }
 
-  return accounts.value.filter((account) => {
-    const activeMatch =
-      statusFilter.value === "ALL" ||
-      (statusFilter.value === "ACTIVE"
-        ? !!account.isActive
-        : !account.isActive);
+      if (!keyword) {
+        return true
+      }
 
-    if (!activeMatch) {
-      return false;
+      const haystack = [
+        account.username,
+        account.gmail,
+        account.phone,
+        account.address,
+        account.id,
+        account.role,
+      ]
+        .filter(item => item !== undefined && item !== null)
+        .join(' ')
+        .toLowerCase()
+
+      return haystack.includes(keyword)
+    })
+  })
+
+  function formatRoleLabel (role) {
+    const normalized = String(role || 'USER')
+      .trim()
+      .toUpperCase()
+    if (normalized === 'ADMIN') return 'Admin'
+    if (normalized === 'STAFF') return 'Nhân viên'
+    if (normalized === 'CUSTOMER') return 'Khách hàng'
+    if (normalized === 'GUEST') return 'Khách vãng lai'
+    return 'Khách hàng'
+  }
+
+  function getRoleBadgeClasses (role) {
+    const normalized = String(role || 'USER')
+      .trim()
+      .toUpperCase()
+    if (normalized === 'STAFF') {
+      return 'bg-blue-100 text-blue-700 /20 '
+    }
+    if (normalized === 'CUSTOMER' || normalized === 'USER') {
+      return 'bg-green-100 text-green-700 /20 '
+    }
+    return 'bg-slate-100 text-slate-700 /20 '
+  }
+
+  function isCustomerOnlyRole (account) {
+    const role = String(account?.role || 'USER')
+      .trim()
+      .toUpperCase()
+    return role === 'USER' || role === 'CUSTOMER'
+  }
+
+  function emptyForm () {
+    return {
+      username: '',
+      gmail: '',
+      phone: '',
+      address: '',
+      password: '',
+      isActive: true,
+      role: 'USER',
+    }
+  }
+
+  function getInitials (name) {
+    const value = String(name || '').trim()
+    if (!value) return 'KH'
+
+    const parts = value.split(/\s+/).filter(Boolean)
+    if (parts.length === 1) {
+      return parts[0].slice(0, 2).toUpperCase()
+    }
+    return `${parts[0][0] || ''}${parts.at(-1)[0] || ''}`.toUpperCase()
+  }
+
+  function openCreate () {
+    editingAccountId.value = null
+    form.value = emptyForm()
+    modalError.value = ''
+    showModal.value = true
+  }
+
+  function openEdit (account) {
+    editingAccountId.value = account.id
+    form.value = {
+      username: account.username || '',
+      gmail: account.gmail || '',
+      phone: account.phone || '',
+      address: account.address || '',
+      password: '',
+      isActive: !!account.isActive,
+      role: account.role || 'USER',
+    }
+    modalError.value = ''
+    showModal.value = true
+  }
+
+  function closeModal () {
+    showModal.value = false
+  }
+
+  async function saveAccount () {
+    const f = form.value
+    modalError.value = ''
+
+    if (!f.username || !f.gmail) {
+      modalError.value = 'Vui lòng điền đầy đủ Tên đăng nhập và Email.'
+      return
     }
 
-    if (!keyword) {
-      return true;
+    if (!editingAccountId.value && (!f.password || f.password.length < 6)) {
+      modalError.value = 'Mật khẩu phải có ít nhất 6 ký tự khi tạo mới.'
+      return
     }
 
-    const haystack = [
-      account.username,
-      account.gmail,
-      account.phone,
-      account.address,
-      account.id,
-      account.role,
-    ]
-      .filter((item) => item !== undefined && item !== null)
-      .join(" ")
-      .toLowerCase();
+    saving.value = true
+    try {
+      const payload = {
+        username: f.username,
+        gmail: f.gmail,
+        phone: f.phone || '',
+        address: f.address || '',
+        isActive: !!f.isActive,
+        role: canManageRoles.value ? f.role : 'USER',
+      }
 
-    return haystack.includes(keyword);
-  });
-});
+      if (f.password) {
+        payload.password = f.password
+      }
 
-function formatRoleLabel(role) {
-  const normalized = String(role || "USER")
-    .trim()
-    .toUpperCase();
-  if (normalized === "ADMIN") return "Admin";
-  if (normalized === "STAFF") return "Nhân viên";
-  if (normalized === "CUSTOMER") return "Khách hàng";
-  if (normalized === "GUEST") return "Khách vãng lai";
-  return "Khách hàng";
-}
+      await (editingAccountId.value ? adminApi.updateAccount(editingAccountId.value, payload) : adminApi.createAccount(payload))
 
-function getRoleBadgeClasses(role) {
-  const normalized = String(role || "USER")
-    .trim()
-    .toUpperCase();
-  if (normalized === "STAFF") {
-    return "bg-blue-100 text-blue-700 /20 ";
-  }
-  if (normalized === "CUSTOMER" || normalized === "USER") {
-    return "bg-green-100 text-green-700 /20 ";
-  }
-  return "bg-slate-100 text-slate-700 /20 ";
-}
-
-function isCustomerOnlyRole(account) {
-  const role = String(account?.role || "USER")
-    .trim()
-    .toUpperCase();
-  return role === "USER" || role === "CUSTOMER";
-}
-
-function emptyForm() {
-  return {
-    username: "",
-    gmail: "",
-    phone: "",
-    address: "",
-    password: "",
-    isActive: true,
-    role: "USER",
-  };
-}
-
-function getInitials(name) {
-  const value = String(name || "").trim();
-  if (!value) return "KH";
-
-  const parts = value.split(/\s+/).filter(Boolean);
-  if (parts.length === 1) {
-    return parts[0].slice(0, 2).toUpperCase();
-  }
-  return `${parts[0][0] || ""}${parts[parts.length - 1][0] || ""}`.toUpperCase();
-}
-
-function openCreate() {
-  editingAccountId.value = null;
-  form.value = emptyForm();
-  modalError.value = "";
-  showModal.value = true;
-}
-
-function openEdit(account) {
-  editingAccountId.value = account.id;
-  form.value = {
-    username: account.username || "",
-    gmail: account.gmail || "",
-    phone: account.phone || "",
-    address: account.address || "",
-    password: "",
-    isActive: !!account.isActive,
-    role: account.role || "USER",
-  };
-  modalError.value = "";
-  showModal.value = true;
-}
-
-function closeModal() {
-  showModal.value = false;
-}
-
-async function saveAccount() {
-  const f = form.value;
-  modalError.value = "";
-
-  if (!f.username || !f.gmail) {
-    modalError.value = "Vui lòng điền đầy đủ Tên đăng nhập và Email.";
-    return;
-  }
-
-  if (!editingAccountId.value && (!f.password || f.password.length < 6)) {
-    modalError.value = "Mật khẩu phải có ít nhất 6 ký tự khi tạo mới.";
-    return;
-  }
-
-  saving.value = true;
-  try {
-    const payload = {
-      username: f.username,
-      gmail: f.gmail,
-      phone: f.phone || "",
-      address: f.address || "",
-      isActive: !!f.isActive,
-      role: canManageRoles.value ? f.role : "USER",
-    };
-
-    if (f.password) {
-      payload.password = f.password;
+      closeModal()
+      await loadAccounts()
+    } catch (error_) {
+      modalError.value = error_?.message || 'Không thể lưu tài khoản khách hàng.'
+    } finally {
+      saving.value = false
     }
+  }
 
-    if (editingAccountId.value) {
-      await adminApi.updateAccount(editingAccountId.value, payload);
-    } else {
-      await adminApi.createAccount(payload);
+  async function toggleActive (account) {
+    try {
+      await adminApi.updateAccount(account.id, {
+        username: account.username,
+        gmail: account.gmail,
+        phone: account.phone || '',
+        address: account.address || '',
+        isActive: !account.isActive,
+        role: account.role || 'USER',
+      })
+
+      account.isActive = !account.isActive
+    } catch (error_) {
+      error.value = error_?.message || 'Không thể cập nhật trạng thái tài khoản.'
     }
-
-    closeModal();
-    await loadAccounts();
-  } catch (err) {
-    modalError.value = err?.message || "Không thể lưu tài khoản khách hàng.";
-  } finally {
-    saving.value = false;
   }
-}
 
-async function toggleActive(account) {
-  try {
-    await adminApi.updateAccount(account.id, {
-      username: account.username,
-      gmail: account.gmail,
-      phone: account.phone || "",
-      address: account.address || "",
-      isActive: !account.isActive,
-      role: account.role || "USER",
-    });
+  async function loadAccounts () {
+    loading.value = true
+    error.value = ''
 
-    account.isActive = !account.isActive;
-  } catch (err) {
-    error.value = err?.message || "Không thể cập nhật trạng thái tài khoản.";
+    try {
+      const data = await adminApi.getCustomerAccounts()
+      const accountsToShow = Array.isArray(data) ? data : []
+
+      accounts.value = [...accountsToShow]
+        .filter(account => isAdmin.value || isCustomerOnlyRole(account))
+        .sort((a, b) => Number(b.id || 0) - Number(a.id || 0))
+    } catch (error_) {
+      console.error('Failed to load customer accounts:', error_)
+      error.value
+        = 'Không thể tải danh sách người dùng. Vui lòng kiểm tra backend API.'
+    } finally {
+      loading.value = false
+    }
   }
-}
 
-async function loadAccounts() {
-  loading.value = true;
-  error.value = "";
-
-  try {
-    const data = await adminApi.getCustomerAccounts();
-    const accountsToShow = Array.isArray(data) ? data : [];
-
-    accounts.value = [...accountsToShow]
-      .filter((account) => isAdmin.value || isCustomerOnlyRole(account))
-      .sort((a, b) => Number(b.id || 0) - Number(a.id || 0));
-  } catch (err) {
-    console.error("Failed to load customer accounts:", err);
-    error.value =
-      "Không thể tải danh sách người dùng. Vui lòng kiểm tra backend API.";
-  } finally {
-    loading.value = false;
-  }
-}
-
-onMounted(loadAccounts);
+  onMounted(loadAccounts)
 </script>

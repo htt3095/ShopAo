@@ -6,10 +6,10 @@
       <section class="grid gap-8 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
         <div class="retail-card overflow-hidden p-0">
           <img
-            src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=1400&q=80"
             alt="Không gian trưng bày áo Peak Seven"
             class="aspect-[4/5] h-full w-full object-cover lg:aspect-auto lg:min-h-[580px]"
-          />
+            src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=1400&q=80"
+          >
         </div>
 
         <div>
@@ -111,8 +111,8 @@
               <p class="text-[11px] uppercase tracking-[0.22em] text-[#f7c2a4]">Bước tiếp theo</p>
               <h3 class="mt-2 text-2xl font-semibold">Xem cửa hàng hoặc thương hiệu</h3>
               <div class="mt-5 flex flex-wrap gap-3">
-                <router-link to="/shop" class="inline-flex items-center rounded-full bg-primary px-5 py-3 text-sm font-semibold text-white transition-transform hover:-translate-y-0.5">Khám phá sản phẩm</router-link>
-                <router-link to="/brands" class="inline-flex items-center rounded-full border border-white/20 px-5 py-3 text-sm font-semibold text-white transition-colors hover:border-[#f7c2a4] hover:text-[#f7c2a4]">Xem thương hiệu</router-link>
+                <router-link class="inline-flex items-center rounded-full bg-primary px-5 py-3 text-sm font-semibold text-white transition-transform hover:-translate-y-0.5" to="/shop">Khám phá sản phẩm</router-link>
+                <router-link class="inline-flex items-center rounded-full border border-white/20 px-5 py-3 text-sm font-semibold text-white transition-colors hover:border-[#f7c2a4] hover:text-[#f7c2a4]" to="/brands">Xem thương hiệu</router-link>
               </div>
             </div>
           </div>
@@ -123,76 +123,74 @@
 </template>
 
 <script setup>
-const userFocusNotes = [
-  'Mỗi mẫu đều được kiểm tra độ êm, độ bền và độ ôm chân trước khi lên cửa hàng.',
-  'Thông tin size, chất liệu, ưu đãi và giá bán hiển thị rõ ngay tại nơi cần xem.',
-  'Đội ngũ hỗ trợ chọn áo theo mục đích: đi hằng ngày, chạy bộ, tập luyện hoặc đi làm.',
-];
+  const userFocusNotes = [
+    'Mỗi mẫu đều được kiểm tra độ êm, độ bền và độ ôm chân trước khi lên cửa hàng.',
+    'Thông tin size, chất liệu, ưu đãi và giá bán hiển thị rõ ngay tại nơi cần xem.',
+    'Đội ngũ hỗ trợ chọn áo theo mục đích: đi hằng ngày, chạy bộ, tập luyện hoặc đi làm.',
+  ]
 
-const operatingPrinciples = [
-  {
-    icon: 'styler',
-    title: 'Ưu tiên form áo dễ chọn',
-    description: 'Mô tả tập trung vào phom, độ ôm chân, cảm giác đế và tình huống sử dụng thực tế.',
-  },
-  {
-    icon: 'palette',
-    title: 'Phối màu hợp thị hiếu số đông',
-    description: 'Tông màu dễ phối đồ, ít rủi ro và phù hợp với người mua lần đầu.',
-  },
-  {
-    icon: 'inventory_2',
-    title: 'Trưng bày theo nhóm nhu cầu',
-    description: 'Bạn không cần biết mã sản phẩm trước, chỉ cần chọn theo mục đích sử dụng.',
-  },
-  {
-    icon: 'verified_user',
-    title: 'Thông tin bán hàng minh bạch',
-    description: 'Giá, voucher, đổi trả, giao hàng và bảng size luôn đặt đúng nơi bạn cần.',
-  },
-];
+  const operatingPrinciples = [
+    {
+      icon: 'styler',
+      title: 'Ưu tiên form áo dễ chọn',
+      description: 'Mô tả tập trung vào phom, độ ôm chân, cảm giác đế và tình huống sử dụng thực tế.',
+    },
+    {
+      icon: 'palette',
+      title: 'Phối màu hợp thị hiếu số đông',
+      description: 'Tông màu dễ phối đồ, ít rủi ro và phù hợp với người mua lần đầu.',
+    },
+    {
+      icon: 'inventory_2',
+      title: 'Trưng bày theo nhóm nhu cầu',
+      description: 'Bạn không cần biết mã sản phẩm trước, chỉ cần chọn theo mục đích sử dụng.',
+    },
+    {
+      icon: 'verified_user',
+      title: 'Thông tin bán hàng minh bạch',
+      description: 'Giá, voucher, đổi trả, giao hàng và bảng size luôn đặt đúng nơi bạn cần.',
+    },
+  ]
 
-const stats = [
-  {
-    value: '48h',
-    label: 'Xử lý đơn nhanh',
-    description: 'Phần lớn đơn hàng được xác nhận và chuẩn bị giao trong 48 giờ làm việc.',
-  },
-  {
-    value: '7 ngày',
-    label: 'Đổi size linh hoạt',
-    description: 'Hỗ trợ đổi size theo chính sách rõ ràng để bạn yên tâm khi mua online.',
-  },
-  {
-    value: '4.8/5',
-    label: 'Đánh giá trung bình',
-    description: 'Mức hài lòng thực tế từ khách hàng đã mua và sử dụng sản phẩm.',
-  },
-  {
-    value: '12+',
-    label: 'Thương hiệu phổ biến',
-    description: 'Nhiều lựa chọn từ các thương hiệu dễ mang, phù hợp nhu cầu hằng ngày.',
-  },
-];
+  const stats = [
+    {
+      value: '48h',
+      label: 'Xử lý đơn nhanh',
+      description: 'Phần lớn đơn hàng được xác nhận và chuẩn bị giao trong 48 giờ làm việc.',
+    },
+    {
+      value: '7 ngày',
+      label: 'Đổi size linh hoạt',
+      description: 'Hỗ trợ đổi size theo chính sách rõ ràng để bạn yên tâm khi mua online.',
+    },
+    {
+      value: '4.8/5',
+      label: 'Đánh giá trung bình',
+      description: 'Mức hài lòng thực tế từ khách hàng đã mua và sử dụng sản phẩm.',
+    },
+    {
+      value: '12+',
+      label: 'Thương hiệu phổ biến',
+      description: 'Nhiều lựa chọn từ các thương hiệu dễ mang, phù hợp nhu cầu hằng ngày.',
+    },
+  ]
 
-const customerJourney = [
-  {
-    title: 'Xem nhanh từ trang chủ',
-    description: 'Bạn đi thẳng vào danh mục, thương hiệu hoặc khuyến mãi chỉ với một lần chạm.',
-  },
-  {
-    title: 'Lọc từ trang cửa hàng',
-    description: 'Bộ lọc size, thương hiệu và khoảng giá giúp thu gọn lựa chọn theo nhu cầu thật.',
-  },
-  {
-    title: 'Quyết định ở trang chi tiết',
-    description: 'Thông tin size, chất liệu, đánh giá và giao nhận hiển thị rõ tại nơi quyết định mua.',
-  },
-  {
-    title: 'Theo dõi sau mua',
-    description: 'Bạn theo dõi đơn hàng, lưu địa chỉ và quản lý ưu đãi trong cùng một tài khoản.',
-  },
-];
+  const customerJourney = [
+    {
+      title: 'Xem nhanh từ trang chủ',
+      description: 'Bạn đi thẳng vào danh mục, thương hiệu hoặc khuyến mãi chỉ với một lần chạm.',
+    },
+    {
+      title: 'Lọc từ trang cửa hàng',
+      description: 'Bộ lọc size, thương hiệu và khoảng giá giúp thu gọn lựa chọn theo nhu cầu thật.',
+    },
+    {
+      title: 'Quyết định ở trang chi tiết',
+      description: 'Thông tin size, chất liệu, đánh giá và giao nhận hiển thị rõ tại nơi quyết định mua.',
+    },
+    {
+      title: 'Theo dõi sau mua',
+      description: 'Bạn theo dõi đơn hàng, lưu địa chỉ và quản lý ưu đãi trong cùng một tài khoản.',
+    },
+  ]
 </script>
-
-

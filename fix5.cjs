@@ -1,6 +1,6 @@
-const fs = require('fs');
+const fs = require('node:fs')
 
-let content = fs.readFileSync('src/pages/CheckoutView.vue', 'utf8');
+let content = fs.readFileSync('src/pages/CheckoutView.vue', 'utf8')
 
 const oldStr = `      const geoRes = await fetch(
         \`/nominatim/search?format=json&addressdetails=1&limit=1&q=\${encodeURIComponent(q + ", Việt Nam")}\`
@@ -14,7 +14,7 @@ const oldStr = `      const geoRes = await fetch(
         const txt = await safeParseResponse(geoRes);
         throw new Error(typeof txt === "string" ? txt : \`Geocoding failed (HTTP \${geoRes.status})\`);
       }
-      const geoData = await safeParseResponse(geoRes);`;
+      const geoData = await safeParseResponse(geoRes);`
 
 const newStr = `      const geoRes = await fetchGeocode(q);
       if (!geoRes.ok) {
@@ -25,12 +25,12 @@ const newStr = `      const geoRes = await fetchGeocode(q);
         }
         throw new Error(\`Geocoding failed (HTTP \${geoRes.status})\`);
       }
-      const geoData = geoRes.data;`;
+      const geoData = geoRes.data;`
 
 if (content.includes(oldStr)) {
-    content = content.replace(oldStr, newStr);
-    fs.writeFileSync('src/pages/CheckoutView.vue', content);
-    console.log('Fixed first fetch!');
+  content = content.replace(oldStr, newStr)
+  fs.writeFileSync('src/pages/CheckoutView.vue', content)
+  console.log('Fixed first fetch!')
 } else {
-    console.log('Could not find the string to replace!');
+  console.log('Could not find the string to replace!')
 }

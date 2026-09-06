@@ -1,11 +1,11 @@
-const fs = require('fs');
+const fs = require('node:fs')
 
-let content = fs.readFileSync('src/pages/CheckoutView.vue', 'utf8');
+let content = fs.readFileSync('src/pages/CheckoutView.vue', 'utf8')
 
 const oldCode = `  const res = await fetch(\`/nominatim/search?format=json&addressdetails=1&limit=1&q=\${encodeURIComponent(q + ", Việt Nam")}\`);
   if (!res.ok) return { ok: false, status: res.status };
   const data = await res.json();
-  const result = { ok: true, data };`;
+  const result = { ok: true, data };`
 
 const newCode = `  const targetUrl = \`https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&limit=1&q=\${encodeURIComponent(q + ", Việt Nam")}\`;
   const res = await fetch(\`https://api.allorigins.win/get?url=\${encodeURIComponent(targetUrl)}\`);
@@ -15,9 +15,9 @@ const newCode = `  const targetUrl = \`https://nominatim.openstreetmap.org/searc
   if (allOriginsData.contents) {
     try { data = JSON.parse(allOriginsData.contents); } catch (e) {}
   }
-  const result = { ok: true, data };`;
+  const result = { ok: true, data };`
 
-content = content.replace(oldCode, newCode);
+content = content.replace(oldCode, newCode)
 
-fs.writeFileSync('src/pages/CheckoutView.vue', content);
-console.log('Fixed bypass proxy!');
+fs.writeFileSync('src/pages/CheckoutView.vue', content)
+console.log('Fixed bypass proxy!')

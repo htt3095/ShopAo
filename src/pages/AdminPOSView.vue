@@ -13,26 +13,26 @@
               <span class="material-symbols-outlined text-[17px] text-primary">receipt_long</span>
               <span class="font-semibold">{{ activeInvoiceTitle }}</span>
             </div>
-            <div class="h-5 w-px bg-slate-200"></div>
+            <div class="h-5 w-px bg-slate-200" />
             <div class="px-3 py-1.5 text-slate-500">
               {{ activeInvoice?.cart?.length || 0 }} sản phẩm
             </div>
             <button
-              type="button"
-              class="inline-flex size-8 items-center justify-center border-l border-slate-200 text-slate-500 transition hover:bg-white hover:text-primary disabled:cursor-not-allowed disabled:opacity-40"
-              title="Tạo hóa đơn mới"
               aria-label="Tạo hóa đơn mới"
-              @click="addInvoice"
+              class="inline-flex size-8 items-center justify-center border-l border-slate-200 text-slate-500 transition hover:bg-white hover:text-primary disabled:cursor-not-allowed disabled:opacity-40"
               :disabled="invoices.length >= MAX_INVOICES"
+              title="Tạo hóa đơn mới"
+              type="button"
+              @click="addInvoice"
             >
               <span class="material-symbols-outlined text-[19px]">add</span>
             </button>
           </div>
           <button
-            type="button"
+            aria-label="Làm mới hóa đơn hiện tại"
             class="inline-flex size-9 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 transition hover:border-primary hover:text-primary"
             title="Làm mới hóa đơn hiện tại"
-            aria-label="Làm mới hóa đơn hiện tại"
+            type="button"
             @click="resetInvoice"
           >
             <span class="material-symbols-outlined text-[18px]">refresh</span>
@@ -52,8 +52,8 @@
             :class="invoice.id === activeInvoiceId ? 'border-primary bg-primary/10 text-primary' : 'border-transparent bg-slate-50 text-slate-600 hover:bg-slate-100'"
           >
             <button
-              type="button"
               class="inline-flex items-center gap-1.5 px-2.5 py-1.5 transition"
+              type="button"
               @click="activeInvoiceId = invoice.id"
             >
               <span class="material-symbols-outlined text-[15px]">receipt_long</span>
@@ -61,22 +61,22 @@
             </button>
             <button
               v-if="!invoice.orderId"
-              type="button"
+              aria-label="Xóa hóa đơn chờ"
               class="inline-flex size-7 items-center justify-center border-l border-white/60 text-slate-400 transition hover:bg-red-100 hover:text-red-600"
               title="Xóa hóa đơn chờ"
-              aria-label="Xóa hóa đơn chờ"
+              type="button"
               @click.stop="requestRemoveInvoice(invoice)"
             >
               <span class="material-symbols-outlined text-[12px]">close</span>
             </button>
           </div>
           <button
-            type="button"
-            class="inline-flex size-7 items-center justify-center rounded-full border border-dashed border-slate-300 text-slate-500 transition hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-40"
-            title="Tạo hóa đơn mới"
             aria-label="Tạo hóa đơn mới"
-            @click="addInvoice"
+            class="inline-flex size-7 items-center justify-center rounded-full border border-dashed border-slate-300 text-slate-500 transition hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-40"
             :disabled="invoices.length >= MAX_INVOICES"
+            title="Tạo hóa đơn mới"
+            type="button"
+            @click="addInvoice"
           >
             <span class="material-symbols-outlined text-[17px]">add</span>
           </button>
@@ -103,15 +103,15 @@
 
           <div class="flex flex-wrap items-center gap-2">
             <button
-              type="button"
               class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-400"
+              type="button"
               @click="cancelRemoveInvoice"
             >
               Hủy
             </button>
             <button
-              type="button"
               class="rounded-xl bg-rose-600 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-rose-200 transition hover:bg-rose-700"
+              type="button"
               @click="confirmRemoveInvoice"
             >
               Tiếp tục xóa
@@ -149,13 +149,13 @@
               <div class="flex w-full items-center gap-2 sm:w-[340px]">
                 <input
                   v-model="searchQuery"
-                  type="text"
-                  placeholder="Nhập từ khóa hoặc ID biến thể..."
                   class="flex-1 rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-sm text-slate-900 outline-none focus:border-primary"
-                />
+                  placeholder="Nhập từ khóa hoặc ID biến thể..."
+                  type="text"
+                >
                 <button
-                  type="button"
                   class="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-sm font-semibold text-white hover:bg-blue-600"
+                  type="button"
                   @click="startQrScanner"
                 >
                   <span class="material-symbols-outlined text-[18px]">qr_code_scanner</span>
@@ -167,11 +167,11 @@
               <div
                 v-for="product in filteredVariants"
                 :key="product.productId"
-                @click="addToCart(product)"
                 class="group flex cursor-pointer gap-2 rounded-xl border border-slate-200 p-2.5 transition hover:border-primary hover:bg-slate-50"
+                @click="addToCart(product)"
               >
                 <div class="aspect-square w-12 overflow-hidden rounded-lg bg-slate-100">
-                  <img v-if="product.imageUrl" :src="product.imageUrl" class="h-full w-full object-cover" />
+                  <img v-if="product.imageUrl" class="h-full w-full object-cover" :src="product.imageUrl">
                   <span v-else class="material-symbols-outlined flex h-full items-center justify-center text-slate-400">inventory_2</span>
                 </div>
                 <div class="flex flex-1 flex-col justify-between overflow-hidden">
@@ -204,7 +204,7 @@
                     <th class="px-2 py-2 font-semibold">Sản phẩm</th>
                     <th class="w-28 px-2 py-2 font-semibold">Số lượng</th>
                     <th class="px-2 py-2 text-right font-semibold">Thành tiền</th>
-                    <th class="w-10 px-3 py-2 text-center font-semibold"></th>
+                    <th class="w-10 px-3 py-2 text-center font-semibold" />
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
@@ -213,7 +213,7 @@
                     <td class="px-2 py-2">
                       <p class="font-bold text-slate-900">{{ item.product.productName }}</p>
                       <p class="mt-0.5 text-[11px] text-slate-500">Mã biến thể: {{ getVariant(item).variantCode || getVariantCode(item.product.productCode, getVariant(item).colorName, getVariant(item).sizeName) }}</p>
-                      <select v-model="item.variantId" @change="validateQuantity(item)" class="mt-1 block w-full rounded-md border border-slate-300 py-1 text-[11px] text-slate-700">
+                      <select v-model="item.variantId" class="mt-1 block w-full rounded-md border border-slate-300 py-1 text-[11px] text-slate-700" @change="validateQuantity(item)">
                         <option v-for="variant in item.product.variants" :key="variant.variantId" :value="variant.variantId">
                           {{ variant.colorName }} / Size {{ variant.sizeName }} - {{ variant.variantCode || getVariantCode(item.product.productCode, variant.colorName, variant.sizeName) }} (Kho: {{ variant.stockQuantity }})
                         </option>
@@ -221,20 +221,26 @@
                     </td>
                     <td class="px-2 py-2">
                       <div class="flex w-fit items-center overflow-hidden rounded-lg border border-slate-200">
-                        <button @click="updateQuantity(item, -1)" class="px-2 py-0.5 text-slate-700 hover:bg-slate-100">-</button>
-                        <input v-model.number="item.quantity" type="number" min="1" class="w-10 border-none bg-transparent p-0 text-center text-xs text-slate-900 focus:ring-0" @change="validateQuantity(item)" />
-                        <button @click="updateQuantity(item, 1)" class="px-2 py-0.5 text-slate-700 hover:bg-slate-100">+</button>
+                        <button class="px-2 py-0.5 text-slate-700 hover:bg-slate-100" @click="updateQuantity(item, -1)">-</button>
+                        <input
+                          v-model.number="item.quantity"
+                          class="w-10 border-none bg-transparent p-0 text-center text-xs text-slate-900 focus:ring-0"
+                          min="1"
+                          type="number"
+                          @change="validateQuantity(item)"
+                        >
+                        <button class="px-2 py-0.5 text-slate-700 hover:bg-slate-100" @click="updateQuantity(item, 1)">+</button>
                       </div>
                     </td>
                     <td class="px-2 py-2 text-right font-bold text-slate-900">{{ formatMoney(getVariant(item).price * item.quantity) }}</td>
                     <td class="px-3 py-2 text-center">
-                      <button @click="removeFromCart(item.cartItemId)" class="rounded-lg p-1 text-red-500 transition-colors hover:bg-red-50">
+                      <button class="rounded-lg p-1 text-red-500 transition-colors hover:bg-red-50" @click="removeFromCart(item.cartItemId)">
                         <span class="material-symbols-outlined text-[17px]">delete</span>
                       </button>
                     </td>
                   </tr>
                   <tr v-if="activeInvoice.cart.length === 0">
-                    <td colspan="5" class="py-10 text-center text-slate-400">Chưa có sản phẩm nào trong giỏ hàng.</td>
+                    <td class="py-10 text-center text-slate-400" colspan="5">Chưa có sản phẩm nào trong giỏ hàng.</td>
                   </tr>
                 </tbody>
               </table>
@@ -250,9 +256,15 @@
               </div>
               <div class="flex gap-2">
                 <div class="flex flex-1 items-center rounded-lg border border-slate-200 bg-white px-2.5 py-1.5">
-                  <input v-model="activeInvoice.voucherInput" @keyup.enter="applyVoucherByInput" type="text" placeholder="Nhập mã voucher..." class="w-full bg-transparent text-sm font-semibold text-slate-900 outline-none uppercase" />
+                  <input
+                    v-model="activeInvoice.voucherInput"
+                    class="w-full bg-transparent text-sm font-semibold text-slate-900 outline-none uppercase"
+                    placeholder="Nhập mã voucher..."
+                    type="text"
+                    @keyup.enter="applyVoucherByInput"
+                  >
                 </div>
-                <button @click="applyVoucherByInput" class="rounded-lg bg-slate-700 px-3 py-1.5 text-xs font-bold text-white transition-colors hover:bg-slate-800">Áp dụng</button>
+                <button class="rounded-lg bg-slate-700 px-3 py-1.5 text-xs font-bold text-white transition-colors hover:bg-slate-800" @click="applyVoucherByInput">Áp dụng</button>
               </div>
               <div class="max-h-48 space-y-2 overflow-y-auto pr-1">
                 <div v-for="voucher in processedVouchers" :key="voucher.id || voucher.code" class="flex items-center justify-between gap-2 rounded-lg border p-2.5" :class="[voucher.isApplied ? 'border-primary bg-primary/5' : 'border-slate-200', !voucher.isEligible ? 'opacity-60 grayscale' : '', !voucher.isActive ? 'bg-slate-100 opacity-80' : '']">
@@ -262,8 +274,8 @@
                     <p v-if="voucher.reason" class="mt-1 text-[11px] font-semibold text-slate-500">{{ voucher.reason }}</p>
                   </div>
                   <div class="shrink-0">
-                    <button v-if="voucher.isApplied" @click="removeVoucher" class="rounded-md bg-primary/10 px-2 py-1 text-[11px] font-bold text-primary transition-colors hover:bg-primary hover:text-white">Bỏ mã</button>
-                    <button v-else-if="voucher.isActive && voucher.isEligible" @click="applySpecificVoucher(voucher)" class="rounded-md bg-primary/10 px-2 py-1 text-[11px] font-bold text-primary transition-colors hover:bg-primary hover:text-white">Dùng mã</button>
+                    <button v-if="voucher.isApplied" class="rounded-md bg-primary/10 px-2 py-1 text-[11px] font-bold text-primary transition-colors hover:bg-primary hover:text-white" @click="removeVoucher">Bỏ mã</button>
+                    <button v-else-if="voucher.isActive && voucher.isEligible" class="rounded-md bg-primary/10 px-2 py-1 text-[11px] font-bold text-primary transition-colors hover:bg-primary hover:text-white" @click="applySpecificVoucher(voucher)">Dùng mã</button>
                     <span v-else class="rounded-md bg-slate-100 px-2 py-1 text-[11px] font-bold text-slate-500">{{ voucher.isActive ? 'Chưa đủ' : 'Tắt' }}</span>
                   </div>
                 </div>
@@ -289,8 +301,8 @@
             <div class="rounded-xl border border-slate-200 bg-slate-50 p-3">
               <p class="text-[13px] font-semibold text-slate-900">Phương thức thanh toán</p>
               <div class="mt-2 grid gap-2 sm:grid-cols-2">
-                <button @click="activeInvoice.paymentMethodId = 1" type="button" :class="activeInvoice.paymentMethodId === 1 ? 'border-primary bg-primary/10 text-primary' : 'border-slate-200 bg-white text-slate-700'" class="rounded-lg border px-3 py-1.5 text-xs font-semibold transition">Tiền mặt</button>
-                <button @click="activeInvoice.paymentMethodId = 2" type="button" :class="activeInvoice.paymentMethodId === 2 ? 'border-primary bg-primary/10 text-primary' : 'border-slate-200 bg-white text-slate-700'" class="rounded-lg border px-3 py-1.5 text-xs font-semibold transition">Chuyển khoản</button>
+                <button class="rounded-lg border px-3 py-1.5 text-xs font-semibold transition" :class="activeInvoice.paymentMethodId === 1 ? 'border-primary bg-primary/10 text-primary' : 'border-slate-200 bg-white text-slate-700'" type="button" @click="activeInvoice.paymentMethodId = 1">Tiền mặt</button>
+                <button class="rounded-lg border px-3 py-1.5 text-xs font-semibold transition" :class="activeInvoice.paymentMethodId === 2 ? 'border-primary bg-primary/10 text-primary' : 'border-slate-200 bg-white text-slate-700'" type="button" @click="activeInvoice.paymentMethodId = 2">Chuyển khoản</button>
               </div>
               <div v-if="activeInvoice.paymentMethodId === 2" class="mt-2 rounded-lg border border-slate-200 bg-white p-2.5">
                 <label class="mb-2 block text-xs font-bold uppercase text-slate-500">Kênh trực tuyến</label>
@@ -301,7 +313,7 @@
               <div v-if="activeInvoice.paymentMethodId === 1" class="mt-2 rounded-lg border border-slate-200 bg-white p-2.5">
                 <div class="flex items-center justify-between text-sm text-slate-600">
                   <span>Khách đưa</span>
-                  <input v-model.number="activeInvoice.customerPaid" type="number" class="money-input w-28 rounded-lg border border-slate-200 bg-slate-50 px-2 py-1.5 text-right text-base font-bold text-slate-900 outline-none" />
+                  <input v-model.number="activeInvoice.customerPaid" class="money-input w-28 rounded-lg border border-slate-200 bg-slate-50 px-2 py-1.5 text-right text-base font-bold text-slate-900 outline-none" type="number">
                 </div>
                 <div class="mt-2 flex items-center justify-between text-sm text-slate-500">
                   <span>Tiền thừa</span>
@@ -310,7 +322,7 @@
               </div>
             </div>
 
-            <button @click="handlePlaceOrder" :disabled="activeInvoice.cart.length === 0 || isProcessing" class="w-full rounded-lg bg-primary py-2.5 text-sm font-black text-white shadow-lg shadow-primary/30 transition hover:bg-blue-600 disabled:cursor-not-allowed disabled:opacity-50">
+            <button class="w-full rounded-lg bg-primary py-2.5 text-sm font-black text-white shadow-lg shadow-primary/30 transition hover:bg-blue-600 disabled:cursor-not-allowed disabled:opacity-50" :disabled="activeInvoice.cart.length === 0 || isProcessing" @click="handlePlaceOrder">
               <span v-if="isProcessing" class="material-symbols-outlined animate-spin">sync</span>
               <span v-else class="material-symbols-outlined">check_circle</span>
               <span class="ml-2">{{ isProcessing ? 'ĐANG XỬ LÝ...' : 'XÁC NHẬN THANH TOÁN' }}</span>
@@ -336,9 +348,9 @@
                   <p class="text-sm text-slate-500">Sẵn sàng in hóa đơn cho giao dịch vừa hoàn tất.</p>
                 </div>
                 <button
-                  type="button"
-                  class="inline-flex size-8 items-center justify-center rounded-full border border-slate-200 text-slate-500 transition hover:border-primary hover:text-primary"
                   aria-label="Đóng biên lai"
+                  class="inline-flex size-8 items-center justify-center rounded-full border border-slate-200 text-slate-500 transition hover:border-primary hover:text-primary"
+                  type="button"
                   @click="closeReceipt"
                 >
                   <span class="material-symbols-outlined text-[18px]">close</span>
@@ -422,15 +434,15 @@
 
             <div class="flex flex-wrap justify-end gap-2 border-t border-slate-200 bg-slate-50 px-4 py-3">
               <button
-                type="button"
                 class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:border-slate-400"
+                type="button"
                 @click="closeReceipt"
               >
                 Đóng
               </button>
               <button
-                type="button"
                 class="rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-blue-600"
+                type="button"
                 @click="printReceipt(lastReceipt)"
               >
                 In hóa đơn
@@ -492,16 +504,16 @@
 
               <div class="mt-4 flex flex-wrap justify-end gap-2">
                 <button
-                  type="button"
                   class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-400"
+                  type="button"
                   @click="closePaymentDialog"
                 >
                   {{ paymentDialog.secondaryLabel || 'Đóng' }}
                 </button>
                 <button
-                  type="button"
                   class="rounded-xl px-4 py-2 text-sm font-semibold text-white shadow-lg transition"
                   :class="paymentDialog.type === 'success' ? 'bg-emerald-600 shadow-emerald-200 hover:bg-emerald-700' : paymentDialog.type === 'confirm' ? 'bg-amber-600 shadow-amber-200 hover:bg-amber-700' : 'bg-primary shadow-primary/30 hover:bg-blue-600'"
+                  type="button"
                   @click="handlePaymentDialogPrimary"
                 >
                   {{ paymentDialog.primaryLabel || 'Tiếp tục' }}
@@ -511,641 +523,698 @@
           </div>
         </div>
       </Teleport>
-     <!-- Modal quét QR -->
-<Teleport to="body">
-  <div
-    v-if="qrScannerVisible"
-    class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
-    @click.self="stopQrScanner"
-  >
-    <div class="w-full max-w-md rounded-2xl bg-white p-4 shadow-2xl">
-      <div class="flex items-center justify-between">
-        <h3 class="text-lg font-bold">Quét mã QR</h3>
-        <button
-          type="button"
-          class="rounded-lg p-1 hover:bg-slate-100"
-          @click="stopQrScanner"
+      <!-- Modal quét QR -->
+      <Teleport to="body">
+        <div
+          v-if="qrScannerVisible"
+          class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+          @click.self="stopQrScanner"
         >
-          <span class="material-symbols-outlined">close</span>
-        </button>
-      </div>
-      <div id="qr-reader" class="mt-3 w-full"></div>
-      <p v-if="qrScanError" class="mt-2 text-sm text-red-500">{{ qrScanError }}</p>
-      <div class="mt-3 flex justify-end">
-        <button
-          type="button"
-          class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium hover:border-slate-400"
-          @click="stopQrScanner"
-        >
-          Đóng
-        </button>
-      </div>
-    </div>
-  </div>
-</Teleport>
+          <div class="w-full max-w-md rounded-2xl bg-white p-4 shadow-2xl">
+            <div class="flex items-center justify-between">
+              <h3 class="text-lg font-bold">Quét mã QR</h3>
+              <button
+                class="rounded-lg p-1 hover:bg-slate-100"
+                type="button"
+                @click="stopQrScanner"
+              >
+                <span class="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            <div id="qr-reader" class="mt-3 w-full" />
+            <p v-if="qrScanError" class="mt-2 text-sm text-red-500">{{ qrScanError }}</p>
+            <div class="mt-3 flex justify-end">
+              <button
+                class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium hover:border-slate-400"
+                type="button"
+                @click="stopQrScanner"
+              >
+                Đóng
+              </button>
+            </div>
+          </div>
+        </div>
+      </Teleport>
     </div>
   </AdminShell>
 </template>
 
 <script setup>
-import { computed, onMounted, ref, watch, nextTick, onBeforeUnmount } from "vue";
-import { Html5Qrcode, Html5QrcodeScanType } from "html5-qrcode";
-import axios from "axios";
-import AdminShell from "@/components/admin/AdminShell.vue";
-import { adminApi, colorsApi, sizesApi } from "@/services/api";
-import { voucherAPI } from "@/services/orders";
-import { buildVariantCode } from "@/utils/variantValues";
+  import axios from 'axios'
+  import { Html5Qrcode, Html5QrcodeScanType } from 'html5-qrcode'
+  import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+  import AdminShell from '@/components/admin/AdminShell.vue'
+  import { adminApi, colorsApi, sizesApi, stockApi } from '@/services/api'
+  import { voucherAPI } from '@/services/orders'
+  import { buildVariantCode } from '@/utils/variantValues'
 
-function removeVietnameseTones(str) { if (!str) return ""; return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d").replace(/Đ/g, "D"); }
-
-function getInitials(str) {
-  if (!str) return "XX";
-  const clean = removeVietnameseTones(str).toUpperCase().trim();
-  const words = clean.split(/\s+/);
-  if (words.length === 1) return words[0].substring(0, 3) || "XX";
-  return words.map(w => w[0]).join('');
-}
-
-function getVariantCode(productCode, colorName, sizeName) {
-  return buildVariantCode(productCode, colorName, sizeName);
-}
-  const MAX_INVOICES = 5;
-const POS_DEFAULT_CUSTOMER = Object.freeze({
-  fullname: "POS",
-  phone: "00000000",
-  email: "pos@local.shop",
-});
-let nextInvoiceNumber = 1;
-const searchQuery = ref("");
-const systemVouchers = ref([]);
-const inventoryVariants = ref([]);
-const lastReceipt = ref(null);
-const showReceipt = ref(false);
-const paymentDialog = ref(null);
-const invoiceRemovalTarget = ref(null);
-const invoices = ref([createNewInvoice()]);
-const activeInvoiceId = ref(invoices.value[0].id);
-const isProcessing = ref(false);
-
-const qrScannerVisible = ref(false);
-const qrScanner = ref(null);
-const qrScanError = ref("");
-let isScannerStopping = false;
-
-const activeInvoice = computed(() => invoices.value.find((invoice) => invoice.id === activeInvoiceId.value) || invoices.value[0]);
-const activeInvoiceTitle = computed(() => {
-  const invoice = activeInvoice.value;
-  if (!invoice) return "Hóa đơn POS";
-  if (invoice.orderCode) return `Hóa đơn ${invoice.orderCode}`;
-  if (invoice.orderId) return `Hóa đơn #${invoice.orderId}`;
-  return `Hóa đơn tạm ${invoice.number}`;
-});
-
-const activeSubtotal = computed(() => {
-  if (!activeInvoice.value) return 0;
-  return activeInvoice.value.cart.reduce((sum, item) => {
-    const variant = item.product.variants.find((variant) => variant.variantId === item.variantId);
-    return sum + (variant ? Number(variant.price || 0) : 0) * Number(item.quantity || 0);
-  }, 0);
-});
-
-const getVoucherMinOrder = (voucher) =>
-  Number(voucher?.minOrderValue ?? voucher?.min_order_value ?? voucher?.min_order ?? 0) || 0;
-
-const getVoucherDiscountValue = (voucher) =>
-  Number(voucher?.discountValue ?? voucher?.discount_value ?? voucher?.value ?? 0) || 0;
-
-const getVoucherDiscountType = (voucher) =>
-  String(voucher?.discountType ?? voucher?.discount_type ?? "FIXED").toUpperCase();
-
-const getVoucherMaxDiscount = (voucher) =>
-  Number(voucher?.maxDiscountAmount ?? voucher?.max_discount_amount ?? voucher?.max_discount ?? 0) || 0;
-
-const getVoucherUsageState = (voucher) => {
-  const limit = Number(voucher?.usageLimit ?? voucher?.usage_limit ?? voucher?.limit ?? 0) || 0;
-  const used = Number(voucher?.usedCount ?? voucher?.used_count ?? voucher?.used ?? 0) || 0;
-  const remaining = limit > 0 ? Math.max(0, limit - used) : null;
-  return { limit, used, remaining, exhausted: limit > 0 && used >= limit };
-};
-
-const getVoucherAvailabilityReason = (voucher) => {
-  if (!voucher) return "Voucher không khả dụng";
-  const status = String(voucher.status || voucher.state || "").trim().toUpperCase();
-  if (["INACTIVE", "DISABLED", "DELETED"].includes(status)) return "Voucher không còn hoạt động";
-  if (status === "EXPIRED") return "Voucher đã hết hạn";
-  if (status === "USED") return "Voucher đã hết lượt sử dụng";
-  if (voucher.isActive === false || voucher.is_active === false) return "Voucher không còn hoạt động";
-
-  const endDateRaw = voucher.endDate || voucher.end_date || voucher.expiryDate || voucher.expire_date;
-  if (endDateRaw) {
-    const endTime = new Date(endDateRaw).getTime();
-    if (Number.isFinite(endTime) && endTime < Date.now()) return "Voucher đã hết hạn";
+  function removeVietnameseTones (str) {
+    if (!str) return ''; return str.normalize('NFD').replace(/[\u0300-\u036F]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D')
   }
 
-  return getVoucherUsageState(voucher).exhausted ? "Voucher đã hết lượt sử dụng" : null;
-};
-
-const isVoucherActive = (voucher) => !getVoucherAvailabilityReason(voucher);
-
-const computeVoucherDiscount = (voucher, baseAmount) => {
-  const base = Math.max(0, Number(baseAmount) || 0);
-  const val = getVoucherDiscountValue(voucher);
-  const type = getVoucherDiscountType(voucher);
-  const maxCap = getVoucherMaxDiscount(voucher);
-  if (type === "PERCENT") {
-    const raw = (base * val) / 100;
-    return Math.max(0, maxCap > 0 ? Math.min(raw, maxCap) : raw);
-  }
-  return Math.max(0, Math.min(val, base));
-};
-
-const processedVouchers = computed(() => {
-  if (!systemVouchers.value) return [];
-
-  return systemVouchers.value
-    .map((voucher) => {
-      const minOrder = getVoucherMinOrder(voucher);
-      const isEligible = activeSubtotal.value >= minOrder;
-      const calculatedDiscount = isEligible ? computeVoucherDiscount(voucher, activeSubtotal.value) : 0;
-      const reason = getVoucherAvailabilityReason(voucher);
-
-      const isApplied =
-        activeInvoice.value &&
-        activeInvoice.value.appliedVoucher &&
-        String(activeInvoice.value.appliedVoucher.code || "").toUpperCase() === String(voucher.code || "").toUpperCase();
-
-      return { ...voucher, minOrder, isEligible, calculatedDiscount, isApplied, isActive: !reason, reason };
-    })
-    .sort((a, b) => b.calculatedDiscount - a.calculatedDiscount);
-});
-
-const formatDiscountLabel = (voucher) => {
-  const type = getVoucherDiscountType(voucher);
-  const val = getVoucherDiscountValue(voucher);
-  const maxCap = getVoucherMaxDiscount(voucher);
-  if (type === "PERCENT") {
-    return maxCap > 0 ? `${val}% (tối đa ${formatMoney(maxCap)})` : `${val}%`;
-  }
-  return formatMoney(val);
-};
-
-const activeDiscount = computed(() => {
-  if (!activeInvoice.value || !activeInvoice.value.appliedVoucher) return 0;
-  if (activeInvoice.value.appliedVoucher.discountAmount != null) {
-    return Math.min(
-      Math.max(0, activeSubtotal.value),
-      Math.max(0, Number(activeInvoice.value.appliedVoucher.discountAmount) || 0),
-    );
-  }
-  return computeVoucherDiscount(activeInvoice.value.appliedVoucher, activeSubtotal.value);
-});
-
-const activeTotal = computed(() => Math.max(0, activeSubtotal.value - activeDiscount.value));
-
-const autoPickBestEligibleVoucher = () => {
-  const invoice = activeInvoice.value;
-  if (!invoice || invoice.voucherPreference === "none" || invoice.appliedVoucher || activeSubtotal.value <= 0) return;
-
-  const bestVoucher = processedVouchers.value.find((voucher) => voucher.isEligible);
-  if (!bestVoucher) return;
-
-  invoice.appliedVoucher = bestVoucher;
-  invoice.voucherInput = bestVoucher.code || "";
-};
-
-watch(activeSubtotal, (newSubtotal) => {
-  const invoice = activeInvoice.value;
-  if (!invoice) return;
-
-  if (invoice.appliedVoucher) {
-    const minOrder = getVoucherMinOrder(invoice.appliedVoucher);
-    if (newSubtotal < minOrder) {
-      invoice.appliedVoucher = null;
-      invoice.voucherInput = "";
-    }
+  function getInitials (str) {
+    if (!str) return 'XX'
+    const clean = removeVietnameseTones(str).toUpperCase().trim()
+    const words = clean.split(/\s+/)
+    if (words.length === 1) return words[0].slice(0, 3) || 'XX'
+    return words.map(w => w[0]).join('')
   }
 
-  autoPickBestEligibleVoucher();
-});
+  function getVariantCode (productCode, colorName, sizeName) {
+    return buildVariantCode(productCode, colorName, sizeName)
+  }
+  const MAX_INVOICES = 5
+  const POS_DEFAULT_CUSTOMER = Object.freeze({
+    fullname: 'POS',
+    phone: '00000000',
+    email: 'pos@local.shop',
+  })
+  let nextInvoiceNumber = 1
+  const searchQuery = ref('')
+  const systemVouchers = ref([])
+  const inventoryVariants = ref([])
+  const lastReceipt = ref(null)
+  const showReceipt = ref(false)
+  const paymentDialog = ref(null)
+  const invoiceRemovalTarget = ref(null)
+  const invoices = ref([createNewInvoice()])
+  const activeInvoiceId = ref(invoices.value[0].id)
+  const isProcessing = ref(false)
 
-watch(processedVouchers, () => {
-  autoPickBestEligibleVoucher();
-});
+  const qrScannerVisible = ref(false)
+  const qrScanner = ref(null)
+  const qrScanError = ref('')
+  let isScannerStopping = false
 
-onMounted(async () => {
-  try {
-    try {
-      const voucherResponse = await voucherAPI.getAllVouchers(0, 100, "createdAt", "DESC");
-      systemVouchers.value = toList(voucherResponse).filter((voucher) => isVoucherActive(voucher));
-    } catch (error) {
-      console.warn("Không tải được danh sách voucher", error);
-      systemVouchers.value = [];
+  const activeInvoice = computed(() => invoices.value.find(invoice => invoice.id === activeInvoiceId.value) || invoices.value[0])
+  const activeInvoiceTitle = computed(() => {
+    const invoice = activeInvoice.value
+    if (!invoice) return 'Hóa đơn POS'
+    if (invoice.orderCode) return `Hóa đơn ${invoice.orderCode}`
+    if (invoice.orderId) return `Hóa đơn #${invoice.orderId}`
+    return `Hóa đơn tạm ${invoice.number}`
+  })
+
+  const activeSubtotal = computed(() => {
+    if (!activeInvoice.value) return 0
+    return activeInvoice.value.cart.reduce((sum, item) => {
+      const variant = item.product.variants.find(variant => variant.variantId === item.variantId)
+      return sum + (variant ? Number(variant.price || 0) : 0) * Number(item.quantity || 0)
+    }, 0)
+  })
+
+  function getVoucherMinOrder (voucher) {
+    return Number(voucher?.minOrderValue ?? voucher?.min_order_value ?? voucher?.min_order ?? 0) || 0
+  }
+
+  function getVoucherDiscountValue (voucher) {
+    return Number(voucher?.discountValue ?? voucher?.discount_value ?? voucher?.value ?? 0) || 0
+  }
+
+  function getVoucherDiscountType (voucher) {
+    return String(voucher?.discountType ?? voucher?.discount_type ?? 'FIXED').toUpperCase()
+  }
+
+  function getVoucherMaxDiscount (voucher) {
+    return Number(voucher?.maxDiscountAmount ?? voucher?.max_discount_amount ?? voucher?.max_discount ?? 0) || 0
+  }
+
+  function getVoucherUsageState (voucher) {
+    const limit = Number(voucher?.usageLimit ?? voucher?.usage_limit ?? voucher?.limit ?? 0) || 0
+    const used = Number(voucher?.usedCount ?? voucher?.used_count ?? voucher?.used ?? 0) || 0
+    const remaining = limit > 0 ? Math.max(0, limit - used) : null
+    return { limit, used, remaining, exhausted: limit > 0 && used >= limit }
+  }
+
+  function getVoucherAvailabilityReason (voucher) {
+    if (!voucher) return 'Voucher không khả dụng'
+    const status = String(voucher.status || voucher.state || '').trim().toUpperCase()
+    if (['INACTIVE', 'DISABLED', 'DELETED'].includes(status)) return 'Voucher không còn hoạt động'
+    if (status === 'EXPIRED') return 'Voucher đã hết hạn'
+    if (status === 'USED') return 'Voucher đã hết lượt sử dụng'
+    if (voucher.isActive === false || voucher.is_active === false) return 'Voucher không còn hoạt động'
+
+    const endDateRaw = voucher.endDate || voucher.end_date || voucher.expiryDate || voucher.expire_date
+    if (endDateRaw) {
+      const endTime = new Date(endDateRaw).getTime()
+      if (Number.isFinite(endTime) && endTime < Date.now()) return 'Voucher đã hết hạn'
     }
 
-    const [variantData, productData, colorData, sizeData] = await Promise.all([
-      adminApi.getVariants({ page: 0, size: 1000 }).catch(() => []),
-      adminApi.getProducts({ page: 0, size: 1000 }).catch(() => []),
-      colorsApi?.getAll ? colorsApi.getAll().catch(() => []) : Promise.resolve([]),
-      sizesApi?.getAll ? sizesApi.getAll().catch(() => []) : Promise.resolve([]),
-    ]);
+    return getVoucherUsageState(voucher).exhausted ? 'Voucher đã hết lượt sử dụng' : null
+  }
 
-    const rawVariants = toList(variantData);
-    const rawProducts = toList(productData);
-    const rawColors = toList(colorData);
-    const rawSizes = toList(sizeData);
+  const isVoucherActive = voucher => !getVoucherAvailabilityReason(voucher)
 
-    const productMap = new Map();
-    rawProducts.forEach((product) => {
-      if (product && product.id != null) productMap.set(Number(product.id), product);
-    });
+  function computeVoucherDiscount (voucher, baseAmount) {
+    const base = Math.max(0, Number(baseAmount) || 0)
+    const val = getVoucherDiscountValue(voucher)
+    const type = getVoucherDiscountType(voucher)
+    const maxCap = getVoucherMaxDiscount(voucher)
+    if (type === 'PERCENT') {
+      const raw = (base * val) / 100
+      return Math.max(0, maxCap > 0 ? Math.min(raw, maxCap) : raw)
+    }
+    return Math.max(0, Math.min(val, base))
+  }
 
-    const colorMap = new Map();
-    rawColors.forEach((color) => {
-      if (color && color.id != null) colorMap.set(Number(color.id), color);
-    });
+  const processedVouchers = computed(() => {
+    if (!systemVouchers.value) return []
 
-    const sizeMap = new Map();
-    rawSizes.forEach((size) => {
-      if (size && size.id != null) sizeMap.set(Number(size.id), size);
-    });
+    return systemVouchers.value
+      .map(voucher => {
+        const minOrder = getVoucherMinOrder(voucher)
+        const isEligible = activeSubtotal.value >= minOrder
+        const calculatedDiscount = isEligible ? computeVoucherDiscount(voucher, activeSubtotal.value) : 0
+        const reason = getVoucherAvailabilityReason(voucher)
 
-    const productGroup = new Map();
-    rawVariants.forEach((variant) => {
-      const productId = Number(variant.productId || variant.product_id || 0);
-      const colorId = Number(variant.colorId || variant.color_id || 0);
-      const sizeId = Number(variant.sizeId || variant.size_id || 0);
+        const isApplied
+          = activeInvoice.value
+            && activeInvoice.value.appliedVoucher
+            && String(activeInvoice.value.appliedVoucher.code || '').toUpperCase() === String(voucher.code || '').toUpperCase()
 
-      const product = productMap.get(productId) || {};
-      const color = colorMap.get(colorId) || {};
-      const size = sizeMap.get(sizeId) || {};
+        return { ...voucher, minOrder, isEligible, calculatedDiscount, isApplied, isActive: !reason, reason }
+      })
+      .sort((a, b) => b.calculatedDiscount - a.calculatedDiscount)
+  })
 
-      const productName = variant.productName || variant.product_name || product.name || `Sản phẩm #${productId || "?"}`;
-      const variantModel = {
-        ...variant,
-        variantId: variant.id || variant.variantId || `${productId}-${colorId}-${sizeId}-${Math.random()}`,
-        productName,
-        productCode: variant.productCode || variant.product_code || product.productCode || product.product_code || "",
-        variantCode: variant.variantCode || variant.variant_code || buildVariantCode(product.productCode || product.product_code, variant.colorName || variant.color_name || color.name, variant.sizeName || variant.size_name || size.name),
-        colorName: variant.colorName || variant.color_name || color.name || "Mặc định",
-        sizeName: variant.sizeName || variant.size_name || size.name || "Mặc định",
-        price: Number(variant.price || 0),
-        stockQuantity: Number(variant.stockQuantity || variant.stock_quantity || 0),
-        imageUrl: variant.imageUrl || variant.image_url || product.imageUrl || product.image_url || null,
-      };
+  function formatDiscountLabel (voucher) {
+    const type = getVoucherDiscountType(voucher)
+    const val = getVoucherDiscountValue(voucher)
+    const maxCap = getVoucherMaxDiscount(voucher)
+    if (type === 'PERCENT') {
+      return maxCap > 0 ? `${val}% (tối đa ${formatMoney(maxCap)})` : `${val}%`
+    }
+    return formatMoney(val)
+  }
 
-      if (!productGroup.has(productId)) {
-        productGroup.set(productId, {
-          productId,
-          productName,
-          productCode: variantModel.productCode,
-          imageUrl: variantModel.imageUrl,
-          price: variantModel.price,
-          variants: [],
-        });
+  const activeDiscount = computed(() => {
+    if (!activeInvoice.value || !activeInvoice.value.appliedVoucher) return 0
+    if (activeInvoice.value.appliedVoucher.discountAmount != null) {
+      return Math.min(
+        Math.max(0, activeSubtotal.value),
+        Math.max(0, Number(activeInvoice.value.appliedVoucher.discountAmount) || 0),
+      )
+    }
+    return computeVoucherDiscount(activeInvoice.value.appliedVoucher, activeSubtotal.value)
+  })
+
+  const activeTotal = computed(() => Math.max(0, activeSubtotal.value - activeDiscount.value))
+
+  function autoPickBestEligibleVoucher () {
+    const invoice = activeInvoice.value
+    if (!invoice || invoice.voucherPreference === 'none' || invoice.appliedVoucher || activeSubtotal.value <= 0) return
+
+    const bestVoucher = processedVouchers.value.find(voucher => voucher.isEligible)
+    if (!bestVoucher) return
+
+    invoice.appliedVoucher = bestVoucher
+    invoice.voucherInput = bestVoucher.code || ''
+  }
+
+  watch(activeSubtotal, newSubtotal => {
+    const invoice = activeInvoice.value
+    if (!invoice) return
+
+    if (invoice.appliedVoucher) {
+      const minOrder = getVoucherMinOrder(invoice.appliedVoucher)
+      if (newSubtotal < minOrder) {
+        invoice.appliedVoucher = null
+        invoice.voucherInput = ''
       }
-      productGroup.get(productId).variants.push(variantModel);
-    });
+    }
 
-    inventoryVariants.value = Array.from(productGroup.values());
-  } catch (error) {
-    console.error("Lỗi tải dữ liệu POS:", error);
-  }
-});
-onBeforeUnmount(() => {
-  if (qrScanner.value) {
+    autoPickBestEligibleVoucher()
+  })
+
+  watch(processedVouchers, () => {
+    autoPickBestEligibleVoucher()
+  })
+
+  async function refreshInventory () {
     try {
-      qrScanner.value.stop().catch(() => {});
-      qrScanner.value.clear().catch(() => {});
-    } catch {}
-    qrScanner.value = null;
-  }
-});
-const filteredVariants = computed(() => {
-  const query = String(searchQuery.value || "").toLowerCase().trim();
-  if (!query) return inventoryVariants.value;
+      const [variantData, productData, colorData, sizeData] = await Promise.all([
+        adminApi.getVariants({ page: 0, size: 1000 }).catch(() => []),
+        adminApi.getProducts({ page: 0, size: 1000 }).catch(() => []),
+        colorsApi?.getAll ? colorsApi.getAll().catch(() => []) : Promise.resolve([]),
+        sizesApi?.getAll ? sizesApi.getAll().catch(() => []) : Promise.resolve([]),
+      ])
 
-  return inventoryVariants.value.filter((product) => {
-    const name = String(product.productName || "").toLowerCase();
-    const codeMatches = product.variants.some((variant) => String(variant.productCode || variant.product_code || "").toLowerCase().includes(query));
-    return name.includes(query) || codeMatches;
-  });
-});
+      const rawVariants = toList(variantData)
+      const rawProducts = toList(productData)
+      const rawColors = toList(colorData)
+      const rawSizes = toList(sizeData)
 
-const addInvoice = () => {
-  if (invoices.value.length >= MAX_INVOICES) {
-    alert("Chỉ được tạo tối đa 5 hóa đơn cùng lúc.");
-    return;
-  }
-  const newInvoice = createNewInvoice();
-  invoices.value.push(newInvoice);
-  activeInvoiceId.value = newInvoice.id;
-};
+      const productMap = new Map()
+      for (const product of rawProducts) {
+        if (product && product.id != null) productMap.set(Number(product.id), product)
+      }
 
-const removeInvoice = (invoiceId) => {
-  const target = invoices.value.find((invoice) => invoice.id === invoiceId);
-  if (!target) return;
+      const colorMap = new Map()
+      for (const color of rawColors) {
+        if (color && color.id != null) colorMap.set(Number(color.id), color)
+      }
 
-  let nextInvoices = invoices.value.filter((invoice) => invoice.id !== invoiceId);
-  if (nextInvoices.length === 0) {
-    const freshInvoice = createNewInvoice();
-    nextInvoices = [freshInvoice];
-    activeInvoiceId.value = freshInvoice.id;
-  }
-  invoices.value = nextInvoices;
+      const sizeMap = new Map()
+      for (const size of rawSizes) {
+        if (size && size.id != null) sizeMap.set(Number(size.id), size)
+      }
 
-  if (activeInvoiceId.value === invoiceId) {
-    activeInvoiceId.value = nextInvoices[0]?.id || null;
-  }
-};
+      const productGroup = new Map()
+      for (const variant of rawVariants) {
+        const productId = Number(variant.productId || variant.product_id || 0)
+        const colorId = Number(variant.colorId || variant.color_id || 0)
+        const sizeId = Number(variant.sizeId || variant.size_id || 0)
 
-const invoiceRemovalLabel = computed(() => {
-  const invoice = invoiceRemovalTarget.value;
-  if (!invoice) return "hóa đơn này";
-  return invoice.orderId ? `hóa đơn #${invoice.orderId}` : `hóa đơn tạm ${invoice.number}`;
-});
+        const product = productMap.get(productId) || {}
+        const color = colorMap.get(colorId) || {}
+        const size = sizeMap.get(sizeId) || {}
 
-const requestRemoveInvoice = (invoice) => {
-  if (!invoice || invoice.orderId) return;
-  if (!Array.isArray(invoice.cart) || invoice.cart.length === 0) {
-    removeInvoice(invoice.id);
-    return;
-  }
-  invoiceRemovalTarget.value = invoice;
-};
+        const productName = variant.productName || variant.product_name || product.name || `Sản phẩm #${productId || '?'}`
+        const variantModel = {
+          ...variant,
+          variantId: variant.id || variant.variantId || `${productId}-${colorId}-${sizeId}-${Math.random()}`,
+          productName,
+          productCode: variant.productCode || variant.product_code || product.productCode || product.product_code || '',
+          variantCode: variant.variantCode || variant.variant_code || buildVariantCode(product.productCode || product.product_code, variant.colorName || variant.color_name || color.name, variant.sizeName || variant.size_name || size.name),
+          colorName: variant.colorName || variant.color_name || color.name || 'Mặc định',
+          sizeName: variant.sizeName || variant.size_name || size.name || 'Mặc định',
+          price: Number(variant.price || 0),
+          stockQuantity: Number(variant.stockQuantity || variant.stock_quantity || 0),
+          imageUrl: variant.imageUrl || variant.image_url || product.imageUrl || product.image_url || null,
+        }
 
-const cancelRemoveInvoice = () => {
-  invoiceRemovalTarget.value = null;
-};
+        if (!productGroup.has(productId)) {
+          productGroup.set(productId, {
+            productId,
+            productName,
+            productCode: variantModel.productCode,
+            imageUrl: variantModel.imageUrl,
+            price: variantModel.price,
+            variants: [],
+          })
+        }
+        productGroup.get(productId).variants.push(variantModel)
+      }
 
-const confirmRemoveInvoice = () => {
-  const target = invoiceRemovalTarget.value;
-  if (!target) return;
-
-  const nextInvoices = invoices.value.filter((invoice) => invoice.id !== target.id);
-  invoices.value = nextInvoices;
-
-  if (activeInvoiceId.value === target.id) {
-    activeInvoiceId.value = nextInvoices[0]?.id || null;
+      inventoryVariants.value = Array.from(productGroup.values())
+    } catch (error) {
+      console.error('Lỗi tải dữ liệu POS:', error)
+    }
   }
 
-  invoiceRemovalTarget.value = null;
-};
+  onMounted(async () => {
+    try {
+      try {
+        const voucherResponse = await voucherAPI.getAllVouchers(0, 100, 'createdAt', 'DESC')
+        systemVouchers.value = toList(voucherResponse).filter(voucher => isVoucherActive(voucher))
+      } catch (error) {
+        console.warn('Không tải được danh sách voucher', error)
+        systemVouchers.value = []
+      }
 
-const resetInvoice = () => {
-  const invoice = activeInvoice.value;
-  if (!invoice) return;
-  invoice.customer = { ...POS_DEFAULT_CUSTOMER };
-  invoice.voucherInput = "";
-  invoice.appliedVoucher = null;
-  invoice.cart = [];
-  invoice.paymentMethodId = 1;
-  invoice.digitalPaymentMethodId = 4;
-  invoice.customerPaid = 0;
-  invoice.orderId = null;
-  invoice.orderCode = null;
-};
+      await refreshInventory()
+    } catch (error) {
+      console.error('Lỗi tải dữ liệu POS:', error)
+    }
+  })
+  onBeforeUnmount(() => {
+    if (qrScanner.value) {
+      try {
+        qrScanner.value.stop().catch(() => {})
+        qrScanner.value.clear().catch(() => {})
+      } catch {}
+      qrScanner.value = null
+    }
+  })
+  const filteredVariants = computed(() => {
+    const query = String(searchQuery.value || '').toLowerCase().trim()
+    if (!query) return inventoryVariants.value
 
-const removeFromCart = (cartItemId) => {
-  if (!activeInvoice.value) return;
-  activeInvoice.value.cart = activeInvoice.value.cart.filter((item) => item.cartItemId !== cartItemId);
-};
+    return inventoryVariants.value.filter(product => {
+      const name = String(product.productName || '').toLowerCase()
+      const codeMatches = product.variants.some(variant => String(variant.productCode || variant.product_code || '').toLowerCase().includes(query))
+      return name.includes(query) || codeMatches
+    })
+  })
 
-const addToCart = (product) => {
-  if (!activeInvoice.value) return;
-
-  const defaultVariant = product.variants.find((variant) => Number(variant.stockQuantity || 0) > 0) || product.variants[0];
-  if (!defaultVariant || Number(defaultVariant.stockQuantity || 0) <= 0) {
-    alert("Sản phẩm này đã hết hàng!");
-    return;
+  function addInvoice () {
+    if (invoices.value.length >= MAX_INVOICES) {
+      alert('Chỉ được tạo tối đa 5 hóa đơn cùng lúc.')
+      return
+    }
+    const newInvoice = createNewInvoice()
+    invoices.value.push(newInvoice)
+    activeInvoiceId.value = newInvoice.id
   }
 
-  const existing = activeInvoice.value.cart.find((item) => item.variantId === defaultVariant.variantId);
-  if (existing) {
-    const maxStock = Number(defaultVariant.stockQuantity || 0);
-    existing.quantity = Math.min(existing.quantity + 1, maxStock);
-    return;
+  function removeInvoice (invoiceId) {
+    const target = invoices.value.find(invoice => invoice.id === invoiceId)
+    if (!target) return
+
+    let nextInvoices = invoices.value.filter(invoice => invoice.id !== invoiceId)
+    if (nextInvoices.length === 0) {
+      const freshInvoice = createNewInvoice()
+      nextInvoices = [freshInvoice]
+      activeInvoiceId.value = freshInvoice.id
+    }
+    invoices.value = nextInvoices
+
+    if (activeInvoiceId.value === invoiceId) {
+      activeInvoiceId.value = nextInvoices[0]?.id || null
+    }
   }
 
-  activeInvoice.value.cart.push({
-    cartItemId: `${Date.now()}-${Math.random()}`,
-    product,
-    variantId: defaultVariant.variantId,
-    quantity: 1,
-    price: Number(defaultVariant.price || 0),
-  });
-};
+  const invoiceRemovalLabel = computed(() => {
+    const invoice = invoiceRemovalTarget.value
+    if (!invoice) return 'hóa đơn này'
+    return invoice.orderId ? `hóa đơn #${invoice.orderId}` : `hóa đơn tạm ${invoice.number}`
+  })
 
-const getVariant = (item) =>
-  item.product.variants.find((variant) => variant.variantId === item.variantId) ||
-  item.product.variants[0] ||
-  { price: 0, stockQuantity: 0 };
-
-const updateQuantity = (item, change) => {
-  const variant = getVariant(item);
-  const newQty = Number(item.quantity || 0) + change;
-  if (newQty >= 1 && newQty <= Number(variant.stockQuantity || 0)) {
-    item.quantity = newQty;
-  }
-};
-
-const validateQuantity = (item) => {
-  const variant = getVariant(item);
-  const maxStock = Number(variant.stockQuantity || 0);
-  if (item.quantity < 1) item.quantity = 1;
-  if (item.quantity > maxStock) item.quantity = maxStock;
-};
-
-const applySpecificVoucher = (voucher) => {
-  if (!activeInvoice.value) return;
-  if (!voucher.isEligible) {
-    alert(`Đơn hàng cần đạt tối thiểu ${formatMoney(getVoucherMinOrder(voucher))} để áp dụng mã này!`);
-    return;
-  }
-  const usage = getVoucherUsageState(voucher);
-  if (usage.exhausted) {
-    alert("Mã voucher này đã hết lượt sử dụng.");
-    return;
-  }
-  activeInvoice.value.voucherPreference = "auto";
-  activeInvoice.value.appliedVoucher = voucher;
-  activeInvoice.value.voucherInput = voucher.code || "";
-};
-
-const applyVoucherByInput = async () => {
-  if (!activeInvoice.value) return;
-  const code = String(activeInvoice.value.voucherInput || "").trim().toUpperCase();
-  if (!code) return;
-
-  if (activeSubtotal.value === 0) {
-    alert("Vui lòng thêm sản phẩm vào giỏ hàng trước khi nhập mã!");
-    return;
+  function requestRemoveInvoice (invoice) {
+    if (!invoice || invoice.orderId) return
+    if (!Array.isArray(invoice.cart) || invoice.cart.length === 0) {
+      removeInvoice(invoice.id)
+      return
+    }
+    invoiceRemovalTarget.value = invoice
   }
 
-  const found = processedVouchers.value.find((voucher) => String(voucher.code || "").toUpperCase() === code);
-  if (!found) {
-    alert("Mã giảm giá không tồn tại!");
-    return;
+  function cancelRemoveInvoice () {
+    invoiceRemovalTarget.value = null
   }
 
-  if (!found.isEligible) {
-    alert(`Đơn hàng cần đạt tối thiểu ${formatMoney(getVoucherMinOrder(found))} để áp dụng mã này!`);
-    return;
+  function confirmRemoveInvoice () {
+    const target = invoiceRemovalTarget.value
+    if (!target) return
+
+    const nextInvoices = invoices.value.filter(invoice => invoice.id !== target.id)
+    invoices.value = nextInvoices
+
+    if (activeInvoiceId.value === target.id) {
+      activeInvoiceId.value = nextInvoices[0]?.id || null
+    }
+
+    invoiceRemovalTarget.value = null
   }
 
-  try {
-    const validated = await voucherAPI.applyVoucher(code, activeSubtotal.value);
-    const usage = getVoucherUsageState({ ...found, ...validated });
+  function resetInvoice () {
+    const invoice = activeInvoice.value
+    if (!invoice) return
+    invoice.customer = { ...POS_DEFAULT_CUSTOMER }
+    invoice.voucherInput = ''
+    invoice.appliedVoucher = null
+    invoice.cart = []
+    invoice.paymentMethodId = 1
+    invoice.digitalPaymentMethodId = 4
+    invoice.customerPaid = 0
+    invoice.orderId = null
+    invoice.orderCode = null
+  }
+
+  function removeFromCart (cartItemId) {
+    if (!activeInvoice.value) return
+    activeInvoice.value.cart = activeInvoice.value.cart.filter(item => item.cartItemId !== cartItemId)
+  }
+
+  async function addToCart (product) {
+    if (!activeInvoice.value) return
+
+    const defaultVariant = product.variants.find(variant => Number(variant.stockQuantity || 0) > 0) || product.variants[0]
+    if (!defaultVariant || Number(defaultVariant.stockQuantity || 0) <= 0) {
+      alert('Sản phẩm này đã hết hàng!')
+      return
+    }
+
+    // Query real-time stock from backend to ensure accurate availability
+    let maxStock = Number(defaultVariant.stockQuantity || 0)
+    try {
+      const realStock = await stockApi.getVariantStock(defaultVariant.variantId)
+      if (Number(realStock) >= 0) {
+        maxStock = Number(realStock)
+      }
+    } catch (error) {
+      console.warn('POS real-time stock check failed, using local stock:', error)
+    }
+
+    if (maxStock <= 0) {
+      alert('Sản phẩm này đã hết hàng!')
+      return
+    }
+
+    const variantId = defaultVariant.variantId
+    const existing = activeInvoice.value.cart.find(item => item.variantId === variantId)
+    if (existing) {
+      if (existing.quantity >= maxStock) {
+        alert(`Không thêm được nữa, sản phẩm này chỉ còn ${maxStock} trong kho`)
+        existing.quantity = maxStock
+        return
+      }
+      existing.quantity = Math.min(existing.quantity + 1, maxStock)
+      return
+    }
+
+    activeInvoice.value.cart.push({
+      cartItemId: `${Date.now()}-${Math.random()}`,
+      product,
+      variantId,
+      quantity: 1,
+      price: Number(defaultVariant.price || 0),
+    })
+  }
+
+  function getVariant (item) {
+    return item.product.variants.find(variant => variant.variantId === item.variantId)
+      || item.product.variants[0]
+      || { price: 0, stockQuantity: 0 }
+  }
+
+  async function updateQuantity (item, change) {
+    const variant = getVariant(item)
+    let maxStock = Number(variant.stockQuantity || 0)
+    try {
+      const realStock = await stockApi.getVariantStock(item.variantId)
+      if (Number(realStock) >= 0) maxStock = Number(realStock)
+    } catch (error) {
+      console.warn('POS updateQuantity stock check failed, using local:', error)
+    }
+    const newQty = Number(item.quantity || 0) + change
+    if (newQty < 1) return
+    if (newQty > maxStock) {
+      alert(`Không thêm được nữa, sản phẩm này chỉ còn ${maxStock} trong kho`)
+      item.quantity = maxStock
+      return
+    }
+    item.quantity = newQty
+  }
+
+  async function validateQuantity (item) {
+    const variant = getVariant(item)
+    let maxStock = Number(variant.stockQuantity || 0)
+    try {
+      const realStock = await stockApi.getVariantStock(item.variantId)
+      if (Number(realStock) >= 0) maxStock = Number(realStock)
+    } catch (error) {
+      console.warn('POS validateQuantity stock check failed, using local:', error)
+    }
+    if (item.quantity < 1) item.quantity = 1
+    if (item.quantity > maxStock) {
+      alert(`Số lượng vượt quá tồn kho, chỉ còn ${maxStock}`)
+      item.quantity = maxStock
+    }
+  }
+
+  function applySpecificVoucher (voucher) {
+    if (!activeInvoice.value) return
+    if (!voucher.isEligible) {
+      alert(`Đơn hàng cần đạt tối thiểu ${formatMoney(getVoucherMinOrder(voucher))} để áp dụng mã này!`)
+      return
+    }
+    const usage = getVoucherUsageState(voucher)
     if (usage.exhausted) {
-      throw new Error("Mã voucher này đã hết lượt sử dụng.");
+      alert('Mã voucher này đã hết lượt sử dụng.')
+      return
     }
-    activeInvoice.value.voucherPreference = "auto";
-    activeInvoice.value.appliedVoucher = {
-      ...found,
-      ...validated,
-      code: validated.code || found.code || code,
-    };
-    activeInvoice.value.voucherInput = activeInvoice.value.appliedVoucher.code || code;
-  } catch (error) {
-    console.warn("Không thể xác thực voucher từ API, dùng dữ liệu gợi ý cục bộ.", error);
-    const usage = getVoucherUsageState(found);
-    if (usage.exhausted) {
-      alert("Mã voucher này đã hết lượt sử dụng.");
-      return;
+    activeInvoice.value.voucherPreference = 'auto'
+    activeInvoice.value.appliedVoucher = voucher
+    activeInvoice.value.voucherInput = voucher.code || ''
+  }
+
+  async function applyVoucherByInput () {
+    if (!activeInvoice.value) return
+    const code = String(activeInvoice.value.voucherInput || '').trim().toUpperCase()
+    if (!code) return
+
+    if (activeSubtotal.value === 0) {
+      alert('Vui lòng thêm sản phẩm vào giỏ hàng trước khi nhập mã!')
+      return
     }
-    activeInvoice.value.appliedVoucher = found;
-    activeInvoice.value.voucherInput = found.code || "";
-  }
-};
 
-const removeVoucher = () => {
-  if (!activeInvoice.value) return;
-  activeInvoice.value.voucherPreference = "none";
-  activeInvoice.value.appliedVoucher = null;
-  activeInvoice.value.voucherInput = "";
-};
-
-const formatMoney = (value) =>
-  new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(Number(value) || 0);
-
-function escapeHtml(value) {
-  return String(value ?? "").replace(/[&<>"']/g, (character) => {
-    if (character === "&") return "&amp;";
-    if (character === "<") return "&lt;";
-    if (character === ">") return "&gt;";
-    if (character === '"') return "&quot;";
-    return "&#39;";
-  });
-}
-
-function applyDefaultPosCustomer(invoice) {
-  if (!invoice) return;
-  if (!invoice.customer || typeof invoice.customer !== "object") {
-    invoice.customer = { ...POS_DEFAULT_CUSTOMER };
-    return;
-  }
-  invoice.customer.fullname = POS_DEFAULT_CUSTOMER.fullname;
-  invoice.customer.phone = POS_DEFAULT_CUSTOMER.phone;
-  invoice.customer.email = POS_DEFAULT_CUSTOMER.email;
-}
-
-function validateInvoiceBeforeSubmit(invoice) {
-  if (!invoice) {
-    return "Không tìm thấy hóa đơn hiện tại.";
-  }
-  if (!Array.isArray(invoice.cart) || invoice.cart.length === 0) {
-    return "Vui lòng thêm ít nhất một sản phẩm vào giỏ hàng.";
-  }
-  if (invoice.paymentMethodId === 1 && Number(invoice.customerPaid || 0) < activeTotal.value) {
-    return "Tiền khách đưa không đủ! Vui lòng nhập số tiền khách trả.";
-  }
-
-  for (const item of invoice.cart) {
-    const variant = getVariant(item);
-    const quantity = Number(item.quantity || 0);
-    const stockQuantity = Number(variant.stockQuantity || 0);
-    if (!variant) {
-      return "Có biến thể sản phẩm không hợp lệ trong giỏ hàng.";
+    const found = processedVouchers.value.find(voucher => String(voucher.code || '').toUpperCase() === code)
+    if (!found) {
+      alert('Mã giảm giá không tồn tại!')
+      return
     }
-    if (quantity < 1) {
-      return "Số lượng sản phẩm phải lớn hơn 0.";
+
+    if (!found.isEligible) {
+      alert(`Đơn hàng cần đạt tối thiểu ${formatMoney(getVoucherMinOrder(found))} để áp dụng mã này!`)
+      return
     }
-    if (stockQuantity > 0 && quantity > stockQuantity) {
-      return `Sản phẩm ${item.product?.productName || "đang chọn"} vượt quá tồn kho hiện tại.`;
+
+    try {
+      const validated = await voucherAPI.applyVoucher(code, activeSubtotal.value)
+      const usage = getVoucherUsageState({ ...found, ...validated })
+      if (usage.exhausted) {
+        throw new Error('Mã voucher này đã hết lượt sử dụng.')
+      }
+      activeInvoice.value.voucherPreference = 'auto'
+      activeInvoice.value.appliedVoucher = {
+        ...found,
+        ...validated,
+        code: validated.code || found.code || code,
+      }
+      activeInvoice.value.voucherInput = activeInvoice.value.appliedVoucher.code || code
+    } catch (error) {
+      console.warn('Không thể xác thực voucher từ API, dùng dữ liệu gợi ý cục bộ.', error)
+      const usage = getVoucherUsageState(found)
+      if (usage.exhausted) {
+        alert('Mã voucher này đã hết lượt sử dụng.')
+        return
+      }
+      activeInvoice.value.appliedVoucher = found
+      activeInvoice.value.voucherInput = found.code || ''
     }
   }
 
-  return "";
-}
+  function removeVoucher () {
+    if (!activeInvoice.value) return
+    activeInvoice.value.voucherPreference = 'none'
+    activeInvoice.value.appliedVoucher = null
+    activeInvoice.value.voucherInput = ''
+  }
 
-const resolveEffectivePaymentMethodId = (invoice) => {
-  if (!invoice || invoice.paymentMethodId === 1) return 1;
-  const selected = Number(invoice.digitalPaymentMethodId || 4);
-  return Number.isFinite(selected) ? selected : 4;
-};
+  function formatMoney (value) {
+    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(Number(value) || 0)
+  }
 
-function getPaymentMethodLabel(invoice) {
-  if (!invoice) return "Tiền mặt";
-  if (Number(invoice.paymentMethodId) === 1) return "Tiền mặt";
-  const selected = digitalPaymentMethods.find((method) => Number(method.id) === Number(invoice.digitalPaymentMethodId));
-  return selected ? selected.name : "Chuyển khoản";
-}
+  function escapeHtml (value) {
+    return String(value ?? '').replace(/[&<>"']/g, character => {
+      if (character === '&') return '&amp;'
+      if (character === '<') return '&lt;'
+      if (character === '>') return '&gt;'
+      if (character === '"') return '&quot;'
+      return '&#39;'
+    })
+  }
 
-function buildReceiptSnapshot(invoice, orderData, returnedOrderId, returnedOrderCode) {
-  const items = invoice.cart.map((item) => {
-    const variant = getVariant(item);
-    const price = Number(variant.price || 0);
-    const quantity = Number(item.quantity || 0);
+  function applyDefaultPosCustomer (invoice) {
+    if (!invoice) return
+    if (!invoice.customer || typeof invoice.customer !== 'object') {
+      invoice.customer = { ...POS_DEFAULT_CUSTOMER }
+      return
+    }
+    invoice.customer.fullname = POS_DEFAULT_CUSTOMER.fullname
+    invoice.customer.phone = POS_DEFAULT_CUSTOMER.phone
+    invoice.customer.email = POS_DEFAULT_CUSTOMER.email
+  }
+
+  function validateInvoiceBeforeSubmit (invoice) {
+    if (!invoice) {
+      return 'Không tìm thấy hóa đơn hiện tại.'
+    }
+    if (!Array.isArray(invoice.cart) || invoice.cart.length === 0) {
+      return 'Vui lòng thêm ít nhất một sản phẩm vào giỏ hàng.'
+    }
+    if (invoice.paymentMethodId === 1 && Number(invoice.customerPaid || 0) < activeTotal.value) {
+      return 'Tiền khách đưa không đủ! Vui lòng nhập số tiền khách trả.'
+    }
+
+    for (const item of invoice.cart) {
+      const variant = getVariant(item)
+      const quantity = Number(item.quantity || 0)
+      const stockQuantity = Number(variant.stockQuantity || 0)
+      if (!variant) {
+        return 'Có biến thể sản phẩm không hợp lệ trong giỏ hàng.'
+      }
+      if (quantity < 1) {
+        return 'Số lượng sản phẩm phải lớn hơn 0.'
+      }
+      if (stockQuantity > 0 && quantity > stockQuantity) {
+        return `Sản phẩm ${item.product?.productName || 'đang chọn'} vượt quá tồn kho hiện tại.`
+      }
+    }
+
+    return ''
+  }
+
+  function resolveEffectivePaymentMethodId (invoice) {
+    if (!invoice || invoice.paymentMethodId === 1) return 1
+    const selected = Number(invoice.digitalPaymentMethodId || 4)
+    return Number.isFinite(selected) ? selected : 4
+  }
+
+  function getPaymentMethodLabel (invoice) {
+    if (!invoice) return 'Tiền mặt'
+    if (Number(invoice.paymentMethodId) === 1) return 'Tiền mặt'
+    const selected = digitalPaymentMethods.find(method => Number(method.id) === Number(invoice.digitalPaymentMethodId))
+    return selected ? selected.name : 'Chuyển khoản'
+  }
+
+  function buildReceiptSnapshot (invoice, orderData, returnedOrderId, returnedOrderCode) {
+    const items = invoice.cart.map(item => {
+      const variant = getVariant(item)
+      const price = Number(variant.price || 0)
+      const quantity = Number(item.quantity || 0)
+      return {
+        key: item.cartItemId,
+        productName: item.product?.productName || item.product?.name || 'Sản phẩm',
+        productCode: variant.variantCode || buildVariantCode(item.product && item.product.productCode, variant.colorName, variant.sizeName), variantColor: variant.colorName, variantSize: variant.sizeName,
+        variantName: [variant.colorName, variant.sizeName].filter(Boolean).join(' / ') || 'Phiên bản mặc định',
+        quantity,
+        price,
+        lineTotal: price * quantity,
+      }
+    })
+
+    const customerPaid = Number(invoice.customerPaid || 0)
     return {
-      key: item.cartItemId,
-      productName: item.product?.productName || item.product?.name || "Sản phẩm",
-      productCode: variant.variantCode || buildVariantCode(item.product && item.product.productCode, variant.colorName, variant.sizeName), variantColor: variant.colorName, variantSize: variant.sizeName,
-      variantName: [variant.colorName, variant.sizeName].filter(Boolean).join(" / ") || "Phiên bản mặc định",
-      quantity,
-      price,
-      lineTotal: price * quantity,
-    };
-  });
+      orderId: returnedOrderId || null,
+      orderCode: returnedOrderCode || null,
+      createdAt: new Date().toISOString(),
+      customer: {
+        fullname: invoice.customer.fullname,
+        phone: invoice.customer.phone,
+        email: invoice.customer.email || '',
+      },
+      shippingAddress: orderData.shippingAddress,
+      paymentMethodLabel: getPaymentMethodLabel(invoice),
+      voucherCode: invoice.appliedVoucher ? invoice.appliedVoucher.code : null,
+      storeName: 'SportX',
+      subtotal: activeSubtotal.value,
+      discount: activeDiscount.value,
+      total: activeTotal.value,
+      customerPaid,
+      changeDue: Math.max(0, customerPaid - activeTotal.value),
+      items,
+    }
+  }
 
-  const customerPaid = Number(invoice.customerPaid || 0);
-  return {
-    orderId: returnedOrderId || null,
-    orderCode: returnedOrderCode || null,
-    createdAt: new Date().toISOString(),
-    customer: {
-      fullname: invoice.customer.fullname,
-      phone: invoice.customer.phone,
-      email: invoice.customer.email || "",
-    },
-    shippingAddress: orderData.shippingAddress,
-    paymentMethodLabel: getPaymentMethodLabel(invoice),
-    voucherCode: invoice.appliedVoucher ? invoice.appliedVoucher.code : null,
-    storeName: "SportX",
-    subtotal: activeSubtotal.value,
-    discount: activeDiscount.value,
-    total: activeTotal.value,
-    customerPaid,
-    changeDue: Math.max(0, customerPaid - activeTotal.value),
-    items,
-  };
-}
+  function printReceipt (receipt) {
+    if (!receipt) return
 
-function printReceipt(receipt) {
-  if (!receipt) return;
-
-  const receiptId = receipt.orderCode || (receipt.orderId ? `HD${receipt.orderId}` : "POS");
-  const itemRows = receipt.items
-    .map(
-      (item) => `
+    const receiptId = receipt.orderCode || (receipt.orderId ? `HD${receipt.orderId}` : 'POS')
+    const itemRows = receipt.items
+      .map(
+        item => `
         <tr>
-          <td>${escapeHtml(item.productName)}<div class="muted">Mã SP: ${escapeHtml(item.productCode || "--")}</div><div class="muted">${escapeHtml(item.variantName)}</div></td>
+          <td>${escapeHtml(item.productName)}<div class="muted">Mã SP: ${escapeHtml(item.productCode || '--')}</div><div class="muted">${escapeHtml(item.variantName)}</div></td>
           <td class="center">${escapeHtml(item.quantity)}</td>
           <td class="right">${escapeHtml(formatMoney(item.price))}</td>
           <td class="right">${escapeHtml(formatMoney(item.lineTotal))}</td>
         </tr>`,
-    )
-    .join("");
+      )
+      .join('')
 
-  const html = `
+    const html = `
     <!doctype html>
     <html>
       <head>
@@ -1182,7 +1251,7 @@ function printReceipt(receipt) {
       <body>
         <div class="sheet">
           <div class="header">
-            <div class="brand">${escapeHtml(receipt.storeName || "SportX")}</div>
+            <div class="brand">${escapeHtml(receipt.storeName || 'SportX')}</div>
             <h1>HÓA ĐƠN</h1>
             <div class="muted">HÓA ĐƠN THANH TOÁN</div>
           </div>
@@ -1190,7 +1259,7 @@ function printReceipt(receipt) {
             <div class="title-row">
               <div>
                 <div class="meta"><strong>Mã:</strong> ${escapeHtml(receiptId)}</div>
-                <div class="meta"><strong>Thời gian:</strong> ${escapeHtml(new Date(receipt.createdAt).toLocaleString("vi-VN"))}</div>
+                <div class="meta"><strong>Thời gian:</strong> ${escapeHtml(new Date(receipt.createdAt).toLocaleString('vi-VN'))}</div>
               </div>
               <span class="badge">ĐÃ THANH TOÁN</span>
             </div>
@@ -1199,7 +1268,7 @@ function printReceipt(receipt) {
           <div class="section">
             <div class="meta"><strong>Thanh toán:</strong> ${escapeHtml(receipt.paymentMethodLabel)}</div>
             <div class="meta"><strong>Địa chỉ:</strong> ${escapeHtml(receipt.shippingAddress)}</div>
-            <div class="meta"><strong>Voucher:</strong> ${escapeHtml(receipt.voucherCode || "None")}</div>
+            <div class="meta"><strong>Voucher:</strong> ${escapeHtml(receipt.voucherCode || 'None')}</div>
           </div>
           <div class="divider"></div>
           <div class="section">
@@ -1227,304 +1296,329 @@ function printReceipt(receipt) {
           <div class="footer"><strong>SportX</strong>Cảm ơn quý khách đã mua hàng</div>
         </div>
       </body>
-    </html>`;
+    </html>`
 
-  const printWindow = window.open("", "_blank", "width=420,height=760");
-  if (!printWindow) {
-    alert("Trình duyệt đã chặn cửa sổ in. Vui lòng cho phép pop-up để in hóa đơn.");
-    return;
+    const printWindow = window.open('', '_blank', 'width=420,height=760')
+    if (!printWindow) {
+      alert('Trình duyệt đã chặn cửa sổ in. Vui lòng cho phép pop-up để in hóa đơn.')
+      return
+    }
+
+    printWindow.document.open()
+    printWindow.document.write(html)
+    printWindow.document.close()
+    printWindow.focus()
+    printWindow.addEventListener('load', () => {
+      printWindow.print()
+    })
   }
 
-  printWindow.document.open();
-  printWindow.document.write(html);
-  printWindow.document.close();
-  printWindow.focus();
-  printWindow.onload = () => {
-    printWindow.print();
-  };
-}
-
-function closeReceipt() {
-  showReceipt.value = false;
-}
-
-function closePaymentDialog() {
-  paymentDialog.value = null;
-}
-
-function showPaymentDialog(config) {
-  paymentDialog.value = {
-    type: config.type || "error",
-    title: config.title || "",
-    message: config.message || "",
-    primaryLabel: config.primaryLabel || "Tiếp tục",
-    secondaryLabel: config.secondaryLabel || "Đóng",
-    details: config.details || null,
-    onPrimary: typeof config.onPrimary === "function" ? config.onPrimary : null,
-  };
-}
-
-function handlePaymentDialogPrimary() {
-  const dialog = paymentDialog.value;
-  if (dialog?.onPrimary) {
-    dialog.onPrimary();
+  function closeReceipt () {
+    showReceipt.value = false
   }
-  paymentDialog.value = null;
-}
 
-const processOrder = async (invoice) => {
-  if (!invoice) return;
+  function closePaymentDialog () {
+    paymentDialog.value = null
+  }
 
-  applyDefaultPosCustomer(invoice);
+  function showPaymentDialog (config) {
+    paymentDialog.value = {
+      type: config.type || 'error',
+      title: config.title || '',
+      message: config.message || '',
+      primaryLabel: config.primaryLabel || 'Tiếp tục',
+      secondaryLabel: config.secondaryLabel || 'Đóng',
+      details: config.details || null,
+      onPrimary: typeof config.onPrimary === 'function' ? config.onPrimary : null,
+    }
+  }
 
-  isProcessing.value = true;
-  try {
-    let adminId = 1;
+  function handlePaymentDialogPrimary () {
+    const dialog = paymentDialog.value
+    if (dialog?.onPrimary) {
+      dialog.onPrimary()
+    }
+    paymentDialog.value = null
+  }
+
+  async function processOrder (invoice) {
+    if (!invoice) return
+
+    applyDefaultPosCustomer(invoice)
+
+    // ── STOCK VALIDATION: Kiểm tra tồn kho trước khi tạo đơn POS ──
+    const stockCheckItems = invoice.cart.map(item => {
+      const variant = getVariant(item)
+      return {
+        variantId: item.variantId,
+        quantity: Number(item.quantity || 0),
+        productName: item.product?.productName || item.product?.name || 'Sản phẩm',
+      }
+    })
     try {
-      const userString = localStorage.getItem("user");
-      if (userString) {
-        const userObject = JSON.parse(userString);
-        adminId = Number(userObject.id || userObject.accountId || userObject.account_id || 1);
+      const stockResult = await stockApi.checkStock(stockCheckItems)
+      if (!stockResult.valid) {
+        const errorMsg = stockResult.errors.map(e => e.message).join('\n')
+        showPaymentDialog({
+          type: 'error',
+          title: 'Hết hàng',
+          message: `Một số sản phẩm không còn đủ tồn kho:\n${errorMsg}`,
+          primaryLabel: 'Quay lại sửa',
+          secondaryLabel: 'Đóng',
+        })
+        return
       }
     } catch (error) {
-      console.warn("Không lấy được user từ localStorage", error);
+      console.warn('POS stock check failed, proceeding:', error)
     }
+    // ── End STOCK VALIDATION ──
 
-    const orderData = {
-      accountId: adminId,
-      orderSource: "POS",
-      salesChannel: "IN_STORE",
-      fullname: invoice.customer.fullname,
-      phone: invoice.customer.phone,
-      email: invoice.customer.email || "khachle@peakseven.com",
-      shippingAddress: "Mua trực tiếp tại cửa hàng",
-      paymentMethodId: resolveEffectivePaymentMethodId(invoice),
-      voucherCode: invoice.appliedVoucher ? invoice.appliedVoucher.code : null,
-      items: invoice.cart.map((item) => ({
-        variantId: item.variantId,
-        price: Number(getVariant(item).price || 0),
-        quantity: Number(item.quantity || 0),
-      })),
-    };
-
-    const token = localStorage.getItem("token");
-    const headers = {
-      Authorization: token ? `Bearer ${token}` : "",
-      "Content-Type": "application/json",
-    };
-
-    const response = await axios.post("http://localhost:8080/api/orders", orderData, { headers });
-    const returnedOrderId = response.data?.orderId || response.data?.id || null;
-    const returnedOrderCode = response.data?.orderCode || (returnedOrderId ? `HD${returnedOrderId}` : null);
-
-    if (returnedOrderId) {
-      invoice.orderId = returnedOrderId;
-      invoice.orderCode = returnedOrderCode;
-      await axios.put(
-        `http://localhost:8080/api/orders/${returnedOrderId}`,
-        { status: "SUCCESS", paymentStatus: "PAID" },
-        { headers },
-      );
-    }
-
-    lastReceipt.value = buildReceiptSnapshot(invoice, orderData, returnedOrderId, returnedOrderCode);
-    showReceipt.value = true;
-  } catch (error) {
-    console.error("Lỗi thanh toán:", error);
-    const message = error.response?.data?.message || error.message || "Không xác định";
-    showPaymentDialog({
-      type: "error",
-      title: "Thanh toán thất bại",
-      message,
-      primaryLabel: "Đóng",
-      secondaryLabel: "Đóng",
-    });
-  } finally {
-    isProcessing.value = false;
-  }
-};
-
-const handlePlaceOrder = async () => {
-  const invoice = activeInvoice.value;
-  if (!invoice) return;
-
-  const validationMessage = validateInvoiceBeforeSubmit(invoice);
-  if (validationMessage) {
-    showPaymentDialog({
-      type: "error",
-      title: "Kiểm tra thông tin trước khi thanh toán",
-      message: validationMessage,
-      primaryLabel: "Quay lại sửa",
-      secondaryLabel: "Đóng",
-    });
-    return;
-  }
-
-  showPaymentDialog({
-    type: "confirm",
-    title: "Xác nhận tạo hóa đơn",
-    message: "Bạn có chắc chắn muốn tạo đơn này không?",
-    primaryLabel: "Tạo đơn",
-    secondaryLabel: "Quay lại sửa",
-    details: {
-      total: activeTotal.value,
-      itemCount: invoice.cart.length,
-    },
-    onPrimary: () => {
-      void processOrder(invoice);
-    },
-  });
-};
-const startQrScanner = () => {
-  if (!inventoryVariants.value.length) {
-    alert("Dữ liệu sản phẩm chưa được tải, vui lòng thử lại sau.");
-    return;
-  }
-
-  if (qrScanner.value) {
-    stopQrScanner();
-  }
-
-  qrScannerVisible.value = true;
-  qrScanError.value = "";
-  isScannerStopping = false;
-
-  nextTick(() => {
-    const element = document.getElementById("qr-reader");
-    if (!element) {
-      qrScanError.value = "Không tìm thấy phần tử quét QR.";
-      return;
-    }
-
-    element.innerHTML = "";
-
+    isProcessing.value = true
     try {
-      const scanner = new Html5Qrcode("qr-reader");
-      qrScanner.value = scanner;
+      let adminId = 1
+      try {
+        const userString = localStorage.getItem('user')
+        if (userString) {
+          const userObject = JSON.parse(userString)
+          adminId = Number(userObject.id || userObject.accountId || userObject.account_id || 1)
+        }
+      } catch (error) {
+        console.warn('Không lấy được user từ localStorage', error)
+      }
 
-      const config = {
-        fps: 20,
-        qrbox: { width: 250, height: 250 },
-        aspectRatio: 1.0,
-        supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA],
-      };
+      const orderData = {
+        accountId: adminId,
+        orderSource: 'POS',
+        salesChannel: 'IN_STORE',
+        fullname: invoice.customer.fullname,
+        phone: invoice.customer.phone,
+        email: invoice.customer.email || 'khachle@peakseven.com',
+        shippingAddress: 'Mua trực tiếp tại cửa hàng',
+        paymentMethodId: resolveEffectivePaymentMethodId(invoice),
+        voucherCode: invoice.appliedVoucher ? invoice.appliedVoucher.code : null,
+        items: invoice.cart.map(item => ({
+          variantId: item.variantId,
+          price: Number(getVariant(item).price || 0),
+          quantity: Number(item.quantity || 0),
+        })),
+      }
 
-      scanner.start(
-        { facingMode: "environment" },
-        config,
-        onQrScanSuccess,
-        onQrScanError
-      ).catch((err) => {
-        qrScanError.value = "Không thể khởi tạo camera: " + err.message;
-        console.error(err);
-        qrScannerVisible.value = false;
-        qrScanner.value = null;
-      });
-    } catch (err) {
-      qrScanError.value = "Lỗi tạo scanner: " + err.message;
-      console.error(err);
-      qrScannerVisible.value = false;
-    }
-  });
-};
+      const token = localStorage.getItem('token')
+      const headers = {
+        'Authorization': token ? `Bearer ${token}` : '',
+        'Content-Type': 'application/json',
+      }
 
-const stopQrScanner = async () => {
-  if (isScannerStopping) return;
-  isScannerStopping = true;
+      const response = await axios.post('http://localhost:8080/api/orders', orderData, { headers })
+      const returnedOrderId = response.data?.orderId || response.data?.id || null
+      const returnedOrderCode = response.data?.orderCode || (returnedOrderId ? `HD${returnedOrderId}` : null)
 
-  const scanner = qrScanner.value;
-  qrScanner.value = null; 
+      if (returnedOrderId) {
+        invoice.orderId = returnedOrderId
+        invoice.orderCode = returnedOrderCode
+        await axios.put(
+          `http://localhost:8080/api/orders/${returnedOrderId}`,
+          { status: 'SUCCESS', paymentStatus: 'PAID' },
+          { headers },
+        )
+      }
 
-  if (scanner) {
-    try {
-      await scanner.stop().catch(() => {});
-      await scanner.clear().catch(() => {});
-    } catch (err) {
-    }
-  }
+      lastReceipt.value = buildReceiptSnapshot(invoice, orderData, returnedOrderId, returnedOrderCode)
+      showReceipt.value = true
 
-  isScannerStopping = false;
-  qrScannerVisible.value = false;
-};
-
-const onQrScanSuccess = async (decodedText) => {
-  await stopQrScanner();
-  handleQrData(decodedText);
-};
-
-const onQrScanError = () => {};
-
-const handleQrData = (decodedText) => {
-  if (!decodedText) return;
-
-  const rawText = decodedText.trim().replace(/\/+$/, "");
-
-  let productId = null;
-  const match = rawText.match(/(\d+)$/);
-
-  if (match) {
-    productId = Number(match[1]);
-  } else {
-    productId = Number(rawText);
-  }
-
-  if (!productId || isNaN(productId) || productId <= 0) {
-    alert("Mã QR không hợp lệ (không tìm thấy ID sản phẩm).");
-    return;
-  }
-
-  let foundProduct = null;
-  for (const product of inventoryVariants.value) {
-    if (Number(product.productId) === productId || Number(product.id) === productId) {
-      foundProduct = product;
-      break;
+      // Refresh inventory to update stock numbers after order
+      refreshInventory().catch(() => {})
+    } catch (error) {
+      console.error('Lỗi thanh toán:', error)
+      const message = error.response?.data?.message || error.message || 'Không xác định'
+      showPaymentDialog({
+        type: 'error',
+        title: 'Thanh toán thất bại',
+        message,
+        primaryLabel: 'Đóng',
+        secondaryLabel: 'Đóng',
+      })
+    } finally {
+      isProcessing.value = false
     }
   }
 
-  if (!foundProduct) {
-    alert(`Không tìm thấy sản phẩm với ID #${productId}.`);
-    return;
+  async function handlePlaceOrder () {
+    const invoice = activeInvoice.value
+    if (!invoice) return
+
+    const validationMessage = validateInvoiceBeforeSubmit(invoice)
+    if (validationMessage) {
+      showPaymentDialog({
+        type: 'error',
+        title: 'Kiểm tra thông tin trước khi thanh toán',
+        message: validationMessage,
+        primaryLabel: 'Quay lại sửa',
+        secondaryLabel: 'Đóng',
+      })
+      return
+    }
+
+    showPaymentDialog({
+      type: 'confirm',
+      title: 'Xác nhận tạo hóa đơn',
+      message: 'Bạn có chắc chắn muốn tạo đơn này không?',
+      primaryLabel: 'Tạo đơn',
+      secondaryLabel: 'Quay lại sửa',
+      details: {
+        total: activeTotal.value,
+        itemCount: invoice.cart.length,
+      },
+      onPrimary: () => {
+        void processOrder(invoice)
+      },
+    })
+  }
+  function startQrScanner () {
+    if (inventoryVariants.value.length === 0) {
+      alert('Dữ liệu sản phẩm chưa được tải, vui lòng thử lại sau.')
+      return
+    }
+
+    if (qrScanner.value) {
+      stopQrScanner()
+    }
+
+    qrScannerVisible.value = true
+    qrScanError.value = ''
+    isScannerStopping = false
+
+    nextTick(() => {
+      const element = document.querySelector('#qr-reader')
+      if (!element) {
+        qrScanError.value = 'Không tìm thấy phần tử quét QR.'
+        return
+      }
+
+      element.innerHTML = ''
+
+      try {
+        const scanner = new Html5Qrcode('qr-reader')
+        qrScanner.value = scanner
+
+        const config = {
+          fps: 20,
+          qrbox: { width: 250, height: 250 },
+          aspectRatio: 1,
+          supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA],
+        }
+
+        scanner.start(
+          { facingMode: 'environment' },
+          config,
+          onQrScanSuccess,
+          onQrScanError,
+        ).catch(error => {
+          qrScanError.value = 'Không thể khởi tạo camera: ' + error.message
+          console.error(error)
+          qrScannerVisible.value = false
+          qrScanner.value = null
+        })
+      } catch (error) {
+        qrScanError.value = 'Lỗi tạo scanner: ' + error.message
+        console.error(error)
+        qrScannerVisible.value = false
+      }
+    })
   }
 
-  addToCart(foundProduct);
-};
+  async function stopQrScanner () {
+    if (isScannerStopping) return
+    isScannerStopping = true
 
-function toList(rawValue) {
-  if (Array.isArray(rawValue)) return rawValue;
-  if (rawValue == null) return [];
-  if (Array.isArray(rawValue.data)) return rawValue.data;
-  if (Array.isArray(rawValue.content)) return rawValue.content;
-  if (Array.isArray(rawValue.items)) return rawValue.items;
-  if (rawValue.data && Array.isArray(rawValue.data.content)) return rawValue.data.content;
-  if (rawValue.data && Array.isArray(rawValue.data.items)) return rawValue.data.items;
-  return [rawValue];
-}
+    const scanner = qrScanner.value
+    qrScanner.value = null
 
-function createNewInvoice() {
-  return {
-    id: Date.now() + Math.floor(Math.random() * 10000),
-    number: nextInvoiceNumber++,
-    orderId: null,
-    orderCode: null,
-    customer: {
-      ...POS_DEFAULT_CUSTOMER,
-    },
-    voucherInput: "",
-    appliedVoucher: null,
-    voucherPreference: "auto",
-    cart: [],
-    paymentMethodId: 1,
-    digitalPaymentMethodId: 4,
-    customerPaid: 0,
-  };
-}
+    if (scanner) {
+      try {
+        await scanner.stop().catch(() => {})
+        await scanner.clear().catch(() => {})
+      } catch {}
+    }
 
-const digitalPaymentMethods = [
-  { id: 2, name: "VNPay" },
-  { id: 3, name: "Momo" },
-  { id: 4, name: "Chuyển khoản ngân hàng" },
-  { id: 5, name: "ZaloPay" },
-];
+    isScannerStopping = false
+    qrScannerVisible.value = false
+  }
+
+  async function onQrScanSuccess (decodedText) {
+    await stopQrScanner()
+    handleQrData(decodedText)
+  }
+
+  function onQrScanError () {}
+
+  function handleQrData (decodedText) {
+    if (!decodedText) return
+
+    const rawText = decodedText.trim().replace(/\/+$/, '')
+
+    let productId = null
+    const match = rawText.match(/(\d+)$/)
+
+    productId = match ? Number(match[1]) : Number(rawText)
+
+    if (!productId || isNaN(productId) || productId <= 0) {
+      alert('Mã QR không hợp lệ (không tìm thấy ID sản phẩm).')
+      return
+    }
+
+    let foundProduct = null
+    for (const product of inventoryVariants.value) {
+      if (Number(product.productId) === productId || Number(product.id) === productId) {
+        foundProduct = product
+        break
+      }
+    }
+
+    if (!foundProduct) {
+      alert(`Không tìm thấy sản phẩm với ID #${productId}.`)
+      return
+    }
+
+    addToCart(foundProduct)
+  }
+
+  function toList (rawValue) {
+    if (Array.isArray(rawValue)) return rawValue
+    if (rawValue == null) return []
+    if (Array.isArray(rawValue.data)) return rawValue.data
+    if (Array.isArray(rawValue.content)) return rawValue.content
+    if (Array.isArray(rawValue.items)) return rawValue.items
+    if (rawValue.data && Array.isArray(rawValue.data.content)) return rawValue.data.content
+    if (rawValue.data && Array.isArray(rawValue.data.items)) return rawValue.data.items
+    return [rawValue]
+  }
+
+  function createNewInvoice () {
+    return {
+      id: Date.now() + Math.floor(Math.random() * 10_000),
+      number: nextInvoiceNumber++,
+      orderId: null,
+      orderCode: null,
+      customer: {
+        ...POS_DEFAULT_CUSTOMER,
+      },
+      voucherInput: '',
+      appliedVoucher: null,
+      voucherPreference: 'auto',
+      cart: [],
+      paymentMethodId: 1,
+      digitalPaymentMethodId: 4,
+      customerPaid: 0,
+    }
+  }
+
+  const digitalPaymentMethods = [
+    { id: 2, name: 'VNPay' },
+    { id: 3, name: 'Momo' },
+    { id: 4, name: 'Chuyển khoản ngân hàng' },
+    { id: 5, name: 'ZaloPay' },
+  ]
 </script>
 
 <style scoped>
@@ -1553,4 +1647,3 @@ const digitalPaymentMethods = [
   appearance: textfield;
 }
 </style>
-

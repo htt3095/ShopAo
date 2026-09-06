@@ -15,6 +15,25 @@
               {{ cartCount }} sản phẩm trong giỏ
             </p>
           </div>
+
+          <div
+            v-if="stockError"
+            class="flex items-start gap-3 rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700 "
+          >
+            <span class="material-symbols-outlined text-[20px] mt-0.5">warning</span>
+            <div class="flex-1">
+              <p class="font-semibold">Không đủ hàng trong kho</p>
+              <p class="mt-0.5">{{ stockError }}</p>
+            </div>
+            <button
+              class="text-red-400 hover:text-red-600"
+              type="button"
+              aria-label="Đóng cảnh báo"
+              @click="stockError = ''"
+            >
+              <span class="material-symbols-outlined text-[18px]">close</span>
+            </button>
+          </div>
           <div class="flex flex-col gap-4">
             <div
               v-for="item in cartItems"
@@ -46,12 +65,10 @@
                     <div class="flex gap-3 mt-2">
                       <span
                         class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-slate-100  text-slate-800 "
-                        >Size: {{ getSizeLabel(item) }}</span
-                      >
+                      >Size: {{ getSizeLabel(item) }}</span>
                       <span
                         class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-slate-100  text-slate-800 "
-                        >Màu: {{ getColorLabel(item) }}</span
-                      >
+                      >Màu: {{ getColorLabel(item) }}</span>
                     </div>
                   </div>
                   <div class="text-right">
@@ -72,40 +89,20 @@
                     type="button"
                     @click="removeItem(item)"
                   >
-                    <span class="material-symbols-outlined text-[18px]"
-                      >delete</span
-                    >
+                    <span class="material-symbols-outlined text-[18px]">delete</span>
                     Xóa
                   </button>
-                  <div
-                    class="flex items-center bg-slate-100  rounded-lg p-1"
-                  >
-                    <button
-                      class="size-8 flex items-center justify-center rounded-md hover:bg-white :bg-[#111418] text-slate-600  transition-colors disabled:opacity-60"
-                      :disabled="item.quantity <= 1"
-                      type="button"
-                      @click="decrement(item)"
-                    >
-                      <span class="material-symbols-outlined text-[16px]"
-                        >remove</span
-                      >
-                    </button>
+                  <div class="flex items-center gap-2">
+                    <label class="text-sm text-slate-500 ">SL:</label>
                     <input
-                      class="w-10 bg-transparent text-center text-sm font-medium text-slate-900  border-none focus:ring-0 p-0"
+                      class="w-16 rounded-lg border border-slate-300  bg-transparent text-center text-sm font-medium text-slate-900  focus:border-primary focus:ring-primary/30 focus:outline-none p-1.5"
                       min="1"
                       type="number"
                       :value="item.quantity"
+                      :max="item.stockAvailable || item.stockQuantity || undefined"
                       @change="(e) => setQuantity(item, e.target.value)"
-                    />
-                    <button
-                      class="size-8 flex items-center justify-center rounded-md hover:bg-white :bg-[#111418] text-slate-600  transition-colors"
-                      type="button"
-                      @click="increment(item)"
                     >
-                      <span class="material-symbols-outlined text-[16px]"
-                        >add</span
-                      >
-                    </button>
+                    <span class="text-xs text-slate-400 ">/ {{ item.stockAvailable || item.stockQuantity || '--' }}</span>
                   </div>
                 </div>
               </div>
@@ -151,33 +148,29 @@
                   Phí vận chuyển sẽ được hệ thống tính tự động ở bước thanh toán theo địa chỉ nhận hàng.
                 </div>
 
-
                 <div
                   v-if="discountAmount > 0"
                   class="flex justify-between text-green-500 animate-pulse"
                 >
                   <span>Giảm giá</span>
-                  <span class="font-bold"
-                    >-{{ formatMoney(discountAmount) }}</span
-                  >
+                  <span class="font-bold">-{{ formatMoney(discountAmount) }}</span>
                 </div>
               </div>
               <div class="flex justify-between items-center py-6">
-                <span class="text-lg font-bold text-slate-900 "
-                  >Tổng thanh toán</span
-                >
+                <span class="text-lg font-bold text-slate-900 ">Tổng thanh toán</span>
                 <span
                   class="text-2xl font-black text-slate-900 "
-                  >{{ formatMoney(total) }}</span
-                >
+                >{{ formatMoney(total) }}</span>
               </div>
-              <router-link
-                class="w-full bg-primary hover:bg-blue-600 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg shadow-blue-500/20 transition-all transform active:scale-[0.98] flex justify-center items-center gap-2"
-                :to="checkoutRoute"
+              <button
+                class="w-full bg-primary hover:bg-blue-600 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg shadow-blue-500/20 transition-all transform active:scale-[0.98] flex justify-center items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+                :disabled="isLoadingCheckout"
+                type="button"
+                @click="proceedToCheckout"
               >
                 <span class="material-symbols-outlined text-[20px]">lock</span>
-                {{ checkoutButtonLabel }}
-              </router-link>
+                {{ isLoadingCheckout ? 'Đang kiểm tra tồn kho...' : checkoutButtonLabel }}
+              </button>
 
               <div class="mt-4 text-center">
                 <p class="text-xs text-slate-400">
@@ -193,221 +186,231 @@
 </template>
 
 <script setup>
-import { computed, ref, onMounted, watch } from "vue";
-import { useCartStore } from "@/stores/cart";
-import { voucherAPI, orderUtils } from "@/services/orders";
-import { resolveColorMeta, resolveSizeMeta } from "@/utils/variantValues";
-import { normalizeAppliedVoucher } from "@/utils/voucherValues";
+  import { computed, onMounted, ref, watch } from 'vue'
+  import { useRouter } from 'vue-router'
+  import { orderUtils, voucherAPI } from '@/services/orders'
+  import { useCartStore } from '@/stores/cart'
+  import { resolveColorMeta, resolveSizeMeta } from '@/utils/variantValues'
+  import { normalizeAppliedVoucher } from '@/utils/voucherValues'
+  import { stockApi } from '@/services/api'
 
-const cartStore = useCartStore();
-const currentUser = ref(null);
-const currentAccountId = ref(null);
-const isLoading = ref(false);
+  const router = useRouter()
+  const cartStore = useCartStore()
+  const currentUser = ref(null)
+  const currentAccountId = ref(null)
+  const isLoading = ref(false)
+  const isLoadingCheckout = ref(false)
 
-function getAccountId(user) {
-  const source = user && typeof user === "object" ? user : {};
-  const candidate =
-    source.accountId !== undefined && source.accountId !== null
-      ? source.accountId
-      : source.account_id !== undefined && source.account_id !== null
-        ? source.account_id
-        : source.id;
-  const n = Number(candidate);
-  return Number.isFinite(n) && n > 0 ? n : null;
-}
+  function getAccountId (user) {
+    const source = user && typeof user === 'object' ? user : {}
+    const candidate
+      = source.accountId !== undefined && source.accountId !== null
+        ? source.accountId
+        : (source.account_id !== undefined && source.account_id !== null
+          ? source.account_id
+          : source.id)
+    const n = Number(candidate)
+    return Number.isFinite(n) && n > 0 ? n : null
+  }
 
-onMounted(() => {
-  const userData = localStorage.getItem("user");
-  if (userData) {
+  onMounted(() => {
+    const userData = localStorage.getItem('user')
+    if (userData) {
+      try {
+        currentUser.value = JSON.parse(userData)
+      } catch {
+        currentUser.value = null
+      }
+
+      currentAccountId.value = getAccountId(currentUser.value)
+      if (currentAccountId.value !== null) {
+        cartStore.accountId = currentAccountId.value
+        cartStore.loadCartFromBackend(currentAccountId.value)
+        return
+      }
+    }
+
+    currentAccountId.value = null
+    cartStore.accountId = null
+    cartStore.clearCart()
+  })
+
+  const voucherInput = ref('')
+  const voucherData = ref(null)
+  const voucherMessage = ref('')
+  const isVoucherError = ref(false)
+  const stockError = ref('')
+
+  const cartItems = computed(() => cartStore.cartItems)
+  const cartCount = computed(() => cartStore.cartCount)
+
+  const subtotal = computed(() => cartStore.cartTotal)
+  const shipping = computed(() => 0)
+  const discountAmount = computed(() => {
+    return voucherData.value?.discountAmount || 0
+  })
+  const total = computed(() =>
+    Math.max(
+      0,
+      subtotal.value + shipping.value - discountAmount.value,
+    ),
+  )
+
+  const checkoutButtonLabel = computed(() => {
+    return currentAccountId.value === null
+      ? 'Đăng nhập để thanh toán'
+      : 'Tiến hành thanh toán'
+  })
+
+  function getSizeLabel (item) {
+    return resolveSizeMeta({ id: item.sizeId, name: item.sizeName }).name || '--'
+  }
+
+  function getColorLabel (item) {
+    return (
+      resolveColorMeta({
+        id: item.colorId,
+        name: item.colorName,
+        hexCode: item.colorHexCode,
+      }).name || '--'
+    )
+  }
+
+  async function applyVoucherByCode (codeOverride = '', options = {}) {
+    const code = String(codeOverride || voucherInput.value || '').trim()
+    if (!code) {
+      if (!options.silent) {
+        voucherMessage.value = 'Vui lòng nhập mã giảm giá'
+        isVoucherError.value = true
+      }
+      return
+    }
+
     try {
-      currentUser.value = JSON.parse(userData);
-    } catch {
-      currentUser.value = null;
+      isLoading.value = true
+      const response = await voucherAPI.applyVoucher(code, subtotal.value)
+      const normalized = normalizeAppliedVoucher(response, code)
+
+      voucherData.value = normalized
+      voucherInput.value = normalized.code || code
+
+      if (!options.silent) {
+        voucherMessage.value = `Đã áp dụng mã ${voucherInput.value} thành công!`
+      }
+      isVoucherError.value = false
+    } catch (error) {
+      voucherData.value = null
+      if (!options.silent) {
+        voucherMessage.value = error.message || 'Mã không hợp lệ'
+        isVoucherError.value = true
+      }
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  async function applyVoucher () {
+    await applyVoucherByCode(voucherInput.value, { silent: false })
+  }
+
+  watch(subtotal, async (next, previous) => {
+    if (next === previous) return
+
+    const code = voucherData.value?.code
+    if (!code) return
+
+    if (next <= 0) {
+      voucherData.value = null
+      voucherMessage.value = ''
+      isVoucherError.value = false
+      return
     }
 
-    currentAccountId.value = getAccountId(currentUser.value);
-    if (currentAccountId.value !== null) {
-      cartStore.accountId = currentAccountId.value;
-      cartStore.loadCartFromBackend(currentAccountId.value);
-      return;
+    await applyVoucherByCode(code, { silent: true })
+  })
+
+  function formatMoney (n) {
+    return orderUtils.formatPrice(n)
+  }
+
+  function shouldUseBackendItem (item) {
+    return Boolean(currentAccountId.value && !item.isLocalOnly)
+  }
+
+  async function removeItem (item) {
+    if (shouldUseBackendItem(item)) {
+      await cartStore.removeFromCartBackend(item.cartItemId || item.id)
+    } else {
+      cartStore.removeFromCart(item.variantId)
     }
   }
 
-  currentAccountId.value = null;
-  cartStore.accountId = null;
-  cartStore.clearCart();
-});
-
-const voucherInput = ref("");
-const voucherData = ref(null);
-const voucherMessage = ref("");
-const isVoucherError = ref(false);
-
-const cartItems = computed(() => cartStore.cartItems);
-const cartCount = computed(() => cartStore.cartCount);
-
-const subtotal = computed(() => cartStore.cartTotal);
-const shipping = computed(() => 0);
-const discountAmount = computed(() => {
-  return voucherData.value?.discountAmount || 0;
-});
-const total = computed(() =>
-  Math.max(
-    0,
-    subtotal.value + shipping.value - discountAmount.value,
-  ),
-);
-
-const checkoutRoute = computed(() => {
-  if (currentAccountId.value === null) {
-    return {
-      name: "login",
-      query: {
-        redirect: "/checkout",
-      },
-    };
-  }
-
-  const code = voucherData.value?.code || "";
-  if (!code) {
-    return { name: "checkout" };
-  }
-  return {
-    name: "checkout",
-    query: {
-      voucher: code,
-    },
-  };
-});
-
-const checkoutButtonLabel = computed(() => {
-  return currentAccountId.value === null
-    ? "Đăng nhập để thanh toán"
-    : "Tiến hành thanh toán";
-});
-
-function getSizeLabel(item) {
-  return resolveSizeMeta({ id: item.sizeId, name: item.sizeName }).name || "--";
-}
-
-function getColorLabel(item) {
-  return (
-    resolveColorMeta({
-      id: item.colorId,
-      name: item.colorName,
-      hexCode: item.colorHexCode,
-    }).name || "--"
-  );
-}
-
-async function applyVoucherByCode(codeOverride = "", options = {}) {
-  const code = String(codeOverride || voucherInput.value || "").trim();
-  if (!code) {
-    if (!options.silent) {
-      voucherMessage.value = "Vui lòng nhập mã giảm giá";
-      isVoucherError.value = true;
+  async function setQuantity (item, raw) {
+    const qty = Number.parseInt(raw, 10)
+    if (!Number.isFinite(qty) || qty <= 0) {
+      stockError.value = ''
+      await cartStore.loadCartFromBackend(currentAccountId.value)
+      return
     }
-    return;
-  }
 
-  try {
-    isLoading.value = true;
-    const response = await voucherAPI.applyVoucher(code, subtotal.value);
-    const normalized = normalizeAppliedVoucher(response, code);
-
-    voucherData.value = normalized;
-    voucherInput.value = normalized.code || code;
-
-    if (!options.silent) {
-      voucherMessage.value = `Đã áp dụng mã ${voucherInput.value} thành công!`;
+    const available = Number(item.stockAvailable || item.stockQuantity || 0)
+    if (available > 0 && qty > available) {
+      stockError.value = `Số lượng của "${item.productName}" vượt quá tồn kho (chỉ còn ${available}). Vui lòng giảm số lượng.`
+      isVoucherError.value = true
+      // Reject the change: keep the previous quantity in cart
+      if (shouldUseBackendItem(item)) {
+        await cartStore.loadCartFromBackend(currentAccountId.value)
+      } else {
+        cartStore.updateCartItemQuantity(item.variantId, item.quantity)
+      }
+      return
     }
-    isVoucherError.value = false;
-  } catch (error) {
-    voucherData.value = null;
-    if (!options.silent) {
-      voucherMessage.value = error.message || "Mã không hợp lệ";
-      isVoucherError.value = true;
+
+    if (shouldUseBackendItem(item)) {
+      await cartStore.updateCartItemBackend(item.cartItemId || item.id, qty)
+    } else {
+      cartStore.updateCartItemQuantity(item.variantId, qty)
     }
-  } finally {
-    isLoading.value = false;
-  }
-}
-
-async function applyVoucher() {
-  await applyVoucherByCode(voucherInput.value, { silent: false });
-}
-
-watch(subtotal, async (next, previous) => {
-  if (next === previous) return;
-
-  const code = voucherData.value?.code;
-  if (!code) return;
-
-  if (next <= 0) {
-    voucherData.value = null;
-    voucherMessage.value = "";
-    isVoucherError.value = false;
-    return;
+    stockError.value = ''
+    isVoucherError.value = false
   }
 
-  await applyVoucherByCode(code, { silent: true });
-});
+  async function proceedToCheckout () {
+    if (currentAccountId.value === null) {
+      router.push({ name: 'login', query: { redirect: '/checkout' } })
+      return
+    }
 
-function formatMoney(n) {
-  return orderUtils.formatPrice(n);
-}
+    if (cartStore.cartItems.length === 0) return
 
-function shouldUseBackendItem(item) {
-  return Boolean(currentAccountId.value && !item.isLocalOnly);
-}
+    // Validate real-time stock before moving to checkout
+    isLoadingCheckout.value = true
+    stockError.value = ''
+    try {
+      const items = cartStore.cartItems.map((item) => ({
+        variantId: item.variantId || item.variant_id || (item.variant && item.variant.id),
+        quantity: item.quantity,
+        productName: item.productName,
+      }))
+      const result = await stockApi.checkStock(items)
 
-async function removeItem(item) {
-  if (shouldUseBackendItem(item)) {
-    await cartStore.removeFromCartBackend(item.cartItemId || item.id);
-  } else {
-    cartStore.removeFromCart(item.variantId);
-  }
-}
+      if (!result.valid) {
+        const messages = result.errors.map((e) => e.message).join(' ')
+        stockError.value = messages
+        isVoucherError.value = true
+        // Refresh to get correct available stock numbers
+        await cartStore.loadCartFromBackend(currentAccountId.value)
+        return
+      }
 
-async function increment(item) {
-  const newQty = item.quantity + 1;
-  if (newQty > item.stockAvailable) {
-    voucherMessage.value = "Số lượng vượt quá tồn kho";
-    isVoucherError.value = true;
-    return;
+      const code = voucherData.value?.code || ''
+      router.push({ name: 'checkout', query: code ? { voucher: code } : {} })
+    } catch (error) {
+      console.error('Stock check before checkout failed:', error)
+      stockError.value = error?.message || 'Không thể kiểm tra tồn kho, vui lòng thử lại.'
+      isVoucherError.value = true
+    } finally {
+      isLoadingCheckout.value = false
+    }
   }
-  if (shouldUseBackendItem(item)) {
-    await cartStore.updateCartItemBackend(item.cartItemId || item.id, newQty);
-  } else {
-    cartStore.updateCartItemQuantity(item.variantId, newQty);
-  }
-}
-
-async function decrement(item) {
-  const newQty = item.quantity - 1;
-  if (newQty <= 0) {
-    await removeItem(item);
-    return;
-  }
-  if (shouldUseBackendItem(item)) {
-    await cartStore.updateCartItemBackend(item.cartItemId || item.id, newQty);
-  } else {
-    cartStore.updateCartItemQuantity(item.variantId, newQty);
-  }
-}
-
-async function setQuantity(item, raw) {
-  const qty = Number.parseInt(raw, 10);
-  if (!Number.isFinite(qty) || qty <= 0) return;
-  if (qty > (item.stockAvailable || item.stockQuantity)) {
-    voucherMessage.value = "Số lượng vượt quá tồn kho";
-    isVoucherError.value = true;
-    return;
-  }
-  if (shouldUseBackendItem(item)) {
-    await cartStore.updateCartItemBackend(item.cartItemId || item.id, qty);
-  } else {
-    cartStore.updateCartItemQuantity(item.variantId, qty);
-  }
-}
 </script>

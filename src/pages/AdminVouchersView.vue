@@ -11,8 +11,8 @@
 
         <div class="flex flex-wrap items-center gap-2">
           <button
-            type="button"
             class="inline-flex items-center gap-1.5 rounded-xl bg-primary px-3 py-1.5 text-sm font-semibold text-white hover:opacity-90"
+            type="button"
             @click="openCreate"
           >
             <span class="material-symbols-outlined text-[18px]">add</span>
@@ -20,8 +20,8 @@
           </button>
 
           <button
-            type="button"
             class="inline-flex items-center gap-1.5  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-1.5 text-sm font-medium hover:border-primary hover:text-primary "
+            type="button"
             @click="loadVouchers"
           >
             <span class="material-symbols-outlined text-[18px]">refresh</span>
@@ -37,15 +37,13 @@
           <label
             class="flex items-center gap-2  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-1.5 "
           >
-            <span class="material-symbols-outlined text-[18px] text-slate-400"
-              >search</span
-            >
+            <span class="material-symbols-outlined text-[18px] text-slate-400">search</span>
             <input
               v-model="search"
-              type="text"
-              placeholder="Tìm theo mã voucher"
               class="w-full bg-transparent text-sm outline-none"
-            />
+              placeholder="Tìm theo mã voucher"
+              type="text"
+            >
           </label>
 
           <select
@@ -109,8 +107,8 @@
               </p>
             </div>
             <button
-              type="button"
               class="rounded-xl bg-primary px-3 py-2 text-xs font-semibold text-white hover:opacity-90"
+              type="button"
               @click="restoreAllHiddenVouchers"
             >
               Khôi phục tất cả
@@ -127,8 +125,8 @@
                 <span class="ml-2">{{ voucher.code || "Voucher" }}</span>
               </div>
               <button
-                type="button"
                 class="rounded-xl bg-emerald-500 px-3 py-2 text-xs font-semibold text-slate-800 hover:bg-emerald-600"
+                type="button"
                 @click="restoreVoucher(voucher)"
               >
                 Khôi phục
@@ -201,9 +199,7 @@
                 </td>
                 <td class="px-2 py-2">
                   {{ voucher.usedCount || 0 }}
-                  <span v-if="voucher.usageLimit"
-                    >/ {{ voucher.usageLimit }}</span
-                  >
+                  <span v-if="voucher.usageLimit">/ {{ voucher.usageLimit }}</span>
                 </td>
                 <td class="px-2 py-2 text-right">
                   <div class="flex items-center justify-end gap-1">
@@ -214,8 +210,7 @@
                     >
                       <span
                         class="material-symbols-outlined text-[18px] text-slate-500"
-                        >edit</span
-                      >
+                      >edit</span>
                     </button>
                     <button
                       class="rounded-lg p-1.5 hover:bg-red-50 dark:hover:bg-red-900/20"
@@ -224,8 +219,7 @@
                     >
                       <span
                         class="material-symbols-outlined text-[18px] text-red-500"
-                        >delete</span
-                      >
+                      >delete</span>
                     </button>
                   </div>
                 </td>
@@ -255,21 +249,17 @@
 
           <div class="grid gap-3 md:grid-cols-2">
             <div>
-              <label class="mb-1 block text-xs font-medium text-slate-500"
-                >Mã voucher *</label
-              >
+              <label class="mb-1 block text-xs font-medium text-slate-500">Mã voucher *</label>
               <input
                 v-model.trim="form.code"
-                type="text"
                 class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-1.5 text-sm uppercase "
                 placeholder="VD: PEAK10"
-              />
+                type="text"
+              >
             </div>
 
             <div>
-              <label class="mb-1 block text-xs font-medium text-slate-500"
-                >Loại giảm *</label
-              >
+              <label class="mb-1 block text-xs font-medium text-slate-500">Loại giảm *</label>
               <select
                 v-model="form.discountType"
                 class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm "
@@ -280,79 +270,67 @@
             </div>
 
             <div>
-              <label class="mb-1 block text-xs font-medium text-slate-500"
-                >Giá trị giảm *</label
-              >
+              <label class="mb-1 block text-xs font-medium text-slate-500">Giá trị giảm *</label>
               <input
                 v-model.number="form.discountValue"
-                type="number"
-                min="0"
                 class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm "
-              />
+                min="0"
+                type="number"
+              >
             </div>
 
             <div>
-              <label class="mb-1 block text-xs font-medium text-slate-500"
-                >Đơn tối thiểu</label
-              >
+              <label class="mb-1 block text-xs font-medium text-slate-500">Đơn tối thiểu</label>
               <input
                 v-model.number="form.minOrderValue"
-                type="number"
-                min="0"
                 class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm "
-              />
+                min="0"
+                type="number"
+              >
             </div>
 
             <div v-if="form.discountType === 'PERCENT'">
-              <label class="mb-1 block text-xs font-medium text-slate-500"
-                >Giảm tối đa (đ)</label
-              >
+              <label class="mb-1 block text-xs font-medium text-slate-500">Giảm tối đa (đ)</label>
               <input
                 v-model.number="form.maxDiscountAmount"
-                type="number"
+                class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm "
                 min="0"
                 placeholder="VD: 50000"
-                class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm "
-              />
+                type="number"
+              >
               <p class="mt-1 text-[11px] text-slate-400">Để trống = không giới hạn</p>
             </div>
 
             <div>
-              <label class="mb-1 block text-xs font-medium text-slate-500"
-                >Bắt đầu</label
-              >
+              <label class="mb-1 block text-xs font-medium text-slate-500">Bắt đầu</label>
               <input
                 v-model="form.startDate"
-                type="datetime-local"
                 class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm "
-              />
+                type="datetime-local"
+              >
             </div>
 
             <div>
-              <label class="mb-1 block text-xs font-medium text-slate-500"
-                >Kết thúc</label
-              >
+              <label class="mb-1 block text-xs font-medium text-slate-500">Kết thúc</label>
               <input
                 v-model="form.endDate"
-                type="datetime-local"
                 class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm "
-              />
+                type="datetime-local"
+              >
             </div>
 
             <div>
-              <label class="mb-1 block text-xs font-medium text-slate-500"
-                >Giới hạn sử dụng</label
-              >
+              <label class="mb-1 block text-xs font-medium text-slate-500">Giới hạn sử dụng</label>
               <input
                 v-model.number="form.usageLimit"
-                type="number"
-                min="0"
                 class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm "
-              />
+                min="0"
+                type="number"
+              >
             </div>
 
             <label class="inline-flex items-center gap-2 text-sm md:pt-6">
-              <input v-model="form.isActive" type="checkbox" />
+              <input v-model="form.isActive" type="checkbox">
               <span>Voucher đang hoạt động</span>
             </label>
           </div>
@@ -363,17 +341,17 @@
 
           <div class="mt-4 flex justify-end gap-2">
             <button
-              type="button"
               class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium hover:border-slate-400 "
+              type="button"
               @click="closeModal"
             >
               Hủy
             </button>
 
             <button
-              type="button"
-              :disabled="saving"
               class="rounded-xl bg-primary px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-60"
+              :disabled="saving"
+              type="button"
               @click="saveVoucher"
             >
               {{
@@ -401,8 +379,7 @@
           <h3 class="mb-2 text-base font-bold">Xác nhận xóa</h3>
           <p class="text-sm text-slate-500 ">
             Bạn chắc chắn muốn xóa voucher
-            <strong>{{ deleteTarget.code }}</strong
-            >?
+            <strong>{{ deleteTarget.code }}</strong>?
           </p>
 
           <div class="mt-5 flex justify-end gap-3">
@@ -413,8 +390,8 @@
               Hủy
             </button>
             <button
-              :disabled="deleting"
               class="rounded-xl bg-red-500 px-4 py-2 text-sm font-medium text-white hover:bg-red-600 disabled:opacity-60"
+              :disabled="deleting"
               @click="doDelete"
             >
               {{ deleting ? "Đang xóa..." : "Xóa" }}
@@ -427,329 +404,355 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from "vue";
+  import { computed, onMounted, ref } from 'vue'
 
-import AdminShell from "@/components/admin/AdminShell.vue";
-import { adminApi } from "@/services/api";
+  import AdminShell from '@/components/admin/AdminShell.vue'
+  import { adminApi } from '@/services/api'
 
-const loading = ref(false);
-const error = ref("");
-const vouchers = ref([]);
-const search = ref("");
-const statusFilter = ref("ALL");
-const hiddenVouchers = ref([]);
+  const loading = ref(false)
+  const error = ref('')
+  const vouchers = ref([])
+  const search = ref('')
+  const statusFilter = ref('ALL')
+  const hiddenVouchers = ref([])
 
-const showModal = ref(false);
-const editingVoucherId = ref(null);
-const saving = ref(false);
-const modalError = ref("");
-const form = ref(emptyForm());
+  const showModal = ref(false)
+  const editingVoucherId = ref(null)
+  const saving = ref(false)
+  const modalError = ref('')
+  const form = ref(emptyForm())
 
-const deleteTarget = ref(null);
-const deleting = ref(false);
+  const deleteTarget = ref(null)
+  const deleting = ref(false)
 
-const visibleVouchers = computed(() => {
-  return vouchers.value.filter(
-    (voucher) =>
-      !hiddenVouchers.value.some(
-        (hidden) => Number(voucher.id) === Number(hidden.id),
-      ),
-  );
-});
-
-const filteredVouchers = computed(() => {
-  const keyword = search.value.trim().toLowerCase();
-  return visibleVouchers.value.filter((voucher) => {
-    const statusMatch =
-      statusFilter.value === "ALL" || voucher.status === statusFilter.value;
-    if (!statusMatch) {
-      return false;
-    }
-
-    if (!keyword) {
-      return true;
-    }
-
-    const haystack = [voucher.code, voucher.discountType, voucher.status]
-      .filter(Boolean)
-      .join(" ")
-      .toLowerCase();
-    return haystack.includes(keyword);
-  });
-});
-
-const activeCount = computed(() => {
-  return vouchers.value.filter((voucher) => voucher.status === "ACTIVE").length;
-});
-
-const inactiveCount = computed(() => {
-  return vouchers.value.filter((voucher) =>
-    ["USED", "EXPIRED", "INACTIVE"].includes(voucher.status),
-  ).length;
-});
-
-function normalizeVoucherStatusValue(status) {
-  const normalized = String(status || "INACTIVE")
-    .trim()
-    .toUpperCase();
-  if (
-    ["ACTIVE", "INACTIVE", "SCHEDULED", "USED", "EXPIRED"].includes(normalized)
-  ) {
-    return normalized;
-  }
-  return "INACTIVE";
-}
-
-function voucherStatusLabel(status) {
-  const normalized = normalizeVoucherStatusValue(status);
-  if (normalized === "ACTIVE") return "Đang hoạt động";
-  if (normalized === "SCHEDULED") return "Sắp diễn ra";
-  if (normalized === "USED") return "Đã hết lượt";
-  if (normalized === "EXPIRED") return "Hết hạn";
-  return "Không hoạt động";
-}
-
-function emptyForm() {
-  return {
-    code: "",
-    discountType: "PERCENT",
-    discountValue: 0,
-    minOrderValue: 0,
-    maxDiscountAmount: null,
-    startDate: "",
-    endDate: "",
-    usageLimit: null,
-    isActive: true,
-  };
-}
-
-function formatMoney(value) {
-  const amount = Number(value);
-  return new Intl.NumberFormat("vi-VN", {
-    style: "currency",
-    currency: "VND",
-    maximumFractionDigits: 0,
-  }).format(Number.isFinite(amount) ? amount : 0);
-}
-
-function formatDiscount(voucher) {
-  if (voucher.discountType === "PERCENT") {
-    const pct = `${Number(voucher.discountValue || 0)}%`;
-    if (voucher.maxDiscountAmount) {
-      return `${pct} (tối đa ${formatMoney(voucher.maxDiscountAmount)})`;
-    }
-    return pct;
-  }
-  return formatMoney(voucher.discountValue || 0);
-}
-
-function formatDate(value) {
-  const date = new Date(value || 0);
-  if (Number.isNaN(date.getTime())) {
-    return "-";
-  }
-  return new Intl.DateTimeFormat("vi-VN", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(date);
-}
-
-function toDatetimeLocal(value) {
-  const date = new Date(value || "");
-  if (Number.isNaN(date.getTime())) {
-    return "";
-  }
-
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  const hour = String(date.getHours()).padStart(2, "0");
-  const minute = String(date.getMinutes()).padStart(2, "0");
-  return `${year}-${month}-${day}T${hour}:${minute}`;
-}
-
-function statusClass(status) {
-  const normalized = normalizeVoucherStatusValue(status);
-  if (normalized === "ACTIVE") {
-    return "bg-green-100 text-green-700 /20 ";
-  }
-  if (normalized === "USED") {
-    return "bg-slate-100 text-slate-700 /50 ";
-  }
-  if (normalized === "SCHEDULED") {
-    return "bg-blue-100 text-blue-700 /20 ";
-  }
-  if (normalized === "INACTIVE") {
-    return "bg-amber-100 text-amber-700 /20 ";
-  }
-  return "bg-red-100 text-red-700 /20 ";
-}
-
-function openCreate() {
-  editingVoucherId.value = null;
-  form.value = emptyForm();
-  modalError.value = "";
-  showModal.value = true;
-}
-
-function openEdit(voucher) {
-  editingVoucherId.value = voucher.id;
-  form.value = {
-    code: voucher.code || "",
-    discountType: voucher.discountType || "PERCENT",
-    discountValue: Number(voucher.discountValue || 0),
-    minOrderValue: Number(voucher.minOrderValue || 0),
-    maxDiscountAmount:
-      voucher.maxDiscountAmount !== null && voucher.maxDiscountAmount !== undefined
-        ? Number(voucher.maxDiscountAmount)
-        : null,
-    startDate: toDatetimeLocal(voucher.startDate),
-    endDate: toDatetimeLocal(voucher.endDate),
-    usageLimit:
-      voucher.usageLimit !== null && voucher.usageLimit !== undefined
-        ? Number(voucher.usageLimit)
-        : null,
-    isActive: !!voucher.isActive,
-  };
-  modalError.value = "";
-  showModal.value = true;
-}
-
-function closeModal() {
-  showModal.value = false;
-}
-
-async function saveVoucher() {
-  const f = form.value;
-  modalError.value = "";
-
-  if (!f.code) {
-    modalError.value = "Vui lòng nhập mã voucher.";
-    return;
-  }
-
-  if (Number(f.discountValue) <= 0) {
-    modalError.value = "Giá trị giảm phải lớn hơn 0.";
-    return;
-  }
-
-  saving.value = true;
-  try {
-    const payload = {
-      code: String(f.code).trim().toUpperCase(),
-      discountType: String(f.discountType || "PERCENT").toUpperCase(),
-      discountValue: Number(f.discountValue || 0),
-      minOrderValue: Number(f.minOrderValue || 0),
-      maxDiscountAmount:
-        f.discountType === "PERCENT" &&
-        f.maxDiscountAmount !== "" &&
-        f.maxDiscountAmount !== null &&
-        f.maxDiscountAmount !== undefined
-          ? Number(f.maxDiscountAmount)
-          : null,
-      startDate: f.startDate || null,
-      endDate: f.endDate || null,
-      usageLimit:
-        f.usageLimit === "" ||
-        f.usageLimit === null ||
-        f.usageLimit === undefined
-          ? null
-          : Number(f.usageLimit),
-      isActive: !!f.isActive,
-    };
-
-    if (editingVoucherId.value) {
-      await adminApi.updateVoucher(editingVoucherId.value, payload);
-    } else {
-      await adminApi.createVoucher(payload);
-    }
-
-    closeModal();
-    await loadVouchers();
-  } catch (err) {
-    modalError.value = err?.message || "Không thể lưu voucher.";
-  } finally {
-    saving.value = false;
-  }
-}
-
-function confirmDelete(voucher) {
-  deleteTarget.value = voucher;
-}
-
-async function doDelete() {
-  if (!deleteTarget.value) {
-    return;
-  }
-
-  deleting.value = true;
-  try {
-    const result = await adminApi.deleteVoucher(deleteTarget.value.id);
-
-    if (result && result.softDeleted) {
-      if (
+  const visibleVouchers = computed(() => {
+    return vouchers.value.filter(
+      voucher =>
         !hiddenVouchers.value.some(
-          (voucher) => Number(voucher.id) === Number(deleteTarget.value.id),
-        )
-      ) {
-        hiddenVouchers.value.push(deleteTarget.value);
+          hidden => Number(voucher.id) === Number(hidden.id),
+        ),
+    )
+  })
+
+  const filteredVouchers = computed(() => {
+    const keyword = search.value.trim().toLowerCase()
+    return visibleVouchers.value.filter(voucher => {
+      const statusMatch
+        = statusFilter.value === 'ALL' || voucher.status === statusFilter.value
+      if (!statusMatch) {
+        return false
       }
-      deleteTarget.value = null;
-      return;
+
+      if (!keyword) {
+        return true
+      }
+
+      const haystack = [voucher.code, voucher.discountType, voucher.status]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase()
+      return haystack.includes(keyword)
+    })
+  })
+
+  const activeCount = computed(() => {
+    return vouchers.value.filter(voucher => voucher.status === 'ACTIVE').length
+  })
+
+  const inactiveCount = computed(() => {
+    return vouchers.value.filter(voucher =>
+      ['USED', 'EXPIRED', 'INACTIVE'].includes(voucher.status),
+    ).length
+  })
+
+  function normalizeVoucherStatusValue (status) {
+    const normalized = String(status || 'INACTIVE')
+      .trim()
+      .toUpperCase()
+    if (
+      ['ACTIVE', 'INACTIVE', 'SCHEDULED', 'USED', 'EXPIRED'].includes(normalized)
+    ) {
+      return normalized
+    }
+    return 'INACTIVE'
+  }
+
+  function voucherStatusLabel (status) {
+    const normalized = normalizeVoucherStatusValue(status)
+    if (normalized === 'ACTIVE') return 'Đang hoạt động'
+    if (normalized === 'SCHEDULED') return 'Sắp diễn ra'
+    if (normalized === 'USED') return 'Đã hết lượt'
+    if (normalized === 'EXPIRED') return 'Hết hạn'
+    return 'Không hoạt động'
+  }
+
+  function emptyForm () {
+    return {
+      code: '',
+      discountType: 'PERCENT',
+      discountValue: 0,
+      minOrderValue: 0,
+      maxDiscountAmount: null,
+      startDate: '',
+      endDate: '',
+      usageLimit: null,
+      isActive: true,
+    }
+  }
+
+  function formatMoney (value) {
+    const amount = Number(value)
+    return new Intl.NumberFormat('vi-VN', {
+      style: 'currency',
+      currency: 'VND',
+      maximumFractionDigits: 0,
+    }).format(Number.isFinite(amount) ? amount : 0)
+  }
+
+  function formatDiscount (voucher) {
+    if (voucher.discountType === 'PERCENT') {
+      const pct = `${Number(voucher.discountValue || 0)}%`
+      if (voucher.maxDiscountAmount) {
+        return `${pct} (tối đa ${formatMoney(voucher.maxDiscountAmount)})`
+      }
+      return pct
+    }
+    return formatMoney(voucher.discountValue || 0)
+  }
+
+  function formatDate (value) {
+    const date = new Date(value || 0)
+    if (Number.isNaN(date.getTime())) {
+      return '-'
+    }
+    return new Intl.DateTimeFormat('vi-VN', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    }).format(date)
+  }
+
+  function toDatetimeLocal (value) {
+    const date = new Date(value || '')
+    if (Number.isNaN(date.getTime())) {
+      return ''
     }
 
-    deleteTarget.value = null;
-    await loadVouchers();
-  } catch (err) {
-    error.value = err?.message || "Không thể xóa voucher.";
-  } finally {
-    deleting.value = false;
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    const hour = String(date.getHours()).padStart(2, '0')
+    const minute = String(date.getMinutes()).padStart(2, '0')
+    return `${year}-${month}-${day}T${hour}:${minute}`
   }
-}
 
-async function restoreVoucher(voucher) {
-  try {
-    await adminApi.restoreVoucher(voucher.id);
-    const restoredId = Number(voucher?.id);
-    hiddenVouchers.value = hiddenVouchers.value.filter(
-      (hidden) => Number(hidden.id) !== restoredId,
-    );
-    await loadVouchers();
-  } catch (err) {
-    error.value = "Không thể khôi phục voucher.";
-  }
-}
-
-async function restoreAllHiddenVouchers() {
-  try {
-    for (const voucher of hiddenVouchers.value) {
-      await adminApi.restoreVoucher(voucher.id);
+  function statusClass (status) {
+    const normalized = normalizeVoucherStatusValue(status)
+    if (normalized === 'ACTIVE') {
+      return 'bg-green-100 text-green-700 /20 '
     }
-    hiddenVouchers.value = [];
-    await loadVouchers();
-  } catch (err) {
-    error.value = "Có lỗi xảy ra khi khôi phục.";
+    if (normalized === 'USED') {
+      return 'bg-slate-100 text-slate-700 /50 '
+    }
+    if (normalized === 'SCHEDULED') {
+      return 'bg-blue-100 text-blue-700 /20 '
+    }
+    if (normalized === 'INACTIVE') {
+      return 'bg-amber-100 text-amber-700 /20 '
+    }
+    return 'bg-red-100 text-red-700 /20 '
   }
-}
 
-async function loadVouchers() {
-  loading.value = true;
-  error.value = "";
-
-  try {
-    const data = await adminApi.getVouchers({ page: 0, size: 400 });
-    vouchers.value = Array.isArray(data) ? data : [];
-  } catch (err) {
-    console.error("Failed to load vouchers:", err);
-    error.value =
-      "Không thể tải danh sách voucher. Vui lòng kiểm tra backend API.";
-  } finally {
-    loading.value = false;
+  function openCreate () {
+    editingVoucherId.value = null
+    form.value = emptyForm()
+    modalError.value = ''
+    showModal.value = true
   }
-}
 
-onMounted(loadVouchers);
+  function openEdit (voucher) {
+    editingVoucherId.value = voucher.id
+    form.value = {
+      code: voucher.code || '',
+      discountType: voucher.discountType || 'PERCENT',
+      discountValue: Number(voucher.discountValue || 0),
+      minOrderValue: Number(voucher.minOrderValue || 0),
+      maxDiscountAmount:
+        voucher.maxDiscountAmount !== null && voucher.maxDiscountAmount !== undefined
+          ? Number(voucher.maxDiscountAmount)
+          : null,
+      startDate: toDatetimeLocal(voucher.startDate),
+      endDate: toDatetimeLocal(voucher.endDate),
+      usageLimit:
+        voucher.usageLimit !== null && voucher.usageLimit !== undefined
+          ? Number(voucher.usageLimit)
+          : null,
+      isActive: !!voucher.isActive,
+    }
+    modalError.value = ''
+    showModal.value = true
+  }
+
+  function closeModal () {
+    showModal.value = false
+  }
+
+  async function saveVoucher () {
+    const f = form.value
+    modalError.value = ''
+
+    if (!f.code) {
+      modalError.value = 'Vui lòng nhập mã voucher.'
+      return
+    }
+
+    if (Number(f.discountValue) <= 0) {
+      modalError.value = 'Giá trị giảm phải lớn hơn 0.'
+      return
+    }
+
+    const discountValue = Number(f.discountValue)
+    const discountType = String(f.discountType || 'PERCENT').toUpperCase()
+
+    if (discountType === 'PERCENT') {
+      if (discountValue > 80) {
+        modalError.value = 'Phần trăm giảm giá tối đa là 80%.'
+        return
+      }
+      const maxDiscount = f.maxDiscountAmount
+      if (
+        maxDiscount !== ''
+        && maxDiscount !== null
+        && maxDiscount !== undefined
+        && Number(maxDiscount) <= 0
+      ) {
+        modalError.value = 'Giảm tối đa phải lớn hơn 0 nếu có nhập.'
+        return
+      }
+    } else {
+      if (discountValue > 500000) {
+        modalError.value = 'Số tiền giảm giá tối đa là 500.000đ.'
+        return
+      }
+      const minOrder = Number(f.minOrderValue || 0)
+      if (minOrder > 0 && discountValue >= minOrder) {
+        modalError.value = 'Số tiền giảm giá phải nhỏ hơn đơn tối thiểu để áp dụng.'
+        return
+      }
+    }
+
+    saving.value = true
+    try {
+      const payload = {
+        code: String(f.code).trim().toUpperCase(),
+        discountType: String(f.discountType || 'PERCENT').toUpperCase(),
+        discountValue: Number(f.discountValue || 0),
+        minOrderValue: Number(f.minOrderValue || 0),
+        maxDiscountAmount:
+          f.discountType === 'PERCENT'
+          && f.maxDiscountAmount !== ''
+          && f.maxDiscountAmount !== null
+          && f.maxDiscountAmount !== undefined
+            ? Number(f.maxDiscountAmount)
+            : null,
+        startDate: f.startDate || null,
+        endDate: f.endDate || null,
+        usageLimit:
+          f.usageLimit === ''
+          || f.usageLimit === null
+          || f.usageLimit === undefined
+            ? null
+            : Number(f.usageLimit),
+        isActive: !!f.isActive,
+      }
+
+      await (editingVoucherId.value ? adminApi.updateVoucher(editingVoucherId.value, payload) : adminApi.createVoucher(payload))
+
+      closeModal()
+      await loadVouchers()
+    } catch (error_) {
+      modalError.value = error_?.message || 'Không thể lưu voucher.'
+    } finally {
+      saving.value = false
+    }
+  }
+
+  function confirmDelete (voucher) {
+    deleteTarget.value = voucher
+  }
+
+  async function doDelete () {
+    if (!deleteTarget.value) {
+      return
+    }
+
+    deleting.value = true
+    try {
+      const result = await adminApi.deleteVoucher(deleteTarget.value.id)
+
+      if (result && result.softDeleted) {
+        if (
+          !hiddenVouchers.value.some(
+            voucher => Number(voucher.id) === Number(deleteTarget.value.id),
+          )
+        ) {
+          hiddenVouchers.value.push(deleteTarget.value)
+        }
+        deleteTarget.value = null
+        return
+      }
+
+      deleteTarget.value = null
+      await loadVouchers()
+    } catch (error_) {
+      error.value = error_?.message || 'Không thể xóa voucher.'
+    } finally {
+      deleting.value = false
+    }
+  }
+
+  async function restoreVoucher (voucher) {
+    try {
+      await adminApi.restoreVoucher(voucher.id)
+      const restoredId = Number(voucher?.id)
+      hiddenVouchers.value = hiddenVouchers.value.filter(
+        hidden => Number(hidden.id) !== restoredId,
+      )
+      await loadVouchers()
+    } catch {
+      error.value = 'Không thể khôi phục voucher.'
+    }
+  }
+
+  async function restoreAllHiddenVouchers () {
+    try {
+      for (const voucher of hiddenVouchers.value) {
+        await adminApi.restoreVoucher(voucher.id)
+      }
+      hiddenVouchers.value = []
+      await loadVouchers()
+    } catch {
+      error.value = 'Có lỗi xảy ra khi khôi phục.'
+    }
+  }
+
+  async function loadVouchers () {
+    loading.value = true
+    error.value = ''
+
+    try {
+      const data = await adminApi.getVouchers({ page: 0, size: 400 })
+      vouchers.value = Array.isArray(data) ? data : []
+    } catch (error_) {
+      console.error('Failed to load vouchers:', error_)
+      error.value
+        = 'Không thể tải danh sách voucher. Vui lòng kiểm tra backend API.'
+    } finally {
+      loading.value = false
+    }
+  }
+
+  onMounted(loadVouchers)
 </script>
