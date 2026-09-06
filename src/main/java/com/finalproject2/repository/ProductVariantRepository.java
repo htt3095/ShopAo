@@ -15,4 +15,12 @@ public interface ProductVariantRepository extends JpaRepository<ProductVariant, 
               and v.stockQuantity >= :quantity
             """)
     int decrementStockIfAvailable(@Param("variantId") Long variantId, @Param("quantity") Integer quantity);
+
+    @Modifying
+    @Query("""
+        update ProductVariant v
+        set v.stockQuantity = v.stockQuantity + :quantity
+        where v.id = :variantId
+        """)
+    int incrementStock(@Param("variantId") Long variantId, @Param("quantity") Integer quantity);
 }

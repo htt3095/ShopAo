@@ -38,15 +38,15 @@ public class OrderController {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     public OrderController(OrderRepository orderRepo,
-            OrderItemRepository orderItemRepo,
-            PaymentMethodRepository paymentRepo,
-            VoucherRepository voucherRepo,
-            ProductVariantRepository variantRepo,
-            AccountRepository accountRepo,
-            AccountVoucherRepository accountVoucherRepo,
-            CartRepository cartRepo,
-            CartItemRepository cartItemRepo,
-            Cloudinary cloudinary) {
+                           OrderItemRepository orderItemRepo,
+                           PaymentMethodRepository paymentRepo,
+                           VoucherRepository voucherRepo,
+                           ProductVariantRepository variantRepo,
+                           AccountRepository accountRepo,
+                           AccountVoucherRepository accountVoucherRepo,
+                           CartRepository cartRepo,
+                           CartItemRepository cartItemRepo,
+                           Cloudinary cloudinary) {
         this.orderRepo = orderRepo;
         this.orderItemRepo = orderItemRepo;
         this.paymentRepo = paymentRepo;
@@ -118,6 +118,8 @@ public class OrderController {
 
         BigDecimal totalMoney = BigDecimal.ZERO;
         List<OrderItem> orderItems = new ArrayList<>();
+        boolean stockAlreadyDeducted = "POS".equalsIgnoreCase(asString(payload.get("orderSource")))
+                && Boolean.TRUE.equals(payload.get("stockAlreadyDeducted"));
 
         for (Map<String, Object> itemReq : itemsReq) {
             Long variantId = extractVariantId(itemReq);
@@ -137,10 +139,12 @@ public class OrderController {
                         "Sáº£n pháº©m " + variant.getProduct().getName() + " hiá»‡n khÃ´ng má»Ÿ bÃ¡n!");
             }
 
-            int updatedRows = variantRepo.decrementStockIfAvailable(variantId, qty);
-            if (updatedRows == 0) {
-                throw new BadRequestException(
-                        "Sản phẩm " + variant.getProduct().getName() + " không đủ số lượng trong kho!");
+            if (!stockAlreadyDeducted) {
+                int updatedRows = variantRepo.decrementStockIfAvailable(variantId, qty);
+                if (updatedRows == 0) {
+                    throw new BadRequestException(
+                            "Sản phẩm " + variant.getProduct().getName() + " không đủ số lượng trong kho!");
+                }
             }
 
             BigDecimal price = variant.getPrice();
@@ -168,7 +172,7 @@ public class OrderController {
             discount = totalBeforeDiscount;
         }
         order.setDiscountAmount(discount);
-        
+
         BigDecimal finalAmount = totalBeforeDiscount.subtract(discount);
         if (finalAmount.compareTo(BigDecimal.ZERO) < 0) {
             finalAmount = BigDecimal.ZERO;
@@ -209,21 +213,25 @@ public class OrderController {
         String oldStatus = order.getStatus();
         String newStatus = asString(req.get("status"));
 
-
+        // --- CHẶN HOÀN HÀNG NHIỀU LẦN ---
+        // Nếu đơn đang được yêu cầu chuyển sang RETURN_REQUEST mà trước đó đã có bất kỳ
+        // trạng thái hoàn hàng nào rồi thì trả lỗi ngay
         if ("RETURN_REQUEST".equals(newStatus)) {
             boolean alreadyReturned = oldStatus != null && (
-                oldStatus.contains("RETURN") ||
-                oldStatus.contains("REFUND") ||
-                oldStatus.equals("HOAN_TRA") ||
-                oldStatus.equals("HOAN_TIEN") ||
-                oldStatus.equals("YEU_CAU_TRA") ||
-                oldStatus.equals("TRA_HANG")
+                    oldStatus.contains("RETURN") ||
+                            oldStatus.contains("REFUND") ||
+                            oldStatus.equals("HOAN_TRA") ||
+                            oldStatus.equals("HOAN_TIEN") ||
+                            oldStatus.equals("YEU_CAU_TRA") ||
+                            oldStatus.equals("TRA_HANG")
             );
             if (alreadyReturned) {
                 throw new BadRequestException("Don hang nay da duoc gui yeu cau hoan tra truoc do, khong the hoan them lan nua!");
             }
         }
+        // ----------------------------------
 
+        // --- VÁ LỖI 3: CỘNG LẠI KHO KHI HỦY/HOÀN ĐƠN ---
         Object restoreStockObj = req.get("restoreStock");
         boolean restoreStock = restoreStockObj != null ? Boolean.parseBoolean(restoreStockObj.toString()) : true;
         List<String> stockRestoredStatuses = List.of("CANCELLED", "RETURNED", "DAMAGED", "LOST");
@@ -267,17 +275,17 @@ public class OrderController {
         if (fullname != null && !fullname.trim().isEmpty()) {
             order.setFullname(fullname);
         }
-        
+
         String phone = asString(req.get("phone"));
         if (phone != null) {
             order.setPhone(phone);
         }
-        
+
         String email = asString(req.get("email"));
         if (email != null) {
             order.setEmail(email);
         }
-        
+
         String shippingAddress = asString(req.get("shippingAddress"));
         if (shippingAddress == null) {
             shippingAddress = asString(req.get("address"));

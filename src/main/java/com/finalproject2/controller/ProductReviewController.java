@@ -9,6 +9,7 @@ import com.finalproject2.model.response.ProductReviewResponse;
 import com.finalproject2.repository.ProductReviewRepository;
 import com.finalproject2.repository.ProductRepository;
 import com.finalproject2.repository.AccountRepository;
+import com.finalproject2.repository.OrderRepository;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -28,13 +29,16 @@ public class ProductReviewController {
     private final ProductReviewRepository reviewRepo;
     private final ProductRepository productRepo;
     private final AccountRepository accountRepo;
+    private final OrderRepository orderRepo;
 
     public ProductReviewController(ProductReviewRepository reviewRepo,
                                    ProductRepository productRepo,
-                                   AccountRepository accountRepo) {
+                                   AccountRepository accountRepo,
+                                   OrderRepository orderRepo) {
         this.reviewRepo = reviewRepo;
         this.productRepo = productRepo;
         this.accountRepo = accountRepo;
+        this.orderRepo = orderRepo;
     }
 
     @GetMapping
@@ -59,6 +63,15 @@ public class ProductReviewController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    @GetMapping("/eligibility")
+    public ResponseEntity<?> getEligibility(@RequestParam Long productId, @RequestParam Integer accountId) {
+        boolean eligible = orderRepo.hasPurchasedProduct(accountId, "SUCCESS", productId);
+        return ResponseEntity.ok(Map.of(
+                "eligible", eligible,
+                "message", eligible ? "Eligible to review" : "Only customers with a successful purchase can review this product"
+        ));
+    }
+
     @PostMapping
     public ResponseEntity<?> create(@Valid @RequestBody ProductReviewRequest req) {
         Optional<Product> optProduct = productRepo.findById(req.getProductId());
@@ -71,6 +84,10 @@ public class ProductReviewController {
         if (optAccount.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("Account with id " + req.getAccountId() + " not found");
+        }
+        if (!orderRepo.hasPurchasedProduct(req.getAccountId(), "SUCCESS", req.getProductId())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body("Only customers with a successful purchase can review this product");
         }
         Optional<ProductReview> existingReview = reviewRepo.findByProductIdAndAccountId(
                 req.getProductId(),
