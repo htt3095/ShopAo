@@ -212,15 +212,6 @@
                         class="material-symbols-outlined text-[18px] text-slate-500"
                       >edit</span>
                     </button>
-                    <button
-                      class="rounded-lg p-1.5 hover:bg-red-50 dark:hover:bg-red-900/20"
-                      title="Xóa"
-                      @click="confirmDelete(voucher)"
-                    >
-                      <span
-                        class="material-symbols-outlined text-[18px] text-red-500"
-                      >delete</span>
-                    </button>
                   </div>
                 </td>
               </tr>
@@ -367,39 +358,6 @@
       </div>
     </Teleport>
 
-    <Teleport to="body">
-      <div
-        v-if="deleteTarget"
-        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-        @click.self="deleteTarget = null"
-      >
-        <div
-          class="w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl "
-        >
-          <h3 class="mb-2 text-base font-bold">Xác nhận xóa</h3>
-          <p class="text-sm text-slate-500 ">
-            Bạn chắc chắn muốn xóa voucher
-            <strong>{{ deleteTarget.code }}</strong>?
-          </p>
-
-          <div class="mt-5 flex justify-end gap-3">
-            <button
-              class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium "
-              @click="deleteTarget = null"
-            >
-              Hủy
-            </button>
-            <button
-              class="rounded-xl bg-red-500 px-4 py-2 text-sm font-medium text-white hover:bg-red-600 disabled:opacity-60"
-              :disabled="deleting"
-              @click="doDelete"
-            >
-              {{ deleting ? "Đang xóa..." : "Xóa" }}
-            </button>
-          </div>
-        </div>
-      </div>
-    </Teleport>
   </AdminShell>
 </template>
 
@@ -421,9 +379,6 @@
   const saving = ref(false)
   const modalError = ref('')
   const form = ref(emptyForm())
-
-  const deleteTarget = ref(null)
-  const deleting = ref(false)
 
   const visibleVouchers = computed(() => {
     return vouchers.value.filter(
@@ -676,40 +631,6 @@
       modalError.value = error_?.message || 'Không thể lưu voucher.'
     } finally {
       saving.value = false
-    }
-  }
-
-  function confirmDelete (voucher) {
-    deleteTarget.value = voucher
-  }
-
-  async function doDelete () {
-    if (!deleteTarget.value) {
-      return
-    }
-
-    deleting.value = true
-    try {
-      const result = await adminApi.deleteVoucher(deleteTarget.value.id)
-
-      if (result && result.softDeleted) {
-        if (
-          !hiddenVouchers.value.some(
-            voucher => Number(voucher.id) === Number(deleteTarget.value.id),
-          )
-        ) {
-          hiddenVouchers.value.push(deleteTarget.value)
-        }
-        deleteTarget.value = null
-        return
-      }
-
-      deleteTarget.value = null
-      await loadVouchers()
-    } catch (error_) {
-      error.value = error_?.message || 'Không thể xóa voucher.'
-    } finally {
-      deleting.value = false
     }
   }
 

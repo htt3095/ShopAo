@@ -510,7 +510,7 @@
       .filter(item => {
         const name = normalizeQueryText(item.name)
         const price = Number(item._minPrice || item.price || item.minPrice || 0)
-        return !name.includes('test') && price >= 50_000
+        return !name.includes('test') && price >= 50000
       })
       .slice(0, 3)
     const products = (showcaseProducts.length > 0 ? showcaseProducts : source.slice(0, 3))

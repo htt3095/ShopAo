@@ -400,6 +400,7 @@
     filterOrdersByPayment,
     formatCurrency,
     formatLongDateTime,
+    getOrderPaymentImpact,
     getPaymentBreakdown,
     getPaymentMethodBreakdown,
     getStatusBreakdown,
@@ -464,24 +465,6 @@
     return `\uFEFF${rows
       .map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(';'))
       .join('\r\n')}`
-  }
-
-  function getOrderAmount (order) {
-    const amount = Number(order?.finalAmount ?? order?.totalMoney ?? 0)
-    return Number.isFinite(amount) ? Math.abs(amount) : 0
-  }
-
-  function getOrderPaymentImpact (order) {
-    const status = normalizePaymentStatusValue(order?.paymentStatus, order?.status)
-    const amount = getOrderAmount(order)
-
-    if (['DA_THANH_TOAN', 'PAID', 'SETTLED', 'CAPTURED'].includes(status)) {
-      return amount
-    }
-    if (['HOAN_TIEN', 'REFUNDED', 'REFUND', 'CHARGEBACK', 'REVERSED'].includes(status)) {
-      return -amount
-    }
-    return 0
   }
 
   function paymentStatusText (value) {

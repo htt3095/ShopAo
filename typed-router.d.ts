@@ -30,7 +30,9 @@ declare module 'vue-router/auto-routes' {
     '/AdminOrdersView': RouteRecordInfo<'/AdminOrdersView', '/AdminOrdersView', Record<never, never>, Record<never, never>>,
     '/AdminPOSView': RouteRecordInfo<'/AdminPOSView', '/AdminPOSView', Record<never, never>, Record<never, never>>,
     '/AdminProductsView': RouteRecordInfo<'/AdminProductsView', '/AdminProductsView', Record<never, never>, Record<never, never>>,
+    '/AdminRefundsView': RouteRecordInfo<'/AdminRefundsView', '/AdminRefundsView', Record<never, never>, Record<never, never>>,
     '/AdminReportsView': RouteRecordInfo<'/AdminReportsView', '/AdminReportsView', Record<never, never>, Record<never, never>>,
+    '/AdminReturnsView': RouteRecordInfo<'/AdminReturnsView', '/AdminReturnsView', Record<never, never>, Record<never, never>>,
     '/AdminSettingsView': RouteRecordInfo<'/AdminSettingsView', '/AdminSettingsView', Record<never, never>, Record<never, never>>,
     '/AdminVouchersView': RouteRecordInfo<'/AdminVouchersView', '/AdminVouchersView', Record<never, never>, Record<never, never>>,
     '/BrandView': RouteRecordInfo<'/BrandView', '/BrandView', Record<never, never>, Record<never, never>>,
@@ -113,8 +115,16 @@ declare module 'vue-router/auto-routes' {
       routes: '/AdminProductsView'
       views: never
     }
+    'src/pages/AdminRefundsView.vue': {
+      routes: '/AdminRefundsView'
+      views: never
+    }
     'src/pages/AdminReportsView.vue': {
       routes: '/AdminReportsView'
+      views: never
+    }
+    'src/pages/AdminReturnsView.vue': {
+      routes: '/AdminReturnsView'
       views: never
     }
     'src/pages/AdminSettingsView.vue': {

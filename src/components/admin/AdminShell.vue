@@ -155,6 +155,8 @@
     { path: '/admin/pos', label: 'Bán hàng POS', icon: 'point_of_sale' },
     { path: '/admin/products', label: 'Quản lý sản phẩm', icon: 'inventory_2' },
     { path: '/admin/orders', label: 'Đơn hàng', icon: 'shopping_bag' },
+    { path: '/admin/returns', label: 'Trả hàng', icon: 'assignment_return' },
+    { path: '/admin/refunds', label: 'Hoàn tiền', icon: 'payments' },
     { path: '/admin/categories', label: 'Danh mục', icon: 'category' },
     { path: '/admin/brands', label: 'Thương hiệu', icon: 'branding_watermark' },
     { path: '/admin/customers', label: 'Quản Lý Tài Khoản', icon: 'group' },

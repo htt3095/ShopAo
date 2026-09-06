@@ -448,13 +448,6 @@
                 >
                   Khôi phục
                 </button>
-                <button
-                  class="rounded-xl bg-red-500 px-3 py-2 text-xs font-semibold text-white hover:bg-red-600"
-                  type="button"
-                  @click="hardDeleteVariant(variant)"
-                >
-                  Xóa hẳn
-                </button>
               </div>
             </div>
           </div>
@@ -571,15 +564,6 @@
                       <span
                         class="material-symbols-outlined text-[18px] text-slate-500"
                       >edit</span>
-                    </button>
-                    <button
-                      class="rounded-lg p-1.5 hover:bg-red-50 dark:hover:bg-red-900/20"
-                      title="Xóa"
-                      @click.stop="confirmDelete(v)"
-                    >
-                      <span
-                        class="material-symbols-outlined text-[18px] text-red-500"
-                      >delete</span>
                     </button>
                     <button
                       class="rounded-lg p-1.5 hover:bg-blue-50"
@@ -762,41 +746,6 @@
       </div>
     </Teleport>
 
-    <!-- Modal Xác nhận xóa -->
-    <Teleport to="body">
-      <div
-        v-if="deleteTarget"
-        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-        @click.self="deleteTarget = null"
-      >
-        <div
-          class="w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl "
-        >
-          <h3 class="mb-2 text-base font-bold">Xác nhận xóa</h3>
-          <p class="text-sm text-slate-500 ">
-            Bạn chắc chắn muốn xóa biến thể
-            <strong>#{{ deleteTarget.id }}</strong>
-            ({{ deleteTarget.productName }} - {{ deleteTarget.colorName }} /
-            {{ deleteTarget.sizeName }})?
-          </p>
-          <div class="mt-5 flex justify-end gap-3">
-            <button
-              class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium "
-              @click="deleteTarget = null"
-            >
-              Hủy
-            </button>
-            <button
-              class="rounded-xl bg-red-500 px-4 py-2 text-sm font-medium text-white hover:bg-red-600 disabled:opacity-60"
-              :disabled="deleting"
-              @click="doDelete"
-            >
-              {{ deleting ? "Đang xóa..." : "Xóa" }}
-            </button>
-          </div>
-        </div>
-      </div>
-    </Teleport>
 
     <!-- Modal Sinh Biến Thể Hàng Loạt -->
     <Teleport to="body">
@@ -1094,9 +1043,6 @@
     }
     return count
   })
-
-  const deleteTarget = ref(null)
-  const deleting = ref(false)
 
   const IMAGE_SLOT_KEYS = ['primary', 'extra0', 'extra1', 'extra2', 'extra3']
 
@@ -2214,10 +2160,6 @@
     }
   }
 
-  function confirmDelete (v) {
-    deleteTarget.value = v
-  }
-
   async function viewQR (variant) {
     qrVariant.value = variant
     qrImageUrl.value = ''
@@ -2300,34 +2242,6 @@
       printWindow.print()
     })
   }
-  async function doDelete () {
-    if (!deleteTarget.value) return
-
-    deleting.value = true
-    try {
-      const result = await adminApi.deleteVariant(deleteTarget.value.id)
-
-      if (result && result.softDeleted) {
-        if (
-          !hiddenVariants.value.some(
-            variant => Number(variant.id) === Number(deleteTarget.value.id),
-          )
-        ) {
-          hiddenVariants.value.push(deleteTarget.value)
-        }
-        deleteTarget.value = null
-        return
-      }
-
-      deleteTarget.value = null
-      await loadInventory()
-    } catch (error_) {
-      error.value = error_?.message || 'Không thể xóa biến thể.'
-    } finally {
-      deleting.value = false
-    }
-  }
-
   async function restoreVariant (variant) {
     try {
       await adminApi.restoreVariant(variant.id, variant.stockQuantity)
@@ -2338,22 +2252,6 @@
       await loadInventory()
     } catch {
       error.value = 'Không thể khôi phục biến thể.'
-    }
-  }
-
-  async function hardDeleteVariant (variant) {
-    if (!confirm('Bạn có chắc chắn muốn xóa vĩnh viễn biến thể này? Hành động này không thể hoàn tác!')) {
-      return
-    }
-    try {
-      await adminApi.hardDeleteVariant(variant.id)
-      const deletedId = Number(variant?.id)
-      hiddenVariants.value = hiddenVariants.value.filter(
-        hidden => Number(hidden.id) !== deletedId,
-      )
-      await loadInventory()
-    } catch {
-      error.value = 'Không thể xóa vĩnh viễn biến thể này. Có thể nó đang được sử dụng trong các đơn hàng.'
     }
   }
 

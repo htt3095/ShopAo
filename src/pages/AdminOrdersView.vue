@@ -420,15 +420,6 @@
                       >payments</span>
                     </button>
 
-                    <button
-                      class="rounded-lg p-1.5 hover:bg-red-50 dark:hover:bg-red-900/20"
-                      title="Xóa"
-                      @click="confirmDelete(order)"
-                    >
-                      <span
-                        class="material-symbols-outlined text-[18px] text-red-500"
-                      >delete</span>
-                    </button>
                   </div>
                 </td>
               </tr>
@@ -736,39 +727,6 @@
       </div>
     </Teleport>
 
-    <Teleport to="body">
-      <div
-        v-if="deleteTarget"
-        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-        @click.self="deleteTarget = null"
-      >
-        <div
-          class="w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl "
-        >
-          <h3 class="mb-2 text-base font-bold">Xác nhận xóa</h3>
-          <p class="text-sm text-slate-500 ">
-            Bạn chắc chắn muốn xóa đơn hàng
-            <strong>#{{ deleteTarget.id }}</strong>?
-          </p>
-
-          <div class="mt-5 flex justify-end gap-3">
-            <button
-              class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium "
-              @click="deleteTarget = null"
-            >
-              Hủy
-            </button>
-            <button
-              class="rounded-xl bg-red-500 px-4 py-2 text-sm font-medium text-white hover:bg-red-600 disabled:opacity-60"
-              :disabled="deleting"
-              @click="doDelete"
-            >
-              {{ deleting ? "Đang xóa..." : "Xóa" }}
-            </button>
-          </div>
-        </div>
-      </div>
-    </Teleport>
 
     <!-- Toast Notification -->
     <Teleport to="body">
@@ -1205,8 +1163,6 @@
   const orderRuleHint = ref('')
   const selectedOrderItems = ref([])
 
-  const deleteTarget = ref(null)
-  const deleting = ref(false)
   const hiddenOrders = ref([])
 
   const newOrderToast = ref(null)
@@ -2183,37 +2139,6 @@
     }
   }
 
-  function confirmDelete (order) {
-    deleteTarget.value = order
-  }
-
-  async function doDelete () {
-    if (!deleteTarget.value) {
-      return
-    }
-
-    deleting.value = true
-    try {
-      const result = await adminApi.deleteOrder(deleteTarget.value.id)
-      const deletedId = Number(deleteTarget.value.id)
-
-      if (result && result.softDeleted) {
-        if (!hiddenOrders.value.some(order => Number(order.id) === deletedId)) {
-          hiddenOrders.value.push(deleteTarget.value)
-        }
-        deleteTarget.value = null
-        return
-      }
-
-      deleteTarget.value = null
-      await loadOrders()
-    } catch (error_) {
-      error.value = error_?.message || 'Không thể xóa đơn hàng.'
-    } finally {
-      deleting.value = false
-    }
-  }
-
   async function restoreOrder (order) {
     try {
       await adminApi.restoreOrder(order.id, order.status, order.paymentStatus)
@@ -2277,7 +2202,7 @@
     loadOrders()
     pollingInterval = setInterval(() => {
       loadOrders(true)
-    }, 10_000) // Poll every 10 seconds
+    }, 10000) // Poll every 10 seconds
   })
   onUnmounted(() => {
     if (pollingInterval) clearInterval(pollingInterval)

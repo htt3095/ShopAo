@@ -163,7 +163,6 @@
                     <p class="font-bold text-sm text-slate-800">{{ addr.fullname }} - {{ addr.phone }}</p>
                     <p class="text-sm text-slate-600 mt-1">{{ addr.address }}</p>
                     <div class="flex items-center gap-3 mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button class="text-xs text-red-500 font-medium" @click="deleteAddress(addr.id)">Xóa</button>
                       <button v-if="!addr.isDefault" class="text-xs text-primary font-medium" @click="setDefaultAddress(addr)">Đặt mặc định</button>
                     </div>
                   </div>
@@ -500,16 +499,6 @@
     } catch (error) {
       console.error(error)
       alert('Thêm địa chỉ thất bại')
-    }
-  }
-
-  async function deleteAddress (id) {
-    if (!confirm('Bạn có chắc chắn muốn xóa?')) return
-    try {
-      await addressApi.delete(id)
-      await fetchAddresses()
-    } catch (error) {
-      console.error(error)
     }
   }
 
@@ -985,7 +974,7 @@
       map.remove()
     }
 
-    const defaultCoord = [21.028_511, 105.804_817] // Hanoi default
+    const defaultCoord = [21.028511, 105.804817] // Hanoi default
     map = L.map('profile-map').setView(defaultCoord, 12)
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; OpenStreetMap contributors',

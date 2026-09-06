@@ -61,11 +61,11 @@
             </button>
             <button
               v-if="!invoice.orderId"
-              aria-label="Xóa hóa đơn chờ"
+              aria-label="Xóa hóa đơn tạm"
               class="inline-flex size-7 items-center justify-center border-l border-white/60 text-slate-400 transition hover:bg-red-100 hover:text-red-600"
-              title="Xóa hóa đơn chờ"
+              title="Xóa hóa đơn tạm"
               type="button"
-              @click.stop="requestRemoveInvoice(invoice)"
+              @click.stop="removeInvoice(invoice.id)"
             >
               <span class="material-symbols-outlined text-[12px]">close</span>
             </button>
@@ -80,58 +80,6 @@
           >
             <span class="material-symbols-outlined text-[17px]">add</span>
           </button>
-        </div>
-      </div>
-
-      <div
-        v-if="invoiceRemovalTarget"
-        class="rounded-2xl border border-rose-200 bg-white p-4 shadow-sm"
-      >
-        <div class="flex flex-wrap items-start justify-between gap-4">
-          <div class="flex items-start gap-3">
-            <div class="flex size-11 items-center justify-center rounded-2xl bg-rose-100 text-rose-600">
-              <span class="material-symbols-outlined text-[22px]">warning</span>
-            </div>
-            <div>
-              <p class="text-xs uppercase tracking-[0.18em] text-rose-500">Xác nhận xóa</p>
-              <h3 class="mt-1 text-base font-bold text-slate-900">Xóa hóa đơn chờ?</h3>
-              <p class="mt-1 text-sm text-slate-600">
-                Bạn có muốn tiếp tục và xóa {{ invoiceRemovalLabel }} không?
-              </p>
-            </div>
-          </div>
-
-          <div class="flex flex-wrap items-center gap-2">
-            <button
-              class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-400"
-              type="button"
-              @click="cancelRemoveInvoice"
-            >
-              Hủy
-            </button>
-            <button
-              class="rounded-xl bg-rose-600 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-rose-200 transition hover:bg-rose-700"
-              type="button"
-              @click="confirmRemoveInvoice"
-            >
-              Tiếp tục xóa
-            </button>
-          </div>
-        </div>
-
-        <div class="mt-4 grid gap-3 sm:grid-cols-2">
-          <div class="rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700">
-            <div class="flex items-center justify-between gap-3">
-              <span class="text-slate-500">Hóa đơn</span>
-              <span class="font-semibold text-slate-900">{{ invoiceRemovalTarget.orderId ? `#${invoiceRemovalTarget.orderId}` : `Tạm ${invoiceRemovalTarget.number}` }}</span>
-            </div>
-          </div>
-          <div class="rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700">
-            <div class="flex items-center justify-between gap-3">
-              <span class="text-slate-500">Số sản phẩm</span>
-              <span class="font-semibold text-slate-900">{{ invoiceRemovalTarget.cart?.length || 0 }}</span>
-            </div>
-          </div>
         </div>
       </div>
 
@@ -564,7 +512,7 @@
   import { Html5Qrcode, Html5QrcodeScanType } from 'html5-qrcode'
   import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
   import AdminShell from '@/components/admin/AdminShell.vue'
-  import { adminApi, colorsApi, sizesApi, stockApi } from '@/services/api'
+  import { adminApi, colorsApi, posApi, sizesApi, stockApi } from '@/services/api'
   import { voucherAPI } from '@/services/orders'
   import { buildVariantCode } from '@/utils/variantValues'
 
@@ -584,6 +532,7 @@
     return buildVariantCode(productCode, colorName, sizeName)
   }
   const MAX_INVOICES = 5
+  const POS_DRAFT_STORAGE_KEY = 'shopao.pos.pending-invoices'
   const POS_DEFAULT_CUSTOMER = Object.freeze({
     fullname: 'POS',
     phone: '00000000',
@@ -596,7 +545,6 @@
   const lastReceipt = ref(null)
   const showReceipt = ref(false)
   const paymentDialog = ref(null)
-  const invoiceRemovalTarget = ref(null)
   const invoices = ref([createNewInvoice()])
   const activeInvoiceId = ref(invoices.value[0].id)
   const isProcessing = ref(false)
@@ -720,6 +668,34 @@
 
   const activeTotal = computed(() => Math.max(0, activeSubtotal.value - activeDiscount.value))
 
+  function savePendingInvoices () {
+    const pendingInvoices = invoices.value.filter(invoice => !invoice.orderId)
+    localStorage.setItem(POS_DRAFT_STORAGE_KEY, JSON.stringify({
+      activeInvoiceId: activeInvoiceId.value,
+      nextInvoiceNumber,
+      invoices: pendingInvoices,
+    }))
+  }
+
+  function restorePendingInvoices () {
+    try {
+      const saved = JSON.parse(localStorage.getItem(POS_DRAFT_STORAGE_KEY) || 'null')
+      if (!Array.isArray(saved?.invoices) || saved.invoices.length === 0) return
+
+      invoices.value = saved.invoices.slice(0, MAX_INVOICES)
+      nextInvoiceNumber = Math.max(Number(saved.nextInvoiceNumber) || 1, ...invoices.value.map(invoice => Number(invoice.number) || 0))
+      activeInvoiceId.value = invoices.value.some(invoice => invoice.id === saved.activeInvoiceId)
+        ? saved.activeInvoiceId
+        : invoices.value[0].id
+    } catch (error) {
+      console.warn('Không thể khôi phục hóa đơn POS đang chờ.', error)
+      localStorage.removeItem(POS_DRAFT_STORAGE_KEY)
+    }
+  }
+
+  watch(invoices, savePendingInvoices, { deep: true })
+  watch(activeInvoiceId, savePendingInvoices)
+
   function autoPickBestEligibleVoucher () {
     const invoice = activeInvoice.value
     if (!invoice || invoice.voucherPreference === 'none' || invoice.appliedVoucher || activeSubtotal.value <= 0) return
@@ -833,6 +809,7 @@
       }
 
       await refreshInventory()
+      restorePendingInvoices()
     } catch (error) {
       console.error('Lỗi tải dữ liệu POS:', error)
     }
@@ -868,58 +845,32 @@
   }
 
   function removeInvoice (invoiceId) {
-    const target = invoices.value.find(invoice => invoice.id === invoiceId)
-    if (!target) return
-
-    let nextInvoices = invoices.value.filter(invoice => invoice.id !== invoiceId)
-    if (nextInvoices.length === 0) {
-      const freshInvoice = createNewInvoice()
-      nextInvoices = [freshInvoice]
-      activeInvoiceId.value = freshInvoice.id
-    }
-    invoices.value = nextInvoices
-
-    if (activeInvoiceId.value === invoiceId) {
-      activeInvoiceId.value = nextInvoices[0]?.id || null
-    }
-  }
-
-  const invoiceRemovalLabel = computed(() => {
-    const invoice = invoiceRemovalTarget.value
-    if (!invoice) return 'hóa đơn này'
-    return invoice.orderId ? `hóa đơn #${invoice.orderId}` : `hóa đơn tạm ${invoice.number}`
-  })
-
-  function requestRemoveInvoice (invoice) {
+    const invoice = invoices.value.find(entry => entry.id === invoiceId)
     if (!invoice || invoice.orderId) return
-    if (!Array.isArray(invoice.cart) || invoice.cart.length === 0) {
-      removeInvoice(invoice.id)
+
+    invoice.cart.forEach(item => {
+      posApi.adjustStock(item.variantId, -Number(item.quantity || 0)).catch(error => {
+        console.warn('Không thể hoàn tồn kho hóa đơn POS.', error)
+      })
+    })
+    invoices.value = invoices.value.filter(entry => entry.id !== invoiceId)
+    if (invoices.value.length === 0) {
+      const newInvoice = createNewInvoice()
+      invoices.value = [newInvoice]
+      activeInvoiceId.value = newInvoice.id
       return
     }
-    invoiceRemovalTarget.value = invoice
-  }
-
-  function cancelRemoveInvoice () {
-    invoiceRemovalTarget.value = null
-  }
-
-  function confirmRemoveInvoice () {
-    const target = invoiceRemovalTarget.value
-    if (!target) return
-
-    const nextInvoices = invoices.value.filter(invoice => invoice.id !== target.id)
-    invoices.value = nextInvoices
-
-    if (activeInvoiceId.value === target.id) {
-      activeInvoiceId.value = nextInvoices[0]?.id || null
-    }
-
-    invoiceRemovalTarget.value = null
+    if (activeInvoiceId.value === invoiceId) activeInvoiceId.value = invoices.value[0].id
   }
 
   function resetInvoice () {
     const invoice = activeInvoice.value
     if (!invoice) return
+    invoice.cart.forEach(item => {
+      posApi.adjustStock(item.variantId, -Number(item.quantity || 0)).catch(error => {
+        console.warn('Không thể hoàn tồn kho POS.', error)
+      })
+    })
     invoice.customer = { ...POS_DEFAULT_CUSTOMER }
     invoice.voucherInput = ''
     invoice.appliedVoucher = null
@@ -933,7 +884,12 @@
 
   function removeFromCart (cartItemId) {
     if (!activeInvoice.value) return
-    activeInvoice.value.cart = activeInvoice.value.cart.filter(item => item.cartItemId !== cartItemId)
+    const item = activeInvoice.value.cart.find(entry => entry.cartItemId === cartItemId)
+    if (!item) return
+    posApi.adjustStock(item.variantId, -Number(item.quantity || 0)).catch(error => {
+      console.warn('Không thể hoàn tồn kho sản phẩm POS.', error)
+    })
+    activeInvoice.value.cart = activeInvoice.value.cart.filter(entry => entry.cartItemId !== cartItemId)
   }
 
   async function addToCart (product) {
@@ -969,10 +925,13 @@
         existing.quantity = maxStock
         return
       }
-      existing.quantity = Math.min(existing.quantity + 1, maxStock)
+      const nextQuantity = Math.min(existing.quantity + 1, maxStock)
+      await posApi.adjustStock(variantId, nextQuantity - Number(existing.quantity || 0))
+      existing.quantity = nextQuantity
       return
     }
 
+    await posApi.adjustStock(variantId, 1)
     activeInvoice.value.cart.push({
       cartItemId: `${Date.now()}-${Math.random()}`,
       product,
@@ -1004,6 +963,7 @@
       item.quantity = maxStock
       return
     }
+    await posApi.adjustStock(item.variantId, newQty - Number(item.quantity || 0))
     item.quantity = newQty
   }
 
@@ -1016,11 +976,14 @@
     } catch (error) {
       console.warn('POS validateQuantity stock check failed, using local:', error)
     }
-    if (item.quantity < 1) item.quantity = 1
-    if (item.quantity > maxStock) {
+    const requestedQuantity = Math.max(1, Number(item.quantity) || 1)
+    if (requestedQuantity > maxStock) {
       alert(`Số lượng vượt quá tồn kho, chỉ còn ${maxStock}`)
       item.quantity = maxStock
+      return
     }
+    await posApi.adjustStock(item.variantId, requestedQuantity - Number(item.quantity || 0))
+    item.quantity = requestedQuantity
   }
 
   function applySpecificVoucher (voucher) {
@@ -1396,6 +1359,7 @@
         shippingAddress: 'Mua trực tiếp tại cửa hàng',
         paymentMethodId: resolveEffectivePaymentMethodId(invoice),
         voucherCode: invoice.appliedVoucher ? invoice.appliedVoucher.code : null,
+        stockAlreadyDeducted: true,
         items: invoice.cart.map(item => ({
           variantId: item.variantId,
           price: Number(getVariant(item).price || 0),
@@ -1596,7 +1560,7 @@
 
   function createNewInvoice () {
     return {
-      id: Date.now() + Math.floor(Math.random() * 10_000),
+      id: Date.now() + Math.floor(Math.random() * 10000),
       number: nextInvoiceNumber++,
       orderId: null,
       orderCode: null,

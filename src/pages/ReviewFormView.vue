@@ -19,7 +19,7 @@
             {{ existingReview ?'Sửa đánh giá của bạn':'Viết đánh giá' }}
           </h1>
           <p class="text-slate-500 text-sm">
-            {{ existingReview ?'Bạn có thể sửa hoặc xóa đánh giá cũ.':'Chia sẻ cảm nhận để người mua sau dễ chọn hơn.' }}
+            {{ existingReview ?'Bạn có thể sửa đánh giá cũ.':'Chia sẻ cảm nhận để người mua sau dễ chọn hơn.' }}
           </p>
         </div>
 
@@ -30,7 +30,7 @@
           </svg>
           <div class="flex-1 text-sm">
             <p class="font-semibold text-yellow-800">Bạn đã đánh giá sản phẩm này rồi</p>
-            <p class="text-yellow-700 mt-1">Nếu cần, bạn có thể sửa hoặc xóa ở bên dưới.</p>
+            <p class="text-yellow-700 mt-1">Nếu cần, bạn có thể sửa ở bên dưới.</p>
           </div>
         </div>
 
@@ -46,6 +46,10 @@
 
         <div v-if="reviewerName"class="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
           Đang đánh giá với tài khoản <span class="font-semibold text-slate-900">{{ reviewerName }}</span>
+        </div>
+
+        <div v-if="!existingReview && eligibilityChecked && !isEligible" class="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+          {{ eligibilityMessage }}
         </div>
 
         <form class="flex flex-col gap-5"@submit.prevent="handleSubmit">
@@ -89,7 +93,7 @@
           <div class="flex gap-3 mt-2">
             <button
               class="flex-1 inline-flex items-center justify-center rounded-lg bg-primary hover:bg-blue-600 text-white text-sm font-semibold px-5 py-2.5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              :disabled="!rating || !comment || isSubmitting"
+              :disabled="!rating || !comment || isSubmitting || (eligibilityChecked && !isEligible)"
               type="submit"
             >
               <span v-if="isSubmitting"class="flex items-center gap-2">
@@ -108,30 +112,6 @@
               </span>
               <span v-else>{{ existingReview ?'Cập nhật đánh giá':'Gửi đánh giá' }}</span>
             </button>
-
-            <button
-              v-if="existingReview"
-              class="inline-flex items-center justify-center rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-semibold px-5 py-2.5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              :disabled="isSubmitting"
-              type="button"
-              @click="handleDelete"
-            >
-              <span v-if="isDeleting"class="flex items-center gap-2">
-                <svg class="animate-spin h-4 w-4"fill="none"viewBox="0 0 24 24"xmlns="http://www.w3.org/2000/svg">
-                  <circle
-                    class="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    stroke-width="4"
-                  />
-                  <path class="opacity-75"d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"fill="currentColor" />
-                </svg>
-                Đang xóa...
-              </span>
-              <span v-else>Xóa đánh giá</span>
-            </button>
           </div>
         </form>
       </div>
@@ -144,6 +124,7 @@
   import { useRoute, useRouter } from 'vue-router'
   import { useProductStore } from '@/stores/products'
   import { useReviewsStore } from '@/stores/reviews'
+  import { reviewsApi } from '@/services/api'
   import { getProductImageUrl } from '@/utils/productImages'
 
   const route = useRoute()
@@ -156,8 +137,10 @@
   const submitError = ref('')
   const successMessage = ref('')
   const isSubmitting = ref(false)
-  const isDeleting = ref(false)
   const existingReview = ref(null)
+  const eligibilityChecked = ref(false)
+  const isEligible = ref(false)
+  const eligibilityMessage = ref('Bạn chỉ có thể đánh giá sản phẩm sau khi đã mua thành công.')
 
   const product = computed(() => {
     if (!Number.isFinite(productId.value)) return null
@@ -205,6 +188,20 @@
       existingReview.value = existing
       rating.value = existing.rating || 0
       comment.value = existing.comment || ''
+      return
+    }
+
+    try {
+      const response = await reviewsApi.getEligibility(productId.value, reviewerAccountId.value)
+      isEligible.value = !!(response && response.eligible)
+      eligibilityMessage.value = response && response.message
+        ? response.message
+        : eligibilityMessage.value
+    } catch (error) {
+      isEligible.value = false
+      eligibilityMessage.value = 'Không thể xác minh điều kiện đánh giá. Vui lòng thử lại sau.'
+    } finally {
+      eligibilityChecked.value = true
     }
   })
 
@@ -215,6 +212,10 @@
     if (!Number.isFinite(productId.value)) return
     if (!Number.isFinite(reviewerAccountId.value)) {
       submitError.value = 'Bạn cần đăng nhập để gửi đánh giá.'
+      return
+    }
+    if (!existingReview.value && (!eligibilityChecked.value || !isEligible.value)) {
+      submitError.value = eligibilityMessage.value
       return
     }
 
@@ -261,32 +262,4 @@
     }
   }
 
-  async function handleDelete () {
-    if (!existingReview.value) return
-
-    const confirmed = confirm('Bạn chắc chắn muốn xóa đánh giá này chứ? Thao tác này không thể hoàn tác.')
-    if (!confirmed) return
-
-    isDeleting.value = true
-    submitError.value = ''
-    successMessage.value = ''
-
-    try {
-      const result = await reviewsStore.deleteReview(existingReview.value.id)
-
-      if (result.success) {
-        successMessage.value = 'Đã xóa đánh giá thành công!'
-        setTimeout(() => {
-          router.push(`/product/${productId.value}`)
-        }, 1500)
-      } else {
-        submitError.value = 'Xóa đánh giá thất bại. Bạn thử lại nhé.'
-      }
-    } catch (error) {
-      console.error('Error deleting review:', error)
-      submitError.value = 'Có lỗi xảy ra ngoài dự kiến. Bạn thử lại nhé.'
-    } finally {
-      isDeleting.value = false
-    }
-  }
 </script>

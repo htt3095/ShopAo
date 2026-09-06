@@ -144,15 +144,6 @@
                       >edit</span>
                     </button>
 
-                    <button
-                      class="rounded-lg p-1.5 hover:bg-red-50 dark:hover:bg-red-900/20"
-                      title="Xóa"
-                      @click="confirmDelete(category)"
-                    >
-                      <span
-                        class="material-symbols-outlined text-[18px] text-red-500"
-                      >delete</span>
-                    </button>
                   </div>
                 </td>
               </tr>
@@ -298,46 +289,6 @@
       </div>
     </Teleport>
 
-    <!-- Modal xác nhận xóa -->
-    <Teleport to="body">
-      <div
-        v-if="deleteTarget"
-        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-        @click.self="deleteTarget = null"
-      >
-        <div
-          class="w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl "
-        >
-          <h3 class="mb-2 text-base font-bold">Xác nhận xóa</h3>
-          <p class="text-sm text-slate-500 ">
-            Bạn chắc chắn muốn xóa danh mục
-            <strong>#{{ deleteTarget.id }}</strong> ({{
-              deleteTarget.name || "Danh mục"
-            }})?
-          </p>
-          <p class="mt-2 text-xs text-red-500">
-            Lưu ý: Sẽ không thể xóa nếu có sản phẩm đang sử dụng danh mục
-            này.
-          </p>
-
-          <div class="mt-5 flex justify-end gap-3">
-            <button
-              class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium "
-              @click="deleteTarget = null"
-            >
-              Hủy
-            </button>
-            <button
-              class="rounded-xl bg-red-500 px-4 py-2 text-sm font-medium text-white hover:bg-red-600 disabled:opacity-60"
-              :disabled="deleting"
-              @click="deleteCategory"
-            >
-              {{ deleting ? "Đang xóa..." : "Xóa" }}
-            </button>
-          </div>
-        </div>
-      </div>
-    </Teleport>
   </AdminShell>
 </template>
 
@@ -371,10 +322,6 @@
         ),
     )
   })
-
-  // Delete state
-  const deleteTarget = ref(null)
-  const deleting = ref(false)
 
   // Form data
   const form = ref({
@@ -574,24 +521,6 @@
             : 'Không thể thêm danh mục')
     } finally {
       saving.value = false
-    }
-  }
-
-  function confirmDelete (category) {
-    deleteTarget.value = category
-  }
-
-  async function deleteCategory () {
-    if (!deleteTarget.value) return
-    deleting.value = true
-    try {
-      await categoriesApi.delete(deleteTarget.value.id)
-      categorys.value = categorys.value.filter(item => Number(item.id) !== Number(deleteTarget.value.id))
-      deleteTarget.value = null
-    } catch (error_) {
-      alert('Lỗi khi xóa: ' + error_.message)
-    } finally {
-      deleting.value = false
     }
   }
 
