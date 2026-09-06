@@ -33,7 +33,7 @@ public class PaymentController {
             @RequestBody Map<String, Object> payload,
             HttpServletRequest request) {
         try {
-            // 1. Lấy orderId
+
             Long orderId = Long.valueOf(payload.get("orderId").toString());
             Order order = orderRepo.findById(orderId)
                     .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng ID " + orderId));
@@ -47,7 +47,6 @@ public class PaymentController {
 
             long vnpAmount = amount.longValue() * 100;
 
-            // 3. Build VNPay parameters
             String vnpTxnRef = String.valueOf(orderId);
             String vnpIpAddr = VNPayUtil.getIpAddress(request);
             String vnpCreateDate = ZonedDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh"))
@@ -67,14 +66,12 @@ public class PaymentController {
             vnpParams.put("vnp_IpAddr", vnpIpAddr);
             vnpParams.put("vnp_CreateDate", vnpCreateDate);
 
-            // 4. Build full payment URL with HMAC-SHA512 signature
             String paymentUrl = VNPayUtil.buildPaymentUrl(
                     vnPayConfig.getVnpPayUrl(),
                     vnpParams,
                     vnPayConfig.getVnpHashSecret()
             );
 
-            // 5. Update order payment status to PENDING
             order.setPaymentStatus("PENDING");
             orderRepo.save(order);
 
@@ -92,23 +89,16 @@ public class PaymentController {
         }
     }
 
-    // ─────────────────────────────────────────────────────────────────────
-    //  2) VNPAY IPN — Server-to-server callback
-    //     GET /api/payment/vnpay/ipn?vnp_TxnRef=...&vnp_ResponseCode=...&...
-    //     VNPay sẽ gọi endpoint này sau khi user thanh toán xong.
-    //     Response phải đúng format: {"RspCode":"00","Message":"Confirm Success"}
-    // ─────────────────────────────────────────────────────────────────────
+
     @GetMapping("/vnpay/ipn")
     @Transactional
     public ResponseEntity<?> vnpayIpn(@RequestParam Map<String, String> params) {
         try {
-            // 1. Verify hash
             boolean isValidHash = VNPayUtil.verifyHash(params, vnPayConfig.getVnpHashSecret());
             if (!isValidHash) {
                 return ResponseEntity.ok(Map.of("RspCode", "97", "Message", "Invalid Checksum"));
             }
 
-            // 2. Get order info
             String vnpTxnRef = params.get("vnp_TxnRef");
             String vnpResponseCode = params.get("vnp_ResponseCode");
             String vnpTransactionStatus = params.get("vnp_TransactionStatus");
@@ -132,12 +122,10 @@ public class PaymentController {
 
             Order order = optOrder.get();
 
-            // 3. Check if order already processed (idempotent)
             if ("PAID".equalsIgnoreCase(order.getPaymentStatus())) {
                 return ResponseEntity.ok(Map.of("RspCode", "02", "Message", "Order already confirmed"));
             }
 
-            // 4. Validate amount matches
             if (vnpAmountStr != null) {
                 long vnpAmount = Long.parseLong(vnpAmountStr);
                 BigDecimal expectedAmount = order.getFinalAmount() != null
@@ -149,15 +137,12 @@ public class PaymentController {
                 }
             }
 
-            // 5. Process payment result
             if ("00".equals(vnpResponseCode) && "00".equals(vnpTransactionStatus)) {
-                // Payment successful
                 order.setPaymentStatus("PAID");
                 order.setStatus("CONFIRMED");
                 orderRepo.save(order);
                 return ResponseEntity.ok(Map.of("RspCode", "00", "Message", "Confirm Success"));
             } else {
-                // Payment failed
                 order.setPaymentStatus("FAILED");
                 orderRepo.save(order);
                 return ResponseEntity.ok(Map.of("RspCode", "00", "Message", "Confirm Success"));
@@ -177,7 +162,6 @@ public class PaymentController {
             String vnpResponseCode = params.get("vnp_ResponseCode");
             String vnpTransactionNo = params.get("vnp_TransactionNo");
             String vnpAmount = params.get("vnp_Amount");
-            // Cập nhật trạng thái đơn hàng trong DB
             if (isValidHash && vnpTxnRef != null && !vnpTxnRef.isEmpty()) {
                 try {
                     Long orderId = Long.valueOf(vnpTxnRef);

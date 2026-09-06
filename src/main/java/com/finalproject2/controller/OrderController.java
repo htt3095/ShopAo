@@ -206,9 +206,7 @@ public class OrderController {
         String oldStatus = order.getStatus();
         String newStatus = asString(req.get("status"));
 
-        // --- CHẶN HOÀN HÀNG NHIỀU LẦN ---
-        // Nếu đơn đang được yêu cầu chuyển sang RETURN_REQUEST mà trước đó đã có bất kỳ
-        // trạng thái hoàn hàng nào rồi thì trả lỗi ngay
+
         if ("RETURN_REQUEST".equals(newStatus)) {
             boolean alreadyReturned = oldStatus != null && (
                 oldStatus.contains("RETURN") ||
@@ -222,9 +220,7 @@ public class OrderController {
                 throw new BadRequestException("Don hang nay da duoc gui yeu cau hoan tra truoc do, khong the hoan them lan nua!");
             }
         }
-        // ----------------------------------
 
-        // --- VÁ LỖI 3: CỘNG LẠI KHO KHI HỦY/HOÀN ĐƠN ---
         Object restoreStockObj = req.get("restoreStock");
         boolean restoreStock = restoreStockObj != null ? Boolean.parseBoolean(restoreStockObj.toString()) : true;
         List<String> stockRestoredStatuses = List.of("CANCELLED", "RETURNED", "DAMAGED", "LOST");
