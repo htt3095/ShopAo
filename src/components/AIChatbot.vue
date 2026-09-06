@@ -324,7 +324,7 @@ async function handleSend() {
     const fallbackResult = fallbackSearch(text);
     messages.value.push({
       role: "bot",
-      text: fallbackResult.message,
+      text: buildExplainedReply(text, fallbackResult.message, fallbackResult.products),
       products: fallbackResult.products,
     });
     isTyping.value = false;
@@ -335,24 +335,25 @@ async function handleSend() {
   try {
     const response = await sendChatMessage(text, allProducts.value);
     const matchedProducts = findProductsByIds(response.productIds);
-    const shouldUseFallback = shouldUseLocalFallback(text, response, matchedProducts);
+    const refinedProducts = filterAndRankProductsForQuery(text, matchedProducts);
+    const shouldUseFallback = shouldUseLocalFallback(text, response, refinedProducts);
 
     if (shouldUseFallback) {
       const fallbackResult = fallbackSearch(text);
       messages.value.push({
         role: "bot",
-        text: fallbackResult.message,
+        text: buildExplainedReply(text, fallbackResult.message, fallbackResult.products),
         products: fallbackResult.products,
       });
       return;
     }
 
-    const displayMessage = resolveBotMessage(text, response.message, matchedProducts);
+    const displayMessage = resolveBotMessage(text, response.message, refinedProducts);
 
     messages.value.push({
       role: "bot",
       text: displayMessage,
-      products: matchedProducts,
+      products: refinedProducts,
     });
   } catch {
     messages.value.push({
@@ -376,6 +377,162 @@ function normalizeQueryText(value) {
 
 function formatMoney(value) {
   return new Intl.NumberFormat("vi-VN").format(Number(value || 0));
+}
+
+function toWordSet(value) {
+  return new Set(
+    normalizeQueryText(value)
+      .split(/\s+/)
+      .map((word) => word.trim())
+      .filter(Boolean),
+  );
+}
+
+function getProductSearchText(product) {
+  return normalizeQueryText([
+    product?.name,
+    product?.brandName || product?.brand,
+    product?.categoryName || product?.category,
+    product?.description,
+  ].join(" "));
+}
+
+function detectProductIntent(query) {
+  const q = normalizeQueryText(query);
+
+  const hasJacketIntent =
+    q.includes("ao khoac") ||
+    q.includes("khoac") ||
+    q.includes("jacket") ||
+    q.includes("windbreaker") ||
+    q.includes("hoodie");
+
+  const hasPoloIntent = q.includes("polo");
+  const hasRunningIntent =
+    q.includes("chay bo") ||
+    q.includes("running") ||
+    q.includes("runner") ||
+    q.includes("tap luyen");
+
+  return {
+    hasJacketIntent,
+    hasPoloIntent,
+    hasRunningIntent,
+    queryText: q,
+  };
+}
+
+function matchesIntent(product, intent) {
+  const text = getProductSearchText(product);
+
+  if (intent.hasJacketIntent) {
+    const isJacket =
+      text.includes("ao khoac") ||
+      text.includes("khoac") ||
+      text.includes("jacket") ||
+      text.includes("windbreaker") ||
+      text.includes("hoodie");
+
+    if (!isJacket) return false;
+  }
+
+  if (intent.hasPoloIntent) {
+    const isPolo = text.includes("polo");
+    if (!isPolo) return false;
+  }
+
+  if (intent.hasRunningIntent) {
+    const isRunning =
+      text.includes("chay bo") ||
+      text.includes("running") ||
+      text.includes("tap luyen") ||
+      text.includes("dry") ||
+      text.includes("thoang khi");
+    if (!isRunning) return false;
+  }
+
+  return true;
+}
+
+function scoreProductByQuery(product, normalizedQuery) {
+  const text = getProductSearchText(product);
+  const words = Array.from(toWordSet(normalizedQuery));
+  const stopWords = new Set([
+    "co",
+    "khong",
+    "nao",
+    "cho",
+    "toi",
+    "xem",
+    "muon",
+    "mua",
+    "tim",
+    "nhung",
+    "loai",
+    "trong",
+    "shop",
+    "ao",
+    "a",
+    "the",
+    "thao",
+  ]);
+
+  let score = 0;
+  for (const word of words) {
+    if (word.length < 2 || stopWords.has(word) || /^\d+k?$/i.test(word)) continue;
+    if (text.includes(word)) {
+      score += 1;
+      if (normalizeQueryText(product?.description || "").includes(word)) {
+        score += 2;
+      }
+    }
+  }
+
+  return score;
+}
+
+function filterAndRankProductsForQuery(query, products) {
+  const normalizedQuery = normalizeQueryText(query);
+  const intent = detectProductIntent(normalizedQuery);
+
+  const filtered = (Array.isArray(products) ? products : []).filter((product) => matchesIntent(product, intent));
+
+  return filtered
+    .map((product) => ({
+      product,
+      score: scoreProductByQuery(product, normalizedQuery),
+    }))
+    .sort((a, b) => b.score - a.score)
+    .map((entry) => entry.product)
+    .slice(0, 4);
+}
+
+function getDescriptionSnippet(text, maxLen = 100) {
+  const cleaned = String(text || "").replace(/\s+/g, " ").trim();
+  if (!cleaned) return "";
+  if (cleaned.length <= maxLen) return cleaned;
+  return `${cleaned.slice(0, maxLen).trim()}...`;
+}
+
+function buildExplainedReply(query, baseMessage, products) {
+  const selected = (Array.isArray(products) ? products : []).slice(0, 3);
+  if (selected.length === 0) return baseMessage;
+
+  const header = baseMessage && String(baseMessage).trim()
+    ? String(baseMessage).trim()
+    : "Mình đã lọc các mẫu sát với nhu cầu của bạn.";
+
+  const details = selected.map((product) => {
+    const name = product?.name || "Sản phẩm";
+    const category = product?.categoryName || product?.category || "áo thể thao";
+    const desc = getDescriptionSnippet(product?.description, 90);
+    const price = Number(product?._minPrice || product?.price || product?.minPrice || 0);
+    const pricePart = price > 0 ? `, giá từ ${formatMoney(price)}đ` : "";
+    const descPart = desc ? `, mô tả: ${desc}` : "";
+    return `- ${name}: thuộc nhóm ${category}${pricePart}${descPart}`;
+  });
+
+  return `${header}\n${details.join("\n")}\nNếu muốn, mình có thể lọc chặt hơn theo ngân sách, size hoặc thương hiệu bạn thích.`;
 }
 
 function isOverviewQuery(normalizedQuery) {
@@ -477,12 +634,19 @@ function buildNaturalRecommendationReply(query, products) {
 }
 
 function resolveBotMessage(query, rawMessage, matchedProducts) {
-  if (!isMechanicalProductReply(rawMessage) || matchedProducts.length === 0) {
+  if (matchedProducts.length === 0) {
     return rawMessage;
   }
 
-  const rewritten = buildNaturalRecommendationReply(query, matchedProducts);
-  return rewritten || rawMessage;
+  const normalizedRaw = normalizeQueryText(rawMessage);
+  const needsRewrite = isMechanicalProductReply(rawMessage) || normalizedRaw.length < 12;
+
+  if (needsRewrite) {
+    const rewritten = buildNaturalRecommendationReply(query, matchedProducts);
+    return buildExplainedReply(query, rewritten || rawMessage, matchedProducts);
+  }
+
+  return buildExplainedReply(query, rawMessage, matchedProducts);
 }
 
 function buildOverviewReply(query) {
@@ -548,6 +712,8 @@ function buildOverviewReply(query) {
 function shouldUseLocalFallback(query, response, matchedProducts) {
   const normalizedQuery = normalizeQueryText(query);
   const responseMessage = normalizeQueryText(response?.message || "");
+  const intent = detectProductIntent(normalizedQuery);
+  const hasStrictIntent = intent.hasJacketIntent || intent.hasPoloIntent || intent.hasRunningIntent;
 
   if (matchedProducts.length > 0) {
     return false;
@@ -556,7 +722,8 @@ function shouldUseLocalFallback(query, response, matchedProducts) {
   return (
     responseMessage.includes("khong tim thay") ||
     responseMessage.includes("khong co san pham phu hop") ||
-    (isOverviewQuery(normalizedQuery) && !responseMessage)
+    (isOverviewQuery(normalizedQuery) && !responseMessage) ||
+    hasStrictIntent
   );
 }
 
@@ -580,46 +747,43 @@ function fallbackSearch(query) {
     if (maxPrice < 1000) maxPrice *= 1000;
   }
 
+  const intent = detectProductIntent(q);
+
   const scored = allProducts.value.map((p) => {
-    const name = String(p.name || "")
-      .toLowerCase()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "");
-    const brand = String(p.brandName || p.brand || "")
-      .toLowerCase()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "");
-    const category = String(p.categoryName || p.category || "")
-      .toLowerCase()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "");
+    if (!matchesIntent(p, intent)) {
+      return { product: p, score: -100 };
+    }
+
+    const name = normalizeQueryText(p.name || "");
+    const brand = normalizeQueryText(p.brandName || p.brand || "");
+    const category = normalizeQueryText(p.categoryName || p.category || "");
+    const description = normalizeQueryText(p.description || "");
 
     const stopWords = ["giay", "quan", "mau", "size", "co", "khong", "nao", "cho", "toi", "xem", "muon", "mua", "tim", "nhung", "loai", "trong", "shop"];
     let score = 0;
     const words = q.split(/\s+/).filter((w) => w.length > 1 && !/^\d+k?$/i.test(w) && w !== "duoi" && w !== "tren" && !stopWords.includes(w));
-    
-    // If no significant words and no price filter, return score 0
+
     if (words.length === 0 && maxPrice === null) return { product: p, score: 0 };
 
     for (const word of words) {
       if (name.includes(word)) score += 3;
-      if (brand.includes(word)) score += 5; // Brand match is more important
+      if (brand.includes(word)) score += 5;
       if (category.includes(word)) score += 2;
-      if (word === "ao" && (name.includes("ao") || category.includes("ao") || name.includes("thun") || name.includes("polo"))) {
+      if (description.includes(word)) score += 4;
+      if (word === "ao" && (name.includes("ao") || category.includes("ao") || name.includes("thun") || name.includes("polo") || name.includes("khoac"))) {
         score += 2;
       }
     }
-    
-    // If there were significant words but NONE matched, penalize heavily
+
     if (words.length > 0 && score === 0) {
       score = -100;
     }
+
     const price = Number(p._minPrice || 0);
     if (maxPrice !== null) {
       if (price > 0 && price <= maxPrice) {
         score += 2;
       } else {
-        // Product doesn't meet price requirement - exclude it
         score = -100;
       }
     }
@@ -630,13 +794,15 @@ function fallbackSearch(query) {
   const results = scored
     .filter((s) => s.score > 0)
     .sort((a, b) => b.score - a.score)
-    .slice(0, 4)
+    .slice(0, 6)
     .map((s) => s.product);
 
-  if (results.length > 0) {
+  const refinedResults = filterAndRankProductsForQuery(query, results);
+
+  if (refinedResults.length > 0) {
     return {
-      message: `Tôi tìm thấy ${results.length} sản phẩm phù hợp với yêu cầu của bạn:`,
-      products: results,
+      message: `Mình đã tìm thấy ${refinedResults.length} sản phẩm phù hợp với yêu cầu của bạn.`,
+      products: refinedResults,
     };
   }
 

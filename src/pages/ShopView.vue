@@ -507,7 +507,6 @@
       }
       case 'newest':
       default: {
-        // Sort by creation date or keep original order
         filtered.sort((a, b) => b.id - a.id)
       }
     }
@@ -515,7 +514,6 @@
     return filtered
   })
 
-  // Calculate total pages
   const totalPages = computed(() => {
     return Math.ceil(allFilteredProducts.value.length / PRODUCTS_PER_PAGE) || 1
   })
@@ -527,40 +525,35 @@
     return allFilteredProducts.value.slice(startIndex, endIndex)
   })
 
-  // Calculate visible page numbers with ellipsis
   const visiblePages = computed(() => {
     const pages = []
     const maxPagesToShow = 5
 
     if (totalPages.value <= maxPagesToShow) {
-      // Show all pages if total is less than max
       for (let i = 1; i <= totalPages.value; i++) {
         pages.push(i)
       }
     } else {
-      // Show first page
       pages.push(1)
 
-      // Calculate range around current page
       const startPage = Math.max(2, currentPage.value - 1)
       const endPage = Math.min(totalPages.value - 1, currentPage.value + 1)
 
-      // Add ellipsis if needed
       if (startPage > 2) {
         pages.push('...')
       }
 
-      // Add middle pages
+    
       for (let i = startPage; i <= endPage; i++) {
         pages.push(i)
       }
 
-      // Add ellipsis if needed
+  
       if (endPage < totalPages.value - 1) {
         pages.push('...')
       }
 
-      // Show last page
+
       if (totalPages.value > 1) {
         pages.push(totalPages.value)
       }
@@ -614,7 +607,6 @@
       if (!key) continue
 
       const existing = map.get(key)
-      // Prefer the non "-updated" entry if both exist.
       if (!existing) {
         map.set(key, item)
         continue
