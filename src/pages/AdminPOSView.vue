@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <AdminShell>
     <template #header>
       <div class="flex flex-wrap items-center justify-between gap-4">
@@ -849,7 +849,9 @@
     if (!invoice || invoice.orderId) return
 
     invoice.cart.forEach(item => {
-      posApi.adjustStock(item.variantId, -Number(item.quantity || 0)).catch(error => {
+      posApi.adjustStock(item.variantId, -Number(item.quantity || 0)).then(() => {
+        adjustLocalStock(item.variantId, -Number(item.quantity || 0))
+      }).catch(error => {
         console.warn('Không thể hoàn tồn kho hóa đơn POS.', error)
       })
     })
@@ -886,7 +888,9 @@
     if (!activeInvoice.value) return
     const item = activeInvoice.value.cart.find(entry => entry.cartItemId === cartItemId)
     if (!item) return
-    posApi.adjustStock(item.variantId, -Number(item.quantity || 0)).catch(error => {
+    posApi.adjustStock(item.variantId, -Number(item.quantity || 0)).then(() => {
+      adjustLocalStock(item.variantId, -Number(item.quantity || 0))
+    }).catch(error => {
       console.warn('Không thể hoàn tồn kho sản phẩm POS.', error)
     })
     activeInvoice.value.cart = activeInvoice.value.cart.filter(entry => entry.cartItemId !== cartItemId)
@@ -926,12 +930,15 @@
         return
       }
       const nextQuantity = Math.min(existing.quantity + 1, maxStock)
-      await posApi.adjustStock(variantId, nextQuantity - Number(existing.quantity || 0))
+      const diff = nextQuantity - Number(existing.quantity || 0)
+      await posApi.adjustStock(variantId, diff)
+      adjustLocalStock(variantId, diff)
       existing.quantity = nextQuantity
       return
     }
 
     await posApi.adjustStock(variantId, 1)
+    adjustLocalStock(variantId, 1)
     activeInvoice.value.cart.push({
       cartItemId: `${Date.now()}-${Math.random()}`,
       product,
@@ -939,6 +946,17 @@
       quantity: 1,
       price: Number(defaultVariant.price || 0),
     })
+  }
+
+  function adjustLocalStock (variantId, reservedDelta) {
+    if (!reservedDelta) return
+    for (const product of inventoryVariants.value) {
+      const variant = product.variants.find(v => v.variantId === variantId)
+      if (variant) {
+        variant.stockQuantity = Number(variant.stockQuantity || 0) - reservedDelta
+        break
+      }
+    }
   }
 
   function getVariant (item) {
@@ -963,7 +981,9 @@
       item.quantity = maxStock
       return
     }
-    await posApi.adjustStock(item.variantId, newQty - Number(item.quantity || 0))
+    const diff = newQty - Number(item.quantity || 0)
+    await posApi.adjustStock(item.variantId, diff)
+    adjustLocalStock(item.variantId, diff)
     item.quantity = newQty
   }
 
@@ -982,7 +1002,9 @@
       item.quantity = maxStock
       return
     }
-    await posApi.adjustStock(item.variantId, requestedQuantity - Number(item.quantity || 0))
+    const diff = requestedQuantity - Number(item.quantity || 0)
+    await posApi.adjustStock(item.variantId, diff)
+    adjustLocalStock(item.variantId, diff)
     item.quantity = requestedQuantity
   }
 

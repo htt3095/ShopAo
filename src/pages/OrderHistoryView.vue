@@ -195,12 +195,12 @@
                     Ngày đặt
                   </th>
                   <th
-                    class="px-5 py-4 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500 "
+                    class="px-5 py-4 text-center text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500 "
                   >
                     Trạng thái đơn
                   </th>
                   <th
-                    class="px-5 py-4 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500 "
+                    class="px-5 py-4 text-center text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500 "
                   >
                     Thanh toán
                   </th>
@@ -237,20 +237,24 @@
                   >
                     {{ formatDate(order.createdAt) }}
                   </td>
-                  <td class="px-5 py-4">
+                  <td class="px-5 py-4 text-center">
                     <span
-                      class="inline-flex items-center rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.08em]"
+                      class="inline-flex items-center justify-center min-w-[100px] rounded-md px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.06em]"
                       :class="getStatusMeta(order.status).className"
                     >
                       {{ getStatusMeta(order.status).label }}
                     </span>
                   </td>
-                  <td class="px-5 py-4">
+                  <td class="px-5 py-4 text-center">
                     <span
-                      class="inline-flex items-center rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.08em]"
+                      class="inline-flex flex-col items-center justify-center min-w-[140px] rounded-md px-2.5 py-1.5 leading-tight"
                       :class="getPaymentMeta(order.paymentStatus).className"
                     >
-                      {{ getPaymentMeta(order.paymentStatus).label }}
+                      <span class="text-[11px] font-semibold uppercase tracking-[0.06em] whitespace-nowrap">{{ getPaymentMeta(order.paymentStatus).label }}</span>
+                      <span v-if="!isRefundedPaymentStatus(order.paymentStatus)" class="mt-0.5 flex items-center justify-center gap-1 text-[10px] font-medium opacity-90 whitespace-nowrap">
+                        <span class="material-symbols-outlined text-[13px] !leading-none">account_balance_wallet</span>
+                        {{ getPaymentMethodShort(order) }}
+                      </span>
                     </span>
                   </td>
                   <td
@@ -270,7 +274,7 @@
                     </button>
 
                     <button
-                      v-if="(order.paymentStatus === 'PENDING' || order.paymentStatus === 'FAILED') && order.paymentMethod && order.paymentMethod.id === 2"
+                      v-if="['NEW', 'PENDING'].includes(order.status) && (order.paymentStatus === 'PENDING' || order.paymentStatus === 'FAILED') && isVnPay(order)"
                       class="ml-2 inline-flex items-center gap-1 rounded-full bg-primary text-white px-3 py-1.5 text-xs font-semibold transition-colors hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-60"
                       :disabled="isRepaying"
                       type="button"
@@ -306,7 +310,7 @@
                 </p>
               </div>
               <span
-                class="inline-flex items-center rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.08em]"
+                class="inline-flex items-center rounded-md px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.06em]"
                 :class="getStatusMeta(order.status).className"
               >
                 {{ getStatusMeta(order.status).label }}
@@ -330,9 +334,18 @@
                 >
                   Thanh toán
                 </p>
-                <p class="mt-1 text-slate-700 ">
-                  {{ getPaymentMeta(order.paymentStatus).label }}
-                </p>
+                <div class="mt-1">
+                  <span
+                    class="inline-flex flex-col items-center justify-center rounded-md px-2.5 py-1.5 leading-tight"
+                    :class="getPaymentMeta(order.paymentStatus).className"
+                  >
+                    <span class="text-[11px] font-semibold uppercase tracking-[0.06em] whitespace-nowrap">{{ getPaymentMeta(order.paymentStatus).label }}</span>
+                    <span v-if="!isRefundedPaymentStatus(order.paymentStatus)" class="mt-0.5 flex items-center justify-center gap-1 text-[10px] font-medium opacity-90 whitespace-nowrap">
+                      <span class="material-symbols-outlined text-[13px] !leading-none">account_balance_wallet</span>
+                      {{ getPaymentMethodShort(order) }}
+                    </span>
+                  </span>
+                </div>
               </div>
               <div class="col-span-2">
                 <p
@@ -371,7 +384,7 @@
               Xem chi tiết đơn
             </button>
             <button
-              v-if="order.paymentStatus === 'PENDING' && order.paymentMethod && order.paymentMethod.id === 2"
+              v-if="['NEW', 'PENDING'].includes(order.status) && (order.paymentStatus === 'PENDING' || order.paymentStatus === 'FAILED') && isVnPay(order)"
               class="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary text-white px-3 py-2 text-sm font-semibold transition-colors hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-60"
               :disabled="isRepaying"
               type="button"
@@ -522,9 +535,7 @@
                     <p
                       class="mt-1 text-sm font-semibold text-slate-900 "
                     >
-                      {{
-                        getPaymentMeta(activeDetailOrder.paymentStatus).label
-                      }}
+                      {{ getPaymentMeta(activeDetailOrder.paymentStatus).label }}<template v-if="!isRefundedPaymentStatus(activeDetailOrder.paymentStatus)"> • {{ getPaymentMethodShort(activeDetailOrder) }}</template>
                     </p>
                   </article>
                   <article
@@ -1246,7 +1257,7 @@
       return {
         label: 'Đã giao',
         className:
-          'bg-teal-100 text-teal-700  ',
+          'bg-teal-500 text-white shadow-sm',
       }
     }
 
@@ -1254,7 +1265,7 @@
       return {
         label: 'Thành công',
         className:
-          'bg-green-100 text-green-700  ',
+          'bg-green-500 text-white shadow-sm',
       }
     }
 
@@ -1262,14 +1273,14 @@
       return {
         label: 'Đang giao',
         className:
-          'bg-blue-100 text-blue-700  ',
+          'bg-blue-500 text-white shadow-sm',
       }
     }
 
     if (category === 'cancelled') {
       return {
         label: 'Đã hủy',
-        className: 'bg-red-100 text-red-700  ',
+        className: 'bg-red-500 text-white shadow-sm',
       }
     }
 
@@ -1277,7 +1288,7 @@
       return {
         label: 'Giao thất bại',
         className:
-          'bg-rose-100 text-rose-700  ',
+          'bg-rose-500 text-white shadow-sm',
       }
     }
 
@@ -1285,7 +1296,7 @@
       return {
         label: 'Hàng hỏng',
         className:
-          'bg-red-100 text-red-700  ',
+          'bg-red-500 text-white shadow-sm',
       }
     }
 
@@ -1293,7 +1304,7 @@
       return {
         label: 'Hàng mất',
         className:
-          'bg-red-100 text-red-700  ',
+          'bg-red-500 text-white shadow-sm',
       }
     }
 
@@ -1301,7 +1312,7 @@
       return {
         label: 'Đã trả hàng',
         className:
-          'bg-slate-200 text-slate-700  ',
+          'bg-slate-500 text-white shadow-sm',
       }
     }
 
@@ -1309,17 +1320,34 @@
       return {
         label: 'Đang trả hàng',
         className:
-          'bg-orange-100 text-orange-700  ',
+          'bg-orange-500 text-white shadow-sm',
       }
     }
 
-    const waiting = isWaitingForProcessingStatus(status)
-    return {
-      label: waiting ? 'Chờ xử lý' : 'Đang xử lý',
-      className: waiting
-        ? 'bg-amber-100 text-amber-700  '
-        : 'bg-blue-100 text-blue-700  ',
+    if (category === 'processing') {
+      return {
+        label: 'Đang xử lý',
+        className:
+          'bg-blue-500 text-white shadow-sm',
+      }
     }
+
+    return {
+      label: 'Chờ xử lý',
+      className:
+        'bg-amber-500 text-white shadow-sm',
+    }
+  }
+
+  function isRefundedPaymentStatus (paymentStatus) {
+    const key = normalizeStatusKey(paymentStatus)
+    return (
+      key === 'REFUNDED'
+      || key === 'REFUND'
+      || key === 'HOAN_TIEN'
+      || key === 'CHARGEBACK'
+      || key === 'REVERSED'
+    )
   }
 
   function getPaymentMeta (paymentStatus) {
@@ -1328,29 +1356,80 @@
       return {
         label: 'Đã thanh toán',
         className:
-          'bg-green-100 text-green-700  ',
+          'bg-green-500 text-white shadow-sm',
       }
     }
 
-    if (
-      key === 'REFUNDED'
-      || key === 'REFUND'
-      || key === 'HOAN_TIEN'
-      || key === 'CHARGEBACK'
-      || key === 'REVERSED'
-    ) {
+    if (isRefundedPaymentStatus(paymentStatus)) {
       return {
         label: 'Hoàn tiền',
         className:
-          'bg-slate-100 text-slate-700  ',
+          'bg-slate-500 text-white shadow-sm',
       }
     }
 
     return {
       label: 'Chưa thanh toán',
       className:
-        'bg-amber-100 text-amber-700  ',
+        'bg-amber-500 text-white shadow-sm',
     }
+  }
+
+  function getPaymentMethodLabel (orderLike) {
+    if (!orderLike) return 'N/A'
+    const name = orderLike.paymentMethod?.name 
+      || orderLike.payment_method?.name 
+      || orderLike.paymentMethodName 
+      || orderLike.payment_method_name
+    
+    if (name) return name
+    
+    const id = orderLike.paymentMethod?.id 
+      || orderLike.payment_method?.id 
+      || orderLike.paymentMethodId 
+      || orderLike.payment_method_id
+      
+    if (id === 1 || id === '1') return 'Thanh toán khi nhận hàng (COD)'
+    if (id === 2 || id === '2') return 'Thanh toán VNPay'
+    
+    return 'Chưa xác định'
+  }
+
+  function getPaymentMethodShort (orderLike) {
+    if (isVnPay(orderLike)) return 'VNPay'
+    
+    const id = orderLike?.paymentMethod?.id 
+      || orderLike?.payment_method?.id 
+      || orderLike?.paymentMethodId 
+      || orderLike?.payment_method_id
+      
+    if (id === 1 || id === '1') return 'COD'
+    
+    const name = orderLike?.paymentMethod?.name 
+      || orderLike?.payment_method?.name 
+      || orderLike?.paymentMethodName 
+      || orderLike?.payment_method_name
+      
+    if (name && (name.toLowerCase().includes('nhận hàng') || name.toLowerCase().includes('cod'))) return 'COD'
+    
+    return name || 'N/A'
+  }
+
+  function isVnPay (orderLike) {
+    if (!orderLike) return false
+    const id = orderLike.paymentMethod?.id 
+      || orderLike.payment_method?.id 
+      || orderLike.paymentMethodId 
+      || orderLike.payment_method_id
+    
+    if (id === 2 || id === '2') return true
+    
+    const name = orderLike.paymentMethod?.name 
+      || orderLike.payment_method?.name 
+      || orderLike.paymentMethodName 
+      || orderLike.payment_method_name
+      
+    return name && (name.toLowerCase().includes('vnpay') || name.toLowerCase().includes('ví điện tử'))
   }
 
   function isPaidPaymentStatus (paymentStatus) {

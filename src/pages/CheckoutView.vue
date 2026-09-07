@@ -756,15 +756,44 @@
       .join(', ')
   }
 
+  // Strip prefixes like "Tỉnh", "Thành phố", "Phường", "Xã", "Quận", "Huyện" for comparison
+  function stripAdministrativePrefix (name) {
+    if (!name) return ''
+    return name.replace(/^(Tỉnh|Thành phố|Phường|Xã|Quận|Huyện|Thị xã|Thị trấn)\s+/i, '').trim()
+  }
+
+  // Normalize text for comparison by removing accents and making lowercase
+  function normalizeAddressText (text) {
+    if (!text) return ''
+    return text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/đ/g, 'd').replace(/Đ/g, 'D')
+  }
+
   function buildCurrentAddressString () {
-    return [
-      streetAddress.value,
-      selectedWard.value?.name,
-      selectedDistrict.value?.name,
-      selectedProvince.value?.name,
-    ]
-      .filter(Boolean)
-      .join(', ')
+    const addressStr = streetAddress.value || ''
+    const parts = [addressStr]
+    
+    // Normalize addressStr completely to remove punctuation and accents for reliable includes check
+    const normalizedAddressStr = normalizeAddressText(addressStr)
+    
+    const ward = selectedWard.value?.name
+    if (ward) {
+      const bareWard = stripAdministrativePrefix(ward)
+      if (bareWard && !normalizedAddressStr.includes(bareWard)) parts.push(ward)
+    }
+    
+    const district = selectedDistrict.value?.name
+    if (district) {
+      const bareDist = stripAdministrativePrefix(district)
+      if (bareDist && !normalizedAddressStr.includes(bareDist)) parts.push(district)
+    }
+    
+    const province = selectedProvince.value?.name
+    if (province) {
+      const bareProv = stripAdministrativePrefix(province)
+      if (bareProv && !normalizedAddressStr.includes(bareProv)) parts.push(province)
+    }
+    
+    return parts.filter(Boolean).join(', ')
   }
 
   function scheduleAutoRouteCalculation () {
