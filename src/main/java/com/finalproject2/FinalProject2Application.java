@@ -10,9 +10,11 @@ import com.finalproject2.entity.Role;
 import com.finalproject2.repository.AccountRepository;
 import com.finalproject2.repository.RoleRepository;
 import java.util.Set;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import java.util.HashSet;
 
 @SpringBootApplication
+@EnableScheduling
 public class FinalProject2Application {
 
     public static void main(String[] args) {
