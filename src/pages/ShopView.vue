@@ -361,7 +361,7 @@
 </template>
 
 <script setup>
-  import { computed, onMounted, ref, watch } from 'vue'
+  import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
   import { useRoute, useRouter } from 'vue-router'
   import { useCompareStore } from '@/stores/compare'
   import { useFavoritesStore } from '@/stores/favorites'
@@ -747,6 +747,25 @@
     syncRouteQueryFilters([], [])
   }
 
+  // Đồng bộ tồn kho real-time: cập nhật khi quay lại tab / định kỳ 20s
+  async function refreshLiveStock () {
+    if (document.hidden) return
+    await productStore.fetchVariants().catch(() => {})
+  }
+
+  let stockSyncTimer = null
+  function startStockSync () {
+    stockSyncTimer = setInterval(refreshLiveStock, 20000)
+    window.addEventListener('focus', refreshLiveStock)
+    document.addEventListener('visibilitychange', refreshLiveStock)
+  }
+
+  function stopStockSync () {
+    if (stockSyncTimer) clearInterval(stockSyncTimer)
+    window.removeEventListener('focus', refreshLiveStock)
+    document.removeEventListener('visibilitychange', refreshLiveStock)
+  }
+
   // Initialize data on mount
   onMounted(() => {
     if (productStore.products.length === 0) {
@@ -754,7 +773,10 @@
     }
 
     applyRouteFilters()
+    startStockSync()
   })
+
+  onUnmounted(stopStockSync)
 
   watch(
     () => [route.query.categoryId, route.query.brandId],

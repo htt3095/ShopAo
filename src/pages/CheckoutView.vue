@@ -52,6 +52,39 @@
         </p>
       </div>
 
+      <div
+        v-if="cartStore.notice"
+        class="mb-6 flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm"
+      >
+        <span class="material-symbols-outlined mt-0.5 text-amber-500">info</span>
+        <div class="min-w-0 flex-1">
+          <p class="font-bold text-amber-800">Giỏ hàng tạm khôi phục</p>
+          <p class="mt-1 text-amber-700">{{ cartStore.notice }}</p>
+        </div>
+        <button
+          class="text-amber-500 hover:text-amber-700"
+          type="button"
+          aria-label="Đóng thông báo"
+          @click="cartStore.notice = ''"
+        >
+          <span class="material-symbols-outlined text-[18px]">close</span>
+        </button>
+      </div>
+
+      <div
+        v-if="stockNotice"
+        class="mb-6 flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm"
+      >
+        <span class="material-symbols-outlined mt-0.5 text-red-500">inventory_2</span>
+        <div class="min-w-0">
+          <p class="font-bold text-red-700">Một số sản phẩm trong giỏ không còn đủ tồn kho</p>
+          <p class="mt-1 whitespace-pre-line text-red-600">{{ stockNotice }}</p>
+          <p class="mt-1 text-xs text-red-500">
+            Sản phẩm vừa được bán tại cửa hàng hoặc khách khác đặt trước. Vui lòng giảm số lượng để đặt hàng.
+          </p>
+        </div>
+      </div>
+
       <div class="grid grid-cols-1 gap-8 lg:grid-cols-12">
         <section class="space-y-6 lg:col-span-7">
           <article
@@ -329,6 +362,12 @@
                         {{ getSizeLabel(item) }} • {{ getColorLabel(item) }} •
                         x{{ item.quantity }}
                       </p>
+                      <p
+                        v-if="Number(item.stockAvailable || item.stockQuantity) < Number(item.quantity || 0)"
+                        class="mt-0.5 text-xs font-semibold text-red-500"
+                      >
+                        Còn {{ item.stockAvailable || item.stockQuantity }} trong kho
+                      </p>
                     </div>
                     <p class="text-sm font-bold text-slate-900 ">
                       {{ formatMoney(item.price * item.quantity) }}
@@ -483,7 +522,7 @@
   import iconRetinaUrl from 'leaflet/dist/images/marker-icon-2x.png'
   import iconUrl from 'leaflet/dist/images/marker-icon.png'
   import shadowUrl from 'leaflet/dist/images/marker-shadow.png'
-  import { computed, nextTick, onMounted, reactive, ref, watch } from 'vue'
+  import { computed, nextTick, onMounted, onUnmounted, reactive, ref, watch } from 'vue'
   import { useRoute, useRouter } from 'vue-router'
 
   import SearchableSelect from '@/components/SearchableSelect.vue'
@@ -514,6 +553,8 @@
     message: '',
     type: 'success',
   })
+
+  const stockNotice = ref('')
 
   const shippingForm = reactive({
     gmail: '',
@@ -1129,6 +1170,8 @@
 
     await hydrateCheckout()
     await fetchAddresses()
+    startCheckoutStockSync()
+    updateStockNotice()
     try {
       const res = await fetch('https://esgoo.net/api-tinhthanh/4/0.htm')
       const json = await res.json()
@@ -1157,6 +1200,8 @@
       await autoCalculateShippingOnEnter()
     }
   })
+
+  onUnmounted(stopCheckoutStockSync)
 
   async function checkAndCalculateRoute (silent = false) {
     if (!streetAddress.value && shippingForm.address) {
@@ -1334,6 +1379,7 @@
   })
 
   const cartItems = computed(() => cartStore.cartItems)
+  let checkoutStockTimer = null
   const subtotal = computed(() => cartStore.cartTotal)
   const shipping = computed(() =>
     cartItems.value.length > 0 ? calculatedShippingFee.value : 0,
@@ -1405,6 +1451,41 @@
     modal.message = message
     modal.type = type
     modal.show = true
+  }
+
+  function updateStockNotice () {
+    const issues = cartItems.value.filter(item => {
+      const available = Number(item.stockAvailable || item.stockQuantity)
+      return Number.isFinite(available)
+        && available >= 0
+        && available < Number(item.quantity || 0)
+    })
+    if (issues.length === 0) {
+      stockNotice.value = ''
+      return
+    }
+    stockNotice.value = issues.map(item => {
+      const name = item.productName || 'Sản phẩm'
+      return `• ${name}: bạn đặt ${item.quantity}, hiện kho chỉ còn ${item.stockAvailable || item.stockQuantity}`
+    }).join('\n')
+  }
+
+  async function syncCheckoutStockLive () {
+    if (document.hidden) return
+    await cartStore.refreshCartStockLive()
+    updateStockNotice()
+  }
+
+  function startCheckoutStockSync () {
+    checkoutStockTimer = setInterval(syncCheckoutStockLive, 15000)
+    window.addEventListener('focus', syncCheckoutStockLive)
+    document.addEventListener('visibilitychange', syncCheckoutStockLive)
+  }
+
+  function stopCheckoutStockSync () {
+    if (checkoutStockTimer) clearInterval(checkoutStockTimer)
+    window.removeEventListener('focus', syncCheckoutStockLive)
+    document.removeEventListener('visibilitychange', syncCheckoutStockLive)
   }
 
   function formatMoney (value) {
@@ -1550,8 +1631,8 @@
       if (!stockResult.valid) {
         const errorMessages = stockResult.errors.map(e => e.message).join('\n')
         showAlert(
-          'Hết hàng',
-          `Một số sản phẩm không còn đủ tồn kho:\n${errorMessages}`,
+          'Sản phẩm không đủ hàng',
+          `Một số sản phẩm bạn chọn vừa được bán tại cửa hàng hoặc khách khác đặt trước, nên tồn kho đã giảm:\n\n${errorMessages}\n\nVui lòng giảm số lượng trong giỏ rồi đặt lại nhé.`,
           'error',
         )
         await cartStore.loadCartFromBackend(currentAccountId.value)
@@ -1657,6 +1738,7 @@
 
           if (vnpayResult?.paymentUrl) {
             // Redirect user to VNPay payment page
+            cartStore.markCartPurchased()
             window.location.href = vnpayResult.paymentUrl
             return // stop here — user will be redirected
           } else {
@@ -1674,6 +1756,7 @@
       }
       // ── End VNPay ──
 
+      cartStore.markCartPurchased()
       if (currentAccountId.value === null) {
         cartStore.clearCart()
       } else {

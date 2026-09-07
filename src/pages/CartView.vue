@@ -17,6 +17,25 @@
           </div>
 
           <div
+            v-if="cartStore.notice"
+            class="flex items-start gap-3 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-800 "
+          >
+            <span class="material-symbols-outlined text-[20px] mt-0.5">info</span>
+            <div class="flex-1">
+              <p class="font-semibold">Giỏ hàng tạm khôi phục</p>
+              <p class="mt-0.5">{{ cartStore.notice }}</p>
+            </div>
+            <button
+              class="text-amber-500 hover:text-amber-700"
+              type="button"
+              aria-label="Đóng thông báo"
+              @click="cartStore.notice = ''"
+            >
+              <span class="material-symbols-outlined text-[18px]">close</span>
+            </button>
+          </div>
+
+          <div
             v-if="stockError"
             class="flex items-start gap-3 rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700 "
           >
@@ -103,6 +122,12 @@
                       @change="(e) => setQuantity(item, e.target.value)"
                     >
                     <span class="text-xs text-slate-400 ">/ {{ item.stockAvailable || item.stockQuantity || '--' }}</span>
+                    <p
+                      v-if="item.quantity > Number(item.stockAvailable || item.stockQuantity || 0)"
+                      class="mt-1 rounded bg-red-50 px-2 py-1 text-xs font-medium text-red-600"
+                    >
+                      Chỉ còn {{ item.stockAvailable || item.stockQuantity }} trong kho (giảm do được bán tại cửa hàng / khách khác mua trước). Vui lòng giảm số lượng để đặt hàng.
+                    </p>
                   </div>
                 </div>
               </div>
@@ -186,7 +211,7 @@
 </template>
 
 <script setup>
-  import { computed, onMounted, ref, watch } from 'vue'
+  import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
   import { useRouter } from 'vue-router'
   import { orderUtils, voucherAPI } from '@/services/orders'
   import { useCartStore } from '@/stores/cart'
@@ -213,7 +238,26 @@
     return Number.isFinite(n) && n > 0 ? n : null
   }
 
+  let cartStockTimer = null
+  async function syncCartStockLive () {
+    if (document.hidden) return
+    await cartStore.refreshCartStockLive()
+  }
+
+  function startCartStockSync () {
+    cartStockTimer = setInterval(syncCartStockLive, 20000)
+    window.addEventListener('focus', syncCartStockLive)
+    document.addEventListener('visibilitychange', syncCartStockLive)
+  }
+
+  function stopCartStockSync () {
+    if (cartStockTimer) clearInterval(cartStockTimer)
+    window.removeEventListener('focus', syncCartStockLive)
+    document.removeEventListener('visibilitychange', syncCartStockLive)
+  }
+
   onMounted(() => {
+    startCartStockSync()
     const userData = localStorage.getItem('user')
     if (userData) {
       try {
@@ -234,6 +278,8 @@
     cartStore.accountId = null
     cartStore.clearCart()
   })
+
+  onUnmounted(stopCartStockSync)
 
   const voucherInput = ref('')
   const voucherData = ref(null)

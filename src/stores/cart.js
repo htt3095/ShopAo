@@ -18,6 +18,7 @@ export const useCartStore = defineStore('cart', () => {
   const accountId = ref(null)
   const loading = ref(false)
   const error = ref(null)
+  const notice = ref('')
 
   // Computed properties
   const cartCount = computed(() => {
@@ -34,6 +35,32 @@ export const useCartStore = defineStore('cart', () => {
 
   function setLoginRequiredError () {
     error.value = 'Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng'
+  }
+
+  function markCartPurchased () {
+    cartItems.value = []
+    saveCart()
+    try {
+      sessionStorage.setItem('cartPurchased', '1')
+    } catch (error_) {
+      console.warn('Không lưu được trạng thái mua hàng.', error_)
+    }
+  }
+
+  function clearPurchaseFlag () {
+    try {
+      sessionStorage.removeItem('cartPurchased')
+    } catch (error_) {
+      console.warn('Không xóa được trạng thái mua hàng.', error_)
+    }
+  }
+
+  function readPurchaseFlag () {
+    try {
+      return sessionStorage.getItem('cartPurchased') === '1'
+    } catch {
+      return false
+    }
   }
 
   function parseAccountId (rawValue) {
@@ -289,9 +316,25 @@ export const useCartStore = defineStore('cart', () => {
         }
       }
 
+      if (normalizedRemoteItems.length === 0 && localSnapshot.length > 0) {
+        const purchaseFlag = readPurchaseFlag()
+        if (purchaseFlag) {
+          clearPurchaseFlag()
+          cartItems.value = []
+        } else {
+          cartItems.value = localSnapshot
+          notice.value = 'Giỏ hàng trên máy chủ đã thay đổi (một số sản phẩm có thể vừa được mua tại cửa hàng hoặc khách khác đặt trước). Chúng tôi đã giữ lại sản phẩm trên máy bạn để bạn kiểm tra; nếu không còn đủ hàng, vui lòng giảm số lượng hoặc xóa bớt trước khi thanh toán.'
+        }
+        saveCart()
+        error.value = null
+        loading.value = false
+        return
+      }
+
       cartItems.value = normalizedRemoteItems
       saveCart()
       error.value = null
+      notice.value = ''
     } catch (error_) {
       error.value = error_.message
       console.error('Error loading cart:', error_)
@@ -333,6 +376,7 @@ export const useCartStore = defineStore('cart', () => {
     try {
       await cartAPI.addToCart(normalizedAccountId, variantId, quantity)
       await loadCartFromBackend(normalizedAccountId)
+      clearPurchaseFlag()
       error.value = null
       return true
     } catch (error_) {
@@ -374,6 +418,7 @@ export const useCartStore = defineStore('cart', () => {
     try {
       await cartAPI.updateCartItem(cartItemId, quantity)
       await loadCartFromBackend(normalizedAccountId)
+      clearPurchaseFlag()
       error.value = null
     } catch (error_) {
       error.value = error_.message
@@ -415,6 +460,7 @@ export const useCartStore = defineStore('cart', () => {
     try {
       await cartAPI.clearCart(normalizedAccountId)
       cartItems.value = []
+      notice.value = ''
       saveCart()
       error.value = null
     } catch (error_) {
@@ -435,6 +481,22 @@ export const useCartStore = defineStore('cart', () => {
       productName: item.productName,
     }))
     return stockApi.checkStock(items)
+  }
+
+  async function refreshCartStockLive () {
+    if (cartItems.value.length === 0) return
+    await Promise.all(cartItems.value.map(async item => {
+      const variantId = Number(item.variantId || item.variant_id || (item.variant && item.variant.id))
+      if (!Number.isFinite(variantId) || variantId <= 0) return item
+      try {
+        const realStock = await stockApi.getVariantStock(variantId)
+        item.stockAvailable = Math.max(0, Number(realStock) || 0)
+      } catch (error_) {
+        console.warn(`Cart stock sync failed for variant ${variantId}`, error_)
+      }
+      return item
+    }))
+    saveCart()
   }
 
   // ============================================
@@ -484,6 +546,7 @@ export const useCartStore = defineStore('cart', () => {
 
   function clearCart () {
     cartItems.value = []
+    notice.value = ''
     saveCart()
   }
 
@@ -524,6 +587,7 @@ export const useCartStore = defineStore('cart', () => {
     accountId,
     loading,
     error,
+    notice,
 
     // Computed
     cartCount,
@@ -537,6 +601,7 @@ export const useCartStore = defineStore('cart', () => {
     clearCart,
     saveCart,
     loadCart,
+    markCartPurchased,
 
     // Backend Actions
     loadCartFromBackend,
@@ -545,5 +610,6 @@ export const useCartStore = defineStore('cart', () => {
     removeFromCartBackend,
     clearCartBackend,
     refreshCartStock,
+    refreshCartStockLive,
   }
 })

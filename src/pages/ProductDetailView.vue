@@ -776,6 +776,34 @@
     activeImageIndex.value = 0
   }
 
+  // Đồng bộ tồn kho real-time: cập nhật số kho hiện tại mà không thay đổi lựa chọn/ảnh
+  async function refreshLiveStock () {
+    if (document.hidden || !Number.isFinite(productId.value)) return
+    try {
+      const fresh = await productStore.fetchVariantsByProductId(productId.value)
+      const stockMap = new Map(fresh.map(v => [Number(v.id), Number(v.stockQuantity ?? v.stock_quantity ?? 0)]))
+      variants.value.forEach(v => {
+        const nextStock = stockMap.get(Number(v.id))
+        if (nextStock !== undefined) v.stockQuantity = nextStock
+      })
+    } catch {
+      // bỏ qua lỗi làm mới tồn kho
+    }
+  }
+
+  let stockSyncTimer = null
+  function startStockSync () {
+    stockSyncTimer = setInterval(refreshLiveStock, 20000)
+    window.addEventListener('focus', refreshLiveStock)
+    document.addEventListener('visibilitychange', refreshLiveStock)
+  }
+
+  function stopStockSync () {
+    if (stockSyncTimer) clearInterval(stockSyncTimer)
+    window.removeEventListener('focus', refreshLiveStock)
+    document.removeEventListener('visibilitychange', refreshLiveStock)
+  }
+
   async function handleAddToCart () {
     if (!canAddToCart.value) return
 
@@ -900,11 +928,13 @@
     load()
     document.addEventListener('click', handleClickOutside)
     window.addEventListener('storage', checkLoginStatus)
+    startStockSync()
   })
 
   onUnmounted(() => {
     document.removeEventListener('click', handleClickOutside)
     window.removeEventListener('storage', checkLoginStatus)
+    stopStockSync()
   })
 
   watch(
