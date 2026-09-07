@@ -756,17 +756,6 @@
       .join(', ')
   }
 
-  // Strip prefixes like "Tỉnh", "Thành phố", "Phường", "Xã", "Quận", "Huyện" for comparison
-  function stripAdministrativePrefix (name) {
-    if (!name) return ''
-    return name.replace(/^(Tỉnh|Thành phố|Phường|Xã|Quận|Huyện|Thị xã|Thị trấn)\s+/i, '').trim()
-  }
-
-  // Normalize text for comparison by removing accents and making lowercase
-  function normalizeAddressText (text) {
-    if (!text) return ''
-    return text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/đ/g, 'd').replace(/Đ/g, 'D')
-  }
 
   function buildCurrentAddressString () {
     const addressStr = streetAddress.value || ''
