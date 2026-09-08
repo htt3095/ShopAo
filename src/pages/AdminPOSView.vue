@@ -163,7 +163,7 @@
                       <p class="mt-0.5 text-[11px] text-slate-500">Mã biến thể: {{ getVariant(item).variantCode || getVariantCode(item.product.productCode, getVariant(item).colorName, getVariant(item).sizeName) }}</p>
                       <select v-model="item.variantId" class="mt-1 block w-full rounded-md border border-slate-300 py-1 text-[11px] text-slate-700" @change="validateQuantity(item)">
                         <option v-for="variant in item.product.variants" :key="variant.variantId" :value="variant.variantId">
-                          {{ variant.colorName }} / Size {{ variant.sizeName }} - {{ variant.variantCode || getVariantCode(item.product.productCode, variant.colorName, variant.sizeName) }} (Kho: {{ variant.stockQuantity }})
+                          {{ variant.colorName }} / Size {{ variant.sizeName }} - {{ variant.variantCode || getVariantCode(item.product.productCode, variant.colorName, variant.sizeName) }} <template v-if="Number(variant.stockQuantity || 0) > 0">(Kho: {{ variant.stockQuantity }})</template><template v-else>(Hết hàng)</template>
                         </option>
                       </select>
                     </td>
@@ -422,7 +422,7 @@
                 </div>
                 <div class="min-w-0 flex-1">
                   <p class="text-xs uppercase tracking-[0.18em]" :class="paymentDialog.type === 'success' ? 'text-emerald-500' : paymentDialog.type === 'confirm' ? 'text-amber-600' : 'text-rose-500'">
-                    {{ paymentDialog.type === 'success' ? 'Thanh toán thành công' : paymentDialog.type === 'confirm' ? 'Xác nhận tạo hóa đơn' : 'Thanh toán thất bại' }}
+                    {{ paymentDialog.subtitle || (paymentDialog.type === 'success' ? 'Thanh toán thành công' : paymentDialog.type === 'confirm' ? 'Xác nhận tạo hóa đơn' : 'Thanh toán thất bại') }}
                   </p>
                   <h3 class="mt-1 text-lg font-bold text-slate-900">
                     {{ paymentDialog.title }}
@@ -836,7 +836,7 @@
 
   function addInvoice () {
     if (invoices.value.length >= MAX_INVOICES) {
-      alert('Chỉ được tạo tối đa 5 hóa đơn cùng lúc.')
+      showPaymentDialog({ type: 'error', subtitle: 'Cảnh báo', title: 'Thông báo', message: 'Chỉ được tạo tối đa 5 hóa đơn cùng lúc.' })
       return
     }
     const newInvoice = createNewInvoice()
@@ -884,7 +884,7 @@
 
     const defaultVariant = product.variants.find(variant => Number(variant.stockQuantity || 0) > 0) || product.variants[0]
     if (!defaultVariant || Number(defaultVariant.stockQuantity || 0) <= 0) {
-      alert('Sản phẩm này đã hết hàng!')
+      showPaymentDialog({ type: 'error', subtitle: 'Cảnh báo', title: 'Thông báo', message: 'Sản phẩm này đã hết hàng!' })
       return
     }
 
@@ -900,7 +900,7 @@
     }
 
     if (maxStock <= 0) {
-      alert('Sản phẩm này đã hết hàng!')
+      showPaymentDialog({ type: 'error', subtitle: 'Cảnh báo', title: 'Thông báo', message: 'Sản phẩm này đã hết hàng!' })
       return
     }
 
@@ -908,7 +908,7 @@
     const existing = activeInvoice.value.cart.find(item => item.variantId === variantId)
     if (existing) {
       if (existing.quantity >= maxStock) {
-        alert(`Không thêm được nữa, sản phẩm này chỉ còn ${maxStock} trong kho`)
+        showPaymentDialog({ type: 'error', subtitle: 'Cảnh báo', title: 'Thông báo', message: `Không thêm được nữa, sản phẩm này chỉ còn ${maxStock} trong kho` })
         existing.quantity = maxStock
         return
       }
@@ -944,7 +944,7 @@
     const newQty = Number(item.quantity || 0) + change
     if (newQty < 1) return
     if (newQty > maxStock) {
-      alert(`Không thêm được nữa, sản phẩm này chỉ còn ${maxStock} trong kho`)
+      showPaymentDialog({ type: 'error', subtitle: 'Cảnh báo', title: 'Thông báo', message: `Không thêm được nữa, sản phẩm này chỉ còn ${maxStock} trong kho` })
       item.quantity = maxStock
       return
     }
@@ -962,7 +962,7 @@
     }
     const requestedQuantity = Math.max(1, Number(item.quantity) || 1)
     if (requestedQuantity > maxStock) {
-      alert(`Số lượng vượt quá tồn kho, chỉ còn ${maxStock}`)
+      showPaymentDialog({ type: 'error', subtitle: 'Cảnh báo', title: 'Thông báo', message: `Số lượng vượt quá tồn kho, chỉ còn ${maxStock}` })
       item.quantity = maxStock
       return
     }
@@ -972,12 +972,12 @@
   function applySpecificVoucher (voucher) {
     if (!activeInvoice.value) return
     if (!voucher.isEligible) {
-      alert(`Đơn hàng cần đạt tối thiểu ${formatMoney(getVoucherMinOrder(voucher))} để áp dụng mã này!`)
+      showPaymentDialog({ type: 'error', subtitle: 'Cảnh báo', title: 'Thông báo', message: `Đơn hàng cần đạt tối thiểu ${formatMoney(getVoucherMinOrder(voucher))} để áp dụng mã này!` })
       return
     }
     const usage = getVoucherUsageState(voucher)
     if (usage.exhausted) {
-      alert('Mã voucher này đã hết lượt sử dụng.')
+      showPaymentDialog({ type: 'error', subtitle: 'Cảnh báo', title: 'Thông báo', message: 'Mã voucher này đã hết lượt sử dụng.' })
       return
     }
     activeInvoice.value.voucherPreference = 'auto'
@@ -991,18 +991,18 @@
     if (!code) return
 
     if (activeSubtotal.value === 0) {
-      alert('Vui lòng thêm sản phẩm vào giỏ hàng trước khi nhập mã!')
+      showPaymentDialog({ type: 'error', subtitle: 'Cảnh báo', title: 'Thông báo', message: 'Vui lòng thêm sản phẩm vào giỏ hàng trước khi nhập mã!' })
       return
     }
 
     const found = processedVouchers.value.find(voucher => String(voucher.code || '').toUpperCase() === code)
     if (!found) {
-      alert('Mã giảm giá không tồn tại!')
+      showPaymentDialog({ type: 'error', subtitle: 'Cảnh báo', title: 'Thông báo', message: 'Mã giảm giá không tồn tại!' })
       return
     }
 
     if (!found.isEligible) {
-      alert(`Đơn hàng cần đạt tối thiểu ${formatMoney(getVoucherMinOrder(found))} để áp dụng mã này!`)
+      showPaymentDialog({ type: 'error', subtitle: 'Cảnh báo', title: 'Thông báo', message: `Đơn hàng cần đạt tối thiểu ${formatMoney(getVoucherMinOrder(found))} để áp dụng mã này!` })
       return
     }
 
@@ -1023,7 +1023,7 @@
       console.warn('Không thể xác thực voucher từ API, dùng dữ liệu gợi ý cục bộ.', error)
       const usage = getVoucherUsageState(found)
       if (usage.exhausted) {
-        alert('Mã voucher này đã hết lượt sử dụng.')
+        showPaymentDialog({ type: 'error', subtitle: 'Cảnh báo', title: 'Thông báo', message: 'Mã voucher này đã hết lượt sử dụng.' })
         return
       }
       activeInvoice.value.appliedVoucher = found
@@ -1246,7 +1246,7 @@
 
     const printWindow = window.open('', '_blank', 'width=420,height=760')
     if (!printWindow) {
-      alert('Trình duyệt đã chặn cửa sổ in. Vui lòng cho phép pop-up để in hóa đơn.')
+      showPaymentDialog({ type: 'error', subtitle: 'Cảnh báo', title: 'Thông báo', message: 'Trình duyệt đã chặn cửa sổ in. Vui lòng cho phép pop-up để in hóa đơn.' })
       return
     }
 
@@ -1270,6 +1270,7 @@
   function showPaymentDialog (config) {
     paymentDialog.value = {
       type: config.type || 'error',
+      subtitle: config.subtitle || '',
       title: config.title || '',
       message: config.message || '',
       primaryLabel: config.primaryLabel || 'Tiếp tục',
@@ -1434,7 +1435,7 @@
   }
   function startQrScanner () {
     if (inventoryVariants.value.length === 0) {
-      alert('Dữ liệu sản phẩm chưa được tải, vui lòng thử lại sau.')
+      showPaymentDialog({ type: 'error', subtitle: 'Cảnh báo', title: 'Thông báo', message: 'Dữ liệu sản phẩm chưa được tải, vui lòng thử lại sau.' })
       return
     }
 
@@ -1521,7 +1522,7 @@
     productId = match ? Number(match[1]) : Number(rawText)
 
     if (!productId || isNaN(productId) || productId <= 0) {
-      alert('Mã QR không hợp lệ (không tìm thấy ID sản phẩm).')
+      showPaymentDialog({ type: 'error', subtitle: 'Cảnh báo', title: 'Thông báo', message: 'Mã QR không hợp lệ (không tìm thấy ID sản phẩm).' })
       return
     }
 
@@ -1534,7 +1535,7 @@
     }
 
     if (!foundProduct) {
-      alert(`Không tìm thấy sản phẩm với ID #${productId}.`)
+      showPaymentDialog({ type: 'error', subtitle: 'Cảnh báo', title: 'Thông báo', message: `Không tìm thấy sản phẩm với ID #${productId}.` })
       return
     }
 
