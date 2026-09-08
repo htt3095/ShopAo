@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <AdminShell>
     <template #header>
       <div class="flex flex-wrap items-center justify-between gap-4">
@@ -161,8 +161,8 @@
                     <td class="px-2 py-2">
                       <p class="font-bold text-slate-900">{{ item.product.productName }}</p>
                       <p class="mt-0.5 text-[11px] text-slate-500">Mã biến thể: {{ getVariant(item).variantCode || getVariantCode(item.product.productCode, getVariant(item).colorName, getVariant(item).sizeName) }}</p>
-                      <select class="mt-1 block w-full rounded-md border border-slate-300 py-1 text-[11px] text-slate-700" :value="item.variantId" @change="handleVariantChange(item, $event)">
-                        <option v-for="variant in item.product.variants" :key="variant.variantId" :value="variant.variantId">
+                      <select class="mt-1 block w-full rounded-md border border-slate-300 py-1 text-[11px] text-slate-700" :value="String(item.variantId)" @change="handleVariantChange(item, $event)">
+                        <option v-for="variant in item.product.variants" :key="variant.variantId" :value="String(variant.variantId)">
                           {{ variant.colorName }} / Size {{ variant.sizeName }} - {{ variant.variantCode || getVariantCode(item.product.productCode, variant.colorName, variant.sizeName) }} <template v-if="Number(variant.stockQuantity || 0) > 0">(Kho: {{ variant.stockQuantity }})</template><template v-else>(Hết hàng)</template>
                         </option>
                       </select>
@@ -566,7 +566,7 @@
   const activeSubtotal = computed(() => {
     if (!activeInvoice.value) return 0
     return activeInvoice.value.cart.reduce((sum, item) => {
-      const variant = item.product.variants.find(variant => variant.variantId === item.variantId)
+      const variant = item.product.variants.find(variant => String(variant.variantId) === String(item.variantId))
       return sum + (variant ? Number(variant.price || 0) : 0) * Number(item.quantity || 0)
     }, 0)
   })
@@ -670,21 +670,6 @@
       invoice.voucherInput = ''
     }
   })
-
-  watch([activeSubtotal, processedVouchers], () => {
-    const invoice = activeInvoice.value
-    if (!invoice || invoice.voucherPreference !== 'auto') return
-
-    // Auto re-evaluate best voucher
-    const bestVoucher = processedVouchers.value.find(voucher => voucher.isEligible && voucher.isActive)
-    if (bestVoucher) {
-      invoice.appliedVoucher = bestVoucher
-      invoice.voucherInput = bestVoucher.code || ''
-    } else {
-      invoice.appliedVoucher = null
-      invoice.voucherInput = ''
-    }
-  }, { deep: true })
 
   const activeDiscount = computed(() => {
     if (!activeInvoice.value || !activeInvoice.value.appliedVoucher) return 0
@@ -994,7 +979,7 @@
     }
 
     const variantId = defaultVariant.variantId
-    const existing = activeInvoice.value.cart.find(item => item.variantId === variantId)
+    const existing = activeInvoice.value.cart.find(item => String(item.variantId) === String(variantId))
     if (existing) {
       if (existing.quantity >= maxStock) {
         showPaymentDialog({ type: 'error', subtitle: 'Cảnh báo', title: 'Thông báo', message: `Không thêm được nữa, sản phẩm này chỉ còn ${maxStock} trong kho` })
@@ -1023,7 +1008,7 @@
   function adjustLocalStock (variantId, reservedDelta) {
     if (!reservedDelta) return
     for (const product of inventoryVariants.value) {
-      const variant = product.variants.find(v => v.variantId === variantId)
+      const variant = product.variants.find(v => String(v.variantId) === String(variantId))
       if (variant) {
         variant.stockQuantity = Number(variant.stockQuantity || 0) - reservedDelta
         break
@@ -1032,7 +1017,7 @@
   }
 
   function getVariant (item) {
-    return item.product.variants.find(variant => variant.variantId === item.variantId)
+    return item.product.variants.find(variant => String(variant.variantId) === String(item.variantId))
       || item.product.variants[0]
       || { price: 0, stockQuantity: 0 }
   }
@@ -1095,35 +1080,35 @@
 
   async function handleVariantChange (item, event) {
     const newVariantId = event.target.value
-    if (item.variantId === newVariantId) return
+    if (String(item.variantId) === String(newVariantId)) return
 
     const oldVariantId = item.variantId
-    const newVariant = item.product.variants.find(v => v.variantId === newVariantId)
+    const newVariant = item.product.variants.find(v => String(v.variantId) === String(newVariantId))
 
     if (!newVariant || Number(newVariant.stockQuantity || 0) < item.quantity) {
       showPaymentDialog({ type: 'error', message: 'Biến thể này không đủ tồn kho cho số lượng hiện tại!' })
-      event.target.value = oldVariantId
+      event.target.value = String(oldVariantId)
       return
     }
 
-    const existingItem = activeInvoice.value.cart.find(i => i !== item && i.variantId === newVariantId)
+    const existingItem = activeInvoice.value.cart.find(i => i !== item && String(i.variantId) === String(newVariantId))
     if (existingItem) {
       showPaymentDialog({ type: 'error', message: 'Sản phẩm này đã có trong giỏ, vui lòng tăng số lượng thay vì đổi biến thể.' })
-      event.target.value = oldVariantId
+      event.target.value = String(oldVariantId)
       return
     }
 
+    item.variantId = newVariant.variantId
     try {
       await posApi.adjustStock(oldVariantId, -item.quantity)
       adjustLocalStock(oldVariantId, -item.quantity)
 
-      await posApi.adjustStock(newVariantId, item.quantity)
-      adjustLocalStock(newVariantId, item.quantity)
-
-      item.variantId = newVariantId
+      await posApi.adjustStock(newVariant.variantId, item.quantity)
+      adjustLocalStock(newVariant.variantId, item.quantity)
     } catch {
+      item.variantId = oldVariantId
       showPaymentDialog({ type: 'error', message: 'Lỗi đồng bộ kho khi đổi biến thể' })
-      event.target.value = oldVariantId
+      event.target.value = String(oldVariantId)
     }
   }
 
