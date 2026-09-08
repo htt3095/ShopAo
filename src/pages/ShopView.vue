@@ -687,7 +687,10 @@
   }
 
   function getUnavailableVariantCount (product) {
-    return getProductVariants(product).filter(v => normalizeVariantStatus(v) !== 'SELLING').length
+    return getProductVariants(product).filter(v => {
+      const status = normalizeVariantStatus(v)
+      return status !== 'SELLING' && status !== 'HIDDEN'
+    }).length
   }
 
   // Helper to get product image
