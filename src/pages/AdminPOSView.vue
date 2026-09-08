@@ -161,7 +161,7 @@
                     <td class="px-2 py-2">
                       <p class="font-bold text-slate-900">{{ item.product.productName }}</p>
                       <p class="mt-0.5 text-[11px] text-slate-500">Mã biến thể: {{ getVariant(item).variantCode || getVariantCode(item.product.productCode, getVariant(item).colorName, getVariant(item).sizeName) }}</p>
-                      <select v-model="item.variantId" class="mt-1 block w-full rounded-md border border-slate-300 py-1 text-[11px] text-slate-700" @change="validateQuantity(item)">
+                      <select class="mt-1 block w-full rounded-md border border-slate-300 py-1 text-[11px] text-slate-700" :value="item.variantId" @change="handleVariantChange(item, $event)">
                         <option v-for="variant in item.product.variants" :key="variant.variantId" :value="variant.variantId">
                           {{ variant.colorName }} / Size {{ variant.sizeName }} - {{ variant.variantCode || getVariantCode(item.product.productCode, variant.colorName, variant.sizeName) }} <template v-if="Number(variant.stockQuantity || 0) > 0">(Kho: {{ variant.stockQuantity }})</template><template v-else>(Hết hàng)</template>
                         </option>
@@ -655,6 +655,37 @@
     return formatMoney(val)
   }
 
+  watch(activeSubtotal, newTotal => {
+    const invoice = activeInvoice.value
+    if (!invoice || !invoice.appliedVoucher) return
+    const minOrder = getVoucherMinOrder(invoice.appliedVoucher)
+    if (newTotal < minOrder && invoice.voucherPreference !== 'auto') {
+      // Auto remove manual voucher if it becomes ineligible
+      invoice.appliedVoucher = null
+      invoice.voucherInput = ''
+      invoice.voucherPreference = 'none'
+    } else if (invoice.voucherPreference === 'auto' // Clear auto voucher if ineligible, it will be recalculated
+      && newTotal < minOrder) {
+      invoice.appliedVoucher = null
+      invoice.voucherInput = ''
+    }
+  })
+
+  watch([activeSubtotal, processedVouchers], () => {
+    const invoice = activeInvoice.value
+    if (!invoice || invoice.voucherPreference !== 'auto') return
+
+    // Auto re-evaluate best voucher
+    const bestVoucher = processedVouchers.value.find(voucher => voucher.isEligible && voucher.isActive)
+    if (bestVoucher) {
+      invoice.appliedVoucher = bestVoucher
+      invoice.voucherInput = bestVoucher.code || ''
+    } else {
+      invoice.appliedVoucher = null
+      invoice.voucherInput = ''
+    }
+  }, { deep: true })
+
   const activeDiscount = computed(() => {
     if (!activeInvoice.value || !activeInvoice.value.appliedVoucher) return 0
     if (activeInvoice.value.appliedVoucher.discountAmount != null) {
@@ -874,13 +905,13 @@
     }
 
     if (invoices.value.length === 1) {
-      invoice.cart = [];
-      invoice.customer = { ...POS_DEFAULT_CUSTOMER };
-      invoice.voucherInput = '';
-      invoice.appliedVoucher = null;
-      invoice.voucherPreference = 'auto';
-      invoice.customerPaid = 0;
-      return;
+      invoice.cart = []
+      invoice.customer = { ...POS_DEFAULT_CUSTOMER }
+      invoice.voucherInput = ''
+      invoice.appliedVoucher = null
+      invoice.voucherPreference = 'auto'
+      invoice.customerPaid = 0
+      return
     }
 
     invoices.value = invoices.value.filter(entry => entry.id !== invoiceId)
@@ -1028,25 +1059,72 @@
     item.quantity = newQty
   }
 
-  async function validateQuantity (item) {
-    const variant = getVariant(item)
-    let maxStock = Number(variant.stockQuantity || 0)
-    try {
-      const realStock = await stockApi.getVariantStock(item.variantId)
-      if (Number(realStock) >= 0) maxStock = Number(realStock)
-    } catch (error) {
-      console.warn('POS validateQuantity stock check failed, using local:', error)
-    }
-    const requestedQuantity = Math.max(1, Number(item.quantity) || 1)
-    if (requestedQuantity > maxStock) {
-      showPaymentDialog({ type: 'error', subtitle: 'Cảnh báo', title: 'Thông báo', message: `Số lượng vượt quá tồn kho, chỉ còn ${maxStock}` })
-      item.quantity = maxStock
+  async function handleInputQuantity (item, event) {
+    const inputQty = Number(event.target.value)
+    if (isNaN(inputQty) || inputQty < 1) {
+      event.target.value = item.quantity
       return
     }
-    const diff = requestedQuantity - Number(item.quantity || 0)
-    await posApi.adjustStock(item.variantId, diff)
-    adjustLocalStock(item.variantId, diff)
-    item.quantity = requestedQuantity
+    const diff = inputQty - item.quantity
+    if (diff === 0) return
+
+    const variant = getVariant(item)
+    let maxStock = Number(variant.stockQuantity || 0) + item.quantity // available + what we already have
+    try {
+      const realStock = await stockApi.getVariantStock(item.variantId)
+      if (Number(realStock) >= 0) maxStock = Number(realStock) + item.quantity
+    } catch (error) {
+      console.warn('POS handleInputQuantity stock check failed', error)
+    }
+
+    if (inputQty > maxStock) {
+      showPaymentDialog({ type: 'error', subtitle: 'Cảnh báo', title: 'Thông báo', message: `Số lượng vượt quá tồn kho, chỉ còn ${maxStock}` })
+      event.target.value = item.quantity
+      return
+    }
+
+    try {
+      await posApi.adjustStock(item.variantId, diff)
+      adjustLocalStock(item.variantId, diff)
+      item.quantity = inputQty
+    } catch {
+      showPaymentDialog({ type: 'error', message: 'Không thể cập nhật tồn kho' })
+      event.target.value = item.quantity
+    }
+  }
+
+  async function handleVariantChange (item, event) {
+    const newVariantId = event.target.value
+    if (item.variantId === newVariantId) return
+
+    const oldVariantId = item.variantId
+    const newVariant = item.product.variants.find(v => v.variantId === newVariantId)
+
+    if (!newVariant || Number(newVariant.stockQuantity || 0) < item.quantity) {
+      showPaymentDialog({ type: 'error', message: 'Biến thể này không đủ tồn kho cho số lượng hiện tại!' })
+      event.target.value = oldVariantId
+      return
+    }
+
+    const existingItem = activeInvoice.value.cart.find(i => i !== item && i.variantId === newVariantId)
+    if (existingItem) {
+      showPaymentDialog({ type: 'error', message: 'Sản phẩm này đã có trong giỏ, vui lòng tăng số lượng thay vì đổi biến thể.' })
+      event.target.value = oldVariantId
+      return
+    }
+
+    try {
+      await posApi.adjustStock(oldVariantId, -item.quantity)
+      adjustLocalStock(oldVariantId, -item.quantity)
+
+      await posApi.adjustStock(newVariantId, item.quantity)
+      adjustLocalStock(newVariantId, item.quantity)
+
+      item.variantId = newVariantId
+    } catch {
+      showPaymentDialog({ type: 'error', message: 'Lỗi đồng bộ kho khi đổi biến thể' })
+      event.target.value = oldVariantId
+    }
   }
 
   function applySpecificVoucher (voucher) {
@@ -1361,7 +1439,7 @@
       secondaryLabel: config.secondaryLabel || 'Đóng',
       details: config.details || null,
       onPrimary: typeof config.onPrimary === 'function' ? config.onPrimary : null,
-        onSecondary: typeof config.onSecondary === 'function' ? config.onSecondary : null,
+      onSecondary: typeof config.onSecondary === 'function' ? config.onSecondary : null,
     }
   }
 
