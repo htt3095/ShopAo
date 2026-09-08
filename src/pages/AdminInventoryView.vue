@@ -746,7 +746,6 @@
       </div>
     </Teleport>
 
-
     <!-- Modal Sinh Biến Thể Hàng Loạt -->
     <Teleport to="body">
       <div v-if="showBulkModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" @click.self="closeBulkModal">
@@ -2110,8 +2109,8 @@
         = requestedStatus === 'HIDDEN'
           ? 0
           : (requestedStatus === 'OUT_OF_STOCK' && enteredStock > 0
-              ? enteredStock
-              : (requestedStatus === 'OUT_OF_STOCK' ? 0 : enteredStock))
+            ? enteredStock
+            : (requestedStatus === 'OUT_OF_STOCK' ? 0 : enteredStock))
       const normalizedStatus
         = normalizedStock > 0 && requestedStatus !== 'HIDDEN'
           ? 'SELLING'

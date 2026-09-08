@@ -7,10 +7,10 @@
       >
         <div class="flex items-center gap-3">
           <button
-            class="flex size-10 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-700 shadow-sm transition-colors hover:bg-slate-50 hover:text-primary"
-            type="button"
-            title="Mở/đóng menu"
             aria-label="Mở hoặc đóng menu"
+            class="flex size-10 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-700 shadow-sm transition-colors hover:bg-slate-50 hover:text-primary"
+            title="Mở/đóng menu"
+            type="button"
             @click="menuOpen = !menuOpen"
           >
             <span class="material-symbols-outlined text-xl">{{
@@ -83,8 +83,8 @@
               </div>
               <button
                 class="flex size-8 items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900"
-                type="button"
                 title="Đóng menu"
+                type="button"
                 @click="menuOpen = false"
               >
                 <span class="material-symbols-outlined text-[20px]">close</span>

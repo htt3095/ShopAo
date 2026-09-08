@@ -587,7 +587,7 @@
         return
       }
     } else {
-      if (discountValue > 500000) {
+      if (discountValue > 500_000) {
         modalError.value = 'Số tiền giảm giá tối đa là 500.000đ.'
         return
       }

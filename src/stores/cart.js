@@ -281,7 +281,7 @@ export const useCartStore = defineStore('cart', () => {
       const response = await cartAPI.getCart(normalizedAccountId)
       const items = (response && response.items && Array.isArray(response.items)) ? response.items : []
       const normalizedRemoteItems = (await Promise.all(
-        items.map(async (item) => {
+        items.map(async item => {
           const normalized = normalizeCartItem(item)
           const variantId = Number(normalized.variantId || normalized.id)
           const stockValue = Number(normalized.stockAvailable || normalized.stockQuantity || 0)
@@ -292,8 +292,8 @@ export const useCartStore = defineStore('cart', () => {
                 normalized.stockAvailable = Number(realStock)
                 normalized.stockQuantity = Number(realStock)
               }
-            } catch (stockErr) {
-              console.warn('Cart stock enrich failed:', stockErr)
+            } catch (error_) {
+              console.warn('Cart stock enrich failed:', error_)
             }
           }
           return normalized
@@ -484,10 +484,14 @@ export const useCartStore = defineStore('cart', () => {
   }
 
   async function refreshCartStockLive () {
-    if (cartItems.value.length === 0) return
+    if (cartItems.value.length === 0) {
+      return
+    }
     await Promise.all(cartItems.value.map(async item => {
       const variantId = Number(item.variantId || item.variant_id || (item.variant && item.variant.id))
-      if (!Number.isFinite(variantId) || variantId <= 0) return item
+      if (!Number.isFinite(variantId) || variantId <= 0) {
+        return item
+      }
       try {
         const realStock = await stockApi.getVariantStock(variantId)
         item.stockAvailable = Math.max(0, Number(realStock) || 0)

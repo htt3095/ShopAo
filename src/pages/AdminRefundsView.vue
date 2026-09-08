@@ -43,7 +43,7 @@
         method: item.paymentMethodName || item.paymentMethod || 'Khác',
         amount: item.finalAmount || item.totalMoney || 0,
       }))
-    } catch (requestError) {
+    } catch {
       error.value = 'Không thể tải danh sách hoàn tiền.'
     } finally {
       loading.value = false

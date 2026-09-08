@@ -7,8 +7,8 @@ import AdminCustomersView from '@/pages/AdminCustomersView.vue'
 import AdminOrdersView from '@/pages/AdminOrdersView.vue'
 import AdminPOSView from '@/pages/AdminPOSView.vue'
 import AdminProductsView from '@/pages/AdminProductsView.vue'
-import AdminReportsView from '@/pages/AdminReportsView.vue'
 import AdminRefundsView from '@/pages/AdminRefundsView.vue'
+import AdminReportsView from '@/pages/AdminReportsView.vue'
 import AdminReturnsView from '@/pages/AdminReturnsView.vue'
 import AdminSettingsView from '@/pages/AdminSettingsView.vue'
 import AdminVouchersView from '@/pages/AdminVouchersView.vue'
@@ -33,201 +33,201 @@ import SizeGuideView from '@/pages/SizeGuideView.vue'
 import VnpayReturnView from '@/pages/VnpayReturnView.vue'
 import VoucherView from '@/pages/VoucherView.vue'
 
-function getLoggedInAccountId() {
-    const rawUser = localStorage.getItem('user')
-    if (!rawUser) {
-        return null
-    }
-    try {
-        const parsedUser = JSON.parse(rawUser)
-        const candidate = parsedUser &&
-            parsedUser.accountId !== undefined &&
-            parsedUser.accountId !== null ?
-            parsedUser.accountId :
-            parsedUser &&
-            parsedUser.account_id !== undefined &&
-            parsedUser.account_id !== null ?
-            parsedUser.account_id :
-            parsedUser ?
-            parsedUser.id :
-            null
-        const n = Number(candidate)
-        return Number.isFinite(n) && n > 0 ? n : null
-    } catch {
-        return null
-    }
+function getLoggedInAccountId () {
+  const rawUser = localStorage.getItem('user')
+  if (!rawUser) {
+    return null
+  }
+  try {
+    const parsedUser = JSON.parse(rawUser)
+    const candidate = parsedUser
+      && parsedUser.accountId !== undefined
+      && parsedUser.accountId !== null
+      ? parsedUser.accountId
+      : parsedUser
+        && parsedUser.account_id !== undefined
+        && parsedUser.account_id !== null
+        ? parsedUser.account_id
+        : parsedUser
+          ? parsedUser.id
+          : null
+    const n = Number(candidate)
+    return Number.isFinite(n) && n > 0 ? n : null
+  } catch {
+    return null
+  }
 }
 
-function getUserRole() {
-    const rawUser = localStorage.getItem('user')
-    if (!rawUser) {
-        return null
-    }
-    try {
-        const parsedUser = JSON.parse(rawUser)
-        return parsedUser.role || localStorage.getItem('userRole') || null
-    } catch {
-        return localStorage.getItem('userRole') || null
-    }
+function getUserRole () {
+  const rawUser = localStorage.getItem('user')
+  if (!rawUser) {
+    return null
+  }
+  try {
+    const parsedUser = JSON.parse(rawUser)
+    return parsedUser.role || localStorage.getItem('userRole') || null
+  } catch {
+    return localStorage.getItem('userRole') || null
+  }
 }
 
 const router = createRouter({
-    history: createWebHistory(
-        import.meta.env.BASE_URL),
-    routes: [
-        { path: '/', name: 'home', component: HomeView },
-        { path: '/about', name: 'about', component: AboutView },
-        { path: '/shop', name: 'shop', component: ShopView },
-        { path: '/brands', name: 'brands', component: BrandView },
-        { path: '/size-guide', name: 'size-guide', component: SizeGuideView },
-        {
-            path: '/product/:id',
-            name: 'product-detail',
-            component: ProductDetailView,
-        },
-        {
-            path: '/product/:id/review',
-            name: 'review-form',
-            component: ReviewFormView,
-        },
-        { path: '/cart', name: 'cart', component: CartView },
-        { path: '/checkout', name: 'checkout', component: CheckoutView },
-        { path: '/login', name: 'login', component: LoginView },
-        {
-            path: '/forgot-password',
-            name: 'forgot-password',
-            component: ForgotPasswordView,
-        },
-        { path: '/register', name: 'register', component: RegisterView },
-        { path: '/profile', name: 'profile', component: ProfileView },
-        { path: '/profile/edit', name: 'profile-edit', component: ProfileEdit },
-        {
-            path: '/profile/change-password',
-            name: 'profile-change-password',
-            component: ChangePasswordView,
-        },
-        {
-            path: '/profile/edit/reviews',
-            name: 'profile-edit-reviews',
-            component: ProfileEdit,
-        },
-        { path: '/vouchers', name: 'vouchers', component: VoucherView },
-        { path: '/compare', name: 'compare', component: CompareView },
-        { path: '/orders', name: 'orders', component: OrderHistoryView },
-        { path: '/order/:id', name: 'order-detail', component: OrderHistoryView },
-        {
-            path: '/payment/vnpay-return',
-            name: 'vnpay-return',
-            component: VnpayReturnView,
-        },
-
-        // --- ADMIN ROUTES ---
-        {
-            path: '/admin',
-            name: 'admin-home',
-            redirect: { name: 'admin-reports' },
-            meta: { requiresAdmin: true },
-        },
-        {
-            path: '/admin/pos',
-            name: 'admin-pos',
-            component: AdminPOSView,
-            meta: { requiresAdmin: true },
-        },
-        {
-            path: '/admin/orders',
-            name: 'admin-orders',
-            component: AdminOrdersView,
-            meta: { requiresAdmin: true },
-        },
-        {
-            path: '/admin/returns',
-            name: 'admin-returns',
-            component: AdminReturnsView,
-            meta: { requiresAdmin: true },
-        },
-        {
-            path: '/admin/refunds',
-            name: 'admin-refunds',
-            component: AdminRefundsView,
-            meta: { requiresAdmin: true },
-        },
-        {
-            path: '/admin/products',
-            name: 'admin-products',
-            component: AdminProductsView,
-            meta: { requiresAdmin: true },
-        },
-        {
-            path: '/admin/brands',
-            name: 'admin-brands',
-            component: AdminBrandsView,
-            meta: { requiresAdmin: true },
-        },
-        {
-            path: '/admin/categories',
-            name: 'admin-categories',
-            component: AdminCategoriesView,
-            meta: { requiresAdmin: true },
-        },
-        {
-            path: '/admin/inventory',
-            name: 'admin-inventory',
-            redirect: { name: 'admin-products' },
-            meta: { requiresAdmin: true },
-        },
-        {
-            path: '/admin/customers',
-            name: 'admin-customers',
-            component: AdminCustomersView,
-            meta: { allowedRoles: ['ADMIN', 'STAFF'] },
-        },
-        {
-            path: '/admin/vouchers',
-            name: 'admin-vouchers',
-            component: AdminVouchersView,
-            meta: { requiresAdmin: true },
-        },
-        {
-            path: '/admin/reports',
-            name: 'admin-reports',
-            component: AdminReportsView,
-            meta: { requiresAdmin: true },
-        },
-        {
-            path: '/admin/settings',
-            name: 'admin-settings',
-            component: AdminSettingsView,
-            meta: { requiresAdmin: true },
-        },
-    ],
-    scrollBehavior(to, from, savedPosition) {
-        if (savedPosition) {
-            return savedPosition
-        }
-        return { top: 0 }
+  history: createWebHistory(
+    import.meta.env.BASE_URL),
+  routes: [
+    { path: '/', name: 'home', component: HomeView },
+    { path: '/about', name: 'about', component: AboutView },
+    { path: '/shop', name: 'shop', component: ShopView },
+    { path: '/brands', name: 'brands', component: BrandView },
+    { path: '/size-guide', name: 'size-guide', component: SizeGuideView },
+    {
+      path: '/product/:id',
+      name: 'product-detail',
+      component: ProductDetailView,
     },
+    {
+      path: '/product/:id/review',
+      name: 'review-form',
+      component: ReviewFormView,
+    },
+    { path: '/cart', name: 'cart', component: CartView },
+    { path: '/checkout', name: 'checkout', component: CheckoutView },
+    { path: '/login', name: 'login', component: LoginView },
+    {
+      path: '/forgot-password',
+      name: 'forgot-password',
+      component: ForgotPasswordView,
+    },
+    { path: '/register', name: 'register', component: RegisterView },
+    { path: '/profile', name: 'profile', component: ProfileView },
+    { path: '/profile/edit', name: 'profile-edit', component: ProfileEdit },
+    {
+      path: '/profile/change-password',
+      name: 'profile-change-password',
+      component: ChangePasswordView,
+    },
+    {
+      path: '/profile/edit/reviews',
+      name: 'profile-edit-reviews',
+      component: ProfileEdit,
+    },
+    { path: '/vouchers', name: 'vouchers', component: VoucherView },
+    { path: '/compare', name: 'compare', component: CompareView },
+    { path: '/orders', name: 'orders', component: OrderHistoryView },
+    { path: '/order/:id', name: 'order-detail', component: OrderHistoryView },
+    {
+      path: '/payment/vnpay-return',
+      name: 'vnpay-return',
+      component: VnpayReturnView,
+    },
+
+    // --- ADMIN ROUTES ---
+    {
+      path: '/admin',
+      name: 'admin-home',
+      redirect: { name: 'admin-reports' },
+      meta: { requiresAdmin: true },
+    },
+    {
+      path: '/admin/pos',
+      name: 'admin-pos',
+      component: AdminPOSView,
+      meta: { requiresAdmin: true },
+    },
+    {
+      path: '/admin/orders',
+      name: 'admin-orders',
+      component: AdminOrdersView,
+      meta: { requiresAdmin: true },
+    },
+    {
+      path: '/admin/returns',
+      name: 'admin-returns',
+      component: AdminReturnsView,
+      meta: { requiresAdmin: true },
+    },
+    {
+      path: '/admin/refunds',
+      name: 'admin-refunds',
+      component: AdminRefundsView,
+      meta: { requiresAdmin: true },
+    },
+    {
+      path: '/admin/products',
+      name: 'admin-products',
+      component: AdminProductsView,
+      meta: { requiresAdmin: true },
+    },
+    {
+      path: '/admin/brands',
+      name: 'admin-brands',
+      component: AdminBrandsView,
+      meta: { requiresAdmin: true },
+    },
+    {
+      path: '/admin/categories',
+      name: 'admin-categories',
+      component: AdminCategoriesView,
+      meta: { requiresAdmin: true },
+    },
+    {
+      path: '/admin/inventory',
+      name: 'admin-inventory',
+      redirect: { name: 'admin-products' },
+      meta: { requiresAdmin: true },
+    },
+    {
+      path: '/admin/customers',
+      name: 'admin-customers',
+      component: AdminCustomersView,
+      meta: { allowedRoles: ['ADMIN', 'STAFF'] },
+    },
+    {
+      path: '/admin/vouchers',
+      name: 'admin-vouchers',
+      component: AdminVouchersView,
+      meta: { requiresAdmin: true },
+    },
+    {
+      path: '/admin/reports',
+      name: 'admin-reports',
+      component: AdminReportsView,
+      meta: { requiresAdmin: true },
+    },
+    {
+      path: '/admin/settings',
+      name: 'admin-settings',
+      component: AdminSettingsView,
+      meta: { requiresAdmin: true },
+    },
+  ],
+  scrollBehavior (to, from, savedPosition) {
+    if (savedPosition) {
+      return savedPosition
+    }
+    return { top: 0 }
+  },
 })
 
 router.beforeEach((to, from, next) => {
-    if (to.name === 'checkout' && getLoggedInAccountId() === null) {
-        next({ name: 'login', query: { redirect: to.fullPath } })
-        return
+  if (to.name === 'checkout' && getLoggedInAccountId() === null) {
+    next({ name: 'login', query: { redirect: to.fullPath } })
+    return
+  }
+
+  const userRole = getUserRole()
+
+  if (Array.isArray(to.meta.allowedRoles)) {
+    if (!to.meta.allowedRoles.includes(userRole)) {
+      next({ name: 'home' })
+      return
     }
+  } else if (to.meta.requiresAdmin && userRole !== 'ADMIN') {
+    next({ name: 'home' })
+    return
+  }
 
-    const userRole = getUserRole()
-
-    if (Array.isArray(to.meta.allowedRoles)) {
-        if (!to.meta.allowedRoles.includes(userRole)) {
-            next({ name: 'home' })
-            return
-        }
-    } else if (to.meta.requiresAdmin && userRole !== 'ADMIN') {
-        next({ name: 'home' })
-        return
-    }
-
-    next()
+  next()
 })
 
 export default router

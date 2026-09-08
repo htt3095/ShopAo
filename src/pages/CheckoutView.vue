@@ -62,9 +62,9 @@
           <p class="mt-1 text-amber-700">{{ cartStore.notice }}</p>
         </div>
         <button
+          aria-label="Đóng thông báo"
           class="text-amber-500 hover:text-amber-700"
           type="button"
-          aria-label="Đóng thông báo"
           @click="cartStore.notice = ''"
         >
           <span class="material-symbols-outlined text-[18px]">close</span>
@@ -625,7 +625,7 @@
     if (!mapElement) return
 
     // Default coordinate (Hanoi)
-    const defaultCoord = [21.028511, 105.804817]
+    const defaultCoord = [21.028_511, 105.804_817]
 
     map = L.map('checkout-map').setView(defaultCoord, 12)
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -745,7 +745,7 @@
   const skipNextWatcherUpdate = ref(false)
 
   // Tọa độ kho hàng (123 Nguyễn Ngọc Vũ, Trung Hoà, Cầu Giấy, Hà Nội)
-  const SHOP_COORD = [21.008882, 105.802883]
+  const SHOP_COORD = [21.008_882, 105.802_883]
 
   function normalizeAddressText (value) {
     return String(value || '')
@@ -780,7 +780,7 @@
 
     distanceKm.value = '0.0'
     estimatedDays.value = isHaNoi ? 1 : 3
-    calculatedShippingFee.value = isHaNoi ? 30000 : 40000
+    calculatedShippingFee.value = isHaNoi ? 30_000 : 40_000
     fullAddressString.value = buildCurrentAddressString(addressText)
 
     routeError.value = ''
@@ -797,32 +797,31 @@
       .join(', ')
   }
 
-
   function buildCurrentAddressString () {
     const addressStr = streetAddress.value || ''
     const parts = [addressStr]
-    
+
     // Normalize addressStr completely to remove punctuation and accents for reliable includes check
     const normalizedAddressStr = normalizeAddressText(addressStr)
-    
+
     const ward = selectedWard.value?.name
     if (ward) {
       const bareWard = stripAdministrativePrefix(ward)
       if (bareWard && !normalizedAddressStr.includes(bareWard)) parts.push(ward)
     }
-    
+
     const district = selectedDistrict.value?.name
     if (district) {
       const bareDist = stripAdministrativePrefix(district)
       if (bareDist && !normalizedAddressStr.includes(bareDist)) parts.push(district)
     }
-    
+
     const province = selectedProvince.value?.name
     if (province) {
       const bareProv = stripAdministrativePrefix(province)
       if (bareProv && !normalizedAddressStr.includes(bareProv)) parts.push(province)
     }
-    
+
     return parts.filter(Boolean).join(', ')
   }
 
@@ -1125,12 +1124,12 @@
 
       distanceKm.value = Number.isFinite(km) ? km.toFixed(1) : '0.0'
       if (isHaNoi) {
-        if (km < 5) calculatedShippingFee.value = 15000
-        else if (km < 10) calculatedShippingFee.value = 25000
-        else calculatedShippingFee.value = 35000
+        if (km < 5) calculatedShippingFee.value = 15_000
+        else if (km < 10) calculatedShippingFee.value = 25_000
+        else calculatedShippingFee.value = 35_000
         estimatedDays.value = 1
       } else {
-        calculatedShippingFee.value = 40000
+        calculatedShippingFee.value = 40_000
         estimatedDays.value = km < 100 ? 2 : 3
       }
 
@@ -1235,7 +1234,7 @@
       = normalizeAddressText(addressForFee).includes('ha noi')
         || normalizeAddressText(detectedProvince).includes('ha noi')
     estimatedDays.value = isHaNoi ? 1 : 3
-    calculatedShippingFee.value = isHaNoi ? 30000 : 40000
+    calculatedShippingFee.value = isHaNoi ? 30_000 : 40_000
     fullAddressString.value = addressForFee
     routeError.value = ''
     isRouteCalculated.value = true
@@ -1477,7 +1476,7 @@
   }
 
   function startCheckoutStockSync () {
-    checkoutStockTimer = setInterval(syncCheckoutStockLive, 15000)
+    checkoutStockTimer = setInterval(syncCheckoutStockLive, 15_000)
     window.addEventListener('focus', syncCheckoutStockLive)
     document.addEventListener('visibilitychange', syncCheckoutStockLive)
   }
@@ -1698,9 +1697,9 @@
         items: cartItems.value.map(item => ({
           variantId:
             item.variantId
-              || item.variant_id
-              || (item.variant && item.variant.id)
-              || (item.product && item.product.defaultVariantId),
+            || item.variant_id
+            || (item.variant && item.variant.id)
+            || (item.product && item.product.defaultVariantId),
           quantity: item.quantity,
         })),
       }

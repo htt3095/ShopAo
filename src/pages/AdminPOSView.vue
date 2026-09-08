@@ -757,6 +757,8 @@
 
       const productGroup = new Map()
       for (const variant of rawVariants) {
+        const status = String(variant.status || '').trim().toUpperCase()
+        if (['HIDDEN', 'INACTIVE', '0', 'DISCONTINUED', 'STOP_SELLING'].includes(status)) continue
         const productId = Number(variant.productId || variant.product_id || 0)
         const colorId = Number(variant.colorId || variant.color_id || 0)
         const sizeId = Number(variant.sizeId || variant.size_id || 0)
@@ -844,20 +846,31 @@
     activeInvoiceId.value = newInvoice.id
   }
 
-  function removeInvoice (invoiceId) {
+  async function removeInvoice (invoiceId) {
     const invoice = invoices.value.find(entry => entry.id === invoiceId)
     if (!invoice || invoice.orderId) return
 
     if (invoice.cart.length > 0) {
-      if (!window.confirm('Hóa đơn này đang có sản phẩm. Bạn có chắc chắn muốn xóa và hoàn lại tồn kho không?')) return;
-      
-      invoice.cart.forEach(item => {
+      const confirmed = await new Promise(resolve => {
+        showPaymentDialog({
+          type: 'confirm',
+          title: 'Xóa hóa đơn',
+          message: 'Hóa đơn này đang có sản phẩm. Bạn có chắc chắn muốn xóa và hoàn lại tồn kho không?',
+          primaryLabel: 'Xóa hóa đơn',
+          secondaryLabel: 'Hủy bỏ',
+          onConfirm: () => resolve(true),
+          onCancel: () => resolve(false),
+        })
+      })
+      if (!confirmed) return
+
+      for (const item of invoice.cart) {
         posApi.adjustStock(item.variantId, -Number(item.quantity || 0)).then(() => {
           adjustLocalStock(item.variantId, -Number(item.quantity || 0))
         }).catch(error => {
           console.warn('Không thể hoàn tồn kho hóa đơn POS.', error)
         })
-      })
+      }
     }
 
     invoices.value = invoices.value.filter(entry => entry.id !== invoiceId)
@@ -870,20 +883,31 @@
     if (activeInvoiceId.value === invoiceId) activeInvoiceId.value = invoices.value[0].id
   }
 
-  function resetInvoice () {
+  async function resetInvoice () {
     const invoice = activeInvoice.value
     if (!invoice) return
 
     if (invoice.cart.length > 0) {
-      if (!window.confirm('Bạn có chắc chắn muốn làm mới giỏ hàng và hoàn lại tồn kho không?')) return;
+      const confirmed = await new Promise(resolve => {
+        showPaymentDialog({
+          type: 'confirm',
+          title: 'Làm mới giỏ hàng',
+          message: 'Bạn có chắc chắn muốn làm mới giỏ hàng và hoàn lại tồn kho không?',
+          primaryLabel: 'Làm mới',
+          secondaryLabel: 'Hủy bỏ',
+          onConfirm: () => resolve(true),
+          onCancel: () => resolve(false),
+        })
+      })
+      if (!confirmed) return
 
-      invoice.cart.forEach(item => {
+      for (const item of invoice.cart) {
         posApi.adjustStock(item.variantId, -Number(item.quantity || 0)).then(() => {
           adjustLocalStock(item.variantId, -Number(item.quantity || 0))
         }).catch(error => {
           console.warn('Không thể hoàn tồn kho POS.', error)
         })
-      })
+      }
     }
 
     invoice.customer = { ...POS_DEFAULT_CUSTOMER }
@@ -961,7 +985,6 @@
     })
   }
 
-
   function adjustLocalStock (variantId, reservedDelta) {
     if (!reservedDelta) return
     for (const product of inventoryVariants.value) {
@@ -974,7 +997,6 @@
   }
 
   function getVariant (item) {
-
     return item.product.variants.find(variant => variant.variantId === item.variantId)
       || item.product.variants[0]
       || { price: 0, stockQuantity: 0 }
@@ -1609,7 +1631,7 @@
 
   function createNewInvoice () {
     return {
-      id: Date.now() + Math.floor(Math.random() * 10000),
+      id: Date.now() + Math.floor(Math.random() * 10_000),
       number: nextInvoiceNumber++,
       orderId: null,
       orderCode: null,

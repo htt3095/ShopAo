@@ -782,10 +782,10 @@
     try {
       const fresh = await productStore.fetchVariantsByProductId(productId.value)
       const stockMap = new Map(fresh.map(v => [Number(v.id), Number(v.stockQuantity ?? v.stock_quantity ?? 0)]))
-      variants.value.forEach(v => {
+      for (const v of variants.value) {
         const nextStock = stockMap.get(Number(v.id))
         if (nextStock !== undefined) v.stockQuantity = nextStock
-      })
+      }
     } catch {
       // bỏ qua lỗi làm mới tồn kho
     }
@@ -793,7 +793,7 @@
 
   let stockSyncTimer = null
   function startStockSync () {
-    stockSyncTimer = setInterval(refreshLiveStock, 20000)
+    stockSyncTimer = setInterval(refreshLiveStock, 20_000)
     window.addEventListener('focus', refreshLiveStock)
     document.addEventListener('visibilitychange', refreshLiveStock)
   }

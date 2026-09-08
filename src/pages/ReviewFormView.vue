@@ -122,9 +122,9 @@
 <script setup>
   import { computed, onMounted, ref } from 'vue'
   import { useRoute, useRouter } from 'vue-router'
+  import { reviewsApi } from '@/services/api'
   import { useProductStore } from '@/stores/products'
   import { useReviewsStore } from '@/stores/reviews'
-  import { reviewsApi } from '@/services/api'
   import { getProductImageUrl } from '@/utils/productImages'
 
   const route = useRoute()
@@ -197,7 +197,7 @@
       eligibilityMessage.value = response && response.message
         ? response.message
         : eligibilityMessage.value
-    } catch (error) {
+    } catch {
       isEligible.value = false
       eligibilityMessage.value = 'Không thể xác minh điều kiện đánh giá. Vui lòng thử lại sau.'
     } finally {

@@ -502,9 +502,9 @@
               <input
                 v-model.number="form.accountId"
                 class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-1.5 text-sm "
+                :disabled="isOrderLocked"
                 min="1"
                 type="number"
-                :disabled="isOrderLocked"
               >
             </div>
 
@@ -513,8 +513,8 @@
               <input
                 v-model.trim="form.fullName"
                 class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm "
-                type="text"
                 :disabled="isOrderLocked"
+                type="text"
               >
             </div>
 
@@ -523,8 +523,8 @@
               <input
                 v-model.trim="form.phone"
                 class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm "
-                type="text"
                 :disabled="isOrderLocked"
+                type="text"
               >
             </div>
 
@@ -533,8 +533,8 @@
               <input
                 v-model.trim="form.email"
                 class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm "
-                type="email"
                 :disabled="isOrderLocked"
+                type="email"
               >
             </div>
 
@@ -543,9 +543,9 @@
               <input
                 v-model.number="form.totalMoney"
                 class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm "
+                :disabled="isOrderLocked"
                 min="0"
                 type="number"
-                :disabled="isOrderLocked"
               >
             </div>
 
@@ -554,9 +554,9 @@
               <input
                 v-model.number="form.finalAmount"
                 class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm "
+                :disabled="isOrderLocked"
                 min="0"
                 type="number"
-                :disabled="isOrderLocked"
               >
             </div>
 
@@ -693,8 +693,8 @@
               <textarea
                 v-model.trim="form.address"
                 class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm "
-                rows="2"
                 :disabled="isOrderLocked"
+                rows="2"
               />
             </div>
           </div>
@@ -726,7 +726,6 @@
         </div>
       </div>
     </Teleport>
-
 
     <!-- Toast Notification -->
     <Teleport to="body">
@@ -774,9 +773,15 @@
                     <p class="text-xs text-slate-500">{{ formatCurrency(row.price) }}/sp · có thể trả: {{ row.maxReturnable }}</p>
                   </div>
                   <div class="flex w-28 items-center gap-1">
-                    <button class="rounded-lg border border-slate-200 px-2 py-1 text-slate-600 hover:bg-slate-100 transition" type="button" :disabled="row.qty <= 0" @click="row.qty = Math.max(0, row.qty - 1)">−</button>
-                    <input v-model.number="row.qty" class="w-12 rounded-lg border border-slate-200 px-1 py-1 text-center text-sm font-bold outline-none" type="number" min="0" :max="row.maxReturnable">
-                    <button class="rounded-lg border border-slate-200 px-2 py-1 text-slate-600 hover:bg-slate-100 transition" type="button" :disabled="row.qty >= row.maxReturnable" @click="row.qty = Math.min(row.maxReturnable, row.qty + 1)">+</button>
+                    <button class="rounded-lg border border-slate-200 px-2 py-1 text-slate-600 hover:bg-slate-100 transition" :disabled="row.qty <= 0" type="button" @click="row.qty = Math.max(0, row.qty - 1)">−</button>
+                    <input
+                      v-model.number="row.qty"
+                      class="w-12 rounded-lg border border-slate-200 px-1 py-1 text-center text-sm font-bold outline-none"
+                      :max="row.maxReturnable"
+                      min="0"
+                      type="number"
+                    >
+                    <button class="rounded-lg border border-slate-200 px-2 py-1 text-slate-600 hover:bg-slate-100 transition" :disabled="row.qty >= row.maxReturnable" type="button" @click="row.qty = Math.min(row.maxReturnable, row.qty + 1)">+</button>
                   </div>
                   <div class="w-24 text-right">
                     <p class="text-sm font-bold text-blue-600">{{ formatCurrency(returnPreview.byId[row.orderItemId]?.refund ?? 0) }}</p>
@@ -847,7 +852,7 @@
           <div class="space-y-4">
             <div>
               <label class="mb-1 block text-xs font-medium text-slate-500">Số tiền hoàn (VND)</label>
-              <input v-model.number="refundForm.amount" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm font-bold text-red-500 outline-none" type="number" min="0">
+              <input v-model.number="refundForm.amount" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm font-bold text-red-500 outline-none" min="0" type="number">
             </div>
 
             <div>
@@ -960,7 +965,7 @@
     if (!updatedOrder) return
     const id = Number(updatedOrder.id)
     const idx = orders.value.findIndex(o => Number(o.id) === id)
-    if (idx >= 0) {
+    if (idx !== -1) {
       orders.value[idx] = { ...orders.value[idx], ...updatedOrder }
     }
   }
@@ -1103,9 +1108,9 @@
     orders.value.find(o => Number(o.id) === Number(returnForm.value.orderId)) || null,
   )
 
-  const lockedOrderStatuses = ['SHIPPING', 'DELIVERING', 'SUCCESS']
+  const lockedOrderStatuses = new Set(['SHIPPING', 'DELIVERING', 'SUCCESS'])
   const isOrderLocked = computed(() =>
-    editingOrderId.value && lockedOrderStatuses.includes(String(form.value.status || '').trim().toUpperCase()),
+    editingOrderId.value && lockedOrderStatuses.has(String(form.value.status || '').trim().toUpperCase()),
   )
 
   async function submitReturn () {
@@ -2202,7 +2207,7 @@
     loadOrders()
     pollingInterval = setInterval(() => {
       loadOrders(true)
-    }, 10000) // Poll every 10 seconds
+    }, 10_000) // Poll every 10 seconds
   })
   onUnmounted(() => {
     if (pollingInterval) clearInterval(pollingInterval)

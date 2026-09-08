@@ -44,7 +44,7 @@
       const response = await axios.get(`${API_BASE_URL}/orders`)
       const orders = Array.isArray(response.data) ? response.data : (response.data.content || [])
       returns.value = orders.filter(item => ['RETURN_REQUEST', 'RETURNING', 'RETURNED'].includes(item.status))
-    } catch (requestError) {
+    } catch {
       error.value = 'Không thể tải danh sách trả hàng.'
     } finally {
       loading.value = false

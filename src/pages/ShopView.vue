@@ -523,16 +523,13 @@
         pages.push('...')
       }
 
-    
       for (let i = startPage; i <= endPage; i++) {
         pages.push(i)
       }
 
-  
       if (endPage < totalPages.value - 1) {
         pages.push('...')
       }
-
 
       if (totalPages.value > 1) {
         pages.push(totalPages.value)
@@ -755,7 +752,7 @@
 
   let stockSyncTimer = null
   function startStockSync () {
-    stockSyncTimer = setInterval(refreshLiveStock, 20000)
+    stockSyncTimer = setInterval(refreshLiveStock, 20_000)
     window.addEventListener('focus', refreshLiveStock)
     document.addEventListener('visibilitychange', refreshLiveStock)
   }

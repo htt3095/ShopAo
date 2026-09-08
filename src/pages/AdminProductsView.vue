@@ -208,7 +208,13 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="(product, index) in filteredProducts" :key="product.id" class="cursor-pointer border-b border-slate-100 last:border-none transition-colors" :class="selectedProductId === product.id ? 'bg-primary/5' : 'hover:bg-slate-50'" @click="selectProduct(product)">
+                <tr
+                  v-for="(product, index) in filteredProducts"
+                  :key="product.id"
+                  class="cursor-pointer border-b border-slate-100 last:border-none transition-colors"
+                  :class="selectedProductId === product.id ? 'bg-primary/5' : 'hover:bg-slate-50'"
+                  @click="selectProduct(product)"
+                >
                   <td class="px-2 py-2 font-semibold text-slate-500">{{ index + 1 }}</td>
                   <td class="px-2 py-2 align-top">
                     <div class="flex items-center gap-2">
@@ -607,7 +613,7 @@
   // chỉ hiển thị biến thể của sản phẩm đó.
   function selectProduct (product) {
     if (!product) return
-    selectedProductId.value = product.id != null ? product.id : null
+    selectedProductId.value = product.id == null ? null : product.id
     inventoryPanelRef.value?.setExternalFilters?.({
       productId: selectedProductId.value,
     })

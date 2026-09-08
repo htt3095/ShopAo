@@ -794,11 +794,11 @@
           && (source.product.name
             || source.product.productName
             || source.product.product_name))
-        || (source.variant
-          && (source.variant.name
-            || source.variant.productName
-              || source.variant.product_name))
-          || ''
+          || (source.variant
+            && (source.variant.name
+              || source.variant.productName
+            || source.variant.product_name))
+            || ''
 
     return String(rawName || '').trim()
   }
@@ -974,7 +974,7 @@
       map.remove()
     }
 
-    const defaultCoord = [21.028511, 105.804817] // Hanoi default
+    const defaultCoord = [21.028_511, 105.804_817] // Hanoi default
     map = L.map('profile-map').setView(defaultCoord, 12)
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; OpenStreetMap contributors',

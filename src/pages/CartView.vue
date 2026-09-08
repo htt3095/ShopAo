@@ -26,9 +26,9 @@
               <p class="mt-0.5">{{ cartStore.notice }}</p>
             </div>
             <button
+              aria-label="Đóng thông báo"
               class="text-amber-500 hover:text-amber-700"
               type="button"
-              aria-label="Đóng thông báo"
               @click="cartStore.notice = ''"
             >
               <span class="material-symbols-outlined text-[18px]">close</span>
@@ -45,9 +45,9 @@
               <p class="mt-0.5">{{ stockError }}</p>
             </div>
             <button
+              aria-label="Đóng cảnh báo"
               class="text-red-400 hover:text-red-600"
               type="button"
-              aria-label="Đóng cảnh báo"
               @click="stockError = ''"
             >
               <span class="material-symbols-outlined text-[18px]">close</span>
@@ -115,10 +115,10 @@
                     <label class="text-sm text-slate-500 ">SL:</label>
                     <input
                       class="w-16 rounded-lg border border-slate-300  bg-transparent text-center text-sm font-medium text-slate-900  focus:border-primary focus:ring-primary/30 focus:outline-none p-1.5"
+                      :max="item.stockAvailable || item.stockQuantity || undefined"
                       min="1"
                       type="number"
                       :value="item.quantity"
-                      :max="item.stockAvailable || item.stockQuantity || undefined"
                       @change="(e) => setQuantity(item, e.target.value)"
                     >
                     <span class="text-xs text-slate-400 ">/ {{ item.stockAvailable || item.stockQuantity || '--' }}</span>
@@ -213,11 +213,11 @@
 <script setup>
   import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
   import { useRouter } from 'vue-router'
+  import { stockApi } from '@/services/api'
   import { orderUtils, voucherAPI } from '@/services/orders'
   import { useCartStore } from '@/stores/cart'
   import { resolveColorMeta, resolveSizeMeta } from '@/utils/variantValues'
   import { normalizeAppliedVoucher } from '@/utils/voucherValues'
-  import { stockApi } from '@/services/api'
 
   const router = useRouter()
   const cartStore = useCartStore()
@@ -245,7 +245,7 @@
   }
 
   function startCartStockSync () {
-    cartStockTimer = setInterval(syncCartStockLive, 20000)
+    cartStockTimer = setInterval(syncCartStockLive, 20_000)
     window.addEventListener('focus', syncCartStockLive)
     document.addEventListener('visibilitychange', syncCartStockLive)
   }
@@ -433,7 +433,7 @@
     isLoadingCheckout.value = true
     stockError.value = ''
     try {
-      const items = cartStore.cartItems.map((item) => ({
+      const items = cartStore.cartItems.map(item => ({
         variantId: item.variantId || item.variant_id || (item.variant && item.variant.id),
         quantity: item.quantity,
         productName: item.productName,
@@ -441,7 +441,7 @@
       const result = await stockApi.checkStock(items)
 
       if (!result.valid) {
-        const messages = result.errors.map((e) => e.message).join(' ')
+        const messages = result.errors.map(e => e.message).join(' ')
         stockError.value = messages
         isVoucherError.value = true
         // Refresh to get correct available stock numbers

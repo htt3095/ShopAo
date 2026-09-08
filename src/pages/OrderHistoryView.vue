@@ -1377,58 +1377,58 @@
 
   function getPaymentMethodLabel (orderLike) {
     if (!orderLike) return 'N/A'
-    const name = orderLike.paymentMethod?.name 
-      || orderLike.payment_method?.name 
-      || orderLike.paymentMethodName 
+    const name = orderLike.paymentMethod?.name
+      || orderLike.payment_method?.name
+      || orderLike.paymentMethodName
       || orderLike.payment_method_name
-    
+
     if (name) return name
-    
-    const id = orderLike.paymentMethod?.id 
-      || orderLike.payment_method?.id 
-      || orderLike.paymentMethodId 
+
+    const id = orderLike.paymentMethod?.id
+      || orderLike.payment_method?.id
+      || orderLike.paymentMethodId
       || orderLike.payment_method_id
-      
+
     if (id === 1 || id === '1') return 'Thanh toán khi nhận hàng (COD)'
     if (id === 2 || id === '2') return 'Thanh toán VNPay'
-    
+
     return 'Chưa xác định'
   }
 
   function getPaymentMethodShort (orderLike) {
     if (isVnPay(orderLike)) return 'VNPay'
-    
-    const id = orderLike?.paymentMethod?.id 
-      || orderLike?.payment_method?.id 
-      || orderLike?.paymentMethodId 
+
+    const id = orderLike?.paymentMethod?.id
+      || orderLike?.payment_method?.id
+      || orderLike?.paymentMethodId
       || orderLike?.payment_method_id
-      
+
     if (id === 1 || id === '1') return 'COD'
-    
-    const name = orderLike?.paymentMethod?.name 
-      || orderLike?.payment_method?.name 
-      || orderLike?.paymentMethodName 
+
+    const name = orderLike?.paymentMethod?.name
+      || orderLike?.payment_method?.name
+      || orderLike?.paymentMethodName
       || orderLike?.payment_method_name
-      
+
     if (name && (name.toLowerCase().includes('nhận hàng') || name.toLowerCase().includes('cod'))) return 'COD'
-    
+
     return name || 'N/A'
   }
 
   function isVnPay (orderLike) {
     if (!orderLike) return false
-    const id = orderLike.paymentMethod?.id 
-      || orderLike.payment_method?.id 
-      || orderLike.paymentMethodId 
+    const id = orderLike.paymentMethod?.id
+      || orderLike.payment_method?.id
+      || orderLike.paymentMethodId
       || orderLike.payment_method_id
-    
+
     if (id === 2 || id === '2') return true
-    
-    const name = orderLike.paymentMethod?.name 
-      || orderLike.payment_method?.name 
-      || orderLike.paymentMethodName 
+
+    const name = orderLike.paymentMethod?.name
+      || orderLike.payment_method?.name
+      || orderLike.paymentMethodName
       || orderLike.payment_method_name
-      
+
     return name && (name.toLowerCase().includes('vnpay') || name.toLowerCase().includes('ví điện tử'))
   }
 
