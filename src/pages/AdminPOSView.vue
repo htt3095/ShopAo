@@ -42,7 +42,7 @@
     </template>
 
     <div class="space-y-4">
-      <div v-if="invoices.length > 1" class="rounded-2xl border border-slate-200 bg-white px-3 py-2">
+      <div class="rounded-2xl border border-slate-200 bg-white px-3 py-2">
         <div class="flex flex-wrap items-center gap-1.5">
           <span class="mr-1 text-xs font-semibold uppercase tracking-wide text-slate-400">Hóa đơn</span>
           <div
@@ -858,8 +858,8 @@
           message: 'Hóa đơn này đang có sản phẩm. Bạn có chắc chắn muốn xóa và hoàn lại tồn kho không?',
           primaryLabel: 'Xóa hóa đơn',
           secondaryLabel: 'Hủy bỏ',
-          onConfirm: () => resolve(true),
-          onCancel: () => resolve(false),
+          onPrimary: () => resolve(true),
+          onSecondary: () => resolve(false),
         })
       })
       if (!confirmed) return
@@ -895,8 +895,8 @@
           message: 'Bạn có chắc chắn muốn làm mới giỏ hàng và hoàn lại tồn kho không?',
           primaryLabel: 'Làm mới',
           secondaryLabel: 'Hủy bỏ',
-          onConfirm: () => resolve(true),
-          onCancel: () => resolve(false),
+          onPrimary: () => resolve(true),
+          onSecondary: () => resolve(false),
         })
       })
       if (!confirmed) return
@@ -1340,6 +1340,10 @@
   }
 
   function closePaymentDialog () {
+    const dialog = paymentDialog.value
+    if (dialog?.onSecondary) {
+      dialog.onSecondary()
+    }
     paymentDialog.value = null
   }
 
@@ -1353,6 +1357,7 @@
       secondaryLabel: config.secondaryLabel || 'Đóng',
       details: config.details || null,
       onPrimary: typeof config.onPrimary === 'function' ? config.onPrimary : null,
+        onSecondary: typeof config.onSecondary === 'function' ? config.onSecondary : null,
     }
   }
 
@@ -1455,14 +1460,7 @@
 
       // Reset giỏ hàng POS ngay sau khi thanh toán thành công (không cần F5)
       invoice.cart = []
-      invoice.customer = { ...POS_DEFAULT_CUSTOMER }
-      invoice.voucherInput = ''
-      invoice.appliedVoucher = null
-      invoice.voucherPreference = 'auto'
-      invoice.customerPaid = 0
-      const freshInvoice = createNewInvoice()
-      invoices.value = [...invoices.value, freshInvoice]
-      activeInvoiceId.value = freshInvoice.id
+      removeInvoice(invoice.id)
     } catch (error) {
       console.error('Lỗi thanh toán:', error)
       const message = error.response?.data?.message || error.message || 'Không xác định'
