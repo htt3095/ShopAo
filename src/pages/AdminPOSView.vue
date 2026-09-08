@@ -57,7 +57,7 @@
               @click="activeInvoiceId = invoice.id"
             >
               <span class="material-symbols-outlined text-[15px]">receipt_long</span>
-              {{ invoice.orderId ? `#${invoice.orderId}` : `Tạm ${invoice.number}` }}
+              {{ invoice.orderId ? `#${invoice.orderId}` : `Tạm ${invoices.indexOf(invoice) + 1}` }}
             </button>
             <button
               v-if="!invoice.orderId"
@@ -560,7 +560,7 @@
     if (!invoice) return 'Hóa đơn POS'
     if (invoice.orderCode) return `Hóa đơn ${invoice.orderCode}`
     if (invoice.orderId) return `Hóa đơn #${invoice.orderId}`
-    return `Hóa đơn tạm ${invoice.number}`
+    return `Hóa đơn tạm ${invoices.value.indexOf(invoice) + 1}`
   })
 
   const activeSubtotal = computed(() => {
@@ -873,13 +873,17 @@
       }
     }
 
-    invoices.value = invoices.value.filter(entry => entry.id !== invoiceId)
-    if (invoices.value.length === 0) {
-      const newInvoice = createNewInvoice()
-      invoices.value = [newInvoice]
-      activeInvoiceId.value = newInvoice.id
-      return
+    if (invoices.value.length === 1) {
+      invoice.cart = [];
+      invoice.customer = { ...POS_DEFAULT_CUSTOMER };
+      invoice.voucherInput = '';
+      invoice.appliedVoucher = null;
+      invoice.voucherPreference = 'auto';
+      invoice.customerPaid = 0;
+      return;
     }
+
+    invoices.value = invoices.value.filter(entry => entry.id !== invoiceId)
     if (activeInvoiceId.value === invoiceId) activeInvoiceId.value = invoices.value[0].id
   }
 
