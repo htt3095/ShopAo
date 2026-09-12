@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <AdminShell>
     <template #header>
       <div class="flex flex-wrap items-center justify-between gap-4">
@@ -171,11 +171,11 @@
                       <div class="flex w-fit items-center overflow-hidden rounded-lg border border-slate-200">
                         <button class="px-2 py-0.5 text-slate-700 hover:bg-slate-100" @click="updateQuantity(item, -1)">-</button>
                         <input
-                          v-model.number="item.quantity"
+                          :value="item.quantity"
                           class="w-10 border-none bg-transparent p-0 text-center text-xs text-slate-900 focus:ring-0"
                           min="1"
                           type="number"
-                          @change="validateQuantity(item)"
+                          @change="handleInputQuantity(item, $event)"
                         >
                         <button class="px-2 py-0.5 text-slate-700 hover:bg-slate-100" @click="updateQuantity(item, 1)">+</button>
                       </div>
@@ -620,9 +620,12 @@
     const maxCap = getVoucherMaxDiscount(voucher)
     if (type === 'PERCENT') {
       const raw = (base * val) / 100
-      return Math.max(0, maxCap > 0 ? Math.min(raw, maxCap) : raw)
+      const capped = maxCap > 0 ? Math.min(raw, maxCap) : raw
+      // Giới hạn 50% theo quy định khuyến mãi Việt Nam
+      return Math.max(0, Math.min(capped, base * 0.5))
     }
-    return Math.max(0, Math.min(val, base))
+    // Giảm cố định: không được vượt quá 50% tổng đơn
+    return Math.max(0, Math.min(val, base, base * 0.5))
   }
 
   const processedVouchers = computed(() => {
@@ -1220,16 +1223,14 @@
     for (const item of invoice.cart) {
       const variant = getVariant(item)
       const quantity = Number(item.quantity || 0)
-      const stockQuantity = Number(variant.stockQuantity || 0)
       if (!variant) {
         return 'Có biến thể sản phẩm không hợp lệ trong giỏ hàng.'
       }
       if (quantity < 1) {
         return 'Số lượng sản phẩm phải lớn hơn 0.'
       }
-      if (stockQuantity > 0 && quantity > stockQuantity) {
-        return `Sản phẩm ${item.product?.productName || 'đang chọn'} vượt quá tồn kho hiện tại.`
-      }
+      // Không validate lại local stockQuantity vì POS đã trừ kho real-time khi thêm vào giỏ (stockAlreadyDeducted=true)
+      // Stock thực tế sẽ được checkStock() API kiểm tra trước khi submit
     }
 
     return ''
@@ -1527,6 +1528,9 @@
 
       // Reset giỏ hàng POS ngay sau khi thanh toán thành công (không cần F5)
       invoice.cart = []
+      // Xóa orderId trước để removeInvoice không bị guard chặn, sau đó đóng tab
+      invoice.orderId = null
+      invoice.orderCode = null
       removeInvoice(invoice.id)
     } catch (error) {
       console.error('Lỗi thanh toán:', error)

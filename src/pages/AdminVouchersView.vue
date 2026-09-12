@@ -572,8 +572,8 @@
     const discountType = String(f.discountType || 'PERCENT').toUpperCase()
 
     if (discountType === 'PERCENT') {
-      if (discountValue > 80) {
-        modalError.value = 'Phần trăm giảm giá tối đa là 80%.'
+      if (discountValue > 50) {
+        modalError.value = 'Phần trăm giảm giá tối đa là 50% theo quy định khuyến mãi.'
         return
       }
       const maxDiscount = f.maxDiscountAmount
@@ -596,6 +596,18 @@
         modalError.value = 'Số tiền giảm giá phải nhỏ hơn đơn tối thiểu để áp dụng.'
         return
       }
+    }
+
+    // Validate ngày: endDate phải sau startDate
+    if (f.startDate && f.endDate) {
+      if (new Date(f.endDate) <= new Date(f.startDate)) {
+        modalError.value = 'Ngày kết thúc phải sau ngày bắt đầu.'
+        return
+      }
+    }
+    if (f.endDate && new Date(f.endDate) < new Date()) {
+      modalError.value = 'Ngày kết thúc không được ở trong quá khứ.'
+      return
     }
 
     saving.value = true

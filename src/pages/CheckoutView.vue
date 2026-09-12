@@ -1388,11 +1388,16 @@
   const discountAmount = computed(() => {
     if (!appliedVoucher.value) return 0
 
+    // Base để tính giảm giá = subtotal (giá hàng), KHÔNG bao gồm phí ship
+    const base = Math.max(0, subtotal.value)
+    // Giới hạn tối đa 50% theo quy định khuyến mãi Việt Nam
+    const maxAllowed = base * 0.5
+
     // Ưu tiên dùng discountAmount từ API (đã áp dụng cap maxDiscountAmount bên backend)
     if (appliedVoucher.value.discountAmount != null) {
       return Math.min(
-        Math.max(0, orderTotalBeforeDiscount.value),
         Math.max(0, Number(appliedVoucher.value.discountAmount) || 0),
+        maxAllowed,
       )
     }
 
@@ -1412,16 +1417,13 @@
       ? (found.maxDiscountAmount ?? null)
       : (appliedVoucher.value.maxDiscountAmount ?? null)
 
-    const base = Math.max(0, orderTotalBeforeDiscount.value)
     if (type === 'AMOUNT') {
-      return Math.min(base, Number(val) || 0)
+      return Math.min(base, Number(val) || 0, maxAllowed)
     } else if (type === 'PERCENT') {
       const raw = (base * (Number(val) || 0)) / 100
-      // Áp dụng cap maxDiscountAmount nếu có
-      if (maxCap != null && Number(maxCap) > 0) {
-        return Math.min(base, raw, Number(maxCap))
-      }
-      return Math.min(base, raw)
+      // Áp dụng cap maxDiscountAmount nếu có, sau đó giới hạn 50%
+      const capped = maxCap != null && Number(maxCap) > 0 ? Math.min(raw, Number(maxCap)) : raw
+      return Math.min(base, capped, maxAllowed)
     }
 
     return 0
@@ -1559,6 +1561,24 @@
         'Số điện thoại chỉ gồm chữ số và dài từ 7 đến 15 ký tự.',
         'error',
       )
+      return
+    }
+
+    // Validate địa chỉ giao hàng đầy đủ
+    if (!selectedProvince.value) {
+      showAlert('Thiếu thông tin', 'Vui lòng chọn Tỉnh/Thành phố.', 'error')
+      return
+    }
+    if (!selectedDistrict.value) {
+      showAlert('Thiếu thông tin', 'Vui lòng chọn Quận/Huyện.', 'error')
+      return
+    }
+    if (!selectedWard.value) {
+      showAlert('Thiếu thông tin', 'Vui lòng chọn Phường/Xã.', 'error')
+      return
+    }
+    if (!String(streetAddress.value || '').trim()) {
+      showAlert('Thiếu thông tin', 'Vui lòng nhập địa chỉ chi tiết (số nhà, tên đường).', 'error')
       return
     }
 

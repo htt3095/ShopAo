@@ -355,6 +355,13 @@ export const useCartStore = defineStore('cart', () => {
       return false
     }
 
+    // Chặn thêm biến thể đã ngừng bán (HIDDEN) vào giỏ
+    const variantStatus = String(fallbackVariant?.status || '').toUpperCase()
+    if (variantStatus === 'HIDDEN' || variantStatus === 'INACTIVE' || variantStatus === 'STOP_SELLING') {
+      error.value = 'Sản phẩm này hiện đã ngừng bán.'
+      return false
+    }
+
     try {
       const availableStock = await stockApi.getVariantStock(variantId)
       const existingItem = cartItems.value.find(i => i.variantId === variantId)
