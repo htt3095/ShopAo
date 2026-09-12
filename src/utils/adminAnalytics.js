@@ -185,7 +185,9 @@ export function getOrderPaymentImpact (order) {
 function isRevenueOrder (order, normalizedPaymentStatus = null) {
   const orderStatus = normalizeOrderStatusValue(order && order.status)
   const paymentStatus = normalizedPaymentStatus || normalizePaymentStatusValue(order && order.paymentStatus, orderStatus)
-  if (['RETURN_REQUEST', 'RETURNING'].includes(orderStatus)) {
+
+  // Luôn loại trừ đơn hủy và đang hoàn trả khỏi doanh thu, bất kể payment_status
+  if (orderStatus === 'DA_HUY' || ['RETURN_REQUEST', 'RETURNING'].includes(orderStatus)) {
     return false
   }
   return orderStatus === 'THANH_CONG' || profitablePaymentStatuses.has(paymentStatus)

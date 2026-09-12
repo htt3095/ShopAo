@@ -563,6 +563,16 @@
       return
     }
 
+    // Kiểm tra trùng mã voucher khi tạo mới (không check khi sửa)
+    if (!editingVoucherId.value) {
+      const normalizedCode = String(f.code).trim().toUpperCase()
+      const isDuplicate = vouchers.value.some(v => String(v.code || '').toUpperCase() === normalizedCode)
+      if (isDuplicate) {
+        modalError.value = `Mã voucher "${normalizedCode}" đã tồn tại, vui lòng dùng mã khác.`
+        return
+      }
+    }
+
     if (Number(f.discountValue) <= 0) {
       modalError.value = 'Giá trị giảm phải lớn hơn 0.'
       return

@@ -739,6 +739,17 @@
     // Fetch the specific product by id to ensure name/category are correct.
     productRef.value = await productStore.fetchProductById(productId.value)
 
+    // Chặn truy cập sản phẩm đã ngừng bán qua URL trực tiếp
+    if (!productRef.value) {
+      router.replace('/shop')
+      return
+    }
+    const productStatus = String(productRef.value?.status || '').toUpperCase()
+    if (productStatus === 'HIDDEN' || productStatus === 'INACTIVE' || productStatus === 'DISCONTINUED') {
+      router.replace('/shop')
+      return
+    }
+
     // Backfill lists if needed for other pages/components.
     if (productStore.products.length === 0) await productStore.fetchProducts()
     if (productStore.variants.length === 0) {
