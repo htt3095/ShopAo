@@ -4,11 +4,9 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { resolveImageUrl, stockApi } from '@/services/api'
-import { cartAPI, orderUtils } from '@/services/orders'
+import { cartAPI } from '@/services/orders'
 import {
-  resolveColorFromVariant,
   resolveColorMeta,
-  resolveSizeFromVariant,
   resolveSizeMeta,
 } from '@/utils/variantValues'
 
@@ -120,7 +118,7 @@ export const useCartStore = defineStore('cart', () => {
     return resolveImageUrl(image)
   }
 
-  function normalizeProductCode (rawCode, productId) {
+  function normalizeProductCode (rawCode) {
     if (rawCode === null || rawCode === undefined) {
       return null
     }
@@ -133,6 +131,7 @@ export const useCartStore = defineStore('cart', () => {
     return code
   }
 
+  // eslint-disable-next-line complexity
   function normalizeCartItem (item) {
     const productId = item.productId || item.product_id || null
     const variantObj = item.variant && typeof item.variant === 'object' ? item.variant : null
@@ -190,7 +189,7 @@ export const useCartStore = defineStore('cart', () => {
       variantId: rawVariantId,
       variant_id: rawVariantId,
       productName: normalizedName || 'Sản phẩm',
-      productCode: normalizeProductCode(rawCode, productId),
+      productCode: normalizeProductCode(rawCode),
       imageUrl: normalizeCartImage(rawImage),
       sizeId: sizeMeta.id,
       sizeName: sizeMeta.name,
@@ -200,40 +199,6 @@ export const useCartStore = defineStore('cart', () => {
       stockAvailable: stock,
       stockQuantity: stock,
     }
-  }
-
-  function addToCartLocal (product, variant, quantity = 1) {
-    const existingItem = cartItems.value.find(
-      item => item.variantId === variant.id,
-    )
-
-    if (existingItem) {
-      existingItem.quantity += quantity
-    } else {
-      const localProductId = (product && product.id) || null
-      const localCodeRaw = (product && (product.productCode || product.product_code || product.code)) || null
-      const colorMeta = resolveColorFromVariant(variant)
-      const sizeMeta = resolveSizeFromVariant(variant)
-      cartItems.value.push({
-        id: Date.now(),
-        productId: localProductId,
-        productName: (product && product.name) || (variant && variant.productName) || 'Sản phẩm',
-        productCode: normalizeProductCode(localCodeRaw, localProductId),
-        variantId: variant.id,
-        colorId: colorMeta.id,
-        colorName: colorMeta.name,
-        colorHexCode: colorMeta.hexCode,
-        sizeId: sizeMeta.id,
-        sizeName: sizeMeta.name,
-        price: variant.price,
-        imageUrl: normalizeCartImage(variant.imageUrl || (product && product.imageUrl)),
-        quantity,
-        stockQuantity: variant.stockQuantity,
-        isLocalOnly: true,
-      })
-    }
-
-    saveCart()
   }
 
   // ============================================
@@ -272,7 +237,7 @@ export const useCartStore = defineStore('cart', () => {
     }
 
     const allowLocalSync = options.allowLocalSync !== false
-    const localSnapshot = Array.isArray(cartItems.value) ? cartItems.value.map(normalizeCartItem) : []
+    const localSnapshot = Array.isArray(cartItems.value) ? cartItems.value.map(item => normalizeCartItem(item)) : []
 
     loading.value = true
     try {
@@ -348,7 +313,8 @@ export const useCartStore = defineStore('cart', () => {
     }
   }
 
-  async function addToCartBackend (variantId, quantity, fallbackProduct = null, fallbackVariant = null) {
+  // eslint-disable-next-line no-unused-vars
+  async function addToCartBackend (variantId, quantity, _fallbackProduct = null, fallbackVariant = null) {
     const normalizedAccountId = parseAccountId(accountId.value)
     if (normalizedAccountId === null) {
       setLoginRequiredError()
@@ -576,7 +542,7 @@ export const useCartStore = defineStore('cart', () => {
       if (savedCart) {
         const parsed = JSON.parse(savedCart)
         const items = Array.isArray(parsed) ? parsed : []
-        cartItems.value = items.map(normalizeCartItem)
+        cartItems.value = items.map(item => normalizeCartItem(item))
       }
     } catch (error_) {
       console.error('Error loading cart from localStorage:', error_)

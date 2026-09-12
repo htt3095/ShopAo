@@ -418,7 +418,6 @@ export function buildRevenueBuckets (orders, { mode = 'day', startDate = null, e
 
     const amount = getOrderAmount(order)
     const paymentStatus = normalizePaymentStatusValue(order.paymentStatus, order.status)
-    const statusKey = normalizeStatusKey(order.status)
 
     bucket.orderCount += 1
 
@@ -449,7 +448,7 @@ export function getStatusBreakdown (orders) {
       label: orderStatusLabel(status),
       count,
     }))
-    .sort((left, right) => right.count - left.count)
+    .toSorted((left, right) => right.count - left.count)
 }
 
 export function getPaymentBreakdown (orders) {
@@ -532,7 +531,7 @@ export function getPaymentMethodBreakdown (orders) {
     entry.revenue += amount
   }
 
-  const result = [...map.values()].sort((a, b) => b.revenue - a.revenue)
+  const result = [...map.values()].toSorted((a, b) => b.revenue - a.revenue)
   const totalRevenue = result.reduce((sum, r) => sum + r.revenue, 0)
 
   return result.map(entry => ({

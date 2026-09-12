@@ -609,11 +609,9 @@
     }
 
     // Validate ngày: endDate phải sau startDate
-    if (f.startDate && f.endDate) {
-      if (new Date(f.endDate) <= new Date(f.startDate)) {
-        modalError.value = 'Ngày kết thúc phải sau ngày bắt đầu.'
-        return
-      }
+    if (f.startDate && f.endDate && new Date(f.endDate) <= new Date(f.startDate)) {
+      modalError.value = 'Ngày kết thúc phải sau ngày bắt đầu.'
+      return
     }
     if (f.endDate && new Date(f.endDate) < new Date()) {
       modalError.value = 'Ngày kết thúc không được ở trong quá khứ.'

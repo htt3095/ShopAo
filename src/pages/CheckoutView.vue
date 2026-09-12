@@ -996,12 +996,7 @@
           = findBestMatchByName(wards.value, wardHint, displayNameHint)
             || findBestMatchByName(wards.value, input, displayNameHint)
 
-        if (matchedWard) {
-          selectedWard.value = matchedWard
-        } else {
-          // No ward match - keep district but leave ward empty
-          selectedWard.value = ''
-        }
+        selectedWard.value = matchedWard || ''
       } else {
         // District hint didn't work - try searching inside each district's wards for the hint
         let foundDistrictAndWard = false
@@ -1374,7 +1369,7 @@
         }
       })
       .filter(voucher => !voucher.reason)
-      .sort((a, b) => (b.expectedDiscount || 0) - (a.expectedDiscount || 0))
+      .toSorted((a, b) => (b.expectedDiscount || 0) - (a.expectedDiscount || 0))
   })
 
   const cartItems = computed(() => cartStore.cartItems)
@@ -1500,7 +1495,7 @@
   }
   function getSizeLabel (item) {
     return (
-      resolveSizeMeta({ id: item.sizeId, name: item.sizeName || item.size })
+      resolveSizeMeta({ id: item.sizeId, name: item.sizeName || item.variantSize || '' })
         .name || '--'
     )
   }
@@ -1823,7 +1818,7 @@
 
       availableVouchers.value = rows
         .filter(v => isVoucherActive(v))
-        .sort((a, b) => estimateDiscount(b) - estimateDiscount(a))
+        .toSorted((a, b) => estimateDiscount(b) - estimateDiscount(a))
         .slice(0, 20)
     } catch {
       availableVouchers.value = []

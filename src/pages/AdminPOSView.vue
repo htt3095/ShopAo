@@ -171,10 +171,10 @@
                       <div class="flex w-fit items-center overflow-hidden rounded-lg border border-slate-200">
                         <button class="px-2 py-0.5 text-slate-700 hover:bg-slate-100" @click="updateQuantity(item, -1)">-</button>
                         <input
-                          :value="item.quantity"
                           class="w-10 border-none bg-transparent p-0 text-center text-xs text-slate-900 focus:ring-0"
                           min="1"
                           type="number"
+                          :value="item.quantity"
                           @change="handleInputQuantity(item, $event)"
                         >
                         <button class="px-2 py-0.5 text-slate-700 hover:bg-slate-100" @click="updateQuantity(item, 1)">+</button>
@@ -517,10 +517,11 @@
   import { buildVariantCode } from '@/utils/variantValues'
 
   function removeVietnameseTones (str) {
-    if (!str) return ''; return str.normalize('NFD').replace(/[\u0300-\u036F]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D')
+    if (!str) return ''
+    return str.normalize('NFD').replace(/[\u0300-\u036F]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D')
   }
 
-  function getInitials (str) {
+  function _getInitials (str) {
     if (!str) return 'XX'
     const clean = removeVietnameseTones(str).toUpperCase().trim()
     const words = clean.split(/\s+/)
@@ -645,7 +646,7 @@
 
         return { ...voucher, minOrder, isEligible, calculatedDiscount, isApplied, isActive: !reason, reason }
       })
-      .sort((a, b) => b.calculatedDiscount - a.calculatedDiscount)
+      .toSorted((a, b) => b.calculatedDiscount - a.calculatedDiscount)
   })
 
   function formatDiscountLabel (voucher) {
@@ -1049,7 +1050,7 @@
 
   async function handleInputQuantity (item, event) {
     const inputQty = Number(event.target.value)
-    if (isNaN(inputQty) || inputQty < 1) {
+    if (Number.isNaN(inputQty) || inputQty < 1) {
       event.target.value = item.quantity
       return
     }
@@ -1444,7 +1445,7 @@
 
     // ── STOCK VALIDATION: Kiểm tra tồn kho trước khi tạo đơn POS ──
     const stockCheckItems = invoice.cart.map(item => {
-      const variant = getVariant(item)
+      const _variant = getVariant(item)
       return {
         variantId: item.variantId,
         quantity: Number(item.quantity || 0),
@@ -1666,7 +1667,7 @@
 
     productId = match ? Number(match[1]) : Number(rawText)
 
-    if (!productId || isNaN(productId) || productId <= 0) {
+    if (!productId || Number.isNaN(productId) || productId <= 0) {
       showPaymentDialog({ type: 'error', subtitle: 'Cảnh báo', title: 'Thông báo', message: 'Mã QR không hợp lệ (không tìm thấy ID sản phẩm).' })
       return
     }

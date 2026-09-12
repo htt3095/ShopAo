@@ -529,7 +529,7 @@
     let lowestPrice = null
 
     const visibleList = list.filter(variant => normalizeVariantStatus(variant) !== 'HIDDEN')
-    const sellableList = visibleList.filter(isVariantSellable)
+    const sellableList = visibleList.filter(variant => isVariantSellable(variant))
     const candidates = sellableList.length > 0 ? sellableList : visibleList
 
     for (const variant of candidates) {
