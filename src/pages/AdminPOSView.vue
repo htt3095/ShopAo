@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <AdminShell>
     <template #header>
       <div class="flex flex-wrap items-center justify-between gap-4">
@@ -549,6 +549,7 @@
   const invoices = ref([createNewInvoice()])
   const activeInvoiceId = ref(invoices.value[0].id)
   const isProcessing = ref(false)
+  let inventorySyncTimer = null
 
   const qrScannerVisible = ref(false)
   const qrScanner = ref(null)
@@ -815,9 +816,54 @@
       }
 
       inventoryVariants.value = Array.from(productGroup.values())
+      await refreshCartVariantStocks()
     } catch (error) {
       console.error('Lỗi tải dữ liệu POS:', error)
     }
+  }
+
+  async function refreshVariantStock (variantId) {
+    const normalizedId = Number(variantId)
+    if (!Number.isFinite(normalizedId) || normalizedId <= 0) return null
+
+    const stockQuantity = await stockApi.getVariantStock(normalizedId)
+    const updateVariant = variant => {
+      if (variant && String(variant.variantId) === String(normalizedId)) {
+        variant.stockQuantity = stockQuantity
+      }
+    }
+
+    for (const product of inventoryVariants.value) {
+      for (const variant of product.variants || []) updateVariant(variant)
+    }
+    for (const invoice of invoices.value) {
+      for (const item of invoice.cart || []) {
+        for (const variant of item.product?.variants || []) updateVariant(variant)
+      }
+    }
+
+    return stockQuantity
+  }
+
+  async function refreshCartVariantStocks () {
+    const variantIds = new Set()
+    for (const invoice of invoices.value) {
+      for (const item of invoice.cart || []) {
+        for (const variant of item.product?.variants || []) {
+          variantIds.add(Number(variant.variantId))
+        }
+      }
+    }
+
+    await Promise.all([...variantIds].map(variantId => refreshVariantStock(variantId).catch(error => {
+      console.warn(`Không thể cập nhật tồn kho biến thể ${variantId}.`, error)
+    })))
+  }
+
+  async function refreshAfterStockMutation (...variantIds) {
+    await Promise.all(variantIds.map(variantId => refreshVariantStock(variantId).catch(error => {
+      console.warn(`Không thể cập nhật tồn kho biến thể ${variantId}.`, error)
+    })))
   }
 
   onMounted(async () => {
@@ -832,11 +878,20 @@
 
       await refreshInventory()
       restorePendingInvoices()
+      await refreshCartVariantStocks()
+      inventorySyncTimer = setInterval(() => {
+        if (!document.hidden && !isProcessing.value) refreshInventory()
+      }, 15_000)
+      window.addEventListener('focus', refreshInventory)
+      document.addEventListener('visibilitychange', refreshInventory)
     } catch (error) {
       console.error('Lỗi tải dữ liệu POS:', error)
     }
   })
   onBeforeUnmount(() => {
+    if (inventorySyncTimer) clearInterval(inventorySyncTimer)
+    window.removeEventListener('focus', refreshInventory)
+    document.removeEventListener('visibilitychange', refreshInventory)
     if (qrScanner.value) {
       try {
         qrScanner.value.stop().catch(() => {})
@@ -884,13 +939,8 @@
       })
       if (!confirmed) return
 
-      for (const item of invoice.cart) {
-        posApi.adjustStock(item.variantId, -Number(item.quantity || 0)).then(() => {
-          adjustLocalStock(item.variantId, -Number(item.quantity || 0))
-        }).catch(error => {
-          console.warn('Không thể hoàn tồn kho hóa đơn POS.', error)
-        })
-      }
+      await releaseInvoiceStock(invoice)
+
     }
 
     if (invoices.value.length === 1) {
@@ -916,7 +966,7 @@
         showPaymentDialog({
           type: 'confirm',
           title: 'Làm mới giỏ hàng',
-          message: 'Bạn có chắc chắn muốn làm mới giỏ hàng và hoàn lại tồn kho không?',
+          message: 'Bạn có chắc chắn muốn làm mới giỏ hàng hiện tại không?',
           primaryLabel: 'Làm mới',
           secondaryLabel: 'Hủy bỏ',
           onPrimary: () => resolve(true),
@@ -925,13 +975,8 @@
       })
       if (!confirmed) return
 
-      for (const item of invoice.cart) {
-        posApi.adjustStock(item.variantId, -Number(item.quantity || 0)).then(() => {
-          adjustLocalStock(item.variantId, -Number(item.quantity || 0))
-        }).catch(error => {
-          console.warn('Không thể hoàn tồn kho POS.', error)
-        })
-      }
+      await releaseInvoiceStock(invoice)
+
     }
 
     invoice.customer = { ...POS_DEFAULT_CUSTOMER }
@@ -945,23 +990,41 @@
     invoice.orderCode = null
   }
 
-  function removeFromCart (cartItemId) {
+  async function removeFromCart (cartItemId) {
     if (!activeInvoice.value) return
     const item = activeInvoice.value.cart.find(entry => entry.cartItemId === cartItemId)
     if (!item) return
-    posApi.adjustStock(item.variantId, -Number(item.quantity || 0)).then(() => {
-      adjustLocalStock(item.variantId, -Number(item.quantity || 0))
-    }).catch(error => {
-      console.warn('Không thể hoàn tồn kho sản phẩm POS.', error)
-    })
+    await releaseStock(item.variantId, item.quantity)
     activeInvoice.value.cart = activeInvoice.value.cart.filter(entry => entry.cartItemId !== cartItemId)
+  }
+
+  async function releaseStock (variantId, quantity) {
+    const amount = Number(quantity || 0)
+    if (amount <= 0) return
+    try {
+      await posApi.adjustStock(variantId, -amount)
+      await refreshAfterStockMutation(variantId)
+    } catch (error) {
+      console.warn('Không thể hoàn tồn kho POS.', error)
+      throw error
+    }
+  }
+
+  async function releaseInvoiceStock (invoice) {
+    for (const item of invoice?.cart || []) {
+      try {
+        await releaseStock(item.variantId, item.quantity)
+      } catch {
+        // Keep processing the remaining items so one failed release does not block cleanup.
+      }
+    }
   }
 
   async function addToCart (product) {
     if (!activeInvoice.value) return
 
     const defaultVariant = product.variants.find(variant => Number(variant.stockQuantity || 0) > 0) || product.variants[0]
-    if (!defaultVariant || Number(defaultVariant.stockQuantity || 0) <= 0) {
+    if (!defaultVariant) {
       showPaymentDialog({ type: 'error', subtitle: 'Cảnh báo', title: 'Thông báo', message: 'Sản phẩm này đã hết hàng!' })
       return
     }
@@ -985,21 +1048,19 @@
     const variantId = defaultVariant.variantId
     const existing = activeInvoice.value.cart.find(item => String(item.variantId) === String(variantId))
     if (existing) {
-      if (existing.quantity >= maxStock) {
-        showPaymentDialog({ type: 'error', subtitle: 'Cảnh báo', title: 'Thông báo', message: `Không thêm được nữa, sản phẩm này chỉ còn ${maxStock} trong kho` })
-        existing.quantity = maxStock
+      const availableForLine = maxStock + Number(existing.quantity || 0)
+      if (existing.quantity >= availableForLine) {
+        showPaymentDialog({ type: 'error', subtitle: 'Cảnh báo', title: 'Thông báo', message: `Không thêm được nữa, sản phẩm này chỉ còn ${availableForLine - existing.quantity} trong kho` })
         return
       }
-      const nextQuantity = Math.min(existing.quantity + 1, maxStock)
-      const diff = nextQuantity - Number(existing.quantity || 0)
-      await posApi.adjustStock(variantId, diff)
-      adjustLocalStock(variantId, diff)
+      const nextQuantity = Math.min(existing.quantity + 1, availableForLine)
+      await posApi.adjustStock(variantId, nextQuantity - existing.quantity)
       existing.quantity = nextQuantity
+      await refreshAfterStockMutation(variantId)
       return
     }
 
     await posApi.adjustStock(variantId, 1)
-    adjustLocalStock(variantId, 1)
     activeInvoice.value.cart.push({
       cartItemId: `${Date.now()}-${Math.random()}`,
       product,
@@ -1007,17 +1068,7 @@
       quantity: 1,
       price: Number(defaultVariant.price || 0),
     })
-  }
-
-  function adjustLocalStock (variantId, reservedDelta) {
-    if (!reservedDelta) return
-    for (const product of inventoryVariants.value) {
-      const variant = product.variants.find(v => String(v.variantId) === String(variantId))
-      if (variant) {
-        variant.stockQuantity = Number(variant.stockQuantity || 0) - reservedDelta
-        break
-      }
-    }
+    await refreshAfterStockMutation(variantId)
   }
 
   function getVariant (item) {
@@ -1028,10 +1079,10 @@
 
   async function updateQuantity (item, change) {
     const variant = getVariant(item)
-    let maxStock = Number(variant.stockQuantity || 0)
+    let maxStock = Number(variant.stockQuantity || 0) + Number(item.quantity || 0)
     try {
       const realStock = await stockApi.getVariantStock(item.variantId)
-      if (Number(realStock) >= 0) maxStock = Number(realStock)
+      if (Number(realStock) >= 0) maxStock = Number(realStock) + Number(item.quantity || 0)
     } catch (error) {
       console.warn('POS updateQuantity stock check failed, using local:', error)
     }
@@ -1042,10 +1093,9 @@
       item.quantity = maxStock
       return
     }
-    const diff = newQty - Number(item.quantity || 0)
-    await posApi.adjustStock(item.variantId, diff)
-    adjustLocalStock(item.variantId, diff)
+    await posApi.adjustStock(item.variantId, newQty - item.quantity)
     item.quantity = newQty
+    await refreshAfterStockMutation(item.variantId)
   }
 
   async function handleInputQuantity (item, event) {
@@ -1074,8 +1124,8 @@
 
     try {
       await posApi.adjustStock(item.variantId, diff)
-      adjustLocalStock(item.variantId, diff)
       item.quantity = inputQty
+      await refreshAfterStockMutation(item.variantId)
     } catch {
       showPaymentDialog({ type: 'error', message: 'Không thể cập nhật tồn kho' })
       event.target.value = item.quantity
@@ -1089,7 +1139,7 @@
     const oldVariantId = item.variantId
     const newVariant = item.product.variants.find(v => String(v.variantId) === String(newVariantId))
 
-    if (!newVariant || Number(newVariant.stockQuantity || 0) < item.quantity) {
+    if (!newVariant) {
       showPaymentDialog({ type: 'error', message: 'Biến thể này không đủ tồn kho cho số lượng hiện tại!' })
       event.target.value = String(oldVariantId)
       return
@@ -1102,14 +1152,19 @@
       return
     }
 
-    item.variantId = newVariant.variantId
     try {
+      const newVariantStock = await stockApi.getVariantStock(newVariant.variantId)
+      if (Number(newVariantStock) < Number(item.quantity || 0)) {
+        throw new Error('Biến thể mới không đủ tồn kho')
+      }
       await posApi.adjustStock(oldVariantId, -item.quantity)
-      adjustLocalStock(oldVariantId, -item.quantity)
-
       await posApi.adjustStock(newVariant.variantId, item.quantity)
-      adjustLocalStock(newVariant.variantId, item.quantity)
+      item.variantId = newVariant.variantId
+      await refreshAfterStockMutation(oldVariantId, newVariant.variantId)
     } catch {
+      try {
+        await posApi.adjustStock(oldVariantId, item.quantity)
+      } catch {}
       item.variantId = oldVariantId
       showPaymentDialog({ type: 'error', message: 'Lỗi đồng bộ kho khi đổi biến thể' })
       event.target.value = String(oldVariantId)
@@ -1230,8 +1285,7 @@
       if (quantity < 1) {
         return 'Số lượng sản phẩm phải lớn hơn 0.'
       }
-      // Không validate lại local stockQuantity vì POS đã trừ kho real-time khi thêm vào giỏ (stockAlreadyDeducted=true)
-      // Stock thực tế sẽ được checkStock() API kiểm tra trước khi submit
+      // Stock thực tế sẽ được checkStock() API kiểm tra trước khi submit.
     }
 
     return ''
@@ -1443,34 +1497,8 @@
 
     applyDefaultPosCustomer(invoice)
 
-    // ── STOCK VALIDATION: Kiểm tra tồn kho trước khi tạo đơn POS ──
-    const stockCheckItems = invoice.cart.map(item => {
-      const _variant = getVariant(item)
-      return {
-        variantId: item.variantId,
-        quantity: Number(item.quantity || 0),
-        productName: item.product?.productName || item.product?.name || 'Sản phẩm',
-      }
-    })
-    try {
-      const stockResult = await stockApi.checkStock(stockCheckItems)
-      if (!stockResult.valid) {
-        const errorMsg = stockResult.errors.map(e => e.message).join('\n')
-        showPaymentDialog({
-          type: 'error',
-          title: 'Hết hàng',
-          message: `Một số sản phẩm không còn đủ tồn kho:\n${errorMsg}`,
-          primaryLabel: 'Quay lại sửa',
-          secondaryLabel: 'Đóng',
-        })
-        return
-      }
-    } catch (error) {
-      console.warn('POS stock check failed, proceeding:', error)
-    }
-    // ── End STOCK VALIDATION ──
-
     isProcessing.value = true
+    let orderCreated = false
     try {
       let adminId = 1
       try {
@@ -1510,6 +1538,7 @@
       const response = await axios.post('http://localhost:8080/api/orders', orderData, { headers })
       const returnedOrderId = response.data?.orderId || response.data?.id || null
       const returnedOrderCode = response.data?.orderCode || (returnedOrderId ? `HD${returnedOrderId}` : null)
+      orderCreated = Boolean(returnedOrderId)
 
       if (returnedOrderId) {
         invoice.orderId = returnedOrderId
@@ -1535,6 +1564,7 @@
       removeInvoice(invoice.id)
     } catch (error) {
       console.error('Lỗi thanh toán:', error)
+      if (!orderCreated) await releaseInvoiceStock(invoice)
       const message = error.response?.data?.message || error.message || 'Không xác định'
       showPaymentDialog({
         type: 'error',
