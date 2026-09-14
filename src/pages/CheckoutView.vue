@@ -193,17 +193,32 @@
                 />
               </label>
 
-              <label class="flex flex-col gap-2 md:col-span-2">
+              <div class="relative flex flex-col gap-2 md:col-span-2">
                 <span class="text-xs font-semibold uppercase tracking-wide text-slate-500 ">Địa chỉ chi tiết</span>
                 <input
-                  v-model.trim="streetAddress"
+                  v-model="streetAddress"
                   class="rounded-xl border bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:border-primary   "
                   placeholder="Ví dụ: 42 Kim Giang"
                   type="text"
-                  @blur="checkAndCalculateRoute(true)"
+                  @input="handleAddressInput"
+                  @blur="handleAddressBlur"
                   @keyup.enter="checkAndCalculateRoute(true)"
                 >
-              </label>
+                <ul
+                  v-if="addressSuggestions.length > 0"
+                  class="absolute left-0 right-0 top-[105%] z-50 max-h-60 overflow-y-auto rounded-xl border border-slate-200 bg-white shadow-lg"
+                >
+                  <li
+                    v-for="(sug, idx) in addressSuggestions"
+                    :key="idx"
+                    class="flex cursor-pointer items-start gap-3 border-b border-slate-100 px-4 py-3 text-sm hover:bg-slate-50 last:border-0"
+                    @mousedown="selectAddressSuggestion(sug)"
+                  >
+                    <span class="material-symbols-outlined mt-0.5 text-[18px] text-slate-400">location_on</span>
+                    <span class="flex-1 leading-snug text-slate-700">{{ sug.display_name }}</span>
+                  </li>
+                </ul>
+              </div>
 
 
             </div>
@@ -600,6 +615,80 @@
     selectedDistrict.value = ''
     selectedWard.value = ''
     isRouteCalculated.value = false
+  }
+
+  const addressSuggestions = ref([])
+  let suggestionDebounceTimer = null
+
+  function handleAddressInput () {
+    if (suggestionDebounceTimer) clearTimeout(suggestionDebounceTimer)
+    const q = (streetAddress.value || '').trim()
+    if (q.length < 3) {
+      addressSuggestions.value = []
+      return
+    }
+
+    suggestionDebounceTimer = setTimeout(async () => {
+      try {
+        const targetUrl = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&limit=5&q=${encodeURIComponent(q + ', Việt Nam')}`
+        const res = await fetch(targetUrl)
+        if (res.ok) {
+          const data = await res.json()
+          addressSuggestions.value = data || []
+        }
+      } catch (error) {
+        console.error('Lỗi lấy gợi ý địa chỉ', error)
+      }
+    }, 500)
+  }
+
+  function handleAddressBlur () {
+    setTimeout(() => {
+      addressSuggestions.value = []
+      checkAndCalculateRoute(true)
+    }, 200)
+  }
+
+  async function selectAddressSuggestion (sug) {
+    addressSuggestions.value = []
+
+    if (sug && sug.address) {
+      const cityOrProvince = sug.address.city || sug.address.state || sug.address.province
+      if (cityOrProvince) {
+        const matchedProv = findBestMatchByName(provinces.value, cityOrProvince)
+        if (matchedProv) {
+          selectedProvince.value = matchedProv
+          await nextTick()
+
+          const districtOrCounty = sug.address.county || sug.address.district || sug.address.city_district || sug.address.town || sug.address.suburb
+          if (districtOrCounty && selectedProvince.value.districts) {
+            const matchedDist = findBestMatchByName(selectedProvince.value.districts, districtOrCounty)
+            if (matchedDist) {
+              selectedDistrict.value = matchedDist
+              await nextTick()
+
+              const wardOrVillage = sug.address.ward || sug.address.suburb || sug.address.village || sug.address.hamlet || sug.address.quarter || sug.address.neighbourhood
+              if (wardOrVillage && selectedDistrict.value.wards) {
+                const matchedWard = findBestMatchByName(selectedDistrict.value.wards, wardOrVillage)
+                if (matchedWard) {
+                  selectedWard.value = matchedWard
+                }
+              }
+            }
+          }
+        }
+      }
+
+      const road = sug.address.road || ''
+      const houseNumber = sug.address.house_number || ''
+      let specific = [houseNumber, road].filter(Boolean).join(' ')
+      if (!specific && sug.display_name) {
+        specific = sug.display_name.split(',')[0].trim()
+      }
+      streetAddress.value = specific
+    }
+
+    checkAndCalculateRoute(true)
   }
 
   // -----------------------------------------===== LOGIC CHỌN TỈNH THÀNH & TÍNH SHIP =====
