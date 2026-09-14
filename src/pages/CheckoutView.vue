@@ -205,11 +205,7 @@
                 >
               </label>
 
-              <label class="flex flex-col gap-2 md:col-span-2">
-                <span class="text-xs font-semibold uppercase tracking-wide text-slate-500 ">Hoặc chọn trên bản đồ</span>
-                <div id="checkout-map" class="h-64 w-full rounded-xl border border-slate-200  z-10 relative overflow-hidden" />
-                <p class="text-[11px] text-slate-500">Bấm vào bản đồ để chọn vị trí giao hàng.</p>
-              </label>
+
             </div>
 
             <div
@@ -517,11 +513,6 @@
 </template>
 
 <script setup>
-  import L from 'leaflet'
-  // Fix Leaflet marker icons
-  import iconRetinaUrl from 'leaflet/dist/images/marker-icon-2x.png'
-  import iconUrl from 'leaflet/dist/images/marker-icon.png'
-  import shadowUrl from 'leaflet/dist/images/marker-shadow.png'
   import { computed, nextTick, onMounted, onUnmounted, reactive, ref, watch } from 'vue'
   import { useRoute, useRouter } from 'vue-router'
 
@@ -530,13 +521,6 @@
   import { orderAPI, orderUtils, voucherAPI } from '@/services/orders'
   import { useCartStore } from '@/stores/cart'
   import { resolveColorMeta, resolveSizeMeta } from '@/utils/variantValues'
-  import 'leaflet/dist/leaflet.css'
-
-  L.Icon.Default.mergeOptions({
-    iconRetinaUrl,
-    iconUrl,
-    shadowUrl,
-  })
 
   const cartStore = useCartStore()
   const route = useRoute()
@@ -616,89 +600,6 @@
     selectedDistrict.value = ''
     selectedWard.value = ''
     isRouteCalculated.value = false
-  }
-
-  let map = null
-  let marker = null
-
-  function initMap () {
-    const mapElement = document.querySelector('#checkout-map')
-    if (!mapElement) return
-
-    // Default coordinate (Hanoi)
-    const defaultCoord = [21.028_511, 105.804_817]
-
-    map = L.map('checkout-map').setView(defaultCoord, 12)
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap contributors',
-    }).addTo(map)
-
-    marker = L.marker(defaultCoord).addTo(map)
-
-    let geocodeTimeout = null
-    map.on('click', e => {
-      const lat = e.latlng.lat
-      const lng = e.latlng.lng
-      marker.setLatLng([lat, lng])
-
-      if (geocodeTimeout) clearTimeout(geocodeTimeout)
-      geocodeTimeout = setTimeout(async () => {
-        await reverseGeocode(lat, lng)
-      }, 600) // Debounce to avoid 429 Too Many Requests
-    })
-  }
-
-  async function reverseGeocode (lat, lng) {
-    routeError.value = '' // Clear previous errors
-    try {
-      const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`)
-      if (!res.ok) {
-        if (res.status === 429) throw new Error('Dịch vụ bản đồ đang quá tải, vui lòng thử lại sau.')
-        const txt = await safeParseResponse(res)
-        throw new Error(typeof txt === 'string' ? txt : `Lỗi bản đồ (HTTP ${res.status})`)
-      }
-      const data = await safeParseResponse(res)
-      if (data && data.address) {
-        // Find matching Province
-        const cityOrProvince = data.address.city || data.address.state || data.address.province
-        if (cityOrProvince) {
-          const matchedProv = findBestMatchByName(provinces.value, cityOrProvince)
-          if (matchedProv) {
-            selectedProvince.value = matchedProv
-
-            await nextTick()
-
-            // Find matching District
-            const districtOrCounty = data.address.county || data.address.district || data.address.city_district || data.address.town || data.address.suburb
-            if (districtOrCounty && selectedProvince.value.districts) {
-              const matchedDist = findBestMatchByName(selectedProvince.value.districts, districtOrCounty)
-              if (matchedDist) {
-                selectedDistrict.value = matchedDist
-
-                await nextTick()
-
-                // Find matching Ward
-                const wardOrVillage = data.address.ward || data.address.suburb || data.address.village || data.address.hamlet || data.address.quarter || data.address.neighbourhood
-                if (wardOrVillage && selectedDistrict.value.wards) {
-                  const matchedWard = findBestMatchByName(selectedDistrict.value.wards, wardOrVillage)
-                  if (matchedWard) {
-                    selectedWard.value = matchedWard
-                  }
-                }
-              }
-            }
-          }
-        }
-
-        // Update street address
-        const road = data.address.road || ''
-        const houseNumber = data.address.house_number || ''
-        streetAddress.value = [houseNumber, road].filter(Boolean).join(' ')
-      }
-    } catch (error) {
-      console.error('Lỗi khi reverse geocoding', error)
-      routeError.value = error.message || 'Không thể lấy địa chỉ tự động.'
-    }
   }
 
   // -----------------------------------------===== LOGIC CHỌN TỈNH THÀNH & TÍNH SHIP =====
@@ -1158,10 +1059,6 @@
 
   onMounted(async () => {
     window.scrollTo(0, 0)
-
-    setTimeout(() => {
-      initMap()
-    }, 100)
 
     await hydrateCheckout()
     await fetchAddresses()
