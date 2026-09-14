@@ -552,6 +552,7 @@
     title: '',
     message: '',
     type: 'success',
+    onConfirm: null,
   })
 
   const stockNotice = ref('')
@@ -1442,13 +1443,7 @@
     return []
   }
 
-  const modal = reactive({
-    show: false,
-    title: '',
-    message: '',
-    type: 'success', // 'success' | 'error' | 'warning'
-    onConfirm: null,
-  })
+
 
   function showAlert (title, message, type = 'success', onConfirm = null) {
     modal.title = title
