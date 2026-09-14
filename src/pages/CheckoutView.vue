@@ -9,24 +9,24 @@
       >
         <div
           class="absolute inset-0 bg-black/50 backdrop-blur-sm"
-          @click="modal.show = false"
+          @click="closeAlert"
         />
         <div
           class="relative w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-2xl  "
         >
           <div
-            class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl"
-            :class="
-              modal.type === 'success'
-                ? 'bg-green-500/15 text-green-600 '
-                : 'bg-red-500/15 text-red-600 '
-            "
+            class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full"
+            :class="{
+              'bg-emerald-100 text-emerald-600': modal.type === 'success',
+              'bg-red-100 text-red-600': modal.type === 'error',
+              'bg-amber-100 text-amber-600': modal.type === 'warning'
+            }"
           >
-            <span class="material-symbols-outlined text-3xl">{{
-              modal.type === "success" ? "verified" : "error"
-            }}</span>
+            <span class="material-symbols-outlined text-4xl">
+              {{ modal.type === 'success' ? 'check_circle' : (modal.type === 'error' ? 'error' : 'warning') }}
+            </span>
           </div>
-          <h3 class="mb-2 text-xl font-black tracking-tight">
+          <h3 class="mb-2 text-xl font-bold text-slate-800">
             {{ modal.title }}
           </h3>
           <p class="mb-6 text-sm text-slate-500 ">
@@ -162,36 +162,47 @@
                 >
               </label>
 
+              <label class="flex flex-col gap-2">
+                <span class="text-xs font-semibold uppercase tracking-wide text-slate-500 ">Tỉnh/Thành phố</span>
+                <SearchableSelect
+                  v-model="selectedProvince"
+                  :options="provinces"
+                  placeholder="Chọn Tỉnh/Thành phố"
+                  @change="selectedDistrict = ''; selectedWard = ''"
+                />
+              </label>
+
+              <label class="hidden flex flex-col gap-2">
+                <span class="text-xs font-semibold uppercase tracking-wide text-slate-500 ">Quận/Huyện</span>
+                <SearchableSelect
+                  v-model="selectedDistrict"
+                  :disabled="!selectedProvince"
+                  :options="selectedProvince?.districts || []"
+                  placeholder="Chọn Quận/Huyện"
+                  @change="selectedWard = ''"
+                />
+              </label>
+
+              <label class="flex flex-col gap-2">
+                <span class="text-xs font-semibold uppercase tracking-wide text-slate-500 ">Phường/Xã</span>
+                <SearchableSelect
+                  v-model="selectedWard"
+                  :disabled="!selectedDistrict"
+                  :options="selectedDistrict?.wards || []"
+                  placeholder="Chọn Phường/Xã"
+                />
+              </label>
+
               <label class="flex flex-col gap-2 md:col-span-2">
-                <span class="text-xs font-semibold uppercase tracking-wide text-slate-500 ">Địa chỉ giao hàng</span>
-                <div class="relative">
-                  <input
-                    v-model.trim="streetAddress"
-                    class="w-full rounded-xl border bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:border-primary"
-                    placeholder="Ví dụ: 42 Kim Giang"
-                    type="text"
-                    autocomplete="street-address"
-                    @input="handleAddressInput"
-                    @focus="handleAddressFocus"
-                    @blur="handleAddressBlur"
-                    @keyup.enter="handleAddressEnter"
-                  >
-                  <div
-                    v-if="addressSuggestions.length > 0"
-                    class="absolute left-0 right-0 top-full z-[80] mt-1 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl"
-                  >
-                    <button
-                      v-for="suggestion in addressSuggestions"
-                      :key="suggestion.place_id"
-                      class="flex w-full items-start gap-2 border-b border-slate-100 px-4 py-3 text-left text-sm last:border-b-0 hover:bg-slate-50"
-                      type="button"
-                      @mousedown.prevent="selectAddressSuggestion(suggestion)"
-                    >
-                      <span class="material-symbols-outlined mt-0.5 text-base text-primary">location_on</span>
-                      <span class="min-w-0 flex-1 text-slate-700">{{ suggestion.display_name }}</span>
-                    </button>
-                  </div>
-                </div>
+                <span class="text-xs font-semibold uppercase tracking-wide text-slate-500 ">Địa chỉ chi tiết</span>
+                <input
+                  v-model.trim="streetAddress"
+                  class="rounded-xl border bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:border-primary   "
+                  placeholder="Ví dụ: 42 Kim Giang"
+                  type="text"
+                  @blur="checkAndCalculateRoute(true)"
+                  @keyup.enter="checkAndCalculateRoute(true)"
+                >
               </label>
 
               <label class="flex flex-col gap-2 md:col-span-2">
@@ -514,6 +525,7 @@
   import { computed, nextTick, onMounted, onUnmounted, reactive, ref, watch } from 'vue'
   import { useRoute, useRouter } from 'vue-router'
 
+  import SearchableSelect from '@/components/SearchableSelect.vue'
   import { addressApi, paymentApi, stockApi } from '@/services/api'
   import { orderAPI, orderUtils, voucherAPI } from '@/services/orders'
   import { useCartStore } from '@/stores/cart'
@@ -540,7 +552,6 @@
     title: '',
     message: '',
     type: 'success',
-    onConfirm: null,
   })
 
   const stockNotice = ref('')
@@ -600,9 +611,9 @@
     shippingForm.phone = currentUser.value?.phone || ''
     shippingForm.address = ''
     streetAddress.value = ''
-    selectedProvince.value = null
-    selectedDistrict.value = null
-    selectedWard.value = null
+    selectedProvince.value = ''
+    selectedDistrict.value = ''
+    selectedWard.value = ''
     isRouteCalculated.value = false
   }
 
@@ -696,74 +707,6 @@
 
   const geocodeCache = new Map()
   let lastGeocodeTime = 0
-  const addressSuggestions = ref([])
-  const isAddressSuggestionSelected = ref(false)
-  let addressSuggestionTimer = null
-  let addressSuggestionController = null
-
-  async function fetchAddressSuggestions (query) {
-    const normalizedQuery = String(query || '').trim()
-    if (normalizedQuery.length < 3) {
-      addressSuggestions.value = []
-      return
-    }
-
-    if (addressSuggestionController) addressSuggestionController.abort()
-    addressSuggestionController = new AbortController()
-
-    try {
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&limit=5&countrycodes=vn&q=${encodeURIComponent(normalizedQuery + ', Việt Nam')}`,
-        { signal: addressSuggestionController.signal },
-      )
-      if (!response.ok) return
-      const results = await response.json()
-      if (Array.isArray(results) && normalizedQuery === String(streetAddress.value || '').trim()) {
-        addressSuggestions.value = results
-      }
-    } catch (error) {
-      if (error?.name !== 'AbortError') console.warn('Không thể tải gợi ý địa chỉ.', error)
-    }
-  }
-
-  function handleAddressInput () {
-    isAddressSuggestionSelected.value = false
-    isRouteCalculated.value = false
-    fullAddressString.value = ''
-    if (addressSuggestionTimer) clearTimeout(addressSuggestionTimer)
-    addressSuggestionTimer = setTimeout(() => {
-      void fetchAddressSuggestions(streetAddress.value)
-    }, 500)
-  }
-
-  function handleAddressFocus () {
-    if (String(streetAddress.value || '').trim().length >= 3) {
-      void fetchAddressSuggestions(streetAddress.value)
-    }
-  }
-
-  function handleAddressBlur () {
-    setTimeout(() => {
-      addressSuggestions.value = []
-      if (!isAddressSuggestionSelected.value) void checkAndCalculateRoute(true)
-    }, 150)
-  }
-
-  async function handleAddressEnter () {
-    addressSuggestions.value = []
-    await checkAndCalculateRoute(true)
-  }
-
-  async function selectAddressSuggestion (suggestion) {
-    const address = String(suggestion?.display_name || '').trim()
-    if (!address) return
-    isAddressSuggestionSelected.value = true
-    streetAddress.value = address
-    shippingForm.address = address
-    addressSuggestions.value = []
-    await calculateRouteFromGeocodeResult(suggestion, address)
-  }
-
   async function fetchGeocode (q) {
     if (geocodeCache.has(q)) return geocodeCache.get(q)
     const now = Date.now()
@@ -785,68 +728,10 @@
     }
   }
 
-  async function calculateRouteFromGeocodeResult (result, addressText) {
-    const userLat = Number(result?.lat)
-    const userLon = Number(result?.lon)
-    if (!Number.isFinite(userLat) || !Number.isFinite(userLon)) {
-      await checkAndCalculateRoute(true)
-      return
-    }
-
-    await calculateRouteForCoordinates(userLat, userLon, result?.address || {}, addressText)
-  }
-
-  async function calculateRouteForCoordinates (userLat, userLon, addressMeta, addressText) {
-    try {
-      const routeUrl = `https://router.project-osrm.org/route/v1/driving/${SHOP_COORD[1]},${SHOP_COORD[0]};${userLon},${userLat}?overview=false`
-      const routeRes = await fetch(routeUrl)
-      const routeData = await routeRes.json()
-      if (routeData.code !== 'Ok') {
-        applyTextFallbackShipping(addressText)
-        return true
-      }
-
-      const km = Number(routeData.routes?.[0]?.distance || 0) / 1000
-      const provinceText = String(addressMeta?.state || addressMeta?.city || addressMeta?.province || '')
-      const isHaNoi = normalizeAddressText(provinceText).includes('ha noi')
-
-      distanceKm.value = Number.isFinite(km) ? km.toFixed(1) : '0.0'
-      if (isHaNoi) {
-        if (km < 5) calculatedShippingFee.value = 15_000
-        else if (km < 10) calculatedShippingFee.value = 25_000
-        else calculatedShippingFee.value = 35_000
-        estimatedDays.value = 1
-      } else {
-        calculatedShippingFee.value = 40_000
-        estimatedDays.value = km < 100 ? 2 : 3
-      }
-
-      fullAddressString.value = addressText
-      routeError.value = ''
-      isRouteCalculated.value = true
-      return true
-    } catch {
-      applyTextFallbackShipping(addressText)
-      return true
-    }
-  }
-
   const selectedProvince = ref(null)
   const selectedDistrict = ref(null)
   const selectedWard = ref(null)
   const streetAddress = ref('')
-
-  function handleProvinceChange () {
-    selectedDistrict.value = null
-    selectedWard.value = null
-    districts.value = selectedProvince.value?.districts || []
-    wards.value = []
-  }
-
-  function handleDistrictChange () {
-    selectedWard.value = null
-    wards.value = selectedDistrict.value?.wards || []
-  }
 
   const isRouteCalculated = ref(false)
   const distanceKm = ref(0)
@@ -912,8 +797,32 @@
       .join(', ')
   }
 
-  function buildCurrentAddressString (address = streetAddress.value) {
-    return String(address || '').trim()
+  function buildCurrentAddressString () {
+    const addressStr = streetAddress.value || ''
+    const parts = [addressStr]
+
+    // Normalize addressStr completely to remove punctuation and accents for reliable includes check
+    const normalizedAddressStr = normalizeAddressText(addressStr)
+
+    const ward = selectedWard.value?.name
+    if (ward) {
+      const bareWard = stripAdministrativePrefix(ward)
+      if (bareWard && !normalizedAddressStr.includes(bareWard)) parts.push(ward)
+    }
+
+    const district = selectedDistrict.value?.name
+    if (district) {
+      const bareDist = stripAdministrativePrefix(district)
+      if (bareDist && !normalizedAddressStr.includes(bareDist)) parts.push(district)
+    }
+
+    const province = selectedProvince.value?.name
+    if (province) {
+      const bareProv = stripAdministrativePrefix(province)
+      if (bareProv && !normalizedAddressStr.includes(bareProv)) parts.push(province)
+    }
+
+    return parts.filter(Boolean).join(', ')
   }
 
   function scheduleAutoRouteCalculation () {
@@ -1017,7 +926,7 @@
 
     try {
       let first = null
-      const parts = addressText.split(',').map(s => s.trim()).filter(Boolean)
+      const parts = input.split(',').map(s => s.trim()).filter(Boolean)
       while (parts.length > 0) {
         const q = parts.join(', ')
         const geoRes = await fetchGeocode(q)
@@ -1163,7 +1072,7 @@
 
     try {
       let first = null
-      const parts = addressText.split(',').map(s => s.trim()).filter(Boolean)
+      const parts = input.split(',').map(s => s.trim()).filter(Boolean)
       while (parts.length > 0) {
         const q = parts.join(', ')
         const geoRes = await fetchGeocode(q)
@@ -1187,14 +1096,10 @@
         return true
       }
 
-      const resolvedAddress = String(first.display_name || addressText).trim()
-      streetAddress.value = resolvedAddress
-      shippingForm.address = resolvedAddress
-
       const userLat = Number(first.lat)
       const userLon = Number(first.lon)
       if (!Number.isFinite(userLat) || !Number.isFinite(userLon)) {
-        applyTextFallbackShipping(resolvedAddress)
+        applyTextFallbackShipping(addressText)
         return true
       }
 
@@ -1202,7 +1107,7 @@
       const routeRes = await fetch(routeUrl)
       const routeData = await routeRes.json()
       if (routeData.code !== 'Ok') {
-        applyTextFallbackShipping(resolvedAddress)
+        applyTextFallbackShipping(addressText)
         return true
       }
 
@@ -1223,7 +1128,7 @@
         estimatedDays.value = km < 100 ? 2 : 3
       }
 
-      fullAddressString.value = resolvedAddress
+      fullAddressString.value = buildCurrentAddressString(addressText)
 
       routeError.value = ''
       isRouteCalculated.value = true
@@ -1261,18 +1166,44 @@
     await fetchAddresses()
     startCheckoutStockSync()
     updateStockNotice()
-    await autoCalculateShippingOnEnter()
+    try {
+      const res = await fetch('https://esgoo.net/api-tinhthanh/4/0.htm')
+      const json = await res.json()
+      provinces.value = json.error === 0 && json.data
+        ? json.data.map(p => ({
+          name: p.full_name || p.name,
+          code: p.id,
+          districts: (p.data2 || []).map(d => ({
+            name: d.full_name || d.name,
+            code: d.id,
+            wards: (d.data3 || []).map(w => ({
+              name: w.full_name || w.name,
+              code: w.id,
+            })),
+          })),
+        }))
+        : []
+
+      if (shippingForm.address) {
+        await autoFillAddressHierarchyFromText(shippingForm.address)
+      }
+
+      await autoCalculateShippingOnEnter()
+    } catch (error) {
+      console.error('Không tải được API Tỉnh Thành', error)
+      await autoCalculateShippingOnEnter()
+    }
   })
 
-  onUnmounted(() => {
-    stopCheckoutStockSync()
-    if (addressSuggestionTimer) clearTimeout(addressSuggestionTimer)
-    addressSuggestionController?.abort()
-  })
+  onUnmounted(stopCheckoutStockSync)
 
   async function checkAndCalculateRoute (silent = false) {
     if (!streetAddress.value && shippingForm.address) {
       streetAddress.value = String(shippingForm.address).trim()
+    }
+
+    if (streetAddress.value) {
+      await autoFillAddressHierarchyFromText(streetAddress.value)
     }
 
     if (!streetAddress.value) {
@@ -1293,7 +1224,10 @@
   function applyFallbackShipping () {
     distanceKm.value = 0
     const addressForFee = buildCurrentAddressString()
-    const isHaNoi = normalizeAddressText(addressForFee).includes('ha noi')
+    const detectedProvince = selectedProvince.value?.name || ''
+    const isHaNoi
+      = normalizeAddressText(addressForFee).includes('ha noi')
+        || normalizeAddressText(detectedProvince).includes('ha noi')
     estimatedDays.value = isHaNoi ? 1 : 3
     calculatedShippingFee.value = isHaNoi ? 30_000 : 40_000
     fullAddressString.value = addressForFee
@@ -1508,6 +1442,14 @@
     return []
   }
 
+  const modal = reactive({
+    show: false,
+    title: '',
+    message: '',
+    type: 'success', // 'success' | 'error' | 'warning'
+    onConfirm: null,
+  })
+
   function showAlert (title, message, type = 'success', onConfirm = null) {
     modal.title = title
     modal.message = message
@@ -1639,6 +1581,19 @@
       return
     }
 
+    // Validate địa chỉ giao hàng đầy đủ
+    if (!selectedProvince.value) {
+      showAlert('Thiếu thông tin', 'Vui lòng chọn Tỉnh/Thành phố.', 'error')
+      return
+    }
+    if (!selectedDistrict.value) {
+      showAlert('Thiếu thông tin', 'Vui lòng chọn Quận/Huyện.', 'error')
+      return
+    }
+    if (!selectedWard.value) {
+      showAlert('Thiếu thông tin', 'Vui lòng chọn Phường/Xã.', 'error')
+      return
+    }
     if (!String(streetAddress.value || '').trim()) {
       showAlert('Thiếu thông tin', 'Vui lòng nhập địa chỉ chi tiết (số nhà, tên đường).', 'error')
       return
@@ -1736,9 +1691,9 @@
         phone: normalizedPhone,
         shippingAddress: finalShippingAddress,
         streetAddress: streetAddress.value || null,
-        wardName: null,
-        districtName: null,
-        provinceName: null,
+        wardName: selectedWard.value?.name || null,
+        districtName: selectedDistrict.value?.name || null,
+        provinceName: selectedProvince.value?.name || null,
         paymentMethodId: effectivePaymentMethodId.value,
         voucherId: appliedVoucher.value?.id || null,
         voucherCode: appliedVoucher.value?.code || null,
@@ -1993,7 +1948,26 @@
   watch(
     () => streetAddress.value,
     () => {
-      if (!isRouteCalculated.value) fullAddressString.value = buildCurrentAddressString()
+      fullAddressString.value = buildCurrentAddressString()
+      scheduleAutoRouteCalculation()
+    },
+  )
+
+  watch(
+    () => selectedWard.value,
+    () => {
+      if (skipNextWatcherUpdate.value) return
+
+      // Only recalculate if we have at least province + district
+      if (!selectedProvince.value || !selectedDistrict.value) {
+        isRouteCalculated.value = false
+        calculatedShippingFee.value = 0
+        return
+      }
+
+      // Update address string and trigger route calculation
+      fullAddressString.value = buildCurrentAddressString()
+      scheduleAutoRouteCalculation()
     },
   )
 
