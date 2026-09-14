@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <AdminShell>
     <template #header>
       <div class="flex flex-wrap items-center justify-between gap-4">
@@ -400,6 +400,46 @@
         </div>
       </Teleport>
 
+      <!-- Modal chọn biến thể -->
+      <Teleport to="body">
+        <div
+          v-if="variantSelectionModal.show"
+          class="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
+          @click.self="variantSelectionModal.show = false"
+        >
+          <div class="w-full max-w-lg rounded-2xl bg-white p-5 shadow-2xl">
+            <div class="mb-4 flex items-center justify-between">
+              <h3 class="text-lg font-bold text-slate-900">Chọn biến thể - {{ variantSelectionModal.product?.productName }}</h3>
+              <button
+                class="rounded-full p-1 text-slate-500 hover:bg-slate-100"
+                type="button"
+                @click="variantSelectionModal.show = false"
+              >
+                <span class="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            
+            <div class="grid max-h-[60vh] grid-cols-2 gap-3 overflow-y-auto pr-2">
+              <button
+                v-for="variant in variantSelectionModal.product?.variants"
+                :key="variant.variantId"
+                class="flex flex-col items-start gap-1 rounded-xl border p-3 text-left transition hover:border-primary hover:bg-primary/5"
+                :class="Number(variant.stockQuantity || 0) > 0 ? 'cursor-pointer border-slate-200' : 'cursor-not-allowed border-slate-100 bg-slate-50 opacity-60'"
+                type="button"
+                :disabled="Number(variant.stockQuantity || 0) <= 0"
+                @click="addToCart(variantSelectionModal.product, variant); variantSelectionModal.show = false"
+              >
+                <span class="font-bold text-slate-800">{{ variant.colorName }} / Size {{ variant.sizeName }}</span>
+                <span class="text-xs text-slate-500">Mã: {{ variant.variantCode || getVariantCode(variantSelectionModal.product?.productCode, variant.colorName, variant.sizeName) }}</span>
+                <span class="text-xs font-semibold" :class="Number(variant.stockQuantity || 0) > 0 ? 'text-emerald-600' : 'text-red-500'">
+                  Kho: {{ Number(variant.stockQuantity || 0) > 0 ? variant.stockQuantity : 'Hết hàng' }}
+                </span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </Teleport>
+
       <Teleport to="body">
         <div
           v-if="paymentDialog"
@@ -546,6 +586,7 @@
   const lastReceipt = ref(null)
   const showReceipt = ref(false)
   const paymentDialog = ref(null)
+  const variantSelectionModal = ref({ show: false, product: null })
   const invoices = ref([createNewInvoice()])
   const activeInvoiceId = ref(invoices.value[0].id)
   const isProcessing = ref(false)
@@ -1020,10 +1061,15 @@
     }
   }
 
-  async function addToCart (product) {
+  async function addToCart (product, specificVariant = null) {
     if (!activeInvoice.value) return
 
-    const defaultVariant = product.variants.find(variant => Number(variant.stockQuantity || 0) > 0) || product.variants[0]
+    if (!specificVariant && product.variants && product.variants.length > 1) {
+      variantSelectionModal.value = { show: true, product }
+      return
+    }
+
+    const defaultVariant = specificVariant || product.variants.find(variant => Number(variant.stockQuantity || 0) > 0) || product.variants[0]
     if (!defaultVariant) {
       showPaymentDialog({ type: 'error', subtitle: 'Cảnh báo', title: 'Thông báo', message: 'Sản phẩm này đã hết hàng!' })
       return
