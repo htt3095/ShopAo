@@ -281,20 +281,7 @@ export const useCartStore = defineStore('cart', () => {
         }
       }
 
-      if (normalizedRemoteItems.length === 0 && localSnapshot.length > 0 && allowLocalSync) {
-        const purchaseFlag = readPurchaseFlag()
-        if (purchaseFlag) {
-          clearPurchaseFlag()
-          cartItems.value = []
-        } else {
-          cartItems.value = localSnapshot
-          notice.value = 'Giỏ hàng trên máy chủ đã thay đổi (một số sản phẩm có thể vừa được mua tại cửa hàng hoặc khách khác đặt trước). Chúng tôi đã giữ lại sản phẩm trên máy bạn để bạn kiểm tra; nếu không còn đủ hàng, vui lòng giảm số lượng hoặc xóa bớt trước khi thanh toán.'
-        }
-        saveCart()
-        error.value = null
-        loading.value = false
-        return
-      }
+
 
       cartItems.value = normalizedRemoteItems
       saveCart()
