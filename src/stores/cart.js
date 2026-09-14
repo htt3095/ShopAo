@@ -281,7 +281,7 @@ export const useCartStore = defineStore('cart', () => {
         }
       }
 
-      if (normalizedRemoteItems.length === 0 && localSnapshot.length > 0) {
+      if (normalizedRemoteItems.length === 0 && localSnapshot.length > 0 && allowLocalSync) {
         const purchaseFlag = readPurchaseFlag()
         if (purchaseFlag) {
           clearPurchaseFlag()
@@ -348,7 +348,7 @@ export const useCartStore = defineStore('cart', () => {
     loading.value = true
     try {
       await cartAPI.addToCart(normalizedAccountId, variantId, quantity)
-      await loadCartFromBackend(normalizedAccountId)
+      await loadCartFromBackend(normalizedAccountId, { allowLocalSync: false })
       clearPurchaseFlag()
       error.value = null
       return true
@@ -390,7 +390,7 @@ export const useCartStore = defineStore('cart', () => {
     loading.value = true
     try {
       await cartAPI.updateCartItem(cartItemId, quantity)
-      await loadCartFromBackend(normalizedAccountId)
+      await loadCartFromBackend(normalizedAccountId, { allowLocalSync: false })
       clearPurchaseFlag()
       error.value = null
     } catch (error_) {
@@ -413,7 +413,7 @@ export const useCartStore = defineStore('cart', () => {
     loading.value = true
     try {
       await cartAPI.removeFromCart(cartItemId)
-      await loadCartFromBackend(normalizedAccountId)
+      await loadCartFromBackend(normalizedAccountId, { allowLocalSync: false })
       error.value = null
     } catch (error_) {
       error.value = error_.message
