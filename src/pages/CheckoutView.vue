@@ -162,62 +162,20 @@
                 >
               </label>
 
-              <label class="flex flex-col gap-2">
-                <span class="text-xs font-semibold uppercase tracking-wide text-slate-500 ">Tỉnh/Thành phố</span>
-                <SearchableSelect
-                  v-model="selectedProvince"
-                  :options="provinces"
-                  placeholder="Chọn Tỉnh/Thành phố"
-                  @change="selectedDistrict = ''; selectedWard = ''"
-                />
-              </label>
-
-              <label class="flex flex-col gap-2">
-                <span class="text-xs font-semibold uppercase tracking-wide text-slate-500 ">Quận/Huyện</span>
-                <SearchableSelect
-                  v-model="selectedDistrict"
-                  :disabled="!selectedProvince"
-                  :options="selectedProvince?.districts || []"
-                  placeholder="Chọn Quận/Huyện"
-                  @change="selectedWard = ''"
-                />
-              </label>
-
-              <label class="flex flex-col gap-2">
-                <span class="text-xs font-semibold uppercase tracking-wide text-slate-500 ">Phường/Xã</span>
-                <SearchableSelect
-                  v-model="selectedWard"
-                  :disabled="!selectedDistrict"
-                  :options="selectedDistrict?.wards || []"
-                  placeholder="Chọn Phường/Xã"
-                />
-              </label>
-
               <div class="relative flex flex-col gap-2 md:col-span-2">
                 <span class="text-xs font-semibold uppercase tracking-wide text-slate-500 ">Địa chỉ chi tiết</span>
-                <input
+                <AddressAutocomplete
                   v-model="streetAddress"
-                  class="rounded-xl border bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:border-primary   "
                   placeholder="Ví dụ: 42 Kim Giang"
-                  type="text"
-                  @input="handleAddressInput"
+                  input-class="w-full rounded-xl border bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:border-primary"
+                  @select="selectAddressSuggestion"
                   @blur="handleAddressBlur"
-                  @keyup.enter="checkAndCalculateRoute(true)"
-                >
-                <ul
-                  v-if="addressSuggestions.length > 0"
-                  class="absolute left-0 right-0 top-[105%] z-50 max-h-60 overflow-y-auto rounded-xl border border-slate-200 bg-white shadow-lg"
-                >
-                  <li
-                    v-for="(sug, idx) in addressSuggestions"
-                    :key="idx"
-                    class="flex cursor-pointer items-start gap-3 border-b border-slate-100 px-4 py-3 text-sm hover:bg-slate-50 last:border-0"
-                    @mousedown="selectAddressSuggestion(sug)"
-                  >
-                    <span class="material-symbols-outlined mt-0.5 text-[18px] text-slate-400">location_on</span>
-                    <span class="flex-1 leading-snug text-slate-700">{{ sug.display_name }}</span>
-                  </li>
-                </ul>
+                  @enter="checkAndCalculateRoute(true)"
+                />
+              </div>
+
+              <div class="md:col-span-2 overflow-hidden rounded-xl border border-slate-200">
+                <div ref="checkoutMapElement" class="h-56 w-full" />
               </div>
 
 
@@ -528,10 +486,12 @@
 </template>
 
 <script setup>
+  import L from 'leaflet'
+  import 'leaflet/dist/leaflet.css'
   import { computed, nextTick, onMounted, onUnmounted, reactive, ref, watch } from 'vue'
   import { useRoute, useRouter } from 'vue-router'
 
-  import SearchableSelect from '@/components/SearchableSelect.vue'
+  import AddressAutocomplete from '@/components/AddressAutocomplete.vue'
   import { addressApi, paymentApi, stockApi } from '@/services/api'
   import { orderAPI, orderUtils, voucherAPI } from '@/services/orders'
   import { useCartStore } from '@/stores/cart'
@@ -565,45 +525,118 @@
 
   const savedAddresses = ref([])
   const selectedAddressId = ref('new')
+  let savedAddressSelectionToken = 0
+  const checkoutMapElement = ref(null)
+  let checkoutMap = null
+  let checkoutDestinationMarker = null
+  let checkoutRouteLine = null
 
   watch(selectedAddressId, newVal => {
     if (newVal === 'new') {
       setTimeout(() => {
-        if (map !== undefined && map) {
-          map.invalidateSize()
+        if (checkoutMap) {
+          checkoutMap.invalidateSize()
         }
       }, 150)
     }
   })
 
-  async function fetchAddresses () {
-    if (currentAccountId.value) {
-      try {
-        const res = await addressApi.getByAccountId(currentAccountId.value)
-        savedAddresses.value = Array.isArray(res) ? res : (res.data || [])
+  function normalizeSavedAddressResponse (response) {
+    if (Array.isArray(response)) return response
+    if (Array.isArray(response?.data)) return response.data
+    if (Array.isArray(response?.content)) return response.content
+    if (Array.isArray(response?.data?.content)) return response.data.content
+    return []
+  }
 
-        const defaultAddr = savedAddresses.value.find(a => a.isDefault)
-        if (defaultAddr) {
-          selectedAddressId.value = defaultAddr.id
-          handleSelectSavedAddress(defaultAddr)
-        } else if (savedAddresses.value.length > 0) {
-          selectedAddressId.value = savedAddresses.value[0].id
-          handleSelectSavedAddress(savedAddresses.value[0])
-        }
-      } catch (error) {
-        console.error(error)
+  async function fetchAddresses () {
+    const accountId = Number(currentAccountId.value)
+    if (!Number.isFinite(accountId) || accountId <= 0) return
+
+    try {
+      savedAddresses.value = normalizeSavedAddressResponse(
+        await addressApi.getByAccountId(accountId),
+      )
+
+      const defaultAddress = savedAddresses.value.find(
+        address => address.isDefault || address.is_default,
+      )
+      const addressToSelect = defaultAddress || savedAddresses.value[0]
+      if (addressToSelect) {
+        selectedAddressId.value = addressToSelect.id
+        await handleSelectSavedAddress(addressToSelect)
       }
+    } catch (error) {
+      savedAddresses.value = []
+      console.error('Lỗi lấy địa chỉ giao hàng', error)
     }
   }
 
-  function handleSelectSavedAddress (addr) {
-    shippingForm.fullname = addr.fullname || ''
+  async function handleSelectSavedAddress (addr) {
+    shippingForm.fullname = addr.fullname || addr.full_name || ''
     shippingForm.phone = addr.phone || ''
-    shippingForm.address = addr.address || ''
-    streetAddress.value = addr.address || ''
+    shippingForm.address = addr.address || addr.fullAddress || addr.full_address || ''
+    streetAddress.value = shippingForm.address
+    fullAddressString.value = shippingForm.address
+
+    const selectionToken = ++savedAddressSelectionToken
+    try {
+      const expandedAddress = await expandSavedAddress(shippingForm.address)
+      if (
+        selectionToken === savedAddressSelectionToken
+        && selectedAddressId.value === addr.id
+        && expandedAddress
+      ) {
+        shippingForm.address = expandedAddress
+        streetAddress.value = expandedAddress
+        fullAddressString.value = expandedAddress
+        addr.address = expandedAddress
+      }
+    } catch (error) {
+      console.error('Lỗi mở rộng địa chỉ đã lưu', error)
+    }
 
     // Trigger map re-calculation
-    checkAndCalculateRoute(true)
+    await checkAndCalculateRoute(true)
+  }
+
+  async function expandSavedAddress (address) {
+    const candidates = [
+      String(address || '').trim(),
+      `${String(address || '').trim()}, Hà Nội`,
+    ].filter(Boolean)
+
+    for (const candidate of candidates) {
+      try {
+        const photonResponse = await fetch(
+          `/photon/api/?limit=1&q=${encodeURIComponent(candidate + ', Việt Nam')}`,
+        )
+        if (photonResponse.ok) {
+          const photonPayload = await photonResponse.json()
+          const feature = photonPayload.features?.[0]
+          const properties = feature?.properties || {}
+          const firstLine = properties.name
+            || [properties.housenumber, properties.street].filter(Boolean).join(' ')
+          const expandedAddress = [
+            firstLine,
+            properties.district,
+            properties.city,
+            properties.state,
+            properties.postcode,
+            properties.country,
+          ].filter(Boolean).join(', ')
+          if (expandedAddress) return expandedAddress
+        }
+      } catch (error) {
+        console.error('Lỗi mở rộng địa chỉ bằng Photon', error)
+      }
+
+      const geocode = await fetchGeocode(candidate)
+      const expandedAddress = geocode.data?.[0]?.display_name
+      if (expandedAddress) return expandedAddress
+    }
+
+    return ''
   }
 
   function resetShippingForm () {
@@ -611,49 +644,14 @@
     shippingForm.phone = currentUser.value?.phone || ''
     shippingForm.address = ''
     streetAddress.value = ''
-    selectedProvince.value = ''
-    selectedDistrict.value = ''
-    selectedWard.value = ''
     isRouteCalculated.value = false
   }
 
-  const addressSuggestions = ref([])
-  let suggestionDebounceTimer = null
-
-  function handleAddressInput () {
-    if (suggestionDebounceTimer) clearTimeout(suggestionDebounceTimer)
-    const rawInput = (streetAddress.value || '').trim()
-    if (rawInput.length < 3) {
-      addressSuggestions.value = []
-      return
-    }
-
-    const q = buildCurrentAddressString()
-
-    suggestionDebounceTimer = setTimeout(async () => {
-      try {
-        const targetUrl = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&limit=5&q=${encodeURIComponent(q + ', Việt Nam')}`
-        const res = await fetch(targetUrl)
-        if (res.ok) {
-          const data = await res.json()
-          addressSuggestions.value = data || []
-        }
-      } catch (error) {
-        console.error('Lỗi lấy gợi ý địa chỉ', error)
-      }
-    }, 500)
-  }
-
   function handleAddressBlur () {
-    setTimeout(() => {
-      addressSuggestions.value = []
-      checkAndCalculateRoute(true)
-    }, 200)
+    checkAndCalculateRoute(true)
   }
 
   async function selectAddressSuggestion (sug) {
-    addressSuggestions.value = []
-
     if (sug && sug.address) {
       const cityOrProvince = sug.address.city || sug.address.state || sug.address.province
       if (cityOrProvince) {
@@ -681,13 +679,7 @@
         }
       }
 
-      const road = sug.address.road || ''
-      const houseNumber = sug.address.house_number || ''
-      let specific = [houseNumber, road].filter(Boolean).join(' ')
-      if (!specific && sug.display_name) {
-        specific = sug.display_name.split(',')[0].trim()
-      }
-      streetAddress.value = specific
+      streetAddress.value = sug.display_name || ''
     }
 
     checkAndCalculateRoute(true)
@@ -708,9 +700,13 @@
       await new Promise(r => setTimeout(r, 1100 - timeSinceLast))
     }
     lastGeocodeTime = Date.now()
-    const targetUrl = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&limit=1&q=${encodeURIComponent(q + ', Việt Nam')}`
+    const targetUrl = `/nominatim/search?format=json&addressdetails=1&limit=1&q=${encodeURIComponent(q + ', Việt Nam')}`
     try {
-      const res = await fetch(targetUrl)
+      let res = await fetch(targetUrl)
+      if (res.status === 429) {
+        await new Promise(resolve => setTimeout(resolve, 1200))
+        res = await fetch(targetUrl)
+      }
       if (!res.ok) return { ok: false, status: res.status }
       const data = await res.json()
       const result = { ok: true, data }
@@ -739,6 +735,67 @@
 
   // Tọa độ kho hàng (123 Nguyễn Ngọc Vũ, Trung Hoà, Cầu Giấy, Hà Nội)
   const SHOP_COORD = [21.008_882, 105.802_883]
+
+  function initializeCheckoutMap () {
+    if (!checkoutMapElement.value || checkoutMap) return
+
+    checkoutMap = L.map(checkoutMapElement.value, { zoomControl: true }).setView(SHOP_COORD, 13)
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors',
+      maxZoom: 19,
+    }).addTo(checkoutMap)
+    L.marker(SHOP_COORD).addTo(checkoutMap).bindPopup('Kho hàng')
+    checkoutMap.on('click', handleCheckoutMapClick)
+  }
+
+  async function handleCheckoutMapClick (event) {
+    const { lat, lng } = event.latlng
+    updateCheckoutMap(lat, lng)
+
+    try {
+      const response = await fetch(
+        `/photon/reverse?lat=${lat}&lon=${lng}`,
+      )
+      if (!response.ok) return
+
+      const payload = await response.json()
+      const feature = payload?.features?.[0] || payload
+      const properties = feature?.properties || {}
+      const firstLine = properties.name
+        || [properties.housenumber, properties.street].filter(Boolean).join(' ')
+      const address = [
+        firstLine,
+        properties.district,
+        properties.city,
+        properties.state,
+        properties.postcode,
+        properties.country,
+      ].filter(Boolean).join(', ') || `${lat.toFixed(6)}, ${lng.toFixed(6)}`
+      selectedAddressId.value = 'new'
+      shippingForm.address = address
+      streetAddress.value = address
+      fullAddressString.value = address
+      await checkAndCalculateRoute(true)
+    } catch (error) {
+      console.error('Lỗi lấy địa chỉ từ bản đồ', error)
+    }
+  }
+
+  function updateCheckoutMap (latitude, longitude) {
+    if (!checkoutMap || !Number.isFinite(latitude) || !Number.isFinite(longitude)) return
+
+    const destination = [latitude, longitude]
+    checkoutDestinationMarker?.remove()
+    checkoutRouteLine?.remove()
+    checkoutDestinationMarker = L.marker(destination).addTo(checkoutMap).bindPopup('Địa chỉ giao hàng')
+    checkoutRouteLine = L.polyline([SHOP_COORD, destination], {
+      color: '#2563eb',
+      weight: 4,
+      opacity: 0.7,
+      dashArray: '8 8',
+    }).addTo(checkoutMap)
+    checkoutMap.fitBounds([SHOP_COORD, destination], { padding: [24, 24] })
+  }
 
   function normalizeAddressText (value) {
     return String(value || '')
@@ -790,32 +847,8 @@
       .join(', ')
   }
 
-  function buildCurrentAddressString () {
-    const addressStr = streetAddress.value || ''
-    const parts = [addressStr]
-
-    // Normalize addressStr completely to remove punctuation and accents for reliable includes check
-    const normalizedAddressStr = normalizeAddressText(addressStr)
-
-    const ward = selectedWard.value?.name
-    if (ward) {
-      const bareWard = stripAdministrativePrefix(ward)
-      if (bareWard && !normalizedAddressStr.includes(bareWard)) parts.push(ward)
-    }
-
-    const district = selectedDistrict.value?.name
-    if (district) {
-      const bareDist = stripAdministrativePrefix(district)
-      if (bareDist && !normalizedAddressStr.includes(bareDist)) parts.push(district)
-    }
-
-    const province = selectedProvince.value?.name
-    if (province) {
-      const bareProv = stripAdministrativePrefix(province)
-      if (bareProv && !normalizedAddressStr.includes(bareProv)) parts.push(province)
-    }
-
-    return parts.filter(Boolean).join(', ')
+  function buildCurrentAddressString (addressText = streetAddress.value) {
+    return String(addressText || '').trim()
   }
 
   function scheduleAutoRouteCalculation () {
@@ -1095,6 +1128,7 @@
         applyTextFallbackShipping(addressText)
         return true
       }
+      updateCheckoutMap(userLat, userLon)
 
       const routeUrl = `https://router.project-osrm.org/route/v1/driving/${SHOP_COORD[1]},${SHOP_COORD[0]};${userLon},${userLat}?overview=false`
       const routeRes = await fetch(routeUrl)
@@ -1121,7 +1155,7 @@
         estimatedDays.value = km < 100 ? 2 : 3
       }
 
-      fullAddressString.value = buildCurrentAddressString(addressText)
+      fullAddressString.value = first.display_name || addressText
 
       routeError.value = ''
       isRouteCalculated.value = true
@@ -1150,6 +1184,8 @@
 
   onMounted(async () => {
     window.scrollTo(0, 0)
+    await nextTick()
+    initializeCheckoutMap()
 
     await hydrateCheckout()
     await fetchAddresses()
@@ -1184,7 +1220,11 @@
     }
   })
 
-  onUnmounted(stopCheckoutStockSync)
+  onUnmounted(() => {
+    stopCheckoutStockSync()
+    checkoutMap?.remove()
+    checkoutMap = null
+  })
 
   async function checkAndCalculateRoute (silent = false) {
     if (!streetAddress.value && shippingForm.address) {
@@ -1562,18 +1602,6 @@
     }
 
     // Validate địa chỉ giao hàng đầy đủ
-    if (!selectedProvince.value) {
-      showAlert('Thiếu thông tin', 'Vui lòng chọn Tỉnh/Thành phố.', 'error')
-      return
-    }
-    if (!selectedDistrict.value) {
-      showAlert('Thiếu thông tin', 'Vui lòng chọn Quận/Huyện.', 'error')
-      return
-    }
-    if (!selectedWard.value) {
-      showAlert('Thiếu thông tin', 'Vui lòng chọn Phường/Xã.', 'error')
-      return
-    }
     if (!String(streetAddress.value || '').trim()) {
       showAlert('Thiếu thông tin', 'Vui lòng nhập địa chỉ chi tiết (số nhà, tên đường).', 'error')
       return

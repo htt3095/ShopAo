@@ -419,9 +419,14 @@
             <label class="block text-sm font-medium mb-1">Số điện thoại</label>
             <input v-model="newAddress.phone" class="w-full border rounded p-2" placeholder="Số điện thoại" type="text">
           </div>
-          <div>
+          <div class="relative">
             <label class="block text-sm font-medium mb-1">Địa chỉ chi tiết</label>
-            <textarea v-model="newAddress.address" class="w-full border rounded p-2" placeholder="Số nhà, đường, phường, quận, thành phố..." @blur="forwardGeocode" />
+            <AddressAutocomplete
+              v-model="newAddress.address"
+              input-class="w-full border rounded p-2"
+              placeholder="Số nhà, đường, phường, quận, thành phố..."
+              @blur="forwardGeocode"
+            />
           </div>
           <div>
             <label class="block text-sm font-medium mb-1">Hoặc chọn trên bản đồ</label>
@@ -451,6 +456,7 @@
   import { computed, nextTick, onMounted, ref, watch } from 'vue'
   import { useRouter } from 'vue-router'
   import { orderAPI } from '@/services/orders'
+  import AddressAutocomplete from '@/components/AddressAutocomplete.vue'
   import { useProductStore } from '@/stores/products'
 
   import { useReviewsStore } from '@/stores/reviews'

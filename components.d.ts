@@ -11,6 +11,7 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    AddressAutocomplete: typeof import('./src/components/AddressAutocomplete.vue')['default']
     AdminShell: typeof import('./src/components/admin/AdminShell.vue')['default']
     AIChatbot: typeof import('./src/components/AIChatbot.vue')['default']
     AppFooter: typeof import('./src/components/AppFooter.vue')['default']
