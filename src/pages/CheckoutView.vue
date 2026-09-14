@@ -622,11 +622,13 @@
 
   function handleAddressInput () {
     if (suggestionDebounceTimer) clearTimeout(suggestionDebounceTimer)
-    const q = (streetAddress.value || '').trim()
-    if (q.length < 3) {
+    const rawInput = (streetAddress.value || '').trim()
+    if (rawInput.length < 3) {
       addressSuggestions.value = []
       return
     }
+
+    const q = buildCurrentAddressString()
 
     suggestionDebounceTimer = setTimeout(async () => {
       try {
