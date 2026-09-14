@@ -974,7 +974,7 @@
 
     try {
       let first = null
-      const parts = input.split(',').map(s => s.trim()).filter(Boolean)
+      const parts = addressText.split(',').map(s => s.trim()).filter(Boolean)
       while (parts.length > 0) {
         const q = parts.join(', ')
         const geoRes = await fetchGeocode(q)
@@ -1100,10 +1100,6 @@
       streetAddress.value = String(shippingForm.address).trim()
     }
 
-    if (streetAddress.value) {
-      await autoFillAddressHierarchyFromText(streetAddress.value)
-    }
-
     if (!streetAddress.value) {
       if (!silent) {
         routeError.value = 'Vui lòng nhập địa chỉ giao hàng để tính phí ship.'
@@ -1112,8 +1108,9 @@
       return false
     }
 
+    const fullAddr = buildCurrentAddressString()
     const calculatedFromFreeform = await calculateRouteFromFreeformAddress(
-      streetAddress.value,
+      fullAddr,
       silent,
     )
     return calculatedFromFreeform
