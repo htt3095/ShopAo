@@ -418,15 +418,15 @@
                 <span class="material-symbols-outlined">close</span>
               </button>
             </div>
-            
+
             <div class="grid max-h-[60vh] grid-cols-2 gap-3 overflow-y-auto pr-2">
               <button
                 v-for="variant in variantSelectionModal.product?.variants"
                 :key="variant.variantId"
                 class="flex flex-col items-start gap-1 rounded-xl border p-3 text-left transition hover:border-primary hover:bg-primary/5"
                 :class="Number(variant.stockQuantity || 0) > 0 ? 'cursor-pointer border-slate-200' : 'cursor-not-allowed border-slate-100 bg-slate-50 opacity-60'"
-                type="button"
                 :disabled="Number(variant.stockQuantity || 0) <= 0"
+                type="button"
                 @click="addToCart(variantSelectionModal.product, variant); variantSelectionModal.show = false"
               >
                 <span class="font-bold text-slate-800">{{ variant.colorName }} / Size {{ variant.sizeName }}</span>
@@ -981,7 +981,6 @@
       if (!confirmed) return
 
       await releaseInvoiceStock(invoice)
-
     }
 
     if (invoices.value.length === 1) {
@@ -1017,7 +1016,6 @@
       if (!confirmed) return
 
       await releaseInvoiceStock(invoice)
-
     }
 
     invoice.customer = { ...POS_DEFAULT_CUSTOMER }
