@@ -907,10 +907,10 @@
     })))
   }
 
-  function releaseAllInvoicesStock() {
-    invoices.value.forEach(invoice => {
+  function releaseAllInvoicesStock () {
+    for (const invoice of invoices.value) {
       releaseInvoiceStock(invoice)
-    })
+    }
   }
 
   onMounted(async () => {

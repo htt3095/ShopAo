@@ -455,8 +455,8 @@
   import shadowUrl from 'leaflet/dist/images/marker-shadow.png'
   import { computed, nextTick, onMounted, ref, watch } from 'vue'
   import { useRouter } from 'vue-router'
-  import { orderAPI } from '@/services/orders'
   import AddressAutocomplete from '@/components/AddressAutocomplete.vue'
+  import { orderAPI } from '@/services/orders'
   import { useProductStore } from '@/stores/products'
 
   import { useReviewsStore } from '@/stores/reviews'
@@ -800,11 +800,11 @@
           && (source.product.name
             || source.product.productName
             || source.product.product_name))
-          || (source.variant
-            && (source.variant.name
-              || source.variant.productName
-            || source.variant.product_name))
-            || ''
+        || (source.variant
+          && (source.variant.name
+            || source.variant.productName
+              || source.variant.product_name))
+          || ''
 
     return String(rawName || '').trim()
   }

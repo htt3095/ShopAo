@@ -166,18 +166,13 @@
                 <span class="text-xs font-semibold uppercase tracking-wide text-slate-500 ">Địa chỉ chi tiết</span>
                 <AddressAutocomplete
                   v-model="streetAddress"
-                  placeholder="Ví dụ: 42 Kim Giang"
                   input-class="w-full rounded-xl border bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:border-primary"
-                  @select="selectAddressSuggestion"
+                  placeholder="Ví dụ: 42 Kim Giang"
                   @blur="handleAddressBlur"
                   @enter="checkAndCalculateRoute(true)"
+                  @select="selectAddressSuggestion"
                 />
               </div>
-
-              <div class="md:col-span-2 overflow-hidden rounded-xl border border-slate-200">
-                <div ref="checkoutMapElement" class="h-56 w-full" />
-              </div>
-
 
             </div>
 
@@ -486,8 +481,6 @@
 </template>
 
 <script setup>
-  import L from 'leaflet'
-  import 'leaflet/dist/leaflet.css'
   import { computed, nextTick, onMounted, onUnmounted, reactive, ref, watch } from 'vue'
   import { useRoute, useRouter } from 'vue-router'
 
@@ -526,10 +519,6 @@
   const savedAddresses = ref([])
   const selectedAddressId = ref('new')
   let savedAddressSelectionToken = 0
-  const checkoutMapElement = ref(null)
-  let checkoutMap = null
-  let checkoutDestinationMarker = null
-  let checkoutRouteLine = null
 
   watch(selectedAddressId, newVal => {
     if (newVal === 'new') {
@@ -1486,8 +1475,6 @@
     if (payload.data && Array.isArray(payload.data.items)) return payload.data.items
     return []
   }
-
-
 
   function showAlert (title, message, type = 'success', onConfirm = null) {
     modal.title = title

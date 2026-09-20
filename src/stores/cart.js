@@ -281,8 +281,6 @@ export const useCartStore = defineStore('cart', () => {
         }
       }
 
-
-
       cartItems.value = normalizedRemoteItems
       saveCart()
       error.value = null
