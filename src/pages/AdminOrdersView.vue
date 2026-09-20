@@ -2082,6 +2082,11 @@
       return
     }
 
+    if (!Number.isFinite(Number(f.totalMoney)) || Number(f.totalMoney) <= 0) {
+      modalError.value = 'Tổng tiền phải lớn hơn 0.'
+      return
+    }
+
     const managedState = resolveManagedOrderState(f, f.status, f.paymentStatus)
 
     const payload = {

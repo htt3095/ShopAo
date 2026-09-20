@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div
     class="retail-shell flex min-h-screen flex-col text-slate-900  font-display antialiased selection:bg-primary selection:text-white"
   >
@@ -395,7 +395,7 @@
     const qty = Number.parseInt(raw, 10)
     if (!Number.isFinite(qty) || qty <= 0) {
       stockError.value = ''
-      await cartStore.loadCartFromBackend(currentAccountId.value)
+      await removeItem(item)
       return
     }
 

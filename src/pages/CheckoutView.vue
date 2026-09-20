@@ -848,7 +848,26 @@
   }
 
   function buildCurrentAddressString (addressText = streetAddress.value) {
-    return String(addressText || '').trim()
+    const str = String(addressText || '').trim()
+    const parts = [str]
+    const norm = normalizeAddressText(str)
+
+    const ward = selectedWard.value?.name
+    if (ward) {
+      const bare = stripAdministrativePrefix(ward)
+      if (bare && !norm.includes(bare)) parts.push(ward)
+    }
+    const district = selectedDistrict.value?.name
+    if (district) {
+      const bare = stripAdministrativePrefix(district)
+      if (bare && !norm.includes(bare)) parts.push(district)
+    }
+    const province = selectedProvince.value?.name
+    if (province) {
+      const bare = stripAdministrativePrefix(province)
+      if (bare && !norm.includes(bare)) parts.push(province)
+    }
+    return parts.filter(Boolean).join(', ')
   }
 
   function scheduleAutoRouteCalculation () {
@@ -1785,8 +1804,11 @@
           )
 
           if (vnpayResult?.paymentUrl) {
-            // Redirect user to VNPay payment page
+            // Clear cart BEFORE redirect so it's empty when customer returns
             cartStore.markCartPurchased()
+            if (currentAccountId.value !== null) {
+              await cartStore.clearCartBackend()
+            }
             window.location.href = vnpayResult.paymentUrl
             return // stop here — user will be redirected
           } else {

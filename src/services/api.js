@@ -432,6 +432,18 @@ export const posApi = {
       body: JSON.stringify({ variantId, reservedQuantityDelta }),
     })
   },
+  async createPosOrder (orderData) {
+    return apiCall('/orders', {
+      method: 'POST',
+      body: JSON.stringify(orderData),
+    })
+  },
+  async updateOrderStatus (orderId, data) {
+    return apiCall(`/orders/${orderId}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    })
+  },
 }
 
 // Orders API

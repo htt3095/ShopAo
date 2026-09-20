@@ -907,6 +907,12 @@
     })))
   }
 
+  function releaseAllInvoicesStock() {
+    invoices.value.forEach(invoice => {
+      releaseInvoiceStock(invoice)
+    })
+  }
+
   onMounted(async () => {
     try {
       try {
@@ -925,6 +931,7 @@
       }, 15_000)
       window.addEventListener('focus', refreshInventory)
       document.addEventListener('visibilitychange', refreshInventory)
+      window.addEventListener('beforeunload', releaseAllInvoicesStock)
     } catch (error) {
       console.error('Lỗi tải dữ liệu POS:', error)
     }
@@ -933,6 +940,7 @@
     if (inventorySyncTimer) clearInterval(inventorySyncTimer)
     window.removeEventListener('focus', refreshInventory)
     document.removeEventListener('visibilitychange', refreshInventory)
+    window.removeEventListener('beforeunload', releaseAllInvoicesStock)
     if (qrScanner.value) {
       try {
         qrScanner.value.stop().catch(() => {})
@@ -1561,7 +1569,7 @@
         salesChannel: 'IN_STORE',
         fullname: invoice.customer.fullname,
         phone: invoice.customer.phone,
-        email: invoice.customer.email || 'khachle@peakseven.com',
+        email: invoice.customer.email || '',
         shippingAddress: 'Mua trực tiếp tại cửa hàng',
         paymentMethodId: resolveEffectivePaymentMethodId(invoice),
         voucherCode: invoice.appliedVoucher ? invoice.appliedVoucher.code : null,
@@ -1573,25 +1581,15 @@
         })),
       }
 
-      const token = localStorage.getItem('token')
-      const headers = {
-        'Authorization': token ? `Bearer ${token}` : '',
-        'Content-Type': 'application/json',
-      }
-
-      const response = await axios.post('http://localhost:8080/api/orders', orderData, { headers })
-      const returnedOrderId = response.data?.orderId || response.data?.id || null
-      const returnedOrderCode = response.data?.orderCode || (returnedOrderId ? `HD${returnedOrderId}` : null)
+      const response = await posApi.createPosOrder(orderData)
+      const returnedOrderId = response?.orderId || response?.id || null
+      const returnedOrderCode = response?.orderCode || (returnedOrderId ? `HD${returnedOrderId}` : null)
       orderCreated = Boolean(returnedOrderId)
 
       if (returnedOrderId) {
         invoice.orderId = returnedOrderId
         invoice.orderCode = returnedOrderCode
-        await axios.put(
-          `http://localhost:8080/api/orders/${returnedOrderId}`,
-          { status: 'SUCCESS', paymentStatus: 'PAID' },
-          { headers },
-        )
+        await posApi.updateOrderStatus(returnedOrderId, { status: 'SUCCESS', paymentStatus: 'PAID' })
       }
 
       lastReceipt.value = buildReceiptSnapshot(invoice, orderData, returnedOrderId, returnedOrderCode)
