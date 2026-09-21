@@ -143,6 +143,7 @@
   import { useRoute } from 'vue-router'
   import MainTopBar from '@/components/MainTopBar.vue'
   import { paymentApi } from '@/services/api'
+  import { orderAPI } from '@/services/orders'
 
   const route = useRoute()
 
@@ -194,6 +195,15 @@
     } else {
       paymentSuccess.value = false
       resultMessage.value = getErrorMessage(responseCode.value)
+
+      // Hủy đơn hàng khi thanh toán thất bại → backend tự hoàn kho
+      if (orderId.value) {
+        try {
+          await orderAPI.cancelOrder(orderId.value)
+        } catch (cancelErr) {
+          console.error('Không thể hủy đơn hàng sau khi VNPay thất bại:', cancelErr)
+        }
+      }
     }
 
     loading.value = false

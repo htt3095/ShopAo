@@ -168,6 +168,7 @@
                   v-model="streetAddress"
                   input-class="w-full rounded-xl border bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:border-primary"
                   placeholder="Ví dụ: 42 Kim Giang"
+                  :query-context="[selectedWard?.name, selectedDistrict?.name, selectedProvince?.name].filter(Boolean).join(', ')"
                   @blur="handleAddressBlur"
                   @enter="checkAndCalculateRoute(true)"
                   @select="selectAddressSuggestion"
@@ -522,11 +523,7 @@
 
   watch(selectedAddressId, newVal => {
     if (newVal === 'new') {
-      setTimeout(() => {
-        if (checkoutMap) {
-          checkoutMap.invalidateSize()
-        }
-      }, 150)
+      // address form shown
     }
   })
 
@@ -725,66 +722,8 @@
   // Tọa độ kho hàng (123 Nguyễn Ngọc Vũ, Trung Hoà, Cầu Giấy, Hà Nội)
   const SHOP_COORD = [21.008_882, 105.802_883]
 
-  function initializeCheckoutMap () {
-    if (!checkoutMapElement.value || checkoutMap) return
 
-    checkoutMap = L.map(checkoutMapElement.value, { zoomControl: true }).setView(SHOP_COORD, 13)
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap contributors',
-      maxZoom: 19,
-    }).addTo(checkoutMap)
-    L.marker(SHOP_COORD).addTo(checkoutMap).bindPopup('Kho hàng')
-    checkoutMap.on('click', handleCheckoutMapClick)
-  }
 
-  async function handleCheckoutMapClick (event) {
-    const { lat, lng } = event.latlng
-    updateCheckoutMap(lat, lng)
-
-    try {
-      const response = await fetch(
-        `/photon/reverse?lat=${lat}&lon=${lng}`,
-      )
-      if (!response.ok) return
-
-      const payload = await response.json()
-      const feature = payload?.features?.[0] || payload
-      const properties = feature?.properties || {}
-      const firstLine = properties.name
-        || [properties.housenumber, properties.street].filter(Boolean).join(' ')
-      const address = [
-        firstLine,
-        properties.district,
-        properties.city,
-        properties.state,
-        properties.postcode,
-        properties.country,
-      ].filter(Boolean).join(', ') || `${lat.toFixed(6)}, ${lng.toFixed(6)}`
-      selectedAddressId.value = 'new'
-      shippingForm.address = address
-      streetAddress.value = address
-      fullAddressString.value = address
-      await checkAndCalculateRoute(true)
-    } catch (error) {
-      console.error('Lỗi lấy địa chỉ từ bản đồ', error)
-    }
-  }
-
-  function updateCheckoutMap (latitude, longitude) {
-    if (!checkoutMap || !Number.isFinite(latitude) || !Number.isFinite(longitude)) return
-
-    const destination = [latitude, longitude]
-    checkoutDestinationMarker?.remove()
-    checkoutRouteLine?.remove()
-    checkoutDestinationMarker = L.marker(destination).addTo(checkoutMap).bindPopup('Địa chỉ giao hàng')
-    checkoutRouteLine = L.polyline([SHOP_COORD, destination], {
-      color: '#2563eb',
-      weight: 4,
-      opacity: 0.7,
-      dashArray: '8 8',
-    }).addTo(checkoutMap)
-    checkoutMap.fitBounds([SHOP_COORD, destination], { padding: [24, 24] })
-  }
 
   function normalizeAddressText (value) {
     return String(value || '')
@@ -1136,7 +1075,6 @@
         applyTextFallbackShipping(addressText)
         return true
       }
-      updateCheckoutMap(userLat, userLon)
 
       const routeUrl = `https://router.project-osrm.org/route/v1/driving/${SHOP_COORD[1]},${SHOP_COORD[0]};${userLon},${userLat}?overview=false`
       const routeRes = await fetch(routeUrl)
@@ -1193,7 +1131,6 @@
   onMounted(async () => {
     window.scrollTo(0, 0)
     await nextTick()
-    initializeCheckoutMap()
 
     await hydrateCheckout()
     await fetchAddresses()
@@ -1230,8 +1167,6 @@
 
   onUnmounted(() => {
     stopCheckoutStockSync()
-    checkoutMap?.remove()
-    checkoutMap = null
   })
 
   async function checkAndCalculateRoute (silent = false) {
@@ -1571,6 +1506,12 @@
     // Guard: chặn đặt hàng nếu giỏ hàng rỗng (bảo vệ cả khi bị bypass UI)
     if (!cartItems.value?.length) {
       showAlert('Giỏ hàng trống', 'Vui lòng thêm sản phẩm vào giỏ trước khi thanh toán.', 'error')
+      return
+    }
+
+    // Guard: bắt buộc chọn đủ Tỉnh/Quận/Phường
+    if (!selectedProvince.value || !selectedDistrict.value || !selectedWard.value) {
+      showAlert('Thiếu địa chỉ', 'Vui lòng chọn đầy đủ Tỉnh/Thành phố, Quận/Huyện và Phường/Xã.', 'error')
       return
     }
 
