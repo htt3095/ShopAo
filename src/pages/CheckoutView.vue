@@ -1222,7 +1222,11 @@
       return false
     }
 
-    const fullAddr = String(streetAddress.value || shippingForm.address).trim()
+    // Nếu đã chọn combobox Tỉnh/Quận/Phường → ghép để geocoding chính xác
+    // Nếu chưa chọn (flow saved address) → dùng streetAddress nguyên bản
+    const fullAddr = (selectedProvince.value && selectedDistrict.value)
+      ? buildCurrentAddressString()
+      : String(streetAddress.value || shippingForm.address).trim()
     const calculatedFromFreeform = await calculateRouteFromFreeformAddress(
       fullAddr,
       silent,
@@ -1234,11 +1238,13 @@
   function applyFallbackShipping () {
     distanceKm.value = 0
     const addressForFee = String(streetAddress.value || shippingForm.address || '').trim()
+    const detectedProvince = selectedProvince.value?.name || ''
     const isHaNoi
       = normalizeAddressText(addressForFee).includes('ha noi')
+        || normalizeAddressText(detectedProvince).includes('ha noi')
     estimatedDays.value = isHaNoi ? 1 : 3
     calculatedShippingFee.value = isHaNoi ? 30_000 : 40_000
-    fullAddressString.value = addressForFee
+    fullAddressString.value = buildCurrentAddressString(addressForFee)
     routeError.value = ''
     isRouteCalculated.value = true
   }
@@ -1950,7 +1956,7 @@
         return
       }
 
-      fullAddressString.value = String(streetAddress.value || '').trim()
+      fullAddressString.value = buildCurrentAddressString()
       addressSearchToken++
       scheduleAutoRouteCalculation()
     },
@@ -1969,7 +1975,7 @@
       }
 
       // Update address string and trigger route calculation
-      fullAddressString.value = String(streetAddress.value || '').trim()
+      fullAddressString.value = buildCurrentAddressString()
       scheduleAutoRouteCalculation()
     },
   )
