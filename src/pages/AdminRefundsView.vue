@@ -3,7 +3,6 @@
     <template #header>
       <div class="flex items-center justify-between gap-3">
         <div>
-          <p class="text-xs uppercase tracking-[0.18em] text-primary">Hậu mãi</p>
           <h2 class="mt-1 text-xl font-bold">Quản lý hoàn tiền</h2>
         </div>
         <button class="rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700 hover:border-primary hover:text-primary" type="button" @click="loadRefunds">Làm mới</button>

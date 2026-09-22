@@ -167,7 +167,7 @@
                 <AddressAutocomplete
                   v-model="streetAddress"
                   input-class="w-full rounded-xl border bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:border-primary"
-                  placeholder="Ví dụ: 42 Kim Giang"
+                  placeholder="Nhập địa chỉ chi tiết"
                   :query-context="[selectedWard?.name, selectedDistrict?.name, selectedProvince?.name].filter(Boolean).join(', ')"
                   @blur="handleAddressBlur"
                   @enter="checkAndCalculateRoute(true)"
@@ -519,7 +519,8 @@
 
   const savedAddresses = ref([])
   const selectedAddressId = ref('new')
-  let savedAddressSelectionToken = 0
+  let addressSearchToken = 0
+  let skipNextAddressWatcher = false
 
   watch(selectedAddressId, newVal => {
     if (newVal === 'new') {
@@ -562,73 +563,20 @@
     shippingForm.fullname = addr.fullname || addr.full_name || ''
     shippingForm.phone = addr.phone || ''
     shippingForm.address = addr.address || addr.fullAddress || addr.full_address || ''
+    skipNextAddressWatcher = true
     streetAddress.value = shippingForm.address
     fullAddressString.value = shippingForm.address
 
-    const selectionToken = ++savedAddressSelectionToken
-    try {
-      const expandedAddress = await expandSavedAddress(shippingForm.address)
-      if (
-        selectionToken === savedAddressSelectionToken
-        && selectedAddressId.value === addr.id
-        && expandedAddress
-      ) {
-        shippingForm.address = expandedAddress
-        streetAddress.value = expandedAddress
-        fullAddressString.value = expandedAddress
-        addr.address = expandedAddress
-      }
-    } catch (error) {
-      console.error('Lỗi mở rộng địa chỉ đã lưu', error)
-    }
-
-    // Trigger map re-calculation
-    await checkAndCalculateRoute(true)
-  }
-
-  async function expandSavedAddress (address) {
-    const candidates = [
-      String(address || '').trim(),
-      `${String(address || '').trim()}, Hà Nội`,
-    ].filter(Boolean)
-
-    for (const candidate of candidates) {
-      try {
-        const photonResponse = await fetch(
-          `/photon/api/?limit=1&q=${encodeURIComponent(candidate + ', Việt Nam')}`,
-        )
-        if (photonResponse.ok) {
-          const photonPayload = await photonResponse.json()
-          const feature = photonPayload.features?.[0]
-          const properties = feature?.properties || {}
-          const firstLine = properties.name
-            || [properties.housenumber, properties.street].filter(Boolean).join(' ')
-          const expandedAddress = [
-            firstLine,
-            properties.district,
-            properties.city,
-            properties.state,
-            properties.postcode,
-            properties.country,
-          ].filter(Boolean).join(', ')
-          if (expandedAddress) return expandedAddress
-        }
-      } catch (error) {
-        console.error('Lỗi mở rộng địa chỉ bằng Photon', error)
-      }
-
-      const geocode = await fetchGeocode(candidate)
-      const expandedAddress = geocode.data?.[0]?.display_name
-      if (expandedAddress) return expandedAddress
-    }
-
-    return ''
+    const selectionToken = ++addressSearchToken
+    await processAddressText(streetAddress.value, selectionToken)
   }
 
   function resetShippingForm () {
+    addressSearchToken++
     shippingForm.fullname = currentUser.value?.fullname || currentUser.value?.username || ''
     shippingForm.phone = currentUser.value?.phone || ''
     shippingForm.address = ''
+    skipNextAddressWatcher = true
     streetAddress.value = ''
     isRouteCalculated.value = false
   }
@@ -678,15 +626,16 @@
 
   const geocodeCache = new Map()
   let lastGeocodeTime = 0
-  async function fetchGeocode (q) {
-    if (geocodeCache.has(q)) return geocodeCache.get(q)
+  async function fetchGeocode (q, limit = 1) {
+    const cacheKey = `${q}|${limit}`
+    if (geocodeCache.has(cacheKey)) return geocodeCache.get(cacheKey)
     const now = Date.now()
     const timeSinceLast = now - lastGeocodeTime
     if (timeSinceLast < 1100) {
       await new Promise(r => setTimeout(r, 1100 - timeSinceLast))
     }
     lastGeocodeTime = Date.now()
-    const targetUrl = `/nominatim/search?format=json&addressdetails=1&limit=1&q=${encodeURIComponent(q + ', Việt Nam')}`
+    const targetUrl = `/nominatim/search?format=json&addressdetails=1&limit=${limit}&q=${encodeURIComponent(q + ', Việt Nam')}`
     try {
       let res = await fetch(targetUrl)
       if (res.status === 429) {
@@ -696,7 +645,7 @@
       if (!res.ok) return { ok: false, status: res.status }
       const data = await res.json()
       const result = { ok: true, data }
-      geocodeCache.set(q, result)
+      geocodeCache.set(cacheKey, result)
       return result
     } catch {
       return { ok: false, status: -1 }
@@ -721,9 +670,6 @@
 
   // Tọa độ kho hàng (123 Nguyễn Ngọc Vũ, Trung Hoà, Cầu Giấy, Hà Nội)
   const SHOP_COORD = [21.008_882, 105.802_883]
-
-
-
 
   function normalizeAddressText (value) {
     return String(value || '')
@@ -752,14 +698,15 @@
     )
   }
 
-  function applyTextFallbackShipping (addressText = '') {
+  function applyTextFallbackShipping (addressText = '', searchToken = addressSearchToken) {
+    if (searchToken !== null && searchToken !== addressSearchToken) return
     const normalized = normalizeAddressText(addressText)
     const isHaNoi = normalized.includes('ha noi')
 
     distanceKm.value = '0.0'
     estimatedDays.value = isHaNoi ? 1 : 3
     calculatedShippingFee.value = isHaNoi ? 30_000 : 40_000
-    fullAddressString.value = buildCurrentAddressString(addressText)
+    fullAddressString.value = String(addressText || '').trim()
 
     routeError.value = ''
     isRouteCalculated.value = true
@@ -804,7 +751,7 @@
     }
 
     autoRouteTimer = setTimeout(() => {
-      void checkAndCalculateRoute(true)
+      void processAddressText(streetAddress.value, addressSearchToken)
     }, 500)
   }
 
@@ -890,7 +837,18 @@
     }
   }
 
-  async function autoFillAddressHierarchyFromText (rawAddress) {
+  async function processAddressText (rawAddress, searchToken) {
+    const input = String(rawAddress || '').trim()
+    if (!input || searchToken !== addressSearchToken) return
+
+    if (provinces.value.length > 0) {
+      await autoFillAddressHierarchyFromText(input, searchToken)
+    }
+    if (searchToken !== addressSearchToken) return
+    await calculateRouteFromFreeformAddress(input, true, searchToken)
+  }
+
+  async function autoFillAddressHierarchyFromText (rawAddress, selectionToken = null) {
     const input = String(rawAddress || '').trim()
     if (!input || provinces.value.length === 0) return
 
@@ -902,22 +860,27 @@
       const parts = input.split(',').map(s => s.trim()).filter(Boolean)
       while (parts.length > 0) {
         const q = parts.join(', ')
-        const geoRes = await fetchGeocode(q)
+        const geoRes = await fetchGeocode(q, 5)
+        if (selectionToken !== null && selectionToken !== addressSearchToken) return
         if (!geoRes.ok) {
           if (geoRes.status === 429) {
             routeError.value = 'Geocoding service busy — tính ship tạm thời bằng ước lượng.'
-            applyTextFallbackShipping(input)
+            applyTextFallbackShipping(input, selectionToken)
             return true
           }
           throw new Error(`Geocoding failed (HTTP ${geoRes.status})`)
         }
         const geoData = geoRes.data
         if (Array.isArray(geoData) && geoData.length > 0) {
-          first = geoData[0]
+          first = chooseGeocodeCandidate(input, geoData)
+        }
+        if (first) {
           break
         }
         parts.shift()
       }
+
+      if (!first) return true
 
       // Extract from Nominatim ONLY for basic hints
       const addressMeta = first?.address || {}
@@ -940,11 +903,14 @@
           || addressMeta.neighbourhood
           || ''
       const displayNameHint = first?.display_name || ''
+      if (selectionToken !== null && selectionToken !== addressSearchToken) return
 
       // STEP 1: Match Province - try hint first, then fallback to input search
       const matchedProvince
         = findBestMatchByName(provinces.value, provinceHint, displayNameHint)
           || findBestMatchByName(provinces.value, input, displayNameHint)
+
+      if (selectionToken !== null && selectionToken !== addressSearchToken) return
 
       if (!matchedProvince) {
         skipNextWatcherUpdate.value = false
@@ -1022,19 +988,23 @@
         }
       }
 
-      fullAddressString.value = buildCurrentAddressString(input)
+      fullAddressString.value = input
     } catch (error) {
       console.error('Auto-fill error:', error)
     } finally {
-      isAutoFillingAddress.value = false
-      // Reset flag AFTER this microtask completes so watcher definitely skips
-      Promise.resolve().then(() => {
-        skipNextWatcherUpdate.value = false
-      })
+      if (selectionToken === null || selectionToken === addressSearchToken) {
+        isAutoFillingAddress.value = false
+        // Reset flag AFTER this microtask completes so watcher definitely skips
+        Promise.resolve().then(() => {
+          if (selectionToken === null || selectionToken === addressSearchToken) {
+            skipNextWatcherUpdate.value = false
+          }
+        })
+      }
     }
   }
 
-  async function calculateRouteFromFreeformAddress (rawAddress, silent = false) {
+  async function calculateRouteFromFreeformAddress (rawAddress, silent = false, searchToken = addressSearchToken) {
     const addressText = String(rawAddress || '').trim()
     if (!addressText) {
       if (!silent) {
@@ -1048,39 +1018,43 @@
       const parts = addressText.split(',').map(s => s.trim()).filter(Boolean)
       while (parts.length > 0) {
         const q = parts.join(', ')
-        const geoRes = await fetchGeocode(q)
+        const geoRes = await fetchGeocode(q, 5)
+        if (searchToken !== addressSearchToken) return false
         if (!geoRes.ok) {
           if (geoRes.status === 429) {
             routeError.value = 'Geocoding service busy — tính ship tạm thời bằng ước lượng.'
-            applyTextFallbackShipping(addressText)
+            applyTextFallbackShipping(addressText, searchToken)
             return true
           }
           throw new Error(`Geocoding failed (HTTP ${geoRes.status})`)
         }
         const geoData = geoRes.data
         if (Array.isArray(geoData) && geoData.length > 0) {
-          first = geoData[0]
+          first = chooseGeocodeCandidate(addressText, geoData)
+        }
+        if (first) {
           break
         }
         parts.shift()
       }
       if (!first) {
-        applyTextFallbackShipping(addressText)
+        applyTextFallbackShipping(addressText, searchToken)
         return true
       }
 
       const userLat = Number(first.lat)
       const userLon = Number(first.lon)
       if (!Number.isFinite(userLat) || !Number.isFinite(userLon)) {
-        applyTextFallbackShipping(addressText)
+        applyTextFallbackShipping(addressText, searchToken)
         return true
       }
 
       const routeUrl = `https://router.project-osrm.org/route/v1/driving/${SHOP_COORD[1]},${SHOP_COORD[0]};${userLon},${userLat}?overview=false`
       const routeRes = await fetch(routeUrl)
       const routeData = await routeRes.json()
+      if (searchToken !== addressSearchToken) return false
       if (routeData.code !== 'Ok') {
-        applyTextFallbackShipping(addressText)
+        applyTextFallbackShipping(addressText, searchToken)
         return true
       }
 
@@ -1101,15 +1075,83 @@
         estimatedDays.value = km < 100 ? 2 : 3
       }
 
-      fullAddressString.value = first.display_name || addressText
+      fullAddressString.value = isMatchingGeocodeAddress(addressText, first)
+        ? formatGeocodedAddress(first)
+        : addressText
 
       routeError.value = ''
       isRouteCalculated.value = true
       return true
     } catch {
-      applyTextFallbackShipping(addressText)
+      applyTextFallbackShipping(addressText, searchToken)
       return true
     }
+  }
+
+  function isMatchingGeocodeAddress (input, result) {
+    const normalizedDisplay = normalizeAddressText(result?.display_name)
+    const tokens = normalizeAddressText(input)
+      .split(' ')
+      .filter(token => token.length > 1)
+    const houseNumber = tokens.find(token => /^\d+[a-z]?$/i.test(token))
+    const streetTokens = tokens.filter(token => (
+      token !== houseNumber
+      && ![
+        'so', 'nha', 'duong', 'pho', 'ngo', 'ngach', 'hem', 'hanoi', 'ha', 'noi', 'vietnam',
+        'xa', 'phuong', 'thi', 'tran', 'thanh', 'pho', 'quan', 'huyen', 'tinh',
+        'ward', 'district', 'city', 'province',
+      ].includes(token)
+    ))
+    if (streetTokens.length === 0) return false
+    const matchedStreetTokens = streetTokens.filter(token => normalizedDisplay.includes(token)).length
+    const hasMatchingPhrase = streetTokens.some((token, index) => {
+      const nextToken = streetTokens[index + 1]
+      if (!nextToken) return false
+      return normalizedDisplay.includes(`${token} ${nextToken}`)
+    })
+
+    if (streetTokens.length === 1) return matchedStreetTokens === 1
+    return hasMatchingPhrase && matchedStreetTokens >= 2
+  }
+
+  function chooseGeocodeCandidate (input, candidates) {
+    return candidates
+      .filter(candidate => isMatchingGeocodeAddress(input, candidate))
+      .reduce((best, candidate) => {
+        if (!best) return candidate
+
+        const inputTokens = normalizeAddressText(input).split(' ').filter(Boolean)
+        const houseNumber = inputTokens.find(token => /^\d+[a-z]?$/i.test(token))
+        const candidateText = normalizeAddressText(candidate.display_name)
+        const bestText = normalizeAddressText(best.display_name)
+        const candidateHasHouse = houseNumber && candidateText.includes(houseNumber)
+        const bestHasHouse = houseNumber && bestText.includes(houseNumber)
+        const candidateDetails = Object.keys(candidate.address || {}).length
+        const bestDetails = Object.keys(best.address || {}).length
+        const candidateScore = (candidateHasHouse ? 100 : 0) + candidateDetails
+        const bestScore = (bestHasHouse ? 100 : 0) + bestDetails
+
+        return candidateScore > bestScore ? candidate : best
+      }, null)
+  }
+
+  function formatGeocodedAddress (result) {
+    const segments = String(result?.display_name || '')
+      .split(',')
+      .map(segment => segment.trim())
+      .filter(Boolean)
+
+    if (segments.length < 2) return segments.join(', ')
+
+    const firstTokens = new Set(normalizeAddressText(segments[0]).split(' ').filter(Boolean))
+    const deduplicated = segments.filter((segment, index) => {
+      if (index === 0) return true
+      const segmentTokens = normalizeAddressText(segment).split(' ').filter(Boolean)
+      const overlap = segmentTokens.filter(token => firstTokens.has(token)).length
+      return overlap < Math.min(2, firstTokens.size)
+    })
+
+    return deduplicated.join(', ')
   }
 
   async function autoCalculateShippingOnEnter () {
@@ -1122,7 +1164,7 @@
       streetAddress.value = rawAddress
     }
 
-    const ok = await checkAndCalculateRoute(true)
+    const ok = await checkAndCalculateRoute(true, addressSearchToken)
     if (!ok) {
       applyTextFallbackShipping(rawAddress)
     }
@@ -1155,10 +1197,8 @@
         : []
 
       if (shippingForm.address) {
-        await autoFillAddressHierarchyFromText(shippingForm.address)
+        await processAddressText(shippingForm.address, ++addressSearchToken)
       }
-
-      await autoCalculateShippingOnEnter()
     } catch (error) {
       console.error('Không tải được API Tỉnh Thành', error)
       await autoCalculateShippingOnEnter()
@@ -1169,7 +1209,7 @@
     stopCheckoutStockSync()
   })
 
-  async function checkAndCalculateRoute (silent = false) {
+  async function checkAndCalculateRoute (silent = false, searchToken = addressSearchToken) {
     if (!streetAddress.value && shippingForm.address) {
       streetAddress.value = String(shippingForm.address).trim()
     }
@@ -1182,21 +1222,20 @@
       return false
     }
 
-    const fullAddr = buildCurrentAddressString()
+    const fullAddr = String(streetAddress.value || shippingForm.address).trim()
     const calculatedFromFreeform = await calculateRouteFromFreeformAddress(
       fullAddr,
       silent,
+      searchToken,
     )
     return calculatedFromFreeform
   }
 
   function applyFallbackShipping () {
     distanceKm.value = 0
-    const addressForFee = buildCurrentAddressString()
-    const detectedProvince = selectedProvince.value?.name || ''
+    const addressForFee = String(streetAddress.value || shippingForm.address || '').trim()
     const isHaNoi
       = normalizeAddressText(addressForFee).includes('ha noi')
-        || normalizeAddressText(detectedProvince).includes('ha noi')
     estimatedDays.value = isHaNoi ? 1 : 3
     calculatedShippingFee.value = isHaNoi ? 30_000 : 40_000
     fullAddressString.value = addressForFee
@@ -1906,7 +1945,13 @@
   watch(
     () => streetAddress.value,
     () => {
-      fullAddressString.value = buildCurrentAddressString()
+      if (skipNextAddressWatcher) {
+        skipNextAddressWatcher = false
+        return
+      }
+
+      fullAddressString.value = String(streetAddress.value || '').trim()
+      addressSearchToken++
       scheduleAutoRouteCalculation()
     },
   )
@@ -1924,7 +1969,7 @@
       }
 
       // Update address string and trigger route calculation
-      fullAddressString.value = buildCurrentAddressString()
+      fullAddressString.value = String(streetAddress.value || '').trim()
       scheduleAutoRouteCalculation()
     },
   )
