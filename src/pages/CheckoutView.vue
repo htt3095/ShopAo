@@ -563,6 +563,7 @@
     shippingForm.fullname = addr.fullname || addr.full_name || ''
     shippingForm.phone = addr.phone || ''
     shippingForm.address = addr.address || addr.fullAddress || addr.full_address || ''
+    selectedAddressPoint.value = null
     skipNextAddressWatcher = true
     streetAddress.value = shippingForm.address
     fullAddressString.value = shippingForm.address
@@ -573,6 +574,7 @@
 
   function resetShippingForm () {
     addressSearchToken++
+    selectedAddressPoint.value = null
     shippingForm.fullname = currentUser.value?.fullname || currentUser.value?.username || ''
     shippingForm.phone = currentUser.value?.phone || ''
     shippingForm.address = ''
@@ -586,6 +588,12 @@
   }
 
   async function selectAddressSuggestion (sug) {
+    const latitude = Number(sug?.lat)
+    const longitude = Number(sug?.lon)
+    selectedAddressPoint.value = Number.isFinite(latitude) && Number.isFinite(longitude)
+      ? { latitude, longitude, address: sug.address || {}, addressText: sug.display_name || '' }
+      : null
+
     if (sug && sug.address) {
       const cityOrProvince = sug.address.city || sug.address.state || sug.address.province
       if (cityOrProvince) {
@@ -656,6 +664,7 @@
   const selectedDistrict = ref(null)
   const selectedWard = ref(null)
   const streetAddress = ref('')
+  const selectedAddressPoint = ref(null)
 
   const isRouteCalculated = ref(false)
   const distanceKm = ref(0)
@@ -845,7 +854,7 @@
       await autoFillAddressHierarchyFromText(input, searchToken)
     }
     if (searchToken !== addressSearchToken) return
-    await calculateRouteFromFreeformAddress(input, true, searchToken)
+    await calculateRouteFromFreeformAddress(input, true, searchToken, selectedAddressPoint.value)
   }
 
   async function autoFillAddressHierarchyFromText (rawAddress, selectionToken = null) {
@@ -1004,7 +1013,7 @@
     }
   }
 
-  async function calculateRouteFromFreeformAddress (rawAddress, silent = false, searchToken = addressSearchToken) {
+  async function calculateRouteFromFreeformAddress (rawAddress, silent = false, searchToken = addressSearchToken, preferredPoint = null) {
     const addressText = String(rawAddress || '').trim()
     if (!addressText) {
       if (!silent) {
@@ -1014,28 +1023,37 @@
     }
 
     try {
-      let first = null
-      const parts = addressText.split(',').map(s => s.trim()).filter(Boolean)
-      while (parts.length > 0) {
-        const q = parts.join(', ')
-        const geoRes = await fetchGeocode(q, 5)
-        if (searchToken !== addressSearchToken) return false
-        if (!geoRes.ok) {
-          if (geoRes.status === 429) {
-            routeError.value = 'Geocoding service busy — tính ship tạm thời bằng ước lượng.'
-            applyTextFallbackShipping(addressText, searchToken)
-            return true
+      const pointMatchesAddress = preferredPoint
+        && preferredPoint.addressText === addressText
+      let first = pointMatchesAddress
+        ? {
+          lat: preferredPoint.latitude,
+          lon: preferredPoint.longitude,
+          address: preferredPoint.address,
+          display_name: addressText,
+        }
+        : null
+      if (!first) {
+        const parts = addressText.split(',').map(s => s.trim()).filter(Boolean)
+        while (parts.length > 0) {
+          const q = parts.join(', ')
+          const geoRes = await fetchGeocode(q, 5)
+          if (searchToken !== addressSearchToken) return false
+          if (!geoRes.ok) {
+            if (geoRes.status === 429) {
+              routeError.value = 'Geocoding service busy — tính ship tạm thời bằng ước lượng.'
+              applyTextFallbackShipping(addressText, searchToken)
+              return true
+            }
+            throw new Error(`Geocoding failed (HTTP ${geoRes.status})`)
           }
-          throw new Error(`Geocoding failed (HTTP ${geoRes.status})`)
+          const geoData = geoRes.data
+          if (Array.isArray(geoData) && geoData.length > 0) {
+            first = chooseGeocodeCandidate(addressText, geoData)
+          }
+          if (first) break
+          parts.shift()
         }
-        const geoData = geoRes.data
-        if (Array.isArray(geoData) && geoData.length > 0) {
-          first = chooseGeocodeCandidate(addressText, geoData)
-        }
-        if (first) {
-          break
-        }
-        parts.shift()
       }
       if (!first) {
         applyTextFallbackShipping(addressText, searchToken)
@@ -1115,24 +1133,27 @@
   }
 
   function chooseGeocodeCandidate (input, candidates) {
-    return candidates
-      .filter(candidate => isMatchingGeocodeAddress(input, candidate))
-      .reduce((best, candidate) => {
-        if (!best) return candidate
+    const matchingCandidates = candidates.filter(candidate => isMatchingGeocodeAddress(input, candidate))
+    const candidatesToRank = matchingCandidates.length > 0 ? matchingCandidates : candidates
+    const inputTokens = normalizeAddressText(input).split(' ').filter(Boolean)
+    const houseNumber = inputTokens.find(token => /^\d+[a-z]?$/i.test(token))
 
-        const inputTokens = normalizeAddressText(input).split(' ').filter(Boolean)
-        const houseNumber = inputTokens.find(token => /^\d+[a-z]?$/i.test(token))
+    const rankedCandidates = candidatesToRank
+      .map(candidate => {
         const candidateText = normalizeAddressText(candidate.display_name)
-        const bestText = normalizeAddressText(best.display_name)
-        const candidateHasHouse = houseNumber && candidateText.includes(houseNumber)
-        const bestHasHouse = houseNumber && bestText.includes(houseNumber)
-        const candidateDetails = Object.keys(candidate.address || {}).length
-        const bestDetails = Object.keys(best.address || {}).length
-        const candidateScore = (candidateHasHouse ? 100 : 0) + candidateDetails
-        const bestScore = (bestHasHouse ? 100 : 0) + bestDetails
+        const tokenMatches = inputTokens.filter(token => candidateText.includes(token)).length
+        const hasHouseNumber = houseNumber && candidateText.includes(houseNumber)
+        return {
+          candidate,
+          score: tokenMatches + (hasHouseNumber ? 10 : 0),
+        }
+      })
+      .toSorted((left, right) => right.score - left.score)
+      .find(
+        result => result.score > 0,
+      )
 
-        return candidateScore > bestScore ? candidate : best
-      }, null)
+    return rankedCandidates?.candidate || null
   }
 
   function formatGeocodedAddress (result) {
@@ -1222,15 +1243,14 @@
       return false
     }
 
-    // Nếu đã chọn combobox Tỉnh/Quận/Phường → ghép để geocoding chính xác
-    // Nếu chưa chọn (flow saved address) → dùng streetAddress nguyên bản
-    const fullAddr = (selectedProvince.value && selectedDistrict.value)
-      ? buildCurrentAddressString()
-      : String(streetAddress.value || shippingForm.address).trim()
+    // Keep the user's address text as the routing source. The hierarchy fields
+    // are only hints and may contain a different administrative naming scheme.
+    const fullAddr = String(streetAddress.value || shippingForm.address).trim()
     const calculatedFromFreeform = await calculateRouteFromFreeformAddress(
       fullAddr,
       silent,
       searchToken,
+      selectedAddressPoint.value,
     )
     return calculatedFromFreeform
   }
