@@ -2,7 +2,10 @@ package com.finalproject2.controller;
 
 import com.finalproject2.SecurityConfiguration.VNPayConfig;
 import com.finalproject2.entity.Order;
+import com.finalproject2.entity.OrderItem;
+import com.finalproject2.entity.ProductVariant;
 import com.finalproject2.repository.OrderRepository;
+import com.finalproject2.repository.ProductVariantRepository;
 import com.finalproject2.mapper.VNPayUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
@@ -22,10 +25,12 @@ public class PaymentController {
 
     private final VNPayConfig vnPayConfig;
     private final OrderRepository orderRepo;
+    private final ProductVariantRepository variantRepo;
 
-    public PaymentController(VNPayConfig vnPayConfig, OrderRepository orderRepo) {
+    public PaymentController(VNPayConfig vnPayConfig, OrderRepository orderRepo, ProductVariantRepository variantRepo) {
         this.vnPayConfig = vnPayConfig;
         this.orderRepo = orderRepo;
+        this.variantRepo = variantRepo;
     }
 
     @PostMapping("/vnpay/create")
@@ -143,8 +148,20 @@ public class PaymentController {
                 orderRepo.save(order);
                 return ResponseEntity.ok(Map.of("RspCode", "00", "Message", "Confirm Success"));
             } else {
-                order.setPaymentStatus("FAILED");
-                orderRepo.save(order);
+                if (!"CANCELLED".equalsIgnoreCase(order.getStatus())) {
+                    // Thanh toán thất bại → hủy đơn + hoàn kho
+                    order.setPaymentStatus("FAILED");
+                    order.setStatus("CANCELLED");
+                    // Hoàn lại tồn kho
+                    for (OrderItem item : order.getOrderItems()) {
+                        ProductVariant variant = item.getVariant();
+                        if (variant != null) {
+                            variant.setStockQuantity(variant.getStockQuantity() + item.getQuantity());
+                            variantRepo.save(variant);
+                        }
+                    }
+                    orderRepo.save(order);
+                }
                 return ResponseEntity.ok(Map.of("RspCode", "00", "Message", "Confirm Success"));
             }
 
@@ -172,10 +189,21 @@ public class PaymentController {
                             if ("00".equals(vnpResponseCode)) {
                                 order.setPaymentStatus("PAID");
                                 order.setStatus("CONFIRMED");
+                                orderRepo.save(order);
                             } else {
-                                order.setPaymentStatus("FAILED");
+                                if (!"CANCELLED".equalsIgnoreCase(order.getStatus())) {
+                                    order.setPaymentStatus("FAILED");
+                                    order.setStatus("CANCELLED");
+                                    for (OrderItem item : order.getOrderItems()) {
+                                        ProductVariant variant = item.getVariant();
+                                        if (variant != null) {
+                                            variant.setStockQuantity(variant.getStockQuantity() + item.getQuantity());
+                                            variantRepo.save(variant);
+                                        }
+                                    }
+                                    orderRepo.save(order);
+                                }
                             }
-                            orderRepo.save(order);
                         }
                     }
                 } catch (NumberFormatException ignored) {}
