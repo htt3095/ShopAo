@@ -243,7 +243,7 @@
 
             <p
               v-if="bulkImageNotice"
-              class="mb-2 rounded-lg border border-amber-200 bg-amber-50 px-2.5 py-1.5 text-[11px] text-amber-700 /50 /20 "
+              class="mb-2 rounded-lg border border-amber-200 bg-amber-50 px-2.5 py-1.5 text-[11px] text-amber-700   "
             >
               {{ bulkImageNotice }}
             </p>
@@ -403,14 +403,14 @@
 
         <div
           v-if="error"
-          class="mb-4 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 /40 /20 "
+          class="mb-4 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700   "
         >
           {{ error }}
         </div>
 
         <div
           v-if="hiddenVariants.length > 0"
-          class="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-3 py-3 text-sm text-slate-700 /20 "
+          class="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-3 py-3 text-sm text-slate-700  "
         >
           <div class="flex flex-wrap items-center justify-between gap-3">
             <div>
@@ -630,7 +630,7 @@
             <div>
               <p class="text-xs font-medium text-slate-500 ">Ảnh của nhóm màu này</p>
               <div class="flex items-center gap-1 mt-1">
-                <div v-for="entry in imageSlotEntries" :key="entry.key" class="size-8 rounded-md overflow-hidden bg-slate-200 /50 border border-slate-300 ">
+                <div v-for="entry in imageSlotEntries" :key="entry.key" class="size-8 rounded-md overflow-hidden bg-slate-200  border border-slate-300 ">
                   <img v-if="slotSource(bulkImageSlots, entry.key)" class="w-full h-full object-cover" :src="slotSource(bulkImageSlots, entry.key)">
                 </div>
               </div>
@@ -714,7 +714,7 @@
             </div>
 
             <p
-              class="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-700 /50 /20 "
+              class="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-700   "
             >
               Ảnh biến thể được quản lý tập trung theo nhóm màu ở mục "Cập nhật
               ảnh theo nhóm màu" phía trên.
@@ -794,7 +794,7 @@
               </div>
             </div>
 
-            <div class="rounded-lg bg-blue-50 p-3 text-sm text-blue-700 /20 ">
+            <div class="rounded-lg bg-blue-50 p-3 text-sm text-blue-700  ">
               Sẽ tạo ra: <strong>{{ newCombinationsCount }}</strong> biến thể.
             </div>
 
@@ -1642,12 +1642,12 @@
   function variantStatusClass (status, stockQuantity = null) {
     const normalized = normalizeVariantStatus(status, stockQuantity)
     if (normalized === 'HIDDEN') {
-      return 'bg-slate-100 text-slate-700 /30 '
+      return 'bg-slate-100 text-slate-700  '
     }
     if (normalized === 'OUT_OF_STOCK') {
-      return 'bg-red-100 text-red-700 /20 '
+      return 'bg-red-100 text-red-700  '
     }
-    return 'bg-green-100 text-green-700 /20 '
+    return 'bg-green-100 text-green-700  '
   }
 
   function toMap (rows, idKey = 'id') {
@@ -1773,12 +1773,12 @@
   function stockClass (stock) {
     const q = Number(stock)
     if (!Number.isFinite(q) || q <= 0) {
-      return 'bg-red-100 text-red-700 /20 '
+      return 'bg-red-100 text-red-700  '
     }
     if (q < 10) {
-      return 'bg-yellow-100 text-yellow-700 /20 '
+      return 'bg-yellow-100 text-yellow-700  '
     }
-    return 'bg-green-100 text-green-700 /20 '
+    return 'bg-green-100 text-green-700  '
   }
 
   const imageSlotEntries = computed(() => {

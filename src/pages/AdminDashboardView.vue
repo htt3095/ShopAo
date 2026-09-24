@@ -83,7 +83,7 @@
               <div class="flex flex-col gap-3 p-6 rounded-xl bg-transparent border border-primary/20 shadow-sm">
                 <div class="flex items-center justify-between">
                   <p class="text-slate-500 text-sm font-medium">Tổng doanh thu</p>
-                  <div class="p-2 bg-green-100 /20 rounded-lg text-green-600 ">
+                  <div class="p-2 bg-green-100  rounded-lg text-green-600 ">
                     <span class="material-symbols-outlined text-[20px]">attach_money</span>
                   </div>
                 </div>
@@ -115,7 +115,7 @@
               <div class="flex flex-col gap-3 p-6 rounded-xl bg-transparent border border-primary/20 shadow-sm">
                 <div class="flex items-center justify-between">
                   <p class="text-slate-500 text-sm font-medium">Voucher đang hoạt động</p>
-                  <div class="p-2 bg-orange-100 /20 rounded-lg text-orange-500">
+                  <div class="p-2 bg-orange-100  rounded-lg text-orange-500">
                     <span class="material-symbols-outlined text-[20px]">local_activity</span>
                   </div>
                 </div>
@@ -160,7 +160,7 @@
                         <td class="px-6 py-4 text-slate-600 ">2.890.000 ₫</td>
                         <td class="px-6 py-4 text-slate-600 ">25 thg 10, 2023</td>
                         <td class="px-6 py-4">
-                          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 /30 ">Chờ xác nhận</span>
+                          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800  ">Chờ xác nhận</span>
                         </td>
                         <td class="px-6 py-4 text-right">
                           <button class="text-primary hover:text-blue-400 font-medium text-sm transition-colors">Xác nhận</button>
@@ -177,7 +177,7 @@
                         <td class="px-6 py-4 text-slate-600 ">1.950.000 ₫</td>
                         <td class="px-6 py-4 text-slate-600 ">24 thg 10, 2023</td>
                         <td class="px-6 py-4">
-                          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 /30 ">Đang giao</span>
+                          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800  ">Đang giao</span>
                         </td>
                         <td class="px-6 py-4 text-right">
                           <button class="text-slate-500 hover:text-slate-800 font-medium text-sm transition-colors">Theo dõi</button>
@@ -194,7 +194,7 @@
                         <td class="px-6 py-4 text-slate-600 ">4.980.000 ₫</td>
                         <td class="px-6 py-4 text-slate-600 ">24 thg 10, 2023</td>
                         <td class="px-6 py-4">
-                          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 /30 ">Đã giao</span>
+                          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800  ">Đã giao</span>
                         </td>
                         <td class="px-6 py-4 text-right">
                           <button class="text-slate-500 hover:text-slate-800 font-medium text-sm transition-colors">Xem</button>

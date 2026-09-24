@@ -353,7 +353,7 @@
                     >
                   </div>
                   <button
-                    class="rounded-lg bg-red-100 px-2.5 py-1.5 text-xs font-medium text-red-600 hover:bg-red-200 /30 "
+                    class="rounded-lg bg-red-100 px-2.5 py-1.5 text-xs font-medium text-red-600 hover:bg-red-200  "
                     type="button"
                     @click="clearProductImage"
                   >
@@ -373,7 +373,7 @@
                 </div>
                 <div
                   v-else-if="productUploadError"
-                  class="mb-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600 /40 /20 "
+                  class="mb-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600   "
                 >
                   {{ productUploadError }}
                 </div>

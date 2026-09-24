@@ -89,14 +89,14 @@
 
         <div
           v-if="error"
-          class="mb-4 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 /40 /20 "
+          class="mb-4 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"
         >
           {{ error }}
         </div>
 
         <div
           v-if="hiddenVouchers.length > 0"
-          class="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-3 py-3 text-sm text-slate-700 /20 "
+          class="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-3 py-3 text-sm text-slate-700"
         >
           <div class="flex flex-wrap items-center justify-between gap-3">
             <div>
@@ -506,18 +506,18 @@
   function statusClass (status) {
     const normalized = normalizeVoucherStatusValue(status)
     if (normalized === 'ACTIVE') {
-      return 'bg-green-100 text-green-700 /20 '
+      return 'bg-green-100 text-green-700'
     }
     if (normalized === 'USED') {
-      return 'bg-slate-100 text-slate-700 /50 '
+      return 'bg-slate-100 text-slate-700'
     }
     if (normalized === 'SCHEDULED') {
-      return 'bg-blue-100 text-blue-700 /20 '
+      return 'bg-blue-100 text-blue-700'
     }
     if (normalized === 'INACTIVE') {
-      return 'bg-amber-100 text-amber-700 /20 '
+      return 'bg-amber-100 text-amber-700'
     }
-    return 'bg-red-100 text-red-700 /20 '
+    return 'bg-red-100 text-red-700'
   }
 
   function openCreate () {

@@ -10,7 +10,7 @@
     </template>
 
     <section class="retail-card p-6">
-      <div v-if="message" class="mb-4 rounded-xl px-3 py-2 text-sm" :class="messageType === 'error' ? 'border border-red-200 bg-red-50 text-red-700 /40 /20 ' : 'border border-green-200 bg-green-50 text-green-700 /40 /20 '">
+      <div v-if="message" class="mb-4 rounded-xl px-3 py-2 text-sm" :class="messageType === 'error' ? 'border border-red-200 bg-red-50 text-red-700   ' : 'border border-green-200 bg-green-50 text-green-700   '">
         {{ message }}
       </div>
 
@@ -34,7 +34,7 @@
 
               <button
                 v-if="resolvedAvatar"
-                class="rounded-xl border border-red-200 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 /40 "
+                class="rounded-xl border border-red-200 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50  "
                 type="button"
                 @click="removeAvatar"
               >

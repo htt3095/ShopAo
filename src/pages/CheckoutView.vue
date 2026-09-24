@@ -179,7 +179,7 @@
 
             <div
               v-show="isRouteCalculated"
-              class="mt-6 rounded-xl border border-green-500/30 bg-green-50/50 p-5 /20 /10"
+              class="mt-6 rounded-xl border border-green-500/30 bg-green-50/50 p-5"
             >
               <h3
                 class="mb-4 flex items-center gap-2 text-base font-bold text-green-700 "
@@ -1243,9 +1243,11 @@
       return false
     }
 
-    // Keep the user's address text as the routing source. The hierarchy fields
-    // are only hints and may contain a different administrative naming scheme.
-    const fullAddr = String(streetAddress.value || shippingForm.address).trim()
+    // Khi đã chọn combobox Tỉnh/Quận → ghép để geocoding chính xác hơn
+    // Khi chưa chọn (saved address flow) → dùng streetAddress nguyên bản vì đã có đầy đủ
+    const fullAddr = (selectedProvince.value && selectedDistrict.value)
+      ? buildCurrentAddressString()
+      : String(streetAddress.value || shippingForm.address).trim()
     const calculatedFromFreeform = await calculateRouteFromFreeformAddress(
       fullAddr,
       silent,

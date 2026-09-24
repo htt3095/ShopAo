@@ -241,7 +241,7 @@
               Đơn hàng của tôi
             </h2>
             <router-link
-              class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-100  :bg-slate-800"
+              class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-100"
               to="/orders"
             >
               Đơn hàng của tôi
@@ -272,7 +272,7 @@
             <div
               v-for="(order, index) in recentOrders"
               :key="order.id || index"
-              class="grid grid-cols-1 md:grid-cols-12 gap-4 p-4 items-center border-b border-slate-200/70  hover:bg-[#fbf4ec] :bg-[#2a231f] transition-colors group"
+              class="grid grid-cols-1 md:grid-cols-12 gap-4 p-4 items-center border-b border-slate-200/70 hover:bg-[#fbf4ec] transition-colors group"
             >
               <div class="col-span-1 flex items-center gap-3">
                 <div

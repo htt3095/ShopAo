@@ -49,14 +49,14 @@
       <section class="retail-card p-3">
         <div
           v-if="error"
-          class="mb-4 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 /40 /20 "
+          class="mb-4 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700   "
         >
           {{ error }}
         </div>
 
         <div
           v-if="hiddenCategories.length > 0"
-          class="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-3 py-3 text-sm text-slate-700 /20 "
+          class="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-3 py-3 text-sm text-slate-700  "
         >
           <div class="flex flex-wrap items-center justify-between gap-3">
             <div>

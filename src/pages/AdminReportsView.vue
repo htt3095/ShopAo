@@ -55,7 +55,7 @@
     </template>
 
     <div class="space-y-6">
-      <div v-if="error" class="retail-card border-red-200 bg-red-50 p-4 text-sm text-red-700 /40 /20 ">
+      <div v-if="error" class="retail-card border-red-200 bg-red-50 p-4 text-sm text-red-700   ">
         {{ error }}
       </div>
 

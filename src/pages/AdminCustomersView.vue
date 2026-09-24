@@ -81,7 +81,7 @@
 
         <div
           v-if="error"
-          class="mb-4 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 /40 /20 "
+          class="mb-4 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700   "
         >
           {{ error }}
         </div>
@@ -175,8 +175,8 @@
                     class="rounded-full px-2 py-1 text-xs font-semibold"
                     :class="
                       account.isActive
-                        ? 'bg-green-100 text-green-700 /20 '
-                        : 'bg-red-100 text-red-700 /20 '
+                        ? 'bg-green-100 text-green-700  '
+                        : 'bg-red-100 text-red-700  '
                     "
                   >
                     {{ account.isActive ? "Hoạt động" : "Tạm khóa" }}
@@ -421,12 +421,12 @@
       .trim()
       .toUpperCase()
     if (normalized === 'STAFF') {
-      return 'bg-blue-100 text-blue-700 /20 '
+      return 'bg-blue-100 text-blue-700  '
     }
     if (normalized === 'CUSTOMER' || normalized === 'USER') {
-      return 'bg-green-100 text-green-700 /20 '
+      return 'bg-green-100 text-green-700  '
     }
-    return 'bg-slate-100 text-slate-700 /20 '
+    return 'bg-slate-100 text-slate-700  '
   }
 
   function isCustomerOnlyRole (account) {

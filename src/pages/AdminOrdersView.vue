@@ -157,14 +157,14 @@
 
         <div
           v-if="error"
-          class="mb-4 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 /40 /20 "
+          class="mb-4 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700   "
         >
           {{ error }}
         </div>
 
         <div
           v-if="hiddenOrders.length > 0"
-          class="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-3 py-3 text-sm text-slate-700 /20 "
+          class="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-3 py-3 text-sm text-slate-700  "
         >
           <div class="flex flex-wrap items-center justify-between gap-3">
             <div>
@@ -205,7 +205,7 @@
 
         <div
           v-if="pendingReturnRequests.length > 0"
-          class="mb-4 rounded-xl border border-red-200 bg-red-50 px-3 py-3 text-sm text-slate-700 /20 "
+          class="mb-4 rounded-xl border border-red-200 bg-red-50 px-3 py-3 text-sm text-slate-700  "
         >
           <div class="flex flex-wrap items-center justify-between gap-3">
             <div>
@@ -627,7 +627,7 @@
             <div v-if="form.returnReason" class="md:col-span-2">
               <label class="mb-1 block text-xs font-medium text-red-500">Lý do yêu cầu trả hàng</label>
               <div
-                class="w-full rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 /20 whitespace-pre-wrap"
+                class="w-full rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700  whitespace-pre-wrap"
               >
                 {{ displayReturnReason(form.returnReason) }}
               </div>
@@ -730,7 +730,7 @@
     <!-- Toast Notification -->
     <Teleport to="body">
       <div v-if="newOrderToast" class="fixed bottom-4 right-4 z-50 animate-slide-in-up">
-        <div class="flex items-center gap-3 rounded-xl border border-primary/20 bg-white p-4 shadow-xl /20 ">
+        <div class="flex items-center gap-3 rounded-xl border border-primary/20 bg-white p-4 shadow-xl  ">
           <div class="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
             <span class="material-symbols-outlined">notifications_active</span>
           </div>
@@ -1891,21 +1891,21 @@
   function statusClass (status) {
     const normalized = normalizeOrderStatusValue(status)
     if (['SUCCESS'].includes(normalized)) {
-      return 'bg-green-100 text-green-700 /20 '
+      return 'bg-green-100 text-green-700  '
     }
     if (['PROCESSING', 'SHIPPING'].includes(normalized)) {
-      return 'bg-blue-100 text-blue-700 /20 '
+      return 'bg-blue-100 text-blue-700  '
     }
     if (['RETURN_REQUEST', 'RETURNING'].includes(normalized)) {
-      return 'bg-orange-100 text-orange-700 /20 '
+      return 'bg-orange-100 text-orange-700  '
     }
     if (['DAMAGED', 'LOST'].includes(normalized)) {
-      return 'bg-rose-100 text-rose-700 /20 '
+      return 'bg-rose-100 text-rose-700  '
     }
     if (['CANCELLED', 'RETURNED'].includes(normalized)) {
-      return 'bg-red-100 text-red-700 /20 '
+      return 'bg-red-100 text-red-700  '
     }
-    return 'bg-yellow-100 text-yellow-700 /20 '
+    return 'bg-yellow-100 text-yellow-700  '
   }
 
   const accountLookupLoading = ref(false)
