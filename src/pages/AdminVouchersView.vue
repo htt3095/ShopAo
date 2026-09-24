@@ -180,7 +180,7 @@
                 <td class="px-2 py-2 font-semibold">
                   {{ voucher.code || "-" }}
                 </td>
-                <td class="px-2 py-2">{{ voucher.discountType }}</td>
+                <td class="px-2 py-2">{{ voucher.discountType === 'PERCENT' ? 'Phần trăm' : 'Số tiền' }}</td>
                 <td class="px-2 py-2">{{ formatDiscount(voucher) }}</td>
                 <td class="px-2 py-2">
                   {{ formatMoney(voucher.minOrderValue) }}
@@ -255,8 +255,8 @@
                 v-model="form.discountType"
                 class="w-full  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm "
               >
-                <option value="PERCENT">PERCENT</option>
-                <option value="AMOUNT">AMOUNT</option>
+                <option value="PERCENT">Phần trăm</option>
+                <option value="AMOUNT">Số tiền</option>
               </select>
             </div>
 

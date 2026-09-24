@@ -385,6 +385,33 @@
           </div>
         </section>
       </div>
+
+      <section class="retail-card p-5">
+        <div class="mb-4 flex items-center justify-between">
+          <h3 class="text-lg font-semibold">Top 5 Sản phẩm bán chạy</h3>
+          <span class="text-xs uppercase tracking-wide text-slate-500 ">{{ selectedRangeText }}</span>
+        </div>
+        <div class="overflow-x-auto rounded-2xl border border-slate-200 ">
+          <table class="w-full text-left text-sm">
+            <thead class="bg-slate-50 text-xs uppercase text-slate-500 ">
+              <tr class="border-b border-slate-200">
+                <th class="px-4 py-3 font-semibold">Tên sản phẩm</th>
+                <th class="px-4 py-3 text-right font-semibold">Số lượng bán</th>
+                <th class="px-4 py-3 text-right font-semibold">Doanh thu mang lại</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-if="top5Products.length === 0" class="border-b border-slate-200"><td colspan="3" class="px-4 py-3 text-center text-slate-500">Chưa có dữ liệu</td></tr>
+              <tr v-for="prod in top5Products" :key="prod.name" class="border-b border-slate-200 hover:bg-slate-50">
+                <td class="px-4 py-3 font-medium">{{ prod.name }}</td>
+                <td class="px-4 py-3 text-right font-semibold">{{ prod.qty }}</td>
+                <td class="px-4 py-3 text-right font-semibold text-green-600">{{ formatCurrency(prod.revenue) }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+      
     </div>
   </AdminShell>
 </template>
@@ -556,6 +583,26 @@
   })
 
   const statusBreakdown = computed(() => getStatusBreakdown(filteredOrders.value))
+
+  const top5Products = computed(() => {
+    const productMap = {}
+    filteredOrders.value.forEach(order => {
+      const items = Array.isArray(order.items) ? order.items : (Array.isArray(order.orderItems) ? order.orderItems : [])
+      items.forEach(item => {
+        const p = item.product || item.variant?.product || {}
+        const name = p.name || item.productName || item.product_name || 'Sản phẩm không tên'
+        const qty = Number(item.quantity || item.qty || 1)
+        const revenue = qty * Number(item.price || item.unitPrice || item.variant?.price || item.product?.price || 0)
+
+        if (!productMap[name]) {
+          productMap[name] = { name, qty: 0, revenue: 0 }
+        }
+        productMap[name].qty += qty
+        productMap[name].revenue += revenue
+      })
+    })
+    return Object.values(productMap).sort((a, b) => b.qty - a.qty).slice(0, 5)
+  })
 
   const refundBreakdown = computed(() => {
     const refunds = filteredOrders.value.filter(o => {

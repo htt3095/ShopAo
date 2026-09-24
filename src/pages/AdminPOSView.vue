@@ -1624,6 +1624,10 @@
     const invoice = activeInvoice.value
     if (!invoice) return
 
+    if (!window.confirm('Xác nhận thanh toán đơn hàng này?')) {
+      return
+    }
+
     const validationMessage = validateInvoiceBeforeSubmit(invoice)
     if (validationMessage) {
       showPaymentDialog({

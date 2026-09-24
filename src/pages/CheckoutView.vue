@@ -1570,6 +1570,11 @@
   async function handlePlaceOrder () {
     if (isProcessing.value) return
 
+    // Bổ sung confirm theo yêu cầu "Thanh toán phải có confirm"
+    if (!window.confirm('Xác nhận đặt hàng?')) {
+      return
+    }
+
     // Guard: chặn đặt hàng nếu giỏ hàng rỗng (bảo vệ cả khi bị bypass UI)
     if (!cartItems.value?.length) {
       showAlert('Giỏ hàng trống', 'Vui lòng thêm sản phẩm vào giỏ trước khi thanh toán.', 'error')

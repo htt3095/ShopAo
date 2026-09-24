@@ -1,0 +1,5 @@
+﻿const fs = require('node:fs')
+let code = fs.readFileSync('src/pages/AdminPOSView.vue', 'utf8')
+code = code.replace(/subtitle: '.*?', title: '.*?'/g, 'subtitle: \'Cảnh báo\', title: \'Thông báo\'')
+code = code.replace(/\(H.*t h.*ng\)/g, '(Hết hàng)')
+fs.writeFileSync('src/pages/AdminPOSView.vue', code, 'utf8')

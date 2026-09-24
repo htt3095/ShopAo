@@ -1321,6 +1321,7 @@
     { value: 'PENDING', label: 'Chưa thanh toán' },
     { value: 'PAID', label: 'Đã thanh toán' },
     { value: 'REFUNDED', label: 'Hoàn tiền' },
+    { value: 'FAILED', label: 'Thất bại' },
   ]
   const profitablePaymentStatuses = new Set(['PAID', 'SETTLED', 'CAPTURED'])
   const deductedPaymentStatuses = new Set([
