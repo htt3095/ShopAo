@@ -192,7 +192,7 @@
                   v-model="streetAddress"
                   input-class="w-full rounded-xl border bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:border-primary"
                   placeholder="Nhập địa chỉ chi tiết"
-                  :query-context="[selectedWard?.name, selectedDistrict?.name, selectedProvince?.name].filter(Boolean).join(', ')"
+                  :query-context="''"
                   @blur="handleAddressBlur"
                   @enter="checkAndCalculateRoute(true)"
                   @select="selectAddressSuggestion"
@@ -1118,23 +1118,21 @@
         : null
       if (!first) {
         const parts = addressText.split(',').map(s => s.trim()).filter(Boolean)
+        const originalLength = parts.length
         while (parts.length > 0) {
           const q = parts.join(', ')
           const geoRes = await fetchGeocode(q, 5)
           if (searchToken !== addressSearchToken) return false
-          if (!geoRes.ok) {
-            if (geoRes.status === 429) {
-              routeError.value = 'Geocoding service busy — tính ship tạm thời bằng ước lượng.'
-              applyTextFallbackShipping(addressText, searchToken)
-              return true
+          
+          if (geoRes.ok && Array.isArray(geoRes.data) && geoRes.data.length > 0) {
+            first = chooseGeocodeCandidate(addressText, geoRes.data)
+          }
+          if (first) {
+            if (parts.length <= 1 && originalLength >= 3) {
+               first = null
             }
-            throw new Error(`Geocoding failed (HTTP ${geoRes.status})`)
+            break
           }
-          const geoData = geoRes.data
-          if (Array.isArray(geoData) && geoData.length > 0) {
-            first = chooseGeocodeCandidate(addressText, geoData)
-          }
-          if (first) break
           parts.shift()
         }
       }
@@ -1161,7 +1159,7 @@
 
       const km = Number(routeData.routes?.[0]?.distance || 0) / 1000
       const provinceText = String(
-        first.address?.state || first.address?.city || first.address?.province || '',
+        first.address?.state || first.address?.city || first.address?.province || first.display_name || addressText || ''
       )
       const isHaNoi = normalizeAddressText(provinceText).includes('ha noi')
 
