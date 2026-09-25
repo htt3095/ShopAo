@@ -849,7 +849,7 @@
 
   function stripAdministrativePrefix (value) {
     return normalizeAddressText(value)
-      .replace(/\b(phuong|p|xa|x|thi tran|tt|quan|q|huyen|h|thi xa|tx|thanh pho|tp|tinh)\b/g, ' ')
+      .replace(/^(phuong|p|xa|x|thi tran|tt|quan|q|huyen|h|thi xa|tx|thanh pho|tp|tinh)[\s.,-]+/g, '')
       .replace(/\s+/g, ' ')
       .trim()
   }
@@ -868,13 +868,16 @@
     for (const item of list) {
       const name = stripAdministrativePrefix(item?.name)
       if (!name) continue
+      const nameClean = name.replace(/\s+/g, '')
 
       let score = 0
       for (const target of candidates) {
         if (!target) continue
-        if (target === name) score = Math.max(score, 100)
-        else if (target.includes(name)) score = Math.max(score, 80)
-        else if (name.includes(target)) score = Math.max(score, 70)
+        const targetClean = target.replace(/\s+/g, '')
+
+        if (target === name || targetClean === nameClean) score = Math.max(score, 100)
+        else if (target.includes(name) || targetClean.includes(nameClean)) score = Math.max(score, 80)
+        else if (name.includes(target) || nameClean.includes(targetClean)) score = Math.max(score, 70)
         else {
           const targetTokens = target.split(' ').filter(Boolean)
           const nameTokens = new Set(name.split(' ').filter(Boolean))
