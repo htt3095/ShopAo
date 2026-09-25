@@ -1091,7 +1091,7 @@
 
     try {
       const pointMatchesAddress = preferredPoint
-        && preferredPoint.addressText === addressText
+        && (preferredPoint.addressText === addressText || addressText.startsWith(preferredPoint.addressText) || preferredPoint.addressText.startsWith(addressText))
       let first = pointMatchesAddress
         ? {
           lat: preferredPoint.latitude,
