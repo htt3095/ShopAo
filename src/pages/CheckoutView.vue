@@ -701,22 +701,31 @@
   async function fetchGeocode (q, limit = 1) {
     const cacheKey = `${q}|${limit}`
     if (geocodeCache.has(cacheKey)) return geocodeCache.get(cacheKey)
-    const now = Date.now()
-    const timeSinceLast = now - lastGeocodeTime
-    if (timeSinceLast < 1100) {
-      await new Promise(r => setTimeout(r, 1100 - timeSinceLast))
-    }
-    lastGeocodeTime = Date.now()
-    const targetUrl = `/nominatim/search?format=json&addressdetails=1&limit=${limit}&q=${encodeURIComponent(q + ', Việt Nam')}`
+    const targetUrl = `/photon/api/?q=${encodeURIComponent(q)}&limit=${limit}`
     try {
       let res = await fetch(targetUrl)
-      if (res.status === 429) {
-        await new Promise(resolve => setTimeout(resolve, 1200))
-        res = await fetch(targetUrl)
-      }
       if (!res.ok) return { ok: false, status: res.status }
-      const data = await res.json()
-      const result = { ok: true, data }
+      const rawData = await res.json()
+      
+      const mappedData = (rawData.features || []).map(f => {
+        const p = f.properties || {}
+        return {
+          lat: String(f.geometry.coordinates[1]),
+          lon: String(f.geometry.coordinates[0]),
+          display_name: [p.name, p.street, p.district, p.city, p.state, p.country].filter(Boolean).join(', '),
+          address: {
+            state: p.state || p.city,
+            city: p.city,
+            county: p.district || p.county,
+            district: p.district,
+            suburb: p.district || p.suburb,
+            ward: p.ward || p.suburb,
+            road: p.street || p.name,
+          }
+        }
+      })
+
+      const result = { ok: true, data: mappedData }
       geocodeCache.set(cacheKey, result)
       return result
     } catch {
