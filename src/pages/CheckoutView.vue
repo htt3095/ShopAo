@@ -1312,7 +1312,7 @@
 
     // Khi đã chọn combobox Tỉnh/Quận → ghép để geocoding chính xác hơn
     // Khi chưa chọn (saved address flow) → dùng streetAddress nguyên bản vì đã có đầy đủ
-    const fullAddr = (selectedProvince.value && selectedDistrict.value)
+    const fullAddr = (selectedAddressId.value === 'new' && selectedProvince.value && selectedDistrict.value)
       ? buildCurrentAddressString()
       : String(streetAddress.value || shippingForm.address).trim()
     const calculatedFromFreeform = await calculateRouteFromFreeformAddress(
