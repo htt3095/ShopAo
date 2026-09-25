@@ -1134,7 +1134,7 @@
         return true
       }
 
-      const routeUrl = `https://router.project-osrm.org/route/v1/driving/${SHOP_COORD[1]},${SHOP_COORD[0]};${userLon},${userLat}?overview=false`
+      const routeUrl = `https://routing.openstreetmap.de/routed-car/route/v1/driving/${SHOP_COORD[1]},${SHOP_COORD[0]};${userLon},${userLat}?overview=false`
       const routeRes = await fetch(routeUrl)
       const routeData = await routeRes.json()
       if (searchToken !== addressSearchToken) return false
