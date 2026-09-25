@@ -917,11 +917,17 @@
     const input = String(rawAddress || '').trim()
     if (!input || searchToken !== addressSearchToken) return
 
+    let geoResult = null
     if (provinces.value.length > 0) {
-      await autoFillAddressHierarchyFromText(input, searchToken)
+      geoResult = await autoFillAddressHierarchyFromText(input, searchToken)
     }
     if (searchToken !== addressSearchToken) return
-    await calculateRouteFromFreeformAddress(input, true, searchToken, selectedAddressPoint.value)
+
+    // Reuse coordinates from autoFill geocode to avoid a second Nominatim call (429 rate-limit)
+    const reusedPoint = (geoResult && geoResult.lat && geoResult.lon)
+      ? { latitude: Number(geoResult.lat), longitude: Number(geoResult.lon), address: geoResult.address || {}, addressText: input }
+      : selectedAddressPoint.value
+    await calculateRouteFromFreeformAddress(input, true, searchToken, reusedPoint)
   }
 
   async function autoFillAddressHierarchyFromText (rawAddress, selectionToken = null) {
@@ -956,7 +962,7 @@
         parts.shift()
       }
 
-      if (!first) return true
+      if (!first) return null
 
       // Extract from Nominatim ONLY for basic hints
       const addressMeta = first?.address || {}
@@ -1065,6 +1071,7 @@
       }
 
       fullAddressString.value = input
+      return first
     } catch (error) {
       console.error('Auto-fill error:', error)
     } finally {
@@ -1134,7 +1141,7 @@
         return true
       }
 
-      const routeUrl = `https://routing.openstreetmap.de/routed-car/route/v1/driving/${SHOP_COORD[1]},${SHOP_COORD[0]};${userLon},${userLat}?overview=false`
+      const routeUrl = `https://router.project-osrm.org/route/v1/driving/${SHOP_COORD[1]},${SHOP_COORD[0]};${userLon},${userLat}?overview=false`
       const routeRes = await fetch(routeUrl)
       const routeData = await routeRes.json()
       if (searchToken !== addressSearchToken) return false
@@ -1312,7 +1319,7 @@
 
     // Khi đã chọn combobox Tỉnh/Quận → ghép để geocoding chính xác hơn
     // Khi chưa chọn (saved address flow) → dùng streetAddress nguyên bản vì đã có đầy đủ
-    const fullAddr = (selectedAddressId.value === 'new' && selectedProvince.value && selectedDistrict.value)
+    const fullAddr = (selectedProvince.value && selectedDistrict.value)
       ? buildCurrentAddressString()
       : String(streetAddress.value || shippingForm.address).trim()
     const calculatedFromFreeform = await calculateRouteFromFreeformAddress(
