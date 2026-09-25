@@ -626,20 +626,60 @@
           selectedProvince.value = matchedProv
           await nextTick()
 
-          const districtOrCounty = sug.address.county || sug.address.district || sug.address.city_district || sug.address.town || sug.address.suburb
-          if (districtOrCounty && selectedProvince.value.districts) {
-            const matchedDist = findBestMatchByName(selectedProvince.value.districts, districtOrCounty)
-            if (matchedDist) {
-              selectedDistrict.value = matchedDist
-              await nextTick()
+          const addressTokens = [
+            sug.address.county,
+            sug.address.district,
+            sug.address.city_district,
+            sug.address.town,
+            sug.address.suburb,
+            sug.address.ward,
+            sug.address.village,
+            sug.address.hamlet,
+            sug.address.quarter,
+            sug.address.neighbourhood,
+            ...(sug.display_name || '').split(',').map(s=>s.trim())
+          ].filter(Boolean)
 
-              const wardOrVillage = sug.address.ward || sug.address.suburb || sug.address.village || sug.address.hamlet || sug.address.quarter || sug.address.neighbourhood
-              if (wardOrVillage && selectedDistrict.value.wards) {
-                const matchedWard = findBestMatchByName(selectedDistrict.value.wards, wardOrVillage)
-                if (matchedWard) {
-                  selectedWard.value = matchedWard
+          let foundDist = null
+          let foundWard = null
+
+          for (const token of addressTokens) {
+            const match = findBestMatchByName(selectedProvince.value.districts, token)
+            if (match) {
+              foundDist = match
+              break
+            }
+          }
+
+          if (!foundDist) {
+            for (const d of selectedProvince.value.districts || []) {
+              for (const token of addressTokens) {
+                const wMatch = findBestMatchByName(d.wards, token)
+                if (wMatch) {
+                  foundDist = d
+                  foundWard = wMatch
+                  break
                 }
               }
+              if (foundDist) break
+            }
+          }
+
+          if (foundDist) {
+            selectedDistrict.value = foundDist
+            await nextTick()
+            
+            if (!foundWard) {
+               for (const token of addressTokens) {
+                 const match = findBestMatchByName(foundDist.wards, token)
+                 if (match) {
+                   foundWard = match
+                   break
+                 }
+               }
+            }
+            if (foundWard) {
+              selectedWard.value = foundWard
             }
           }
         }
