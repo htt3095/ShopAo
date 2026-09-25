@@ -162,6 +162,30 @@
                 >
               </label>
 
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:col-span-2">
+                <label class="flex flex-col gap-2">
+                  <span class="text-xs font-semibold uppercase tracking-wide text-slate-500">Tỉnh/Thành phố</span>
+                  <select v-model="selectedProvince" @change="selectedDistrict = null; selectedWard = null; isRouteCalculated = false;" class="rounded-xl border bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:border-primary">
+                    <option :value="null">Chọn Tỉnh/Thành</option>
+                    <option v-for="p in provinces" :key="p.code" :value="p">{{ p.name }}</option>
+                  </select>
+                </label>
+                <label class="flex flex-col gap-2">
+                  <span class="text-xs font-semibold uppercase tracking-wide text-slate-500">Quận/Huyện</span>
+                  <select v-model="selectedDistrict" @change="selectedWard = null; isRouteCalculated = false;" class="rounded-xl border bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:border-primary" :disabled="!selectedProvince">
+                    <option :value="null">Chọn Quận/Huyện</option>
+                    <option v-for="d in selectedProvince?.districts || []" :key="d.code" :value="d">{{ d.name }}</option>
+                  </select>
+                </label>
+                <label class="flex flex-col gap-2">
+                  <span class="text-xs font-semibold uppercase tracking-wide text-slate-500">Phường/Xã</span>
+                  <select v-model="selectedWard" @change="isRouteCalculated = false;" class="rounded-xl border bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:border-primary" :disabled="!selectedDistrict">
+                    <option :value="null">Chọn Phường/Xã</option>
+                    <option v-for="w in selectedDistrict?.wards || []" :key="w.code" :value="w">{{ w.name }}</option>
+                  </select>
+                </label>
+              </div>
+
               <div class="relative flex flex-col gap-2 md:col-span-2">
                 <span class="text-xs font-semibold uppercase tracking-wide text-slate-500 ">Địa chỉ chi tiết</span>
                 <AddressAutocomplete
