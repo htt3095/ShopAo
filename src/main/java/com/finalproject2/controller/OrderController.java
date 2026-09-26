@@ -441,7 +441,7 @@ public class OrderController {
         order.setPaymentStatus("REFUNDED");
         order.setReturnReason(toReturnRecordJson(record));
 
-        if ("RETURN_REQUEST".equals(order.getStatus())) {
+        if ("RETURN_REQUEST".equals(order.getStatus()) || "RETURN_APPROVED".equals(order.getStatus())) {
             order.setStatus("RETURNING");
         }
         orderRepo.save(order);
@@ -756,7 +756,10 @@ public class OrderController {
     private ReturnRecord parseReturnRecord(String raw) {
         ReturnRecord record = new ReturnRecord();
         if (raw == null || raw.isBlank()) return record;
-        if (!raw.trim().startsWith("{")) return record;
+        if (!raw.trim().startsWith("{")) {
+            record.reason = raw;
+            return record;
+        }
         try {
             Map<String, Object> parsed = objectMapper.readValue(raw, Map.class);
             if (!"RETURN_RECORD".equals(parsed.get("__type"))) return record;
