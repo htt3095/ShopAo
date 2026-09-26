@@ -942,6 +942,7 @@
     if (!activeDetailOrder.value || isDetailLoading.value) {
       return false
     }
+    if (orderRejectReason.value) return false
     const category = getOrderStatusCategory(activeDetailOrder.value.status)
     return category === 'delivered' || category === 'completed'
   })
