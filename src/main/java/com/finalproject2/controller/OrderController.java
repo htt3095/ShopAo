@@ -263,6 +263,13 @@ public class OrderController {
         if (returnReason != null && !returnReason.isEmpty()) {
             order.setReturnReason(returnReason);
         }
+        String rejectReason = asString(req.get("rejectReason"));
+        if (rejectReason != null && !rejectReason.isBlank()) {
+            ReturnRecord record = parseReturnRecord(order.getReturnReason());
+            record.rejectReason = rejectReason;
+            record.processedAt = Instant.now().toString();
+            order.setReturnReason(toReturnRecordJson(record));
+        }
         String returnImages = asString(req.get("returnImages"));
         if (returnImages != null && !returnImages.isBlank()) {
             order.setReturnImages(returnImages);
@@ -433,6 +440,10 @@ public class OrderController {
 
         order.setPaymentStatus("REFUNDED");
         order.setReturnReason(toReturnRecordJson(record));
+
+        if ("RETURN_REQUEST".equals(order.getStatus())) {
+            order.setStatus("RETURNING");
+        }
         orderRepo.save(order);
 
         Map<String, Object> result = new HashMap<>();
@@ -750,6 +761,7 @@ public class OrderController {
             Map<String, Object> parsed = objectMapper.readValue(raw, Map.class);
             if (!"RETURN_RECORD".equals(parsed.get("__type"))) return record;
             record.reason = parsed.get("reason") == null ? null : String.valueOf(parsed.get("reason"));
+            record.rejectReason = parsed.get("rejectReason") == null ? null : String.valueOf(parsed.get("rejectReason"));
             record.restoreStock = Boolean.TRUE.equals(parsed.get("restoreStock"));
             record.fullReturn = Boolean.TRUE.equals(parsed.get("fullReturn"));
             record.processedAt = parsed.get("processedAt") == null ? null : String.valueOf(parsed.get("processedAt"));
@@ -783,6 +795,7 @@ public class OrderController {
         Map<String, Object> json = new HashMap<>();
         json.put("__type", "RETURN_RECORD");
         json.put("reason", record.reason);
+        json.put("rejectReason", record.rejectReason);
         json.put("restoreStock", record.restoreStock);
         json.put("fullReturn", record.fullReturn);
         json.put("processedAt", record.processedAt);
@@ -801,6 +814,7 @@ public class OrderController {
      */
     private static class ReturnRecord {
         private String reason = null;
+        private String rejectReason = null;
         private boolean restoreStock = false;
         private boolean fullReturn = false;
         private String processedAt = null;
