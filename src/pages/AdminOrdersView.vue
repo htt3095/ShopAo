@@ -1419,6 +1419,7 @@
     { value: 'SHIPPING', label: 'Đang giao' },
     { value: 'SUCCESS', label: 'Thành công' },
     { value: 'RETURN_REQUEST', label: 'Yêu cầu hoàn' },
+    { value: 'RETURN_APPROVED', label: 'Đã duyệt hoàn' },
     { value: 'RETURNING', label: 'Đang hoàn về' },
     { value: 'RETURNED', label: 'Đã hoàn trả' },
     { value: 'CANCELLED', label: 'Đã hủy' },
@@ -2006,7 +2007,7 @@
     if (['PROCESSING', 'SHIPPING'].includes(normalized)) {
       return 'bg-blue-100 text-blue-700  '
     }
-    if (['RETURN_REQUEST', 'RETURNING'].includes(normalized)) {
+    if (['RETURN_REQUEST', 'RETURN_APPROVED', 'RETURNING'].includes(normalized)) {
       return 'bg-orange-100 text-orange-700  '
     }
     if (['DAMAGED', 'LOST'].includes(normalized)) {
