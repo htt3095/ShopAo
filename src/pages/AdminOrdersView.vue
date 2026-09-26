@@ -866,9 +866,21 @@
               </label>
             </div>
 
+            <div v-if="returnForm.customerReason || (returnForm.customerImages && returnForm.customerImages.length > 0)" class="rounded-xl border border-slate-200 bg-slate-50 p-3">
+              <p class="mb-2 text-xs font-bold uppercase text-slate-500">Lý do khách hàng yêu cầu</p>
+              <div v-if="returnForm.customerReason" class="mb-2 text-sm text-slate-800 italic whitespace-pre-wrap">
+                "{{ returnForm.customerReason }}"
+              </div>
+              <div v-if="returnForm.customerImages && returnForm.customerImages.length > 0" class="flex flex-wrap gap-2">
+                <div v-for="(img, idx) in returnForm.customerImages" :key="idx" class="group relative size-16 cursor-pointer overflow-hidden rounded-lg border border-slate-200" @click="window.open(img, '_blank')">
+                  <img class="h-full w-full object-cover transition-transform group-hover:scale-110" :src="img">
+                </div>
+              </div>
+            </div>
+
             <div>
-              <label class="mb-1 block text-xs font-medium text-slate-500">Lý do trả hàng <span class="text-red-500">*</span></label>
-              <textarea v-model="returnForm.reason" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-primary" placeholder="Nhập lý do chi tiết..." rows="3" />
+              <label class="mb-1 block text-xs font-medium text-slate-500">Ghi chú trả hàng (Admin) <span class="text-red-500">*</span></label>
+              <textarea v-model="returnForm.reason" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-primary" placeholder="Nhập ghi chú hoặc tình trạng hàng hóa..." rows="3" />
             </div>
           </div>
 
