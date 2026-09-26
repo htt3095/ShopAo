@@ -1182,8 +1182,33 @@
     }
   }
 
-  function openReturnModal (order) {
-    const record = parseReturnRecord(order.returnReason)
+  async function openReturnModal (order) {
+    returning.value = true
+    let latestOrder = order
+    try {
+      const data = await apiCall(`/orders/${order.id}`)
+      if (data && data.id) {
+        latestOrder = data
+      }
+    } catch (e) {
+      console.warn('Could not fetch latest order details, using cached data')
+    }
+    returning.value = false
+
+    let images = []
+    if (latestOrder.returnImages) {
+      if (Array.isArray(latestOrder.returnImages)) {
+        images = latestOrder.returnImages
+      } else if (typeof latestOrder.returnImages === 'string') {
+        try {
+          images = JSON.parse(latestOrder.returnImages)
+        } catch {
+          images = latestOrder.returnImages.split(',').filter(Boolean)
+        }
+      }
+    }
+
+    const record = parseReturnRecord(latestOrder.returnReason)
     const alreadyReturned = {}
     if (record && Array.isArray(record.items)) {
       for (const item of record.items) {
@@ -1192,7 +1217,7 @@
       }
     }
 
-    const rawItems = extractOrderItems(order)
+    const rawItems = extractOrderItems(latestOrder)
     const items = rawItems.map(rawItem => {
       const price = Number(rawItem.price || rawItem.unitPrice || rawItem.variant?.price || 0)
       const quantity = Number(rawItem.quantity || rawItem.qty || 1)
@@ -1207,14 +1232,16 @@
       }
     }).filter(item => item.maxReturnable > 0)
 
-    const rawReason = order.returnReason || ''
+    const rawReason = latestOrder.returnReason || ''
     const reasonText = record
       ? (record.reason || '')
       : (rawReason.startsWith('{') ? '' : rawReason)
 
     returnForm.value = {
-      orderId: order.id,
-      reason: reasonText,
+      orderId: latestOrder.id,
+      customerReason: reasonText,
+      customerImages: images,
+      reason: '',
       restoreStock: true,
       items,
     }
@@ -1277,28 +1304,40 @@
     }
   }
 
-  function openReviewModal (order) {
+  async function openReviewModal (order) {
+    reviewing.value = true
+    let latestOrder = order
+    try {
+      const data = await apiCall(`/orders/${order.id}`)
+      if (data && data.id) {
+        latestOrder = data
+      }
+    } catch (e) {
+      console.warn('Could not fetch latest order details, using cached data')
+    }
+    reviewing.value = false
+
     let images = []
-    if (order.returnImages) {
-      if (Array.isArray(order.returnImages)) {
-        images = order.returnImages
-      } else if (typeof order.returnImages === 'string') {
+    if (latestOrder.returnImages) {
+      if (Array.isArray(latestOrder.returnImages)) {
+        images = latestOrder.returnImages
+      } else if (typeof latestOrder.returnImages === 'string') {
         try {
-          images = JSON.parse(order.returnImages)
+          images = JSON.parse(latestOrder.returnImages)
         } catch {
-          images = order.returnImages.split(',').filter(Boolean)
+          images = latestOrder.returnImages.split(',').filter(Boolean)
         }
       }
     }
 
-    const record = parseReturnRecord(order.returnReason)
-    const rawReason = order.returnReason || ''
+    const record = parseReturnRecord(latestOrder.returnReason)
+    const rawReason = latestOrder.returnReason || ''
     const reasonText = record
       ? (record.reason || '')
       : (rawReason.startsWith('{') ? '' : rawReason)
 
     reviewForm.value = {
-      orderId: order.id,
+      orderId: latestOrder.id,
       customerReason: reasonText,
       customerImages: images,
       rejectReason: ''
