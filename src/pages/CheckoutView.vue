@@ -742,6 +742,9 @@
   const isRouteCalculated = ref(false)
   const distanceKm = ref(0)
   const calculatedShippingFee = ref(0)
+  watch(calculatedShippingFee, (val) => {
+    console.log('FEE CHANGED TO:', val, new Error().stack)
+  })
   const estimatedDays = ref(0)
   const fullAddressString = ref('')
   const routeError = ref('')
@@ -783,7 +786,7 @@
   function applyTextFallbackShipping (addressText = '', searchToken = addressSearchToken) {
     if (searchToken !== null && searchToken !== addressSearchToken) return
     const normalized = normalizeAddressText(addressText)
-    const isHaNoi = normalized.includes('ha noi')
+    const isHaNoi = /ha\s*noi/.test(normalized)
 
     distanceKm.value = '0.0'
     estimatedDays.value = isHaNoi ? 1 : 3
@@ -1161,7 +1164,7 @@
       const provinceText = String(
         first.address?.state || first.address?.city || first.address?.province || first.display_name || addressText || '',
       )
-      const isHaNoi = normalizeAddressText(provinceText).includes('ha noi')
+      const isHaNoi = /ha\s*noi/.test(normalizeAddressText(provinceText))
 
       distanceKm.value = Number.isFinite(km) ? km.toFixed(1) : '0.0'
       if (isHaNoi) {
@@ -1343,8 +1346,8 @@
     const addressForFee = String(streetAddress.value || shippingForm.address || '').trim()
     const detectedProvince = selectedProvince.value?.name || ''
     const isHaNoi
-      = normalizeAddressText(addressForFee).includes('ha noi')
-        || normalizeAddressText(detectedProvince).includes('ha noi')
+      = /ha\s*noi/.test(normalizeAddressText(addressForFee))
+        || /ha\s*noi/.test(normalizeAddressText(detectedProvince))
     estimatedDays.value = isHaNoi ? 1 : 3
     calculatedShippingFee.value = isHaNoi ? 30_000 : 40_000
     fullAddressString.value = buildCurrentAddressString(addressForFee)
