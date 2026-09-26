@@ -502,6 +502,42 @@
         </aside>
       </div>
     </main>
+
+    <!-- Custom Confirm Modal -->
+    <div
+      v-if="showConfirmModal"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm transition-opacity"
+    >
+      <div class="relative w-[90%] max-w-sm rounded-2xl bg-white p-6 shadow-2xl overflow-hidden transform scale-100 transition-transform duration-200">
+        <!-- Decorative Header -->
+        <div class="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-primary to-blue-400" />
+        
+        <div class="flex items-center gap-4 mb-4">
+          <div class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-blue-50 text-primary">
+            <span class="material-symbols-outlined text-[28px]">shopping_cart_checkout</span>
+          </div>
+          <div>
+            <h3 class="text-lg font-bold text-slate-800">Xác nhận đặt hàng</h3>
+            <p class="text-sm text-slate-500 mt-1">Bạn đã kiểm tra kỹ thông tin đơn hàng chưa?</p>
+          </div>
+        </div>
+
+        <div class="mt-6 flex justify-end gap-3">
+          <button
+            class="rounded-xl px-5 py-2.5 text-sm font-semibold text-slate-600 transition-colors hover:bg-slate-100 active:bg-slate-200"
+            @click="handleConfirmModal(false)"
+          >
+            Hủy bỏ
+          </button>
+          <button
+            class="rounded-xl bg-primary px-6 py-2.5 text-sm font-bold text-white shadow-md shadow-primary/30 transition-all hover:bg-blue-600 hover:shadow-lg active:scale-95"
+            @click="handleConfirmModal(true)"
+          >
+            Đồng ý
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -518,6 +554,18 @@
   const cartStore = useCartStore()
   const route = useRoute()
   const router = useRouter()
+
+  // Modal logic
+  const showConfirmModal = ref(false)
+  let confirmResolver = null
+
+  function handleConfirmModal (isConfirmed) {
+    showConfirmModal.value = false
+    if (confirmResolver) {
+      confirmResolver(isConfirmed)
+      confirmResolver = null
+    }
+  }
 
   const currentUser = ref(null)
   const currentAccountId = ref(null)
@@ -1655,7 +1703,12 @@
     if (isProcessing.value) return
 
     // Bổ sung confirm theo yêu cầu "Thanh toán phải có confirm"
-    if (!window.confirm('Xác nhận đặt hàng?')) {
+    const userConfirmed = await new Promise(resolve => {
+      confirmResolver = resolve
+      showConfirmModal.value = true
+    })
+    
+    if (!userConfirmed) {
       return
     }
 
