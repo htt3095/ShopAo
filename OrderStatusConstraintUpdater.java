@@ -30,11 +30,11 @@ public class OrderStatusConstraintUpdater implements CommandLineRunner {
                 IF @sql <> '' EXEC sp_executesql @sql;
             """);
 
-            // 2. Tạo lại constraint MỚI (bao gồm DAMAGED, LOST)
+            // 2. Tạo lại constraint MỚI (bao gồm DAMAGED, LOST, RETURN_APPROVED)
             jdbc.execute("""
                 ALTER TABLE Orders ADD CONSTRAINT CK_Orders_Status
                 CHECK (status IN ('NEW','CONFIRMED','SHIPPING','SUCCESS','CANCELLED',
-                                  'RETURN_REQUEST','RETURNING','RETURNED',
+                                  'RETURN_REQUEST','RETURN_APPROVED','RETURNING','RETURNED',
                                   'DAMAGED','LOST','PENDING','PROCESSING',
                                   'DELIVERING','DELIVERED'))
             """);
