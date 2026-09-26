@@ -855,6 +855,9 @@
               </p>
               <p class="mt-1 text-sm font-bold text-blue-800">
                 Tổng tiền hoàn dự kiến: {{ formatCurrency(returnPreview.totalRefund) }}
+                <span v-if="returnPreview.maxRefund > 0 && returnPreview.rawTotalRefund > returnPreview.maxRefund" class="block text-xs font-normal text-blue-600 mt-1">
+                  (Đã giới hạn theo số tiền thực trả do có mã giảm giá)
+                </span>
               </p>
             </div>
 
@@ -945,6 +948,9 @@
               <div class="mt-2 rounded-xl bg-red-50 p-3">
                 <p class="text-sm font-bold text-red-800">
                   Tổng tiền hoàn: {{ formatCurrency(refundPreview.totalRefund) }}
+                  <span v-if="refundPreview.maxRefund > 0 && refundPreview.rawTotalRefund > refundPreview.maxRefund" class="block text-xs font-normal text-red-600 mt-1">
+                    (Đã giới hạn theo số tiền thực trả do có mã giảm giá)
+                  </span>
                 </p>
               </div>
             </div>
@@ -1103,7 +1109,14 @@
       byId[String(item.orderItemId)] = row
       return row
     })
-    return { totalRefund: Math.round(totalRefund), lines, byId }
+    
+    const maxRefund = Number(refundForm.value.finalAmount || 0)
+    let cappedTotal = Math.round(totalRefund)
+    if (maxRefund > 0 && cappedTotal > maxRefund) {
+      cappedTotal = maxRefund
+    }
+    
+    return { totalRefund: cappedTotal, rawTotalRefund: Math.round(totalRefund), maxRefund, lines, byId }
   })
 
   function openRefundModal (order) {
@@ -1144,6 +1157,7 @@
     refundForm.value = {
       orderId: order.id,
       amount: 0,
+      finalAmount: order.finalAmount || 0,
       method: defaultMethod,
       note: reasonText,
       items,
@@ -1239,6 +1253,7 @@
 
     returnForm.value = {
       orderId: latestOrder.id,
+      finalAmount: latestOrder.finalAmount || 0,
       customerReason: reasonText,
       customerImages: images,
       reason: '',
@@ -1263,7 +1278,14 @@
       byId[String(item.orderItemId)] = row
       return row
     })
-    return { totalRefund: Math.round(totalRefund), lines, byId }
+    
+    const maxRefund = Number(returnForm.value.finalAmount || 0)
+    let cappedTotal = Math.round(totalRefund)
+    if (maxRefund > 0 && cappedTotal > maxRefund) {
+      cappedTotal = maxRefund
+    }
+    
+    return { totalRefund: cappedTotal, rawTotalRefund: Math.round(totalRefund), maxRefund, lines, byId }
   })
 
   const returnOrder = computed(() =>
