@@ -890,7 +890,7 @@
         class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
         @click.self="closeRefundModal"
       >
-        <div class="w-full max-w-md rounded-2xl bg-white p-5 shadow-2xl">
+        <div class="w-full max-w-xl max-h-[90vh] overflow-y-auto rounded-2xl bg-white p-5 shadow-2xl">
           <div class="mb-4 flex items-center gap-2">
             <div class="flex h-10 w-10 items-center justify-center rounded-full bg-red-100 text-red-500">
               <span class="material-symbols-outlined">payments</span>
@@ -903,8 +903,38 @@
 
           <div class="space-y-4">
             <div>
-              <label class="mb-1 block text-xs font-medium text-slate-500">Số tiền hoàn (VND)</label>
-              <input v-model.number="refundForm.amount" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm font-bold text-red-500 outline-none" min="0" type="number">
+              <label class="mb-1 block text-xs font-medium text-slate-500">Chọn sản phẩm & số lượng hoàn</label>
+              <div class="overflow-hidden rounded-xl border border-slate-200">
+                <div v-for="row in refundForm.items" :key="row.orderItemId" class="flex items-center gap-3 border-b border-slate-100 px-3 py-2 last:border-b-0">
+                  <div class="min-w-0 flex-1">
+                    <p class="truncate text-sm font-medium text-slate-800">{{ row.label }}</p>
+                    <p class="text-xs text-slate-500">{{ formatCurrency(row.price) }}/sp · tối đa: {{ row.maxReturnable }}</p>
+                  </div>
+                  <div class="flex w-28 items-center gap-1">
+                    <button class="rounded-lg border border-slate-200 px-2 py-1 text-slate-600 hover:bg-slate-100 transition" :disabled="row.qty <= 0" type="button" @click="row.qty = Math.max(0, row.qty - 1)">−</button>
+                    <input
+                      v-model.number="row.qty"
+                      class="w-12 rounded-lg border border-slate-200 px-1 py-1 text-center text-sm font-bold outline-none"
+                      :max="row.maxReturnable"
+                      min="0"
+                      type="number"
+                    >
+                    <button class="rounded-lg border border-slate-200 px-2 py-1 text-slate-600 hover:bg-slate-100 transition" :disabled="row.qty >= row.maxReturnable" type="button" @click="row.qty = Math.min(row.maxReturnable, row.qty + 1)">+</button>
+                  </div>
+                  <div class="w-24 text-right">
+                    <p class="text-sm font-bold text-red-500">{{ formatCurrency(refundPreview.byId[row.orderItemId]?.refund ?? 0) }}</p>
+                    <button class="text-[11px] font-semibold text-red-500 hover:underline" type="button" @click="row.qty = row.maxReturnable">Tất cả</button>
+                  </div>
+                </div>
+                <div v-if="refundForm.items?.length === 0" class="px-3 py-4 text-center text-sm text-slate-500">
+                  Không còn sản phẩm nào để hoàn tiền
+                </div>
+              </div>
+              <div class="mt-2 rounded-xl bg-red-50 p-3">
+                <p class="text-sm font-bold text-red-800">
+                  Tổng tiền hoàn: {{ formatCurrency(refundPreview.totalRefund) }}
+                </p>
+              </div>
             </div>
 
             <div>
@@ -920,24 +950,11 @@
               <label class="mb-1 block text-xs font-medium text-slate-500">Ghi chú hoàn tiền</label>
               <textarea v-model="refundForm.note" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-primary" placeholder="Nhập ghi chú..." rows="3" />
             </div>
-
-            <div v-if="refundForm.customerReason || (refundForm.customerImages && refundForm.customerImages.length > 0)" class="rounded-xl border border-slate-200 bg-slate-50 p-3">
-              <p class="mb-2 text-xs font-bold uppercase text-slate-500">Phản hồi khách hàng</p>
-              <div v-if="refundForm.customerReason" class="mb-2 text-sm text-slate-800 italic">
-                "{{ refundForm.customerReason }}"
-              </div>
-              <div v-if="refundForm.customerImages && refundForm.customerImages.length > 0" class="flex flex-wrap gap-2">
-                <div v-for="(img, idx) in refundForm.customerImages" :key="idx" class="group relative size-16 cursor-pointer overflow-hidden rounded-lg border border-slate-200" @click="window.open(img, '_blank')">
-                  <img class="h-full w-full object-cover transition-transform group-hover:scale-110" :src="img">
-                </div>
-              </div>
-            </div>
-
           </div>
 
           <div class="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
             <button class="rounded-xl px-4 py-2 text-sm font-bold text-slate-500 hover:bg-slate-100 transition" @click="closeRefundModal">Đóng</button>
-            <button class="flex items-center justify-center gap-2 rounded-xl bg-red-500 px-6 py-2 text-sm font-bold text-white shadow-lg hover:bg-red-600 transition disabled:opacity-50" :disabled="refunding || !refundForm.amount || refundForm.amount <= 0" @click="submitRefund">
+            <button class="flex items-center justify-center gap-2 rounded-xl bg-red-500 px-6 py-2 text-sm font-bold text-white shadow-lg hover:bg-red-600 transition disabled:opacity-50" :disabled="refunding || refundPreview.totalRefund <= 0" @click="submitRefund">
               <span v-if="refunding" class="material-symbols-outlined animate-spin text-[18px]">progress_activity</span>
               Xác nhận Hoàn Tiền
             </button>
@@ -1048,37 +1065,61 @@
     return status === 'RETURN_APPROVED' || status === 'RETURNING'
   }
 
-  function openRefundModal (order) {
-    let images = []
-    if (order.returnImages) {
-      if (Array.isArray(order.returnImages)) {
-        images = order.returnImages
-      } else if (typeof order.returnImages === 'string') {
-        try {
-          images = JSON.parse(order.returnImages)
-        } catch {
-          images = order.returnImages.split(',').filter(Boolean)
-        }
-      }
-    }
+  const refundPreview = computed(() => {
+    let totalRefund = 0
+    const byId = {}
+    const lines = (refundForm.value.items || []).map(item => {
+      const qty = Math.min(asNumber(item.qty), item.maxReturnable)
+      const refund = Math.round(item.price * qty)
+      totalRefund += refund
+      const row = { ...item, qty: Math.max(0, qty), refund }
+      byId[String(item.orderItemId)] = row
+      return row
+    })
+    return { totalRefund: Math.round(totalRefund), lines, byId }
+  })
 
+  function openRefundModal (order) {
     const record = parseReturnRecord(order.returnReason)
     const rawReason = order.returnReason || ''
     const reasonText = record
       ? (record.reason || '')
       : (rawReason.startsWith('{') ? '' : rawReason)
-    const defaultAmount = 0
-    const defaultMethod = (order.paymentMethodName || '').toLowerCase().includes('vnpay')
-      ? 'VNPay'
-      : 'COD'
+      
+    const rawMethod = order.paymentMethod?.name || order.paymentMethod || ''
+    const methodStr = String(rawMethod).toUpperCase()
+    const isVnpay = methodStr.includes('VNPAY') || methodStr.includes('VN PAY')
+    const defaultMethod = isVnpay ? 'VNPay' : 'Tiền mặt / Chuyển khoản'
+
+    const alreadyReturned = {}
+    if (record && Array.isArray(record.items)) {
+      for (const item of record.items) {
+        const key = String(item.orderItemId ?? '')
+        alreadyReturned[key] = (alreadyReturned[key] || 0) + asNumber(item.quantity)
+      }
+    }
+
+    const rawItems = extractOrderItems(order)
+    const items = rawItems.map(rawItem => {
+      const price = Number(rawItem.price || rawItem.unitPrice || rawItem.variant?.price || 0)
+      const quantity = Number(rawItem.quantity || rawItem.qty || 1)
+      const already = asNumber(alreadyReturned[String(rawItem.id)])
+      return {
+        orderItemId: Number(rawItem.id),
+        label: formatOrderItemText(rawItem),
+        price: Number.isFinite(price) ? price : 0,
+        quantity,
+        maxReturnable: Math.max(0, quantity - already),
+        qty: 0,
+      }
+    }).filter(item => item.maxReturnable > 0)
 
     refundForm.value = {
       orderId: order.id,
-      amount: defaultAmount,
+      amount: 0,
       method: defaultMethod,
       note: reasonText,
-      customerReason: reasonText,
-      customerImages: images,
+      items,
     }
     showRefundModal.value = true
   }
@@ -1089,9 +1130,9 @@
 
   async function submitRefund () {
     if (refunding.value) return
-    const amount = asNumber(refundForm.value.amount)
+    const amount = refundPreview.value.totalRefund
     if (amount <= 0) {
-      alert('Vui lòng nhập số tiền hoàn hợp lệ')
+      alert('Vui lòng chọn ít nhất 1 sản phẩm để hoàn tiền')
       return
     }
     refunding.value = true
@@ -1139,9 +1180,14 @@
       }
     }).filter(item => item.maxReturnable > 0)
 
+    const rawReason = order.returnReason || ''
+    const reasonText = record
+      ? (record.reason || '')
+      : (rawReason.startsWith('{') ? '' : rawReason)
+
     returnForm.value = {
       orderId: order.id,
-      reason: (record && record.reason) || order.returnReason || '',
+      reason: reasonText,
       restoreStock: true,
       items,
     }
