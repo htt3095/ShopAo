@@ -1063,18 +1063,33 @@
 
   function canRefund (order) {
     if (!order) return false
+    
     const paymentStatus = normalizePaymentStatusValue(order.paymentStatus)
     if (paymentStatus === 'REFUNDED' || paymentStatus === 'HOAN_TIEN') return false
+    
+    const rawMethod = String(order.paymentMethod?.name || order.paymentMethodName || order.paymentMethod || '').toUpperCase()
+    const isVnpay = rawMethod.includes('VNPAY') || rawMethod.includes('VN PAY')
+    if (!isVnpay) return false // No refund button for COD
+
     const status = normalizeOrderStatusValue(order.status)
-    if (['NEW', 'PENDING', 'PROCESSING', 'SHIPPING', 'SUCCESS', 'RETURN_REQUEST'].includes(status)) return false
-    return true
+    return status === 'RETURN_APPROVED' || status === 'RETURNING'
   }
 
   function canProcessReturn (order) {
     if (!order) return false
     const status = normalizeOrderStatusValue(order.status)
     if (status === 'RETURNED' || status === 'DAMAGED' || status === 'LOST') return false
-    return status === 'RETURN_APPROVED' || status === 'RETURNING'
+    
+    const rawMethod = String(order.paymentMethod?.name || order.paymentMethodName || order.paymentMethod || '').toUpperCase()
+    const isVnpay = rawMethod.includes('VNPAY') || rawMethod.includes('VN PAY')
+    
+    if (isVnpay) {
+      // For VNPay, they MUST refund first. Refund changes status to RETURNING.
+      return status === 'RETURNING'
+    } else {
+      // For COD, they can return directly.
+      return status === 'RETURN_APPROVED' || status === 'RETURNING'
+    }
   }
 
   const refundPreview = computed(() => {
