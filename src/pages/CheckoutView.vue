@@ -165,21 +165,21 @@
               <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:col-span-2">
                 <label class="flex flex-col gap-2">
                   <span class="text-xs font-semibold uppercase tracking-wide text-slate-500">Tỉnh/Thành phố</span>
-                  <select v-model="selectedProvince" @change="selectedDistrict = null; selectedWard = null; isRouteCalculated = false;" class="rounded-xl border bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:border-primary">
+                  <select v-model="selectedProvince" class="rounded-xl border bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:border-primary" @change="selectedDistrict = null; selectedWard = null; isRouteCalculated = false;">
                     <option :value="null">Chọn Tỉnh/Thành</option>
                     <option v-for="p in provinces" :key="p.code" :value="p">{{ p.name }}</option>
                   </select>
                 </label>
                 <label class="flex flex-col gap-2">
                   <span class="text-xs font-semibold uppercase tracking-wide text-slate-500">Quận/Huyện</span>
-                  <select v-model="selectedDistrict" @change="selectedWard = null; isRouteCalculated = false;" class="rounded-xl border bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:border-primary" :disabled="!selectedProvince">
+                  <select v-model="selectedDistrict" class="rounded-xl border bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:border-primary" :disabled="!selectedProvince" @change="selectedWard = null; isRouteCalculated = false;">
                     <option :value="null">Chọn Quận/Huyện</option>
                     <option v-for="d in selectedProvince?.districts || []" :key="d.code" :value="d">{{ d.name }}</option>
                   </select>
                 </label>
                 <label class="flex flex-col gap-2">
                   <span class="text-xs font-semibold uppercase tracking-wide text-slate-500">Phường/Xã</span>
-                  <select v-model="selectedWard" @change="isRouteCalculated = false;" class="rounded-xl border bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:border-primary" :disabled="!selectedDistrict">
+                  <select v-model="selectedWard" class="rounded-xl border bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:border-primary" :disabled="!selectedDistrict" @change="isRouteCalculated = false;">
                     <option :value="null">Chọn Phường/Xã</option>
                     <option v-for="w in selectedDistrict?.wards || []" :key="w.code" :value="w">{{ w.name }}</option>
                   </select>
@@ -637,7 +637,7 @@
             sug.address.hamlet,
             sug.address.quarter,
             sug.address.neighbourhood,
-            ...(sug.display_name || '').split(',').map(s=>s.trim())
+            ...(sug.display_name || '').split(',').map(s => s.trim()),
           ].filter(Boolean)
 
           let foundDist = null
@@ -668,15 +668,15 @@
           if (foundDist) {
             selectedDistrict.value = foundDist
             await nextTick()
-            
+
             if (!foundWard) {
-               for (const token of addressTokens) {
-                 const match = findBestMatchByName(foundDist.wards, token)
-                 if (match) {
-                   foundWard = match
-                   break
-                 }
-               }
+              for (const token of addressTokens) {
+                const match = findBestMatchByName(foundDist.wards, token)
+                if (match) {
+                  foundWard = match
+                  break
+                }
+              }
             }
             if (foundWard) {
               selectedWard.value = foundWard
@@ -697,16 +697,16 @@
   const wards = ref([])
 
   const geocodeCache = new Map()
-  let lastGeocodeTime = 0
+  const lastGeocodeTime = 0
   async function fetchGeocode (q, limit = 1) {
     const cacheKey = `${q}|${limit}`
     if (geocodeCache.has(cacheKey)) return geocodeCache.get(cacheKey)
     const targetUrl = `/photon/api/?q=${encodeURIComponent(q)}&limit=${limit}`
     try {
-      let res = await fetch(targetUrl)
+      const res = await fetch(targetUrl)
       if (!res.ok) return { ok: false, status: res.status }
       const rawData = await res.json()
-      
+
       const mappedData = (rawData.features || []).map(f => {
         const p = f.properties || {}
         return {
@@ -721,7 +721,7 @@
             suburb: p.district || p.suburb,
             ward: p.ward || p.suburb,
             road: p.street || p.name,
-          }
+          },
         }
       })
 
@@ -1123,13 +1123,13 @@
           const q = parts.join(', ')
           const geoRes = await fetchGeocode(q, 5)
           if (searchToken !== addressSearchToken) return false
-          
+
           if (geoRes.ok && Array.isArray(geoRes.data) && geoRes.data.length > 0) {
             first = chooseGeocodeCandidate(addressText, geoRes.data)
           }
           if (first) {
             if (parts.length <= 1 && originalLength >= 3) {
-               first = null
+              first = null
             }
             break
           }
@@ -1159,7 +1159,7 @@
 
       const km = Number(routeData.routes?.[0]?.distance || 0) / 1000
       const provinceText = String(
-        first.address?.state || first.address?.city || first.address?.province || first.display_name || addressText || ''
+        first.address?.state || first.address?.city || first.address?.province || first.display_name || addressText || '',
       )
       const isHaNoi = normalizeAddressText(provinceText).includes('ha noi')
 

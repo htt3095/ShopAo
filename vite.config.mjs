@@ -14,86 +14,86 @@ import Vuetify, { transformAssetUrls } from 'vite-plugin-vuetify'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-    esbuild: {
-        target: 'es2019',
-    },
-    build: {
-        target: 'es2019',
-    },
-    plugins: [
-        VueRouter(),
-        Layouts(),
-        Vue({
-            template: { transformAssetUrls },
-        }),
-        // https://github.com/vuetifyjs/vuetify-loader/tree/master/packages/vite-plugin#readme
-        Vuetify({
-            autoImport: true,
-            styles: {
-                configFile: 'src/styles/settings.scss',
-            },
-        }),
-        Components(),
-        Fonts({
-            google: {
-                families: [{
-                    name: 'Roboto',
-                    styles: 'wght@100;300;400;500;700;900',
-                }],
-            },
-        }),
-        AutoImport({
-            imports: [
-                'vue',
-                VueRouterAutoImports,
-                {
-                    pinia: ['defineStore', 'storeToRefs'],
-                },
-            ],
-            eslintrc: {
-                enabled: true,
-            },
-            vueTemplate: true,
-        }),
-    ],
-    server: {
-        port: 3002,
-        strictPort: true,
-        proxy: {
-            '/api': {
-                target: 'http://localhost:8080',
-                changeOrigin: true,
-                secure: false,
-            },
-            // Proxy Nominatim requests to avoid CORS errors in development
-            '/nominatim': {
-                target: 'https://nominatim.openstreetmap.org',
-                changeOrigin: true,
-                secure: true,
-                headers: {
-                    // Nominatim requires a valid User-Agent and optionally a contact email
-                    'User-Agent': 'DATN-PeakSeven-ShopGiay-Dev/1.0 (contact@peakseven.com)',
-                    'From': 'contact@peakseven.com',
-                },
-                rewrite: path => path.replace(/^\/nominatim/, ''),
-            },
-            '/photon': {
-                target: 'https://photon.komoot.io',
-                changeOrigin: true,
-                secure: true,
-                rewrite: path => path.replace(/^\/photon/, ''),
-            },
-            '/images': {
-                target: 'http://localhost:8080',
-                changeOrigin: true,
-                secure: false,
-            },
+  esbuild: {
+    target: 'es2019',
+  },
+  build: {
+    target: 'es2019',
+  },
+  plugins: [
+    VueRouter(),
+    Layouts(),
+    Vue({
+      template: { transformAssetUrls },
+    }),
+    // https://github.com/vuetifyjs/vuetify-loader/tree/master/packages/vite-plugin#readme
+    Vuetify({
+      autoImport: true,
+      styles: {
+        configFile: 'src/styles/settings.scss',
+      },
+    }),
+    Components(),
+    Fonts({
+      google: {
+        families: [{
+          name: 'Roboto',
+          styles: 'wght@100;300;400;500;700;900',
+        }],
+      },
+    }),
+    AutoImport({
+      imports: [
+        'vue',
+        VueRouterAutoImports,
+        {
+          pinia: ['defineStore', 'storeToRefs'],
         },
-    },
-    resolve: {
-        alias: {
-            '@': fileURLToPath(new URL('src',
-                import.meta.url)),
+      ],
+      eslintrc: {
+        enabled: true,
+      },
+      vueTemplate: true,
+    }),
+  ],
+  server: {
+    port: 3002,
+    strictPort: true,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+        secure: false,
+      },
+      // Proxy Nominatim requests to avoid CORS errors in development
+      '/nominatim': {
+        target: 'https://nominatim.openstreetmap.org',
+        changeOrigin: true,
+        secure: true,
+        headers: {
+          // Nominatim requires a valid User-Agent and optionally a contact email
+          'User-Agent': 'DATN-PeakSeven-ShopGiay-Dev/1.0 (contact@peakseven.com)',
+          'From': 'contact@peakseven.com',
         },
+        rewrite: path => path.replace(/^\/nominatim/, ''),
+      },
+      '/photon': {
+        target: 'https://photon.komoot.io',
+        changeOrigin: true,
+        secure: true,
+        rewrite: path => path.replace(/^\/photon/, ''),
+      },
+      '/images': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+        secure: false,
+      },
     },
+  },
+  resolve: {
+    alias: {
+      '@': fileURLToPath(new URL('src',
+        import.meta.url)),
+    },
+  },
 })

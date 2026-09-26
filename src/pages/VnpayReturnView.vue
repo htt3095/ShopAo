@@ -200,8 +200,8 @@
       if (orderId.value) {
         try {
           await orderAPI.cancelOrder(orderId.value)
-        } catch (cancelErr) {
-          console.error('Không thể hủy đơn hàng sau khi VNPay thất bại:', cancelErr)
+        } catch (error) {
+          console.error('Không thể hủy đơn hàng sau khi VNPay thất bại:', error)
         }
       }
     }

@@ -167,13 +167,13 @@
                 <div class="relative">
                   <input
                     v-model.trim="streetAddress"
+                    autocomplete="street-address"
                     class="w-full rounded-xl border bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:border-primary"
                     placeholder="Ví dụ: 42 Kim Giang"
                     type="text"
-                    autocomplete="street-address"
-                    @input="handleAddressInput"
-                    @focus="handleAddressFocus"
                     @blur="handleAddressBlur"
+                    @focus="handleAddressFocus"
+                    @input="handleAddressInput"
                     @keyup.enter="handleAddressEnter"
                   >
                   <div

@@ -4,9 +4,9 @@
       <div class="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p class="text-xs uppercase tracking-[0.18em] text-primary">Phân tích quản trị</p>
-          <h2 class="mt-1 text-2xl font-bold">Báo cáo doanh thu kế toán</h2>
+          <h2 class="mt-1 text-2xl font-bold">Báo cáo bán hàng</h2>
           <p class="mt-1 text-sm text-slate-500 ">
-            Tổng quan đơn giản, rõ số liệu và in theo đúng bộ lọc hiện tại.
+            Chỉ những con số cần biết trong khoảng thời gian đã chọn.
           </p>
         </div>
 
@@ -60,17 +60,7 @@
       </div>
 
       <section class="retail-card p-4">
-        <div class="grid gap-3 xl:grid-cols-5">
-          <label class="flex min-w-0 flex-col gap-1 text-xs font-medium uppercase tracking-wide text-slate-500 ">
-            Xem theo
-            <select v-model="reportMode" class=" shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm font-medium text-slate-900 ">
-              <option value="day">Theo ngày</option>
-              <option value="week">Theo tuần</option>
-              <option value="month">Theo tháng</option>
-              <option value="year">Theo năm</option>
-            </select>
-          </label>
-
+        <div class="grid gap-3 md:grid-cols-3">
           <label class="flex min-w-0 flex-col gap-1 text-xs font-medium uppercase tracking-wide text-slate-500 ">
             Từ ngày
             <input v-model="startDateInput" class=" shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm font-medium text-slate-900 " type="date">
@@ -82,36 +72,13 @@
           </label>
 
           <label class="flex min-w-0 flex-col gap-1 text-xs font-medium uppercase tracking-wide text-slate-500 ">
-            Thanh toán
-            <select v-model="paymentFilter" class=" shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm font-medium text-slate-900 ">
+            Kênh mua hàng
+            <select v-model="channelFilter" aria-label="Lọc kênh mua hàng" class="shadow-sm px-3 py-2 text-sm font-medium text-slate-900">
               <option value="ALL">Tất cả</option>
-              <option value="DA_THANH_TOAN">Đã thanh toán</option>
-              <option value="HOAN_TIEN">Hoàn tiền</option>
-              <option value="CHUA_THANH_TOAN">Chưa thanh toán</option>
+              <option value="POS">POS tại cửa hàng</option>
+              <option value="ONLINE">Mua online</option>
             </select>
           </label>
-
-          <label class="flex min-w-0 flex-col gap-1 text-xs font-medium uppercase tracking-wide text-slate-500 ">
-            Thứ tự hiển thị
-            <select v-model="bucketSort" class=" shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-2 text-sm font-medium text-slate-900 ">
-              <option value="newest">Mới nhất ở trên</option>
-              <option value="oldest">Cũ nhất ở trên</option>
-            </select>
-          </label>
-        </div>
-
-        <div class="mt-3 flex flex-wrap items-center gap-2">
-          <span class="text-xs font-semibold uppercase tracking-wide text-slate-500 ">Khoảng nhanh</span>
-          <button
-            v-for="preset in reportPresets"
-            :key="preset.value"
-            class="rounded-lg border px-2.5 py-1 text-xs font-semibold transition"
-            :class="reportPreset === preset.value ? 'border-primary bg-primary text-white' : 'border-slate-200 bg-white text-slate-600 hover:border-primary hover:text-primary '"
-            type="button"
-            @click="applyReportPreset(preset.value)"
-          >
-            {{ preset.label }}
-          </button>
         </div>
       </section>
 
@@ -121,7 +88,23 @@
           <span class="text-xs uppercase tracking-wide text-slate-500 ">{{ selectedRangeText }}</span>
         </div>
 
-        <div class="overflow-hidden rounded-2xl border border-slate-200 ">
+        <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <div class="rounded-2xl border border-blue-100 bg-blue-50 p-4">
+            <p class="text-sm text-slate-500">Tổng số đơn</p>
+            <p class="mt-2 text-3xl font-black text-slate-900">{{ filteredOrders.length }}</p>
+          </div>
+          <div class="rounded-2xl border border-emerald-100 bg-emerald-50 p-4">
+            <p class="text-sm text-slate-500">Tổng doanh thu</p>
+            <p class="mt-2 text-xl font-black text-emerald-700">{{ formatCurrency(filteredNetRevenue) }}</p>
+          </div>
+          <div v-for="item in channelBreakdown" :key="item.channel" class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+            <p class="text-sm text-slate-500">{{ item.label }}</p>
+            <p class="mt-2 text-2xl font-black text-slate-900">{{ item.count }} đơn</p>
+            <p class="mt-1 text-sm font-semibold text-slate-600">{{ formatCurrency(item.revenue) }}</p>
+          </div>
+        </div>
+
+        <div v-if="false" class="overflow-hidden rounded-2xl border border-slate-200 ">
           <table class="w-full text-sm">
             <tbody>
               <tr class="border-b border-slate-200 dark:border-[#3c342e]"><td class="px-4 py-3 text-slate-500 dark:text-[#b9aa9a]">Tổng đơn</td><td class="px-4 py-3 text-right font-semibold">{{ filteredOrders.length }}</td></tr>
@@ -138,7 +121,7 @@
         </div>
       </section>
 
-      <section class="retail-card p-5">
+      <section v-if="false" class="retail-card p-5">
         <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
           <div>
             <h3 class="text-lg font-semibold">Phân tích trực quan</h3>
@@ -282,7 +265,7 @@
         </div>
       </section>
 
-      <div class="grid grid-cols-1 gap-6 xl:grid-cols-2">
+      <div v-if="false" class="grid grid-cols-1 gap-6 xl:grid-cols-2">
         <section class="retail-card min-w-0 p-5">
           <div class="mb-4 flex items-center justify-between">
             <h3 class="text-lg font-semibold">Bảng doanh thu {{ reportModeText }}</h3>
@@ -386,7 +369,7 @@
         </section>
       </div>
 
-      <section class="retail-card p-5">
+      <section v-if="false" class="retail-card p-5">
         <div class="mb-4 flex items-center justify-between">
           <h3 class="text-lg font-semibold">Top 5 Sản phẩm bán chạy</h3>
           <span class="text-xs uppercase tracking-wide text-slate-500 ">{{ selectedRangeText }}</span>
@@ -401,7 +384,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-if="top5Products.length === 0" class="border-b border-slate-200"><td colspan="3" class="px-4 py-3 text-center text-slate-500">Chưa có dữ liệu</td></tr>
+              <tr v-if="top5Products.length === 0" class="border-b border-slate-200"><td class="px-4 py-3 text-center text-slate-500" colspan="3">Chưa có dữ liệu</td></tr>
               <tr v-for="prod in top5Products" :key="prod.name" class="border-b border-slate-200 hover:bg-slate-50">
                 <td class="px-4 py-3 font-medium">{{ prod.name }}</td>
                 <td class="px-4 py-3 text-right font-semibold">{{ prod.qty }}</td>
@@ -411,7 +394,37 @@
           </table>
         </div>
       </section>
-      
+
+      <section class="grid gap-6 xl:grid-cols-2">
+        <div class="retail-card p-5">
+          <div class="mb-4 flex items-center justify-between">
+            <h3 class="text-lg font-semibold">Sản phẩm bán chạy nhất</h3>
+            <span class="text-xs text-slate-500">Top 5</span>
+          </div>
+          <div class="space-y-2">
+            <div v-for="(prod, index) in top5Products" :key="prod.name" class="flex items-center justify-between gap-3 rounded-xl bg-slate-50 px-3 py-2">
+              <span class="min-w-0 truncate"><b class="mr-2 text-primary">{{ index + 1 }}</b>{{ prod.name }}</span>
+              <span class="shrink-0 text-right text-sm font-bold">{{ prod.orders }} đơn<br><span class="font-normal text-slate-500">{{ prod.qty }} cái</span></span>
+            </div>
+            <p v-if="top5Products.length === 0" class="text-sm text-slate-500">Chưa có dữ liệu.</p>
+          </div>
+        </div>
+
+        <div class="retail-card p-5">
+          <div class="mb-4 flex items-center justify-between">
+            <h3 class="text-lg font-semibold">Sắp hết hàng</h3>
+            <span class="text-xs text-slate-500">Còn tối đa 20 cái</span>
+          </div>
+          <div class="space-y-2">
+            <div v-for="item in lowStockProducts" :key="item.name" class="flex items-center justify-between gap-3 rounded-xl bg-amber-50 px-3 py-2">
+              <span class="min-w-0 truncate">{{ item.name }}</span>
+              <span class="shrink-0 font-bold text-amber-700">{{ item.stock }} cái</span>
+            </div>
+            <p v-if="lowStockProducts.length === 0" class="text-sm text-emerald-600">Kho đang ổn.</p>
+          </div>
+        </div>
+      </section>
+
     </div>
   </AdminShell>
 </template>
@@ -432,7 +445,6 @@
     getPaymentMethodBreakdown,
     getStatusBreakdown,
     normalizePaymentStatusValue,
-    sortRevenueBuckets,
     sumNetRevenue,
     sumPositiveRevenue,
     sumRefundRevenue,
@@ -441,21 +453,12 @@
   const loading = ref(false)
   const error = ref('')
   const orders = ref([])
+  const inventory = ref([])
   const reportMode = ref('day')
-  const paymentFilter = ref('ALL')
-  const bucketSort = ref('newest')
   const reportChartMetric = ref('net')
-  const reportPreset = ref('this_month')
+  const channelFilter = ref('ALL')
   const startDateInput = ref(defaultStartDateValue())
   const endDateInput = ref(defaultEndDateValue())
-
-  const reportPresets = [
-    { value: '7d', label: '7 ngày' },
-    { value: '30d', label: '30 ngày' },
-    { value: 'qtd', label: 'Quý này' },
-    { value: 'ytd', label: 'Năm nay' },
-    { value: 'this_month', label: 'Tháng này' },
-  ]
 
   function defaultEndDateValue () {
     return formatDateInput(new Date())
@@ -508,53 +511,45 @@
     if (selectedStartDate.value.getTime() > selectedEndDate.value.getTime()) {
       endDateInput.value = startDateInput.value
     }
-    reportPreset.value = 'custom'
   })
 
-  function applyReportPreset (preset) {
-    const now = new Date()
-    const end = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-    let start = new Date(end)
+  const rangedOrders = computed(() => filterOrdersByDateRange(orders.value, selectedStartDate.value, selectedEndDate.value))
+  const paidOrders = computed(() => filterOrdersByPayment(rangedOrders.value, 'DA_THANH_TOAN'))
 
-    switch (preset) {
-      case '7d': {
-        start.setDate(end.getDate() - 6)
-        reportMode.value = 'day'
-
-        break
-      }
-      case '30d': {
-        start.setDate(end.getDate() - 29)
-        reportMode.value = 'day'
-
-        break
-      }
-      case 'qtd': {
-        const quarterStartMonth = Math.floor(end.getMonth() / 3) * 3
-        start = new Date(end.getFullYear(), quarterStartMonth, 1)
-        reportMode.value = 'month'
-
-        break
-      }
-      case 'ytd': {
-        start = new Date(end.getFullYear(), 0, 1)
-        reportMode.value = 'month'
-
-        break
-      }
-      default: {
-        start = new Date(end.getFullYear(), end.getMonth(), 1)
-        reportMode.value = 'day'
-      }
-    }
-
-    reportPreset.value = preset
-    startDateInput.value = formatDateInput(start)
-    endDateInput.value = formatDateInput(end)
+  function orderChannel (order) {
+    const value = String(order?.orderSource || order?.order_source || order?.channel || order?.orderChannel || order?.source || order?.orderType || order?.fullName || order?.fullname || order?.customerName || order?.customer?.fullname || order?.customer?.fullName || '').toUpperCase().trim()
+    return value.includes('POS') || value.includes('STORE') || value.includes('COUNTER') ? 'POS' : 'ONLINE'
   }
 
-  const rangedOrders = computed(() => filterOrdersByDateRange(orders.value, selectedStartDate.value, selectedEndDate.value))
-  const filteredOrders = computed(() => filterOrdersByPayment(rangedOrders.value, paymentFilter.value))
+  const filteredOrders = computed(() => {
+    if (channelFilter.value === 'ALL') return paidOrders.value
+    return paidOrders.value.filter(order => orderChannel(order) === channelFilter.value)
+  })
+
+  function orderRevenue (order) {
+    return Math.max(0, Number(order?.finalAmount ?? order?.totalMoney ?? order?.totalAmount ?? 0))
+  }
+
+  const channelBreakdown = computed(() => ['POS', 'ONLINE'].map(channel => {
+    const channelOrders = paidOrders.value.filter(order => orderChannel(order) === channel)
+    return {
+      channel,
+      label: channel === 'POS' ? 'Tại cửa hàng (POS)' : 'Mua online',
+      count: channelOrders.length,
+      revenue: channelOrders.reduce((sum, order) => sum + orderRevenue(order), 0),
+    }
+  }))
+
+  const lowStockProducts = computed(() => {
+    const grouped = {}
+    for (const variant of inventory.value) {
+      const name = variant.productName || variant.product?.name || variant.product?.productName || 'Sản phẩm không tên'
+      const stock = Number(variant.stockQuantity ?? variant.stock_quantity ?? variant.quantity ?? 0)
+      if (!grouped[name]) grouped[name] = { name, stock: 0 }
+      grouped[name].stock += stock
+    }
+    return Object.values(grouped).filter(item => item.stock <= 20).toSorted((a, b) => a.stock - b.stock).slice(0, 5)
+  })
 
   const activeBuckets = computed(() => {
     return buildRevenueBuckets(filteredOrders.value, {
@@ -564,7 +559,7 @@
     })
   })
 
-  const sortedActiveBuckets = computed(() => sortRevenueBuckets(activeBuckets.value, bucketSort.value))
+  const sortedActiveBuckets = computed(() => activeBuckets.value)
   const filteredNetRevenue = computed(() => sumNetRevenue(filteredOrders.value))
   const filteredProfitRevenue = computed(() => sumPositiveRevenue(filteredOrders.value))
   const filteredRefundRevenue = computed(() => sumRefundRevenue(filteredOrders.value))
@@ -586,22 +581,26 @@
 
   const top5Products = computed(() => {
     const productMap = {}
-    filteredOrders.value.forEach(order => {
+    for (const order of filteredOrders.value) {
       const items = Array.isArray(order.items) ? order.items : (Array.isArray(order.orderItems) ? order.orderItems : [])
-      items.forEach(item => {
+      for (const item of items) {
         const p = item.product || item.variant?.product || {}
         const name = p.name || item.productName || item.product_name || 'Sản phẩm không tên'
         const qty = Number(item.quantity || item.qty || 1)
         const revenue = qty * Number(item.price || item.unitPrice || item.variant?.price || item.product?.price || 0)
 
         if (!productMap[name]) {
-          productMap[name] = { name, qty: 0, revenue: 0 }
+          productMap[name] = { name, qty: 0, orders: 0, revenue: 0, orderIds: new Set() }
         }
         productMap[name].qty += qty
         productMap[name].revenue += revenue
-      })
-    })
-    return Object.values(productMap).sort((a, b) => b.qty - a.qty).slice(0, 5)
+        productMap[name].orderIds.add(order.id ?? order.orderId ?? order.createdAt)
+      }
+    }
+    return Object.values(productMap)
+      .map(product => ({ ...product, orders: product.orderIds.size, orderIds: undefined }))
+      .toSorted((a, b) => b.orders - a.orders || b.qty - a.qty)
+      .slice(0, 5)
   })
 
   const refundBreakdown = computed(() => {
@@ -617,7 +616,7 @@
       groups[method] = (groups[method] || 0) + amount
     }
 
-    return Object.entries(groups).map(([method, amount]) => ({ method, amount })).sort((a, b) => b.amount - a.amount)
+    return Object.entries(groups).map(([method, amount]) => ({ method, amount })).toSorted((a, b) => b.amount - a.amount)
   })
 
   const reportMetricOptions = [
@@ -640,11 +639,6 @@
     if (reportChartMetric.value === 'refund') return '#ef4444'
     if (reportChartMetric.value === 'orders') return '#7c3aed'
     return '#c66231'
-  })
-
-  const reportMetricLabel = computed(() => {
-    const found = reportMetricOptions.find(item => item.value === reportChartMetric.value)
-    return found ? found.label : 'Ròng'
   })
 
   const reportMetricTotal = computed(() => {
@@ -721,13 +715,6 @@
     }
   })
 
-  function paymentColor (label) {
-    if (label === 'Đã thanh toán') return '#16a34a'
-    if (label === 'Hoàn tiền') return '#ef4444'
-    if (label === 'Chưa thanh toán') return '#2563eb'
-    return '#64748b'
-  }
-
   function statusColor (status) {
     if (status === 'THANH_CONG') return '#16a34a'
     if (status === 'DANG_GIAO') return '#2563eb'
@@ -775,12 +762,7 @@
     return 'Ngày'
   })
 
-  const paymentFilterLabel = computed(() => {
-    if (paymentFilter.value === 'DA_THANH_TOAN') return 'Đã thanh toán'
-    if (paymentFilter.value === 'HOAN_TIEN') return 'Hoàn tiền'
-    if (paymentFilter.value === 'CHUA_THANH_TOAN') return 'Chưa thanh toán'
-    return 'Tất cả thanh toán'
-  })
+  const paymentFilterLabel = computed(() => 'Đã thanh toán')
 
   const paidOrdersCount = computed(() => paymentBreakdown.value.find(entry => entry.label === 'Đã thanh toán')?.count || 0)
   const refundedOrdersCount = computed(() => paymentBreakdown.value.find(entry => entry.label === 'Hoàn tiền')?.count || 0)
@@ -801,8 +783,12 @@
     error.value = ''
 
     try {
-      const ordersData = await adminApi.getOrders({ page: 0, size: 800 })
+      const [ordersData, variantsData] = await Promise.all([
+        adminApi.getOrders({ page: 0, size: 800 }),
+        adminApi.getVariants({ page: 0, size: 500 }),
+      ])
       orders.value = Array.isArray(ordersData) ? ordersData : []
+      inventory.value = Array.isArray(variantsData) ? variantsData : []
     } catch (error_) {
       console.error('Failed to load reports:', error_)
       error.value = 'Không thể tải báo cáo tổng hợp. Vui lòng kiểm tra backend API.'
@@ -1051,7 +1037,7 @@
   <body>
     <div class="shell">
       <h1>Báo cáo doanh thu kế toán</h1>
-      <p class="meta">Khoảng: ${escaped(selectedRangeText.value)} | Nhóm: ${escaped(reportModeLabel.value)} | Lọc thanh toán: ${escaped(paymentFilterLabel.value)} | Sắp xếp: ${escaped(bucketSort.value === 'oldest' ? 'Cũ nhất ở trên' : 'Mới nhất ở trên')}</p>
+      <p class="meta">Khoảng: ${escaped(selectedRangeText.value)} | Nhóm: Theo ngày | Lọc thanh toán: Đã thanh toán</p>
       <p class="meta muted">Thời điểm in: ${escaped(formatLongDateTime(new Date()))}</p>
 
       <div class="section">

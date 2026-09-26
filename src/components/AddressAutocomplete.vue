@@ -2,13 +2,13 @@
   <div ref="inputContainer" class="relative w-full">
     <input
       ref="inputRef"
-      :value="modelValue"
       :class="inputClass"
       :placeholder="placeholder"
       type="text"
-      @input="handleInput"
-      @focus="handleFocus"
+      :value="modelValue"
       @blur="handleBlur"
+      @focus="handleFocus"
+      @input="handleInput"
       @keydown.esc="closeSuggestions"
       @keyup.enter="emit('enter')"
     >
