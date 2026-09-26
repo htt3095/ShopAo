@@ -230,7 +230,7 @@
               <button
                 class="rounded-lg bg-red-500 px-3 py-1.5 text-xs font-bold text-white hover:bg-red-600"
                 type="button"
-                @click.stop="selectOrderToTrack(order); openRefundModal(order)"
+                @click.stop="selectOrderToTrack(order); openReviewModal(order)"
               >
                 Xem chi tiết
               </button>
@@ -745,6 +745,61 @@
       </div>
     </Teleport>
 
+    <!-- Modal Duyệt Yêu Cầu Hoàn -->
+    <Teleport to="body">
+      <div
+        v-if="showReviewModal"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+        @click.self="closeReviewModal"
+      >
+        <div class="w-full max-w-xl max-h-[90vh] overflow-y-auto rounded-2xl bg-white p-5 shadow-2xl">
+          <div class="mb-4 flex items-center gap-2">
+            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-red-100 text-red-500">
+              <span class="material-symbols-outlined">plagiarism</span>
+            </div>
+            <div>
+              <h3 class="text-base font-bold text-slate-900">Chi tiết yêu cầu hoàn/trả hàng</h3>
+              <p class="text-xs text-slate-500">Đơn hàng #{{ reviewForm.orderId }}</p>
+            </div>
+          </div>
+
+          <div class="space-y-4">
+            <div v-if="reviewForm.customerReason">
+              <label class="mb-1 block text-xs font-medium text-slate-500">Lý do khách hàng yêu cầu</label>
+              <div class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 whitespace-pre-wrap">
+                {{ reviewForm.customerReason }}
+              </div>
+            </div>
+
+            <div v-if="reviewForm.customerImages && reviewForm.customerImages.length > 0">
+              <label class="mb-1 block text-xs font-medium text-slate-500">Ảnh minh chứng</label>
+              <div class="flex flex-wrap gap-2">
+                <div v-for="(img, idx) in reviewForm.customerImages" :key="idx" class="group relative size-20 cursor-pointer overflow-hidden rounded-lg border border-slate-200" @click="window.open(img, '_blank')">
+                  <img class="h-full w-full object-cover transition-transform group-hover:scale-110" :src="img">
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <label class="mb-1 block text-xs font-medium text-slate-500">Lý do từ chối (bắt buộc nếu từ chối)</label>
+              <textarea v-model="reviewForm.rejectReason" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-primary" placeholder="Nhập lý do từ chối..." rows="3" />
+            </div>
+          </div>
+
+          <div class="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
+            <button class="rounded-xl px-4 py-2 text-sm font-bold text-slate-500 hover:bg-slate-100 transition" @click="closeReviewModal">Đóng</button>
+            <button class="flex items-center justify-center gap-2 rounded-xl bg-slate-200 px-6 py-2 text-sm font-bold text-slate-700 shadow-sm hover:bg-slate-300 transition disabled:opacity-50" :disabled="reviewing" @click="rejectReturnRequest">
+              Từ chối
+            </button>
+            <button class="flex items-center justify-center gap-2 rounded-xl bg-emerald-500 px-6 py-2 text-sm font-bold text-white shadow-lg hover:bg-emerald-600 transition disabled:opacity-50" :disabled="reviewing" @click="approveReturnRequest">
+              <span v-if="reviewing" class="material-symbols-outlined animate-spin text-[18px]">progress_activity</span>
+              Duyệt
+            </button>
+          </div>
+        </div>
+      </div>
+    </Teleport>
+
     <!-- Modal Trả Hàng -->
     <Teleport to="body">
       <div
@@ -819,9 +874,6 @@
 
           <div class="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
             <button class="rounded-xl px-4 py-2 text-sm font-bold text-slate-500 hover:bg-slate-100 transition" @click="closeReturnModal">Đóng</button>
-            <button v-if="normalizeOrderStatusValue(returnOrder?.status) === 'RETURN_REQUEST'" class="flex items-center justify-center gap-2 rounded-xl bg-slate-200 px-6 py-2 text-sm font-bold text-slate-700 shadow-sm hover:bg-slate-300 transition disabled:opacity-50" :disabled="returning" @click="rejectReturnRequest">
-              Từ chối (Giữ nguyên)
-            </button>
             <button class="flex items-center justify-center gap-2 rounded-xl bg-blue-500 px-6 py-2 text-sm font-bold text-white shadow-lg hover:bg-blue-600 transition disabled:opacity-50" :disabled="returning || returnPreview.totalRefund <= 0" @click="submitReturn">
               <span v-if="returning" class="material-symbols-outlined animate-spin text-[18px]">progress_activity</span>
               Xác nhận Trả Hàng
@@ -881,17 +933,10 @@
               </div>
             </div>
 
-            <div>
-              <label class="mb-1 block text-xs font-medium text-slate-500">Lý do từ chối (nếu có)</label>
-              <textarea v-model="refundForm.rejectReason" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-primary" placeholder="Nhập lý do từ chối..." rows="3" />
-            </div>
           </div>
 
           <div class="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
             <button class="rounded-xl px-4 py-2 text-sm font-bold text-slate-500 hover:bg-slate-100 transition" @click="closeRefundModal">Đóng</button>
-            <button class="flex items-center justify-center gap-2 rounded-xl bg-slate-200 px-6 py-2 text-sm font-bold text-slate-700 shadow-sm hover:bg-slate-300 transition disabled:opacity-50" :disabled="refunding" @click="rejectReturnRequest">
-              Từ chối
-            </button>
             <button class="flex items-center justify-center gap-2 rounded-xl bg-red-500 px-6 py-2 text-sm font-bold text-white shadow-lg hover:bg-red-600 transition disabled:opacity-50" :disabled="refunding || !refundForm.amount || refundForm.amount <= 0" @click="submitRefund">
               <span v-if="refunding" class="material-symbols-outlined animate-spin text-[18px]">progress_activity</span>
               Xác nhận Hoàn Tiền
@@ -928,7 +973,6 @@
     note: '',
     customerReason: '',
     customerImages: [],
-    rejectReason: '',
   })
   const refunding = ref(false)
   const returnForm = ref({
@@ -938,6 +982,15 @@
     items: [],
   })
   const returning = ref(false)
+
+  const showReviewModal = ref(false)
+  const reviewing = ref(false)
+  const reviewForm = ref({
+    orderId: null,
+    customerReason: '',
+    customerImages: [],
+    rejectReason: '',
+  })
 
   function displayReturnReason (raw) {
     if (!raw || typeof raw !== 'string') return raw || ''
@@ -984,7 +1037,7 @@
     const paymentStatus = normalizePaymentStatusValue(order.paymentStatus)
     if (paymentStatus === 'REFUNDED' || paymentStatus === 'HOAN_TIEN') return false
     const status = normalizeOrderStatusValue(order.status)
-    if (['NEW', 'PENDING', 'PROCESSING', 'SHIPPING', 'SUCCESS'].includes(status)) return false
+    if (['NEW', 'PENDING', 'PROCESSING', 'SHIPPING', 'SUCCESS', 'RETURN_REQUEST'].includes(status)) return false
     return true
   }
 
@@ -992,7 +1045,7 @@
     if (!order) return false
     const status = normalizeOrderStatusValue(order.status)
     if (status === 'RETURNED' || status === 'DAMAGED' || status === 'LOST') return false
-    return status === 'RETURN_REQUEST' || status === 'RETURNING'
+    return status === 'RETURN_APPROVED' || status === 'RETURNING'
   }
 
   function openRefundModal (order) {
@@ -1026,7 +1079,6 @@
       note: reasonText,
       customerReason: reasonText,
       customerImages: images,
-      rejectReason: '',
     }
     showRefundModal.value = true
   }
@@ -1152,26 +1204,68 @@
     }
   }
 
-  async function rejectReturnRequest () {
-    if (returning.value) return
-    returning.value = true
-    try {
-      const isFromReturnModal = !!returnForm.value.orderId && showReturnModal.value;
-      const orderId = isFromReturnModal ? returnForm.value.orderId : refundForm.value.orderId;
-      const reason = isFromReturnModal ? returnForm.value.reason : refundForm.value.rejectReason;
+  function openReviewModal (order) {
+    let images = []
+    if (order.returnImages) {
+      if (Array.isArray(order.returnImages)) {
+        images = order.returnImages
+      } else if (typeof order.returnImages === 'string') {
+        try {
+          images = JSON.parse(order.returnImages)
+        } catch {
+          images = order.returnImages.split(',').filter(Boolean)
+        }
+      }
+    }
 
+    const record = parseReturnRecord(order.returnReason)
+    const rawReason = order.returnReason || ''
+    const reasonText = record
+      ? (record.reason || '')
+      : (rawReason.startsWith('{') ? '' : rawReason)
+
+    reviewForm.value = {
+      orderId: order.id,
+      customerReason: reasonText,
+      customerImages: images,
+      rejectReason: ''
+    }
+    showReviewModal.value = true
+  }
+
+  function closeReviewModal () {
+    showReviewModal.value = false
+  }
+
+  async function approveReturnRequest() {
+    if (reviewing.value) return
+    reviewing.value = true
+    try {
+      await adminApi.updateOrder(reviewForm.value.orderId, { status: 'RETURN_APPROVED' })
+      showReviewModal.value = false
+      await loadOrders(true)
+    } catch (error_) {
+      alert(error_.message || 'Lỗi khi duyệt yêu cầu!')
+    } finally {
+      reviewing.value = false
+    }
+  }
+
+  async function rejectReturnRequest () {
+    if (reviewing.value) return
+    reviewing.value = true
+    try {
       const payload = {
         status: 'SUCCESS',
-        rejectReason: reason || 'Bị từ chối'
+        rejectReason: reviewForm.value.rejectReason || 'Bị từ chối'
       }
-      await adminApi.updateOrder(orderId, payload)
-      showReturnModal.value = false
-      showRefundModal.value = false
+      await adminApi.updateOrder(reviewForm.value.orderId, payload)
+      showReviewModal.value = false
       await loadOrders(true)
     } catch (error_) {
       alert(error_.message || 'Lỗi khi từ chối yêu cầu!')
     } finally {
-      returning.value = false
+      reviewing.value = false
     }
   }
 
@@ -1221,14 +1315,14 @@
 
     const steps = [
       { label: 'Chờ xử lý', icon: 'receipt_long', isActive: true, isError: false, isWarning: false },
-      { label: 'Đang xử lý', icon: 'inventory_2', isActive: ['PROCESSING', 'SHIPPING', 'SUCCESS', 'RETURN_REQUEST', 'RETURNING', 'RETURNED'].includes(status), isError: false, isWarning: false },
+      { label: 'Đang xử lý', icon: 'inventory_2', isActive: ['PROCESSING', 'SHIPPING', 'SUCCESS', 'RETURN_REQUEST', 'RETURN_APPROVED', 'RETURNING', 'RETURNED'].includes(status), isError: false, isWarning: false },
     ]
 
     if (status === 'CANCELLED') {
       steps.push({ label: 'Đã hủy', icon: 'cancel', isActive: true, isError: true, isWarning: false })
     } else if (['DAMAGED', 'LOST'].includes(status)) {
       steps.push({ label: 'Đang giao', icon: 'local_shipping', isActive: true, isError: false, isWarning: false }, { label: 'Hàng hỏng / mất', icon: 'warning', isActive: true, isError: true, isWarning: true })
-    } else if (['RETURN_REQUEST', 'RETURNING', 'RETURNED'].includes(status)) {
+    } else if (['RETURN_REQUEST', 'RETURN_APPROVED', 'RETURNING', 'RETURNED'].includes(status)) {
       steps.push({ label: 'Đang giao', icon: 'local_shipping', isActive: true, isError: false, isWarning: false }, { label: 'Thành công', icon: 'check_circle', isActive: true, isError: false, isWarning: false }, { label: 'Yêu cầu hoàn', icon: 'assignment_return', isActive: true, isError: false, isWarning: true })
       steps.push({ label: 'Đang hoàn về', icon: 'local_shipping', isActive: ['RETURNING', 'RETURNED'].includes(status), isError: false, isWarning: true }, { label: 'Đã hoàn', icon: 'settings_backup_restore', isActive: status === 'RETURNED', isError: false, isWarning: true })
     } else {
