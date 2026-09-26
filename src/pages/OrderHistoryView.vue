@@ -672,7 +672,19 @@
                 </article>
 
                 <article
-                  v-if="activeDetailOrder.returnReason"
+                  v-if="orderRejectReason"
+                  class="rounded-2xl border border-red-200/70 bg-red-50 p-4 mb-3"
+                >
+                  <p class="text-[11px] uppercase tracking-[0.18em] text-red-600 font-semibold">
+                    Yêu cầu trả hàng đã bị từ chối
+                  </p>
+                  <p class="mt-2 text-sm text-red-700 font-medium">
+                    Lý do: {{ orderRejectReason }}
+                  </p>
+                </article>
+
+                <article
+                  v-if="activeDetailOrder.returnReason && !orderRejectReason"
                   class="rounded-2xl border border-orange-200/70 bg-orange-50 p-4  "
                 >
                   <p class="text-[11px] uppercase tracking-[0.18em] text-orange-600 ">
@@ -1026,6 +1038,24 @@
     }
 
     return null
+  })
+
+  const orderRejectReason = computed(() => {
+    if (!activeDetailOrder.value || activeDetailOrder.value.status !== 'SUCCESS') return null;
+    
+    // Check if rejectReason exists directly on the order
+    if (activeDetailOrder.value.rejectReason) return activeDetailOrder.value.rejectReason;
+    
+    // Check inside returnReason if it's a JSON string
+    if (activeDetailOrder.value.returnReason && typeof activeDetailOrder.value.returnReason === 'string' && activeDetailOrder.value.returnReason.trim().startsWith('{')) {
+      try {
+        const parsed = JSON.parse(activeDetailOrder.value.returnReason.trim());
+        if (parsed && parsed.rejectReason) {
+          return parsed.rejectReason;
+        }
+      } catch (e) {}
+    }
+    return null;
   })
   const canCancelActiveOrder = computed(() => {
     if (!activeDetailOrder.value || isDetailLoading.value) {

@@ -880,10 +880,18 @@
                 </div>
               </div>
             </div>
+
+            <div>
+              <label class="mb-1 block text-xs font-medium text-slate-500">Lý do từ chối (nếu có)</label>
+              <textarea v-model="refundForm.rejectReason" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-primary" placeholder="Nhập lý do từ chối..." rows="3" />
+            </div>
           </div>
 
           <div class="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
             <button class="rounded-xl px-4 py-2 text-sm font-bold text-slate-500 hover:bg-slate-100 transition" @click="closeRefundModal">Đóng</button>
+            <button class="flex items-center justify-center gap-2 rounded-xl bg-slate-200 px-6 py-2 text-sm font-bold text-slate-700 shadow-sm hover:bg-slate-300 transition disabled:opacity-50" :disabled="refunding" @click="rejectReturnRequest">
+              Từ chối
+            </button>
             <button class="flex items-center justify-center gap-2 rounded-xl bg-red-500 px-6 py-2 text-sm font-bold text-white shadow-lg hover:bg-red-600 transition disabled:opacity-50" :disabled="refunding || !refundForm.amount || refundForm.amount <= 0" @click="submitRefund">
               <span v-if="refunding" class="material-symbols-outlined animate-spin text-[18px]">progress_activity</span>
               Xác nhận Hoàn Tiền
@@ -920,6 +928,7 @@
     note: '',
     customerReason: '',
     customerImages: [],
+    rejectReason: '',
   })
   const refunding = ref(false)
   const returnForm = ref({
@@ -1017,6 +1026,7 @@
       note: reasonText,
       customerReason: reasonText,
       customerImages: images,
+      rejectReason: '',
     }
     showRefundModal.value = true
   }
@@ -1146,10 +1156,15 @@
     if (returning.value) return
     returning.value = true
     try {
+      const isFromReturnModal = !!returnForm.value.orderId && showReturnModal.value;
+      const orderId = isFromReturnModal ? returnForm.value.orderId : refundForm.value.orderId;
+      const reason = isFromReturnModal ? returnForm.value.reason : refundForm.value.rejectReason;
+
       const payload = {
         status: 'SUCCESS',
+        rejectReason: reason || 'Bị từ chối'
       }
-      await adminApi.updateOrder(returnForm.value.orderId || refundForm.value.orderId, payload)
+      await adminApi.updateOrder(orderId, payload)
       showReturnModal.value = false
       showRefundModal.value = false
       await loadOrders(true)
@@ -2184,8 +2199,21 @@
       const data = await adminApi.getOrders({ page: 0, size: 250 })
       const newOrdersList = Array.isArray(data) ? data : []
 
-      // Check for new orders
       if (!isFirstLoad.value && newOrdersList.length > 0) {
+        // Check for new return requests
+        const oldPendingReturn = orders.value.filter(o => o.status === 'RETURN_REQUEST').length
+        const newPendingReturn = newOrdersList.filter(o => o.status === 'RETURN_REQUEST').length
+        if (newPendingReturn > oldPendingReturn) {
+          newOrderToast.value = {
+            title: 'Có yêu cầu hoàn hàng mới!',
+            message: `Khách hàng đã gửi yêu cầu hoàn tiền/trả hàng. Vui lòng kiểm tra và xử lý.`,
+          }
+          setTimeout(() => {
+            newOrderToast.value = null
+          }, 5000)
+        }
+
+        // Check for new orders
         const oldLatestId = orders.value.length > 0 ? orders.value[0].id : 0
         const newLatestId = newOrdersList[0].id
         if (newLatestId > oldLatestId) {
