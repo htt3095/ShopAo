@@ -855,32 +855,82 @@
   function getOrderStatusCategory (status) {
     const key = normalizeStatusKey(status)
 
-    if (
-      key.includes('DELIVER')
-      || key.includes('RECEIV')
-      || key.includes('SUCCESS')
-      || key.includes('COMPLETE')
-    ) {
+    if (key === 'DELIVERED' || key === 'DA_GIAO' || key === 'GIAO_THANH_CONG') {
       return 'delivered'
     }
 
-    if (key.includes('SHIP') || key.includes('TRANSIT')) {
+    if (
+      key.includes('RECEIV')
+      || key.includes('SUCCESS')
+      || key.includes('COMPLETE')
+      || key === 'THANH_CONG'
+      || key === 'HOAN_THANH'
+    ) {
+      return 'completed'
+    }
+
+    if (
+      key.includes('SHIP')
+      || key.includes('TRANSIT')
+      || key === 'DANG_GIAO'
+    ) {
       return 'shipping'
+    }
+
+    if (
+      key === 'DELIVERY_FAILED'
+      || key === 'FAILED_DELIVERY'
+      || key === 'GIAO_THAT_BAI'
+      || key === 'UNDELIVERED'
+    ) {
+      return 'deliveryFailed'
+    }
+
+    if (key === 'DAMAGED' || key === 'HANG_HONG' || key === 'HANG_HONG_HONG') {
+      return 'damaged'
+    }
+
+    if (key === 'LOST' || key === 'THAT_LAC' || key === 'PARCEL_LOST' || key === 'HANG_MAT' || key === 'MAT_HANG') {
+      return 'lost'
     }
 
     if (
       key.includes('CANCEL')
       || key.includes('FAIL')
       || key.includes('REJECT')
+      || key === 'DA_HUY'
+      || key === 'HUY'
     ) {
       return 'cancelled'
     }
 
     if (
+      key === 'RETURN_REQUEST'
+      || key === 'YEU_CAU_TRA'
+    ) {
+      return 'return_request'
+    }
+
+    if (key === 'RETURN_APPROVED') {
+      return 'return_approved'
+    }
+
+    if (
+      key.includes('RETURNING')
+      || key === 'TRA_HANG'
+      || key === 'DANG_HOAN'
+      || key === 'DANG_TRA_HANG'
+    ) {
+      return 'returning'
+    }
+
+    if (
       key.includes('RETURN')
       || key.includes('REFUND')
-      || key === 'TRA_HANG'
-      || key === 'YEU_CAU_TRA'
+      || key === 'HOAN_TRA'
+      || key === 'HOAN_TIEN'
+      || key === 'RETURNED'
+      || key === 'HOAN_HANG'
     ) {
       return 'returned'
     }
@@ -891,11 +941,10 @@
   function getStatusMeta (status) {
     const category = getOrderStatusCategory(status)
 
-    if (category === 'delivered') {
+    if (category === 'delivered' || category === 'completed') {
       return {
-        label: 'Đã giao',
-        className:
-          'bg-green-100 text-green-800  ',
+        label: 'Thành công',
+        className: 'bg-green-100 text-green-800',
         dotClass: 'bg-green-500',
       }
     }
@@ -903,33 +952,54 @@
     if (category === 'shipping') {
       return {
         label: 'Đang giao',
-        className:
-          'bg-blue-100 text-blue-800  ',
+        className: 'bg-blue-100 text-blue-800',
         dotClass: 'bg-blue-500',
       }
     }
 
-    if (category === 'cancelled') {
+    if (category === 'cancelled' || category === 'deliveryFailed' || category === 'damaged' || category === 'lost') {
       return {
-        label: 'Đã hủy',
-        className: 'bg-red-100 text-red-800  ',
+        label: 'Đã hủy/Lỗi',
+        className: 'bg-red-100 text-red-800',
         dotClass: 'bg-red-500',
+      }
+    }
+
+    if (category === 'return_request') {
+      return {
+        label: 'Yêu cầu hoàn',
+        className: 'bg-orange-100 text-orange-800',
+        dotClass: 'bg-orange-500',
+      }
+    }
+
+    if (category === 'return_approved') {
+      return {
+        label: 'Đã duyệt hoàn',
+        className: 'bg-orange-100 text-orange-800',
+        dotClass: 'bg-orange-500',
+      }
+    }
+
+    if (category === 'returning') {
+      return {
+        label: 'Đang hoàn về',
+        className: 'bg-orange-100 text-orange-800',
+        dotClass: 'bg-orange-500',
       }
     }
 
     if (category === 'returned') {
       return {
-        label: 'Hoàn hàng',
-        className:
-          'bg-slate-100 text-slate-800  ',
+        label: 'Đã hoàn trả',
+        className: 'bg-slate-100 text-slate-800',
         dotClass: 'bg-slate-500',
       }
     }
 
     return {
       label: 'Chờ xử lý',
-      className:
-        'bg-amber-100 text-amber-800  ',
+      className: 'bg-amber-100 text-amber-800',
       dotClass: 'bg-amber-500',
     }
   }

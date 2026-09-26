@@ -1258,7 +1258,16 @@
     if (
       key === 'RETURN_REQUEST'
       || key === 'YEU_CAU_TRA'
-      || key.includes('RETURNING')
+    ) {
+      return 'return_request'
+    }
+
+    if (key === 'RETURN_APPROVED') {
+      return 'return_approved'
+    }
+
+    if (
+      key.includes('RETURNING')
       || key === 'TRA_HANG'
       || key === 'DANG_HOAN'
       || key === 'DANG_TRA_HANG'
@@ -1338,19 +1347,33 @@
       }
     }
 
-    if (category === 'returned') {
+    if (category === 'return_request') {
       return {
-        label: 'Đã trả hàng',
-        className:
-          'bg-slate-500 text-white shadow-sm',
+        label: 'Yêu cầu hoàn',
+        className: 'bg-orange-500 text-white shadow-sm',
+      }
+    }
+
+    if (category === 'return_approved') {
+      return {
+        label: 'Đã duyệt hoàn',
+        className: 'bg-orange-500 text-white shadow-sm',
       }
     }
 
     if (category === 'returning') {
       return {
-        label: 'Đang trả hàng',
+        label: 'Đang hoàn về',
         className:
           'bg-orange-500 text-white shadow-sm',
+      }
+    }
+
+    if (category === 'returned') {
+      return {
+        label: 'Đã hoàn trả',
+        className:
+          'bg-slate-500 text-white shadow-sm',
       }
     }
 
