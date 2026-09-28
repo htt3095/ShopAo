@@ -39,6 +39,7 @@
               <th class="px-5 py-4 font-bold uppercase tracking-wider text-[11px]">Đơn Hàng</th>
               <th class="px-5 py-4 font-bold uppercase tracking-wider text-[11px]">Khách Hàng</th>
               <th class="px-5 py-4 font-bold uppercase tracking-wider text-[11px]">Lý Do Trả Hàng</th>
+              <th class="px-5 py-4 font-bold uppercase tracking-wider text-[11px]">Hình Ảnh</th>
               <th class="px-5 py-4 font-bold uppercase tracking-wider text-[11px] text-right">Hoàn Tiền</th>
               <th class="px-5 py-4 font-bold uppercase tracking-wider text-[11px] text-center">Trạng Thái</th>
               <th class="px-5 py-4 font-bold uppercase tracking-wider text-[11px] text-center">Thao Tác</th>
@@ -63,10 +64,28 @@
               </td>
               
               <!-- Reason -->
-              <td class="px-5 py-4 max-w-[200px]">
+              <td class="px-5 py-4 max-w-[180px]">
                 <p class="truncate text-slate-700 font-medium" :title="getReturnReason(item)">
                   {{ getReturnReason(item) }}
                 </p>
+              </td>
+
+              <!-- Images -->
+              <td class="px-5 py-4">
+                <div v-if="getReturnImages(item).length > 0" class="flex items-center gap-1.5">
+                  <div 
+                    v-for="(img, idx) in getReturnImages(item).slice(0, 3)" 
+                    :key="idx" 
+                    class="group relative size-10 cursor-pointer overflow-hidden rounded-md border border-slate-200" 
+                    @click.stop="openImage(img)"
+                  >
+                    <img class="h-full w-full object-cover transition-transform group-hover:scale-110" :src="img">
+                  </div>
+                  <span v-if="getReturnImages(item).length > 3" class="text-xs font-semibold text-slate-500">
+                    +{{ getReturnImages(item).length - 3 }}
+                  </span>
+                </div>
+                <span v-else class="text-xs italic text-slate-400">Không có ảnh</span>
               </td>
               
               <!-- Money -->
@@ -125,6 +144,19 @@
     } catch {
       return order.returnReason
     }
+  }
+  function getReturnImages(order) {
+    if (!order.returnReason) return []
+    try {
+      const parsed = JSON.parse(order.returnReason)
+      return Array.isArray(parsed.images) ? parsed.images : []
+    } catch {
+      return []
+    }
+  }
+
+  function openImage(url) {
+    window.open(url, '_blank')
   }
 
   function formatStatus(status) {
