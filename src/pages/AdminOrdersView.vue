@@ -850,9 +850,6 @@
             </div>
 
             <div class="rounded-xl border border-blue-100 bg-blue-50 p-3">
-              <p class="text-xs text-blue-700">
-                Tiền hoàn mỗi món tính theo <b>giá gốc</b> × số lượng trả (không chia theo mã giảm giá).
-              </p>
               <p class="mt-1 text-sm font-bold text-blue-800">
                 Tổng tiền hoàn dự kiến: {{ formatCurrency(returnPreview.totalRefund) }}
                 <span v-if="returnPreview.maxRefund > 0 && returnPreview.rawTotalRefund > returnPreview.maxRefund" class="block text-xs font-normal text-blue-600 mt-1">
@@ -1140,8 +1137,17 @@
     }
 
     const rawItems = extractOrderItems(order)
+    const discountAmount = Number(order.discountAmount || 0)
+    const rawTotal = rawItems.reduce((sum, rawItem) => {
+      const p = Number(rawItem.price || rawItem.unitPrice || rawItem.variant?.price || 0)
+      const q = Number(rawItem.quantity || rawItem.qty || 1)
+      return sum + (p * q)
+    }, 0)
+    const ratio = rawTotal > 0 ? Math.max(0, rawTotal - discountAmount) / rawTotal : 1
+
     const items = rawItems.map(rawItem => {
-      const price = Number(rawItem.price || rawItem.unitPrice || rawItem.variant?.price || 0)
+      const originalPrice = Number(rawItem.price || rawItem.unitPrice || rawItem.variant?.price || 0)
+      const price = Math.round(originalPrice * ratio)
       const quantity = Number(rawItem.quantity || rawItem.qty || 1)
       const already = asNumber(alreadyReturned[String(rawItem.id)])
       return {
@@ -1232,8 +1238,17 @@
     }
 
     const rawItems = extractOrderItems(latestOrder)
+    const discountAmount = Number(latestOrder.discountAmount || 0)
+    const rawTotal = rawItems.reduce((sum, rawItem) => {
+      const p = Number(rawItem.price || rawItem.unitPrice || rawItem.variant?.price || 0)
+      const q = Number(rawItem.quantity || rawItem.qty || 1)
+      return sum + (p * q)
+    }, 0)
+    const ratio = rawTotal > 0 ? Math.max(0, rawTotal - discountAmount) / rawTotal : 1
+
     const items = rawItems.map(rawItem => {
-      const price = Number(rawItem.price || rawItem.unitPrice || rawItem.variant?.price || 0)
+      const originalPrice = Number(rawItem.price || rawItem.unitPrice || rawItem.variant?.price || 0)
+      const price = Math.round(originalPrice * ratio)
       const quantity = Number(rawItem.quantity || rawItem.qty || 1)
       const already = asNumber(alreadyReturned[String(rawItem.id)])
       return {

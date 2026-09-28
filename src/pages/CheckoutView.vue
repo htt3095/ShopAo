@@ -790,9 +790,6 @@
   const isRouteCalculated = ref(false)
   const distanceKm = ref(0)
   const calculatedShippingFee = ref(0)
-  watch(calculatedShippingFee, (val) => {
-    console.log('FEE CHANGED TO:', val, new Error().stack)
-  })
   const estimatedDays = ref(0)
   const fullAddressString = ref('')
   const routeError = ref('')
@@ -1225,9 +1222,16 @@
         estimatedDays.value = km < 100 ? 2 : 3
       }
 
-      fullAddressString.value = isMatchingGeocodeAddress(addressText, first)
-        ? formatGeocodedAddress(first)
-        : addressText
+      const formatted = formatGeocodedAddress(first)
+      if (isMatchingGeocodeAddress(addressText, first)) {
+        fullAddressString.value = formatted
+        if (addressText.length < formatted.length && streetAddress.value === addressText) {
+          skipNextAddressWatcher = true
+          streetAddress.value = formatted
+        }
+      } else {
+        fullAddressString.value = addressText
+      }
 
       routeError.value = ''
       isRouteCalculated.value = true
