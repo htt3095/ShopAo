@@ -1445,9 +1445,13 @@
           .divider { border-top: 1px dashed #cbd5e1; margin: 0 14px; }
           .title-row { display: flex; justify-content: space-between; gap: 12px; align-items: center; }
           .badge { display: inline-block; padding: 4px 8px; border: 1px solid #93c5fd; border-radius: 999px; color: #1d4ed8; font-size: 11px; font-weight: 700; background: #eff6ff; }
-          table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
+          table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; table-layout: fixed; }
           thead th { border-bottom: 1px solid #cbd5e1; padding: 8px 0; }
-          th, td { padding: 7px 0; border-bottom: 1px solid #e2e8f0; vertical-align: top; }
+          th, td { padding: 7px 4px; border-bottom: 1px solid #e2e8f0; vertical-align: top; word-wrap: break-word; }
+          th:first-child, td:first-child { width: 44%; padding-left: 0; }
+          th:nth-child(2), td:nth-child(2) { width: 10%; }
+          th:nth-child(3), td:nth-child(3) { width: 22%; }
+          th:nth-child(4), td:nth-child(4) { width: 24%; padding-right: 0; }
           th { text-align: left; font-size: 11px; color: #64748b; }
           tbody tr:last-child td { border-bottom: none; }
           .line-item { padding-top: 4px; }
