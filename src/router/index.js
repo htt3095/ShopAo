@@ -7,9 +7,9 @@ import AdminCustomersView from '@/pages/AdminCustomersView.vue'
 import AdminOrdersView from '@/pages/AdminOrdersView.vue'
 import AdminPOSView from '@/pages/AdminPOSView.vue'
 import AdminProductsView from '@/pages/AdminProductsView.vue'
-
+import AdminRefundsView from '@/pages/AdminRefundsView.vue'
 import AdminReportsView from '@/pages/AdminReportsView.vue'
-
+import AdminReturnsView from '@/pages/AdminReturnsView.vue'
 import AdminSettingsView from '@/pages/AdminSettingsView.vue'
 import AdminVouchersView from '@/pages/AdminVouchersView.vue'
 import BrandView from '@/pages/BrandView.vue'
@@ -127,11 +127,13 @@ const router = createRouter({
       name: 'admin-home',
       redirect: { name: 'admin-reports' },
       meta: { requiresAdmin: true },
+    },
     {
       path: '/admin/pos',
       name: 'admin-pos',
       component: AdminPOSView,
       meta: { requiresAdmin: true },
+    },
     {
       path: '/admin/orders',
       name: 'admin-orders',
@@ -139,40 +141,59 @@ const router = createRouter({
       meta: { requiresAdmin: true },
     },
     {
+      path: '/admin/returns',
+      name: 'admin-returns',
+      component: AdminReturnsView,
+      meta: { requiresAdmin: true },
+    },
+    {
+      path: '/admin/refunds',
+      name: 'admin-refunds',
+      component: AdminRefundsView,
+      meta: { requiresAdmin: true },
+    },
+    {
       path: '/admin/products',
       name: 'admin-products',
       component: AdminProductsView,
       meta: { requiresAdmin: true },
+    },
     {
       path: '/admin/brands',
       name: 'admin-brands',
       component: AdminBrandsView,
       meta: { requiresAdmin: true },
+    },
     {
       path: '/admin/categories',
       name: 'admin-categories',
       component: AdminCategoriesView,
       meta: { requiresAdmin: true },
+    },
     {
       path: '/admin/inventory',
       name: 'admin-inventory',
       redirect: { name: 'admin-products' },
       meta: { requiresAdmin: true },
+    },
     {
       path: '/admin/customers',
       name: 'admin-customers',
       component: AdminCustomersView,
       meta: { allowedRoles: ['ADMIN', 'STAFF'] },
+    },
     {
       path: '/admin/vouchers',
       name: 'admin-vouchers',
       component: AdminVouchersView,
       meta: { requiresAdmin: true },
+    },
     {
       path: '/admin/reports',
       name: 'admin-reports',
       component: AdminReportsView,
       meta: { requiresAdmin: true },
+    },
     {
       path: '/admin/settings',
       name: 'admin-settings',
