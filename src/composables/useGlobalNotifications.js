@@ -1,5 +1,6 @@
 import { ref, computed } from 'vue'
-import { adminApi, ordersApi } from '@/services/api'
+import { adminApi } from '@/services/api'
+import { orderAPI } from '@/services/orders'
 
 // Global state
 const notifications = ref([])
@@ -119,7 +120,7 @@ async function pollNotifications() {
 
     if (userId) {
       // User polling
-      const myOrders = await ordersApi.getUserOrders(userId)
+      const myOrders = await orderAPI.getUserOrders(userId)
       let hasChanges = false
       for (const order of myOrders) {
         const oldStatus = userOrderStates[order.id]
