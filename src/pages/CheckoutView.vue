@@ -1293,14 +1293,13 @@
       }
 
       const formatted = formatGeocodedAddress(first)
+      fullAddressString.value = buildCurrentAddressString()
       if (isMatchingGeocodeAddress(addressText, first)) {
-        fullAddressString.value = formatted
         if (addressText.length < formatted.length && streetAddress.value === addressText) {
           skipNextAddressWatcher = true
           streetAddress.value = formatted
+          fullAddressString.value = buildCurrentAddressString()
         }
-      } else {
-        fullAddressString.value = addressText
       }
 
       routeError.value = ''
@@ -1842,7 +1841,7 @@
     isProcessing.value = true
 
     try {
-      const finalShippingAddress = fullAddressString.value || buildCurrentAddressString()
+      const finalShippingAddress = buildCurrentAddressString() || fullAddressString.value
       if (!isRouteCalculated.value && finalShippingAddress) {
         applyFallbackShipping()
       }
