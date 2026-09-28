@@ -1021,8 +1021,29 @@
 
       if (!first) return null
 
-      // Extract from Nominatim ONLY for basic hints
-      const addressMeta = first?.address || {}
+      // Extract from Photon for basic hints (may be English)
+      let addressMeta = first?.address || {}
+
+      // Photon returns English names ("Hanoi", "Lang Ward") which can't match
+      // Vietnamese dropdown options ("Thành phố Hà Nội", "Phường Láng Hạ").
+      // Do a Nominatim reverse geocode with Vietnamese language to get proper names.
+      if (first.lat && first.lon) {
+        try {
+          const revRes = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${first.lat}&lon=${first.lon}&addressdetails=1&accept-language=vi`,
+          )
+          if (selectionToken !== null && selectionToken !== addressSearchToken) return
+          if (revRes.ok) {
+            const revData = await revRes.json()
+            if (revData.address) {
+              addressMeta = { ...addressMeta, ...revData.address }
+            }
+          }
+        } catch {
+          // Fallback to original Photon hints
+        }
+      }
+
       const provinceHint
         = addressMeta.state
           || addressMeta.city
@@ -1030,16 +1051,16 @@
           || addressMeta.region
           || ''
       const districtHint
-        = addressMeta.county
-          || addressMeta.city_district
+        = addressMeta.city_district
+          || addressMeta.county
           || addressMeta.district
           || addressMeta.suburb
           || ''
       const wardHint
-        = addressMeta.ward
-          || addressMeta.suburb
-          || addressMeta.quarter
+        = addressMeta.quarter
+          || addressMeta.ward
           || addressMeta.neighbourhood
+          || addressMeta.suburb
           || ''
       const displayNameHint = first?.display_name || ''
       if (selectionToken !== null && selectionToken !== addressSearchToken) return
