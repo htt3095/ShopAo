@@ -127,63 +127,52 @@ const router = createRouter({
       name: 'admin-home',
       redirect: { name: 'admin-reports' },
       meta: { requiresAdmin: true },
-    },
     {
       path: '/admin/pos',
       name: 'admin-pos',
       component: AdminPOSView,
       meta: { requiresAdmin: true },
-    },
     {
       path: '/admin/orders',
       name: 'admin-orders',
       component: AdminOrdersView,
       meta: { requiresAdmin: true },
     },
-    
-    },
     {
       path: '/admin/products',
       name: 'admin-products',
       component: AdminProductsView,
       meta: { requiresAdmin: true },
-    },
     {
       path: '/admin/brands',
       name: 'admin-brands',
       component: AdminBrandsView,
       meta: { requiresAdmin: true },
-    },
     {
       path: '/admin/categories',
       name: 'admin-categories',
       component: AdminCategoriesView,
       meta: { requiresAdmin: true },
-    },
     {
       path: '/admin/inventory',
       name: 'admin-inventory',
       redirect: { name: 'admin-products' },
       meta: { requiresAdmin: true },
-    },
     {
       path: '/admin/customers',
       name: 'admin-customers',
       component: AdminCustomersView,
       meta: { allowedRoles: ['ADMIN', 'STAFF'] },
-    },
     {
       path: '/admin/vouchers',
       name: 'admin-vouchers',
       component: AdminVouchersView,
       meta: { requiresAdmin: true },
-    },
     {
       path: '/admin/reports',
       name: 'admin-reports',
       component: AdminReportsView,
       meta: { requiresAdmin: true },
-    },
     {
       path: '/admin/settings',
       name: 'admin-settings',
