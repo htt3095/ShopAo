@@ -197,19 +197,25 @@
         </section>
 
         <aside class="space-y-3">
-          <div class="sticky top-6 space-y-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
-            <div class="rounded-xl border border-slate-200 bg-slate-50 p-3">
-              <p class="text-[13px] font-semibold text-slate-900">Thông tin khách hàng <span class="font-normal text-slate-400">(không bắt buộc)</span></p>
-              <div class="mt-2 grid gap-2 sm:grid-cols-2">
-                <input v-model.trim="activeInvoice.customer.fullname" class="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm outline-none focus:border-primary placeholder:text-slate-400" placeholder="Tên khách hàng">
-                <input v-model.trim="activeInvoice.customer.phone" class="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm outline-none focus:border-primary placeholder:text-slate-400" placeholder="Số điện thoại">
+          <div class="space-y-4">
+            <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+              <div class="mb-3 flex items-center gap-2">
+                <span class="material-symbols-outlined text-slate-400">person</span>
+                <h3 class="text-sm font-bold text-slate-900">Thông tin khách hàng</h3>
+                <span class="ml-auto text-[11px] font-medium text-slate-400 uppercase tracking-wider">Tùy chọn</span>
+              </div>
+              <div class="grid gap-3 sm:grid-cols-2">
+                <input v-model.trim="activeInvoice.customer.fullname" class="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none transition-colors focus:border-primary focus:bg-white placeholder:text-slate-400" placeholder="Tên khách hàng">
+                <input v-model.trim="activeInvoice.customer.phone" class="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none transition-colors focus:border-primary focus:bg-white placeholder:text-slate-400" placeholder="Số điện thoại">
               </div>
             </div>
 
-            <div class="space-y-3 rounded-xl border border-slate-200 bg-slate-50 p-3">
-              <div>
-                <p class="text-[13px] font-semibold text-slate-900">Áp dụng voucher</p>
-              </div>
+            <div class="sticky top-6 space-y-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+              <div class="space-y-3">
+                <div class="flex items-center gap-2">
+                  <span class="material-symbols-outlined text-slate-400">local_offer</span>
+                  <h3 class="text-sm font-bold text-slate-900">Mã giảm giá</h3>
+                </div>
               <div class="flex gap-2">
                 <div class="flex flex-1 items-center rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 focus-within:border-primary">
                   <input
