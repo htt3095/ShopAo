@@ -976,10 +976,15 @@
   import { accountsApi, adminApi, ordersApi } from '@/services/api'
   import { buildVariantCode } from '@/utils/variantValues'
 
+  import { useRoute, useRouter } from 'vue-router'
+
+  const route = useRoute()
+  const router = useRouter()
+
   const loading = ref(false)
   const error = ref('')
   const orders = ref([])
-  const search = ref('')
+  const search = ref(route.query.search || '')
   const statusFilter = ref('ALL')
   const currentPage = ref(1)
   const pageSize = ref(20)
@@ -2441,8 +2446,32 @@
     }
   }
 
+  watch(
+    () => route.query.search,
+    (newSearch) => {
+      if (newSearch) {
+        search.value = newSearch
+        // Automatically open the order if it matches the search ID exactly
+        const match = orders.value.find(o => String(o.id) === String(newSearch))
+        if (match) {
+          selectOrderToTrack(match)
+        }
+      } else {
+        search.value = ''
+      }
+    }
+  )
+
   onMounted(() => {
-    loadOrders()
+    loadOrders().then(() => {
+      // If initialized with a search ID, auto-open it
+      if (route.query.search) {
+        const match = orders.value.find(o => String(o.id) === String(route.query.search))
+        if (match) {
+          selectOrderToTrack(match)
+        }
+      }
+    })
   })
 </script>
 
