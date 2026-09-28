@@ -946,7 +946,6 @@
       }, 15_000)
       window.addEventListener('focus', refreshInventory)
       document.addEventListener('visibilitychange', refreshInventory)
-      window.addEventListener('beforeunload', releaseAllInvoicesStock)
     } catch (error) {
       console.error('Lỗi tải dữ liệu POS:', error)
     }
@@ -955,7 +954,6 @@
     if (inventorySyncTimer) clearInterval(inventorySyncTimer)
     window.removeEventListener('focus', refreshInventory)
     document.removeEventListener('visibilitychange', refreshInventory)
-    window.removeEventListener('beforeunload', releaseAllInvoicesStock)
     if (qrScanner.value) {
       try {
         qrScanner.value.stop().catch(() => {})

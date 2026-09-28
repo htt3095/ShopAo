@@ -971,12 +971,50 @@
     }
   }
 
+  function parseAddressLocally(input) {
+    const parts = input.split(',').map(s => s.trim()).filter(Boolean)
+    if (parts.length < 3) return false
+    
+    const provStr = parts[parts.length - 1]
+    const matchedProvince = findBestMatchByName(provinces.value, provStr) || 
+                            provinces.value.find(p => p.name.includes(provStr) || provStr.includes(p.name))
+    if (!matchedProvince) return false
+    
+    const distStr = parts[parts.length - 2]
+    const distList = matchedProvince.districts || []
+    const matchedDistrict = findBestMatchByName(distList, distStr) ||
+                            distList.find(d => d.name.includes(distStr) || distStr.includes(d.name))
+    if (!matchedDistrict) return false
+    
+    const wardStr = parts[parts.length - 3]
+    const wardList = matchedDistrict.wards || []
+    const matchedWard = findBestMatchByName(wardList, wardStr) ||
+                        wardList.find(w => w.name.includes(wardStr) || wardStr.includes(w.name))
+                        
+    skipNextWatcherUpdate.value = true
+    selectedProvince.value = matchedProvince
+    districts.value = distList
+    selectedDistrict.value = matchedDistrict
+    wards.value = wardList
+    
+    if (matchedWard) {
+      selectedWard.value = matchedWard
+    }
+    
+    streetAddress.value = parts.slice(0, parts.length - (matchedWard ? 3 : 2)).join(', ')
+    scheduleAutoRouteCalculation()
+    return true
+  }
+
   async function processAddressText (rawAddress, searchToken) {
     const input = String(rawAddress || '').trim()
     if (!input || searchToken !== addressSearchToken) return
 
     let geoResult = null
     if (provinces.value.length > 0) {
+      if (parseAddressLocally(input)) {
+        return
+      }
       geoResult = await autoFillAddressHierarchyFromText(input, searchToken)
     }
     if (searchToken !== addressSearchToken) return

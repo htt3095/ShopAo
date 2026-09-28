@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="space-y-5">
     <section v-if="!props.hideHeader" class="retail-card p-4">
       <div class="flex flex-wrap items-center justify-between gap-3">
@@ -1125,11 +1125,7 @@
         if (filters.value.stockStatus === 'in_stock') return stock >= 10
         return true
       })
-    } else {
-      // Mặc định ẩn các biến thể đã bị xóa mềm (Ngừng bán) để tránh rác giao diện
-      result = result.filter(v => normalizeVariantStatus(v.status, v.stockQuantity) !== 'HIDDEN')
     }
-
     // Filter by price range
     if (
       filters.value.minPrice !== null
@@ -2106,15 +2102,14 @@
       // (vd: biến thể đang OUT_OF_STOCK, sửa 0 lên 10 mà không đổi dropdown),
       // ta ưu tiên theo số lượng thật và tự chuyển về "Đang bán".
       const normalizedStock
-        = requestedStatus === 'HIDDEN'
+        = (requestedStatus === 'HIDDEN' || requestedStatus === 'OUT_OF_STOCK')
           ? 0
-          : (requestedStatus === 'OUT_OF_STOCK' && enteredStock > 0
-            ? enteredStock
-            : (requestedStatus === 'OUT_OF_STOCK' ? 0 : enteredStock))
+          : enteredStock
+          
       const normalizedStatus
-        = normalizedStock > 0 && requestedStatus !== 'HIDDEN'
-          ? 'SELLING'
-          : normalizeVariantStatus(f.status, normalizedStock)
+        = requestedStatus === 'HIDDEN' 
+          ? 'HIDDEN' 
+          : (normalizedStock > 0 ? 'SELLING' : 'OUT_OF_STOCK')
 
       if (editingId.value) {
         await adminApi.updateVariant(variantIdForUpload, {
