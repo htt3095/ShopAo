@@ -968,9 +968,11 @@
   import { buildVariantCode } from '@/utils/variantValues'
 
   import { useRoute, useRouter } from 'vue-router'
+  import { useGlobalNotifications } from '@/composables/useGlobalNotifications'
 
   const route = useRoute()
   const router = useRouter()
+  const { globalOrderTrigger } = useGlobalNotifications()
 
   const loading = ref(false)
   const error = ref('')
@@ -2452,6 +2454,11 @@
       }
     }
   )
+
+  watch(globalOrderTrigger, () => {
+    // Silently refresh the list when a new order or return request is detected by the global poller
+    loadOrders(true)
+  })
 
   onMounted(() => {
     loadOrders().then(() => {

@@ -7,8 +7,9 @@ const toasts = ref([])
 let pollingInterval = null
 
 // Admin tracker
-let lastAdminOrderCount = -1
-let lastAdminReturnCount = -1
+let lastAdminOrderId = -1
+let lastAdminReturnIds = null
+export const globalOrderTrigger = ref(0)
 
 // User tracker
 let userOrderStates = {} // orderId -> status
@@ -27,7 +28,7 @@ function addNotification(notification) {
   toasts.value.push(toast)
   setTimeout(() => {
     toasts.value = toasts.value.filter(t => t.id !== toast.id)
-  }, 4000)
+  }, 5000)
 }
 
 function markAllAsRead() {
@@ -64,27 +65,35 @@ async function pollNotifications() {
 
     if (roleIsAdmin) {
       // Admin polling
-      const raw = await adminApi.getOrders({ page: 0, size: 200 })
-      const newOrders = raw.filter(o => o.status === 'NEW')
-      const returnReqs = raw.filter(o => o.status === 'RETURN_REQUEST')
+      const raw = await adminApi.getOrders({ page: 0, size: 250 })
       
-      if (lastAdminOrderCount !== -1 && newOrders.length > lastAdminOrderCount) {
+      const highestId = raw.length > 0 ? Math.max(...raw.map(o => o.id)) : 0
+      if (lastAdminOrderId !== -1 && highestId > lastAdminOrderId) {
         addNotification({
           title: 'Có đơn hàng mới!',
-          message: 'Hệ thống vừa nhận được đơn đặt hàng mới.',
+          message: `Hệ thống vừa nhận được đơn hàng #${highestId}.`,
           type: 'success'
         })
       }
-      if (lastAdminReturnCount !== -1 && returnReqs.length > lastAdminReturnCount) {
-        addNotification({
-          title: 'Yêu cầu hoàn trả!',
-          message: 'Có khách hàng vừa gửi yêu cầu hoàn trả đơn hàng.',
-          type: 'warning'
-        })
-      }
+      lastAdminOrderId = highestId
+
+      const returnReqs = raw.filter(o => o.status === 'RETURN_REQUEST')
+      const currentReturnIds = returnReqs.map(o => o.id)
       
-      lastAdminOrderCount = newOrders.length
-      lastAdminReturnCount = returnReqs.length
+      if (lastAdminReturnIds !== null) {
+        const newReturnIds = currentReturnIds.filter(id => !lastAdminReturnIds.includes(id))
+        if (newReturnIds.length > 0) {
+          addNotification({
+            title: 'Yêu cầu hoàn trả!',
+            message: `Có ${newReturnIds.length} yêu cầu hoàn trả đơn hàng mới.`,
+            type: 'warning'
+          })
+        }
+      }
+      lastAdminReturnIds = currentReturnIds
+      
+      // Trigger update for AdminOrdersView
+      globalOrderTrigger.value++
 
     } else if (userId) {
       // User polling
@@ -145,6 +154,7 @@ export function useGlobalNotifications() {
     markAllAsRead,
     removeToast,
     startPolling,
-    stopPolling
+    stopPolling,
+    globalOrderTrigger
   }
 }
