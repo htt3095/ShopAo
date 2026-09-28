@@ -7,9 +7,9 @@ import AdminCustomersView from '@/pages/AdminCustomersView.vue'
 import AdminOrdersView from '@/pages/AdminOrdersView.vue'
 import AdminPOSView from '@/pages/AdminPOSView.vue'
 import AdminProductsView from '@/pages/AdminProductsView.vue'
-import AdminRefundsView from '@/pages/AdminRefundsView.vue'
+
 import AdminReportsView from '@/pages/AdminReportsView.vue'
-import AdminReturnsView from '@/pages/AdminReturnsView.vue'
+
 import AdminSettingsView from '@/pages/AdminSettingsView.vue'
 import AdminVouchersView from '@/pages/AdminVouchersView.vue'
 import BrandView from '@/pages/BrandView.vue'
@@ -140,17 +140,7 @@ const router = createRouter({
       component: AdminOrdersView,
       meta: { requiresAdmin: true },
     },
-    {
-      path: '/admin/returns',
-      name: 'admin-returns',
-      component: AdminReturnsView,
-      meta: { requiresAdmin: true },
-    },
-    {
-      path: '/admin/refunds',
-      name: 'admin-refunds',
-      component: AdminRefundsView,
-      meta: { requiresAdmin: true },
+    
     },
     {
       path: '/admin/products',

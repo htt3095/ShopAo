@@ -28,7 +28,7 @@
 
     <div class="space-y-3">
       <section class="retail-card p-3">
-        <div class="grid gap-3 md:grid-cols-[1fr_240px]">
+        <div class="grid gap-3">
           <label
             class="flex items-center gap-2  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-1.5 "
           >
@@ -40,43 +40,34 @@
               type="text"
             >
           </label>
-
-          <label
-            class="flex items-center gap-2  shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 px-3 py-1.5"
-          >
-            <span class="material-symbols-outlined text-[18px] text-slate-400">filter_list</span>
-            <select
-              v-model="statusFilter"
-              class="w-full cursor-pointer bg-white text-slate-700 dark:bg-transparent dark:text-[#eadfd3] outline-none"
-            >
-              <option class="bg-white text-slate-700 dark:bg-[#1f1a17] dark:text-[#eadfd3]" value="ALL">Tất cả trạng thái</option>
-              <option
-                v-for="status in statusOptions"
-                :key="status.value"
-                class="bg-white text-slate-700 dark:bg-[#1f1a17] dark:text-[#eadfd3]"
-                :value="status.value"
-              >
-                {{ status.label }}
-              </option>
-            </select>
-          </label>
         </div>
 
-        <div class="hidden">
+        <div class="mt-4 flex items-center gap-2 overflow-x-auto pb-2 custom-scrollbar">
           <button
-            class="rounded-full px-4 py-1.5 text-sm font-medium transition-colors"
-            :class="statusFilter === 'ALL' ? 'bg-primary text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:hover:bg-[#3c342e]'"
+            class="whitespace-nowrap rounded-lg px-4 py-2 text-sm font-bold transition-all"
+            :class="statusFilter === 'ALL' ? 'bg-primary text-white shadow-md' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'"
             @click="statusFilter = 'ALL'"
           >
-            Tất cả
+            Tất cả đơn hàng
           </button>
+          
+          <div class="w-px h-6 bg-slate-200 mx-1 shrink-0"></div>
+          
           <button
             v-for="status in statusOptions"
             :key="status.value"
-            class="rounded-full px-4 py-1.5 text-sm font-medium transition-colors"
-            :class="statusFilter === status.value ? 'bg-primary text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:hover:bg-[#3c342e]'"
+            class="whitespace-nowrap rounded-lg px-4 py-2 text-sm font-bold transition-all flex items-center gap-2"
+            :class="[
+              statusFilter === status.value ? 'bg-primary text-white shadow-md' : 'bg-slate-100 text-slate-600 hover:bg-slate-200',
+              {'border border-orange-300 bg-orange-50 text-orange-700': status.value === 'RETURN_REQUEST' && statusFilter !== 'RETURN_REQUEST'},
+              {'border border-blue-300 bg-blue-50 text-blue-700': status.value === 'RETURN_APPROVED' && statusFilter !== 'RETURN_APPROVED'},
+              {'border border-green-300 bg-green-50 text-green-700': status.value === 'RETURNED' && statusFilter !== 'RETURNED'}
+            ]"
             @click="statusFilter = status.value"
           >
+            <span v-if="status.value.includes('RETURN')" class="material-symbols-outlined text-[16px]">
+              {{ status.value === 'RETURN_REQUEST' ? 'assignment_return' : (status.value === 'RETURN_APPROVED' ? 'local_shipping' : 'payments') }}
+            </span>
             {{ status.label }}
           </button>
         </div>
