@@ -145,7 +145,9 @@ async function pollNotifications() {
 function formatStatus(status) {
   const map = {
     NEW: 'Chờ xử lý',
-    CONFIRMED: 'Đã xác nhận',
+    PENDING: 'Chờ xử lý',
+    PROCESSING: 'Đang xử lý',
+    CONFIRMED: 'Đang xử lý',
     SHIPPING: 'Đang giao hàng',
     SUCCESS: 'Thành công',
     CANCELLED: 'Đã hủy',

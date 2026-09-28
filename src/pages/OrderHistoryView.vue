@@ -1207,6 +1207,15 @@
   function getOrderStatusCategory (status) {
     const key = normalizeStatusKey(status)
 
+    if (
+      key === 'NEW'
+      || key === 'PENDING'
+      || key === 'CHO_XU_LY'
+      || key === 'WAITING'
+    ) {
+      return 'pending'
+    }
+
     if (key === 'DELIVERED' || key === 'DA_GIAO' || key === 'GIAO_THANH_CONG') {
       return 'delivered'
     }
