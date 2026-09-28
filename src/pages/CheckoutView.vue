@@ -906,7 +906,8 @@
 
   function stripAdministrativePrefix (value) {
     return normalizeAddressText(value)
-      .replace(/^(phuong|p|xa|x|thi tran|tt|quan|q|huyen|h|thi xa|tx|thanh pho|tp|tinh)[\s.,-]+/g, '')
+      .replace(/^(phuong|p|xa|x|thi tran|tt|quan|q|huyen|h|thi xa|tx|thanh pho|tp|tinh|ward|district|city|province|street|st)[\s.,-]+/g, '')
+      .replace(/[\s.,-]+(ward|district|city|province|street|county)$/g, '')
       .replace(/\s+/g, ' ')
       .trim()
   }
@@ -1036,7 +1037,17 @@
           if (revRes.ok) {
             const revData = await revRes.json()
             if (revData.address) {
-              addressMeta = { ...addressMeta, ...revData.address }
+              // Validate: only use reverse geocode data if the province/city matches
+              // (prevent wrong data like "Huyện KBàng" in Gia Lai when address is in Hanoi)
+              const revProvince = normalizeAddressText(revData.address.state || revData.address.city || '')
+              const origProvince = normalizeAddressText(addressMeta.state || addressMeta.city || '')
+              const isSameRegion = !origProvince || !revProvince
+                || revProvince.includes(origProvince) || origProvince.includes(revProvince)
+                || revProvince.replace(/\s/g, '').includes(origProvince.replace(/\s/g, ''))
+                || origProvince.replace(/\s/g, '').includes(revProvince.replace(/\s/g, ''))
+              if (isSameRegion) {
+                addressMeta = { ...addressMeta, ...revData.address }
+              }
             }
           }
         } catch {
