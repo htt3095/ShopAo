@@ -293,10 +293,10 @@
                 @click="selectOrderToTrack(order)"
               >
                 <td class="sticky left-0 z-10 bg-white px-2 py-1.5 font-semibold shadow-[1px_0_0_rgba(60,52,46,0.75)]">
-                  <div class="flex items-center gap-1.5">
-                    <span>#{{ order.id || "-" }}</span>
-                    <span v-if="order.shippingAddress === 'Mua trực tiếp tại cửa hàng'" class="rounded bg-indigo-100 px-1 py-0.5 text-[9px] font-bold text-indigo-700">POS</span>
-                    <span v-else class="rounded bg-teal-100 px-1 py-0.5 text-[9px] font-bold text-teal-700">ONL</span>
+                  <div class="flex flex-col items-start gap-1">
+                    <span class="text-[13px]">#{{ order.id || "-" }}</span>
+                    <span v-if="order.shippingAddress === 'Mua trực tiếp tại cửa hàng'" class="inline-block rounded-md bg-gradient-to-r from-purple-500 to-indigo-500 px-1.5 py-[2px] text-[10px] font-black text-white shadow-sm">POS</span>
+                    <span v-else class="inline-block rounded-md bg-gradient-to-r from-emerald-400 to-teal-500 px-1.5 py-[2px] text-[10px] font-black text-white shadow-sm">ONL</span>
                   </div>
                 </td>
                 <td class="px-2 py-1.5">

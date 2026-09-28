@@ -1321,16 +1321,7 @@
     })
   }
 
-  function applyDefaultPosCustomer (invoice) {
-    if (!invoice) return
-    if (!invoice.customer || typeof invoice.customer !== 'object') {
-      invoice.customer = { ...POS_DEFAULT_CUSTOMER }
-      return
-    }
-    invoice.customer.fullname = POS_DEFAULT_CUSTOMER.fullname
-    invoice.customer.phone = POS_DEFAULT_CUSTOMER.phone
-    invoice.customer.email = POS_DEFAULT_CUSTOMER.email
-  }
+
 
   function validateInvoiceBeforeSubmit (invoice) {
     if (!invoice) {
@@ -1393,9 +1384,9 @@
       orderCode: returnedOrderCode || null,
       createdAt: new Date().toISOString(),
       customer: {
-        fullname: invoice.customer.fullname || 'Khách lẻ',
-        phone: invoice.customer.phone || '',
-        email: invoice.customer.email || '',
+        fullname: invoice.customer?.fullname || 'POS',
+        phone: invoice.customer?.phone || '',
+        email: invoice.customer?.email || '',
       },
       shippingAddress: orderData.shippingAddress,
       paymentMethodLabel: getPaymentMethodLabel(invoice),
@@ -1566,8 +1557,6 @@
   async function processOrder (invoice) {
     if (!invoice) return
 
-    applyDefaultPosCustomer(invoice)
-
     isProcessing.value = true
     let orderCreated = false
     try {
@@ -1586,9 +1575,9 @@
         accountId: adminId,
         orderSource: 'POS',
         salesChannel: 'IN_STORE',
-        fullname: invoice.customer.fullname,
-        phone: invoice.customer.phone,
-        email: invoice.customer.email || '',
+        fullname: invoice.customer?.fullname || 'POS',
+        phone: invoice.customer?.phone || '',
+        email: invoice.customer?.email || '',
         shippingAddress: 'Mua trực tiếp tại cửa hàng',
         paymentMethodId: resolveEffectivePaymentMethodId(invoice),
         voucherCode: invoice.appliedVoucher ? invoice.appliedVoucher.code : null,
