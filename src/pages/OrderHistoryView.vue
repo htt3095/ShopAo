@@ -2340,12 +2340,20 @@
     }
   }
 
+  import { useGlobalNotifications } from '@/composables/useGlobalNotifications'
+  const { globalOrderTrigger } = useGlobalNotifications()
+
   onMounted(async () => {
     await loadOrders()
 
     if (routeOrderId.value !== null) {
       await openOrderDetailsById(routeOrderId.value)
     }
+  })
+
+  watch(globalOrderTrigger, () => {
+    // Silently refresh the list when status changes
+    loadOrders()
   })
 
   watch(routeOrderId, async (next, previous) => {

@@ -1,10 +1,9 @@
 <template>
-  <div class="relative">
+  <div class="relative" v-click-outside="closeDropdown">
     <button 
       class="relative flex size-11 items-center justify-center rounded-full text-slate-500 hover:text-primary hover:bg-slate-100 transition-colors"
       type="button" 
       @click="toggleDropdown"
-      v-click-outside="closeDropdown"
     >
       <span class="material-symbols-outlined">notifications</span>
       <span v-if="unreadCount > 0" class="absolute right-2 top-2 flex size-4 items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white shadow-neon">

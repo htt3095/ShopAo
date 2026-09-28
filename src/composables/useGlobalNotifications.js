@@ -14,6 +14,25 @@ export const globalOrderTrigger = ref(0)
 // User tracker
 let userOrderStates = {} // orderId -> status
 
+// Load from localStorage if exists
+try {
+  const savedNotifs = localStorage.getItem('global_notifications')
+  if (savedNotifs) notifications.value = JSON.parse(savedNotifs)
+  const savedStates = localStorage.getItem('user_order_states')
+  if (savedStates) userOrderStates = JSON.parse(savedStates)
+  const savedAdminOrderId = localStorage.getItem('last_admin_order_id')
+  if (savedAdminOrderId) lastAdminOrderId = parseInt(savedAdminOrderId, 10)
+  const savedAdminReturnIds = localStorage.getItem('last_admin_return_ids')
+  if (savedAdminReturnIds) lastAdminReturnIds = JSON.parse(savedAdminReturnIds)
+} catch (e) {}
+
+function saveState() {
+  localStorage.setItem('global_notifications', JSON.stringify(notifications.value.slice(0, 50))) // keep max 50
+  localStorage.setItem('user_order_states', JSON.stringify(userOrderStates))
+  localStorage.setItem('last_admin_order_id', lastAdminOrderId.toString())
+  if (lastAdminReturnIds) localStorage.setItem('last_admin_return_ids', JSON.stringify(lastAdminReturnIds))
+}
+
 function addNotification(notification) {
   const newNotif = {
     id: Date.now() + Math.random(),
@@ -22,6 +41,7 @@ function addNotification(notification) {
     ...notification
   }
   notifications.value.unshift(newNotif)
+  saveState()
   
   // Also show as toast
   const toast = { ...newNotif }
@@ -33,6 +53,7 @@ function addNotification(notification) {
 
 function markAllAsRead() {
   notifications.value.forEach(n => n.read = true)
+  saveState()
 }
 
 function removeToast(id) {
@@ -98,7 +119,7 @@ async function pollNotifications() {
     } else if (userId) {
       // User polling
       const myOrders = await ordersApi.getUserOrders(userId)
-      // Check status changes
+      let hasChanges = false
       for (const order of myOrders) {
         const oldStatus = userOrderStates[order.id]
         if (oldStatus && oldStatus !== order.status) {
@@ -107,10 +128,15 @@ async function pollNotifications() {
             message: `Đơn hàng #${order.id} của bạn đã chuyển sang trạng thái: ${formatStatus(order.status)}`,
             type: 'info'
           })
+          hasChanges = true
         }
         userOrderStates[order.id] = order.status
       }
+      if (hasChanges) {
+        globalOrderTrigger.value++
+      }
     }
+    saveState()
   } catch (e) {
     // silently fail
   }
