@@ -2430,6 +2430,15 @@
       const newOrdersList = Array.isArray(data) ? data : []
 
       orders.value = newOrdersList
+      
+      // Update tracked order to reflect new data
+      if (trackedOrder.value) {
+        const freshTracked = newOrdersList.find(o => o.id === trackedOrder.value.id)
+        if (freshTracked) {
+          trackedOrder.value = freshTracked
+        }
+      }
+      
       isFirstLoad.value = false
     } catch (error_) {
       console.error('Failed to load admin orders:', error_)

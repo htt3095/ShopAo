@@ -115,8 +115,9 @@ async function pollNotifications() {
       
       // Trigger update for AdminOrdersView
       globalOrderTrigger.value++
+    }
 
-    } else if (userId) {
+    if (userId) {
       // User polling
       const myOrders = await ordersApi.getUserOrders(userId)
       let hasChanges = false

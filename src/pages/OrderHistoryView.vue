@@ -2360,9 +2360,17 @@
     }
   })
 
-  watch(globalOrderTrigger, () => {
+  watch(globalOrderTrigger, async () => {
     // Silently refresh the list when status changes
-    loadOrders()
+    await loadOrders()
+    if (isDetailOpen.value && activeDetailOrder.value) {
+      try {
+        const detail = await orderAPI.getOrder(activeDetailOrder.value.id)
+        selectedOrderDetail.value = detail
+      } catch (e) {
+        // ignore
+      }
+    }
   })
 
   watch(routeOrderId, async (next, previous) => {
