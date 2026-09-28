@@ -292,7 +292,13 @@
                 :class="{ 'bg-primary/5 dark:bg-primary/10 border-l-2 border-l-primary': activeTrackedOrder?.id === order.id }"
                 @click="selectOrderToTrack(order)"
               >
-                <td class="sticky left-0 z-10 bg-white px-2 py-1.5 font-semibold shadow-[1px_0_0_rgba(60,52,46,0.75)]">#{{ order.id || "-" }}</td>
+                <td class="sticky left-0 z-10 bg-white px-2 py-1.5 font-semibold shadow-[1px_0_0_rgba(60,52,46,0.75)]">
+                  <div class="flex items-center gap-1.5">
+                    <span>#{{ order.id || "-" }}</span>
+                    <span v-if="order.shippingAddress === 'Mua trực tiếp tại cửa hàng'" class="rounded bg-indigo-100 px-1 py-0.5 text-[9px] font-bold text-indigo-700">POS</span>
+                    <span v-else class="rounded bg-teal-100 px-1 py-0.5 text-[9px] font-bold text-teal-700">ONL</span>
+                  </div>
+                </td>
                 <td class="px-2 py-1.5">
                   <p class="truncate" :title="order.fullName || 'Khách hàng'">
                     {{ order.fullName || "Khách hàng" }}

@@ -247,6 +247,14 @@
             </div>
 
             <div class="rounded-xl border border-slate-200 bg-slate-50 p-3">
+              <p class="text-[13px] font-semibold text-slate-900">Thông tin khách hàng <span class="font-normal text-slate-400">(không bắt buộc)</span></p>
+              <div class="mt-2 grid gap-2 sm:grid-cols-2">
+                <input v-model.trim="activeInvoice.customer.fullname" class="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm outline-none placeholder:text-slate-400" placeholder="Tên khách hàng">
+                <input v-model.trim="activeInvoice.customer.phone" class="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm outline-none placeholder:text-slate-400" placeholder="Số điện thoại">
+              </div>
+            </div>
+
+            <div class="rounded-xl border border-slate-200 bg-slate-50 p-3">
               <p class="text-[13px] font-semibold text-slate-900">Phương thức thanh toán</p>
               <div class="mt-2 grid gap-2 sm:grid-cols-2">
                 <button class="rounded-lg border px-3 py-1.5 text-xs font-semibold transition" :class="activeInvoice.paymentMethodId === 1 ? 'border-primary bg-primary/10 text-primary' : 'border-slate-200 bg-white text-slate-700'" type="button" @click="activeInvoice.paymentMethodId = 1">Tiền mặt</button>
@@ -575,9 +583,9 @@
   const MAX_INVOICES = 5
   const POS_DRAFT_STORAGE_KEY = 'shopao.pos.pending-invoices'
   const POS_DEFAULT_CUSTOMER = Object.freeze({
-    fullname: 'POS',
-    phone: '00000000',
-    email: 'pos@local.shop',
+    fullname: '',
+    phone: '',
+    email: '',
   })
   let nextInvoiceNumber = 1
   const searchQuery = ref('')
@@ -1378,8 +1386,8 @@
       orderCode: returnedOrderCode || null,
       createdAt: new Date().toISOString(),
       customer: {
-        fullname: invoice.customer.fullname,
-        phone: invoice.customer.phone,
+        fullname: invoice.customer.fullname || 'Khách lẻ',
+        phone: invoice.customer.phone || '',
         email: invoice.customer.email || '',
       },
       shippingAddress: orderData.shippingAddress,
