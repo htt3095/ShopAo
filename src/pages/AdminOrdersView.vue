@@ -733,23 +733,6 @@
       </div>
     </Teleport>
 
-    <!-- Toast Notification -->
-    <Teleport to="body">
-      <div v-if="newOrderToast" class="fixed bottom-4 right-4 z-50 animate-slide-in-up">
-        <div class="flex items-center gap-3 rounded-xl border border-primary/20 bg-white p-4 shadow-xl  ">
-          <div class="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
-            <span class="material-symbols-outlined">notifications_active</span>
-          </div>
-          <div>
-            <h4 class="font-bold text-slate-800 ">{{ newOrderToast.title }}</h4>
-            <p class="text-sm text-slate-500 ">{{ newOrderToast.message }}</p>
-          </div>
-          <button class="ml-4 text-slate-400 hover:text-slate-600" @click="newOrderToast = null">
-            <span class="material-symbols-outlined text-lg">close</span>
-          </button>
-        </div>
-      </div>
-    </Teleport>
 
     <!-- Modal Duyệt Yêu Cầu Hoàn -->
     <Teleport to="body">
@@ -1434,9 +1417,8 @@
 
   const hiddenOrders = ref([])
 
-  const newOrderToast = ref(null)
+
   const trackedOrder = ref(null)
-  let pollingInterval = null
   const isFirstLoad = ref(true)
 
   const visibleOrders = computed(() => {
@@ -2449,34 +2431,6 @@
       const data = await adminApi.getOrders({ page: 0, size: 250 })
       const newOrdersList = Array.isArray(data) ? data : []
 
-      if (!isFirstLoad.value && newOrdersList.length > 0) {
-        // Check for new return requests
-        const oldPendingReturn = orders.value.filter(o => o.status === 'RETURN_REQUEST').length
-        const newPendingReturn = newOrdersList.filter(o => o.status === 'RETURN_REQUEST').length
-        if (newPendingReturn > oldPendingReturn) {
-          newOrderToast.value = {
-            title: 'Có yêu cầu hoàn hàng mới!',
-            message: `Khách hàng đã gửi yêu cầu hoàn tiền/trả hàng. Vui lòng kiểm tra và xử lý.`,
-          }
-          setTimeout(() => {
-            newOrderToast.value = null
-          }, 5000)
-        }
-
-        // Check for new orders
-        const oldLatestId = orders.value.length > 0 ? orders.value[0].id : 0
-        const newLatestId = newOrdersList[0].id
-        if (newLatestId > oldLatestId) {
-          newOrderToast.value = {
-            title: 'Có đơn hàng mới!',
-            message: `Khách hàng ${newOrdersList[0].fullname || newOrdersList[0].fullName || 'mới'} vừa đặt đơn #${newLatestId}.`,
-          }
-          setTimeout(() => {
-            newOrderToast.value = null
-          }, 5000)
-        }
-      }
-
       orders.value = newOrdersList
       isFirstLoad.value = false
     } catch (error_) {
@@ -2489,12 +2443,6 @@
 
   onMounted(() => {
     loadOrders()
-    pollingInterval = setInterval(() => {
-      loadOrders(true)
-    }, 10_000) // Poll every 10 seconds
-  })
-  onUnmounted(() => {
-    if (pollingInterval) clearInterval(pollingInterval)
   })
 </script>
 

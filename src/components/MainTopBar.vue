@@ -45,6 +45,9 @@
           </span>
         </router-link>
 
+        <!-- Notification Bell (Only show if logged in) -->
+        <NotificationBell v-if="isLoggedIn" />
+
         <!-- User Menu -->
         <div v-if="isLoggedIn" ref="userMenuRef" class="relative ml-2">
           <button
@@ -121,6 +124,7 @@
   import { resolveBackendAssetUrl } from '@/services/api'
   import { useCartStore } from '@/stores/cart'
   import { useCompareStore } from '@/stores/compare'
+  import NotificationBell from '@/components/NotificationBell.vue'
 
   const cartStore = useCartStore()
   const compareStore = useCompareStore()

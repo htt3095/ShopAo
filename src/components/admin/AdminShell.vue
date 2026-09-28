@@ -31,9 +31,10 @@
         </div>
 
         <div class="flex items-center gap-3">
-          <p class="hidden text-sm text-slate-600  md:block">
+          <NotificationBell />
+          <p class="hidden text-sm text-slate-600 md:block">
             Xin chào,
-            <span class="font-semibold text-slate-900 ">{{
+            <span class="font-semibold text-slate-900">{{
               currentUserName
             }}</span>
           </p>
@@ -147,6 +148,8 @@
 
   const route = useRoute()
   const router = useRouter()
+
+  import NotificationBell from '@/components/NotificationBell.vue'
 
   const menuOpen = ref(false)
 
