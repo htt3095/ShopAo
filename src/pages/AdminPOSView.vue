@@ -290,6 +290,7 @@
               <span class="ml-2">{{ isProcessing ? 'ĐANG XỬ LÝ...' : 'XÁC NHẬN THANH TOÁN' }}</span>
             </button>
           </div>
+          </div>
         </aside>
       </div>
 
