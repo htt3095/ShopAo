@@ -198,12 +198,20 @@
 
         <aside class="space-y-3">
           <div class="sticky top-6 space-y-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
+            <div class="rounded-xl border border-slate-200 bg-slate-50 p-3">
+              <p class="text-[13px] font-semibold text-slate-900">Thông tin khách hàng <span class="font-normal text-slate-400">(không bắt buộc)</span></p>
+              <div class="mt-2 grid gap-2 sm:grid-cols-2">
+                <input v-model.trim="activeInvoice.customer.fullname" class="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm outline-none focus:border-primary placeholder:text-slate-400" placeholder="Tên khách hàng">
+                <input v-model.trim="activeInvoice.customer.phone" class="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm outline-none focus:border-primary placeholder:text-slate-400" placeholder="Số điện thoại">
+              </div>
+            </div>
+
             <div class="space-y-3 rounded-xl border border-slate-200 bg-slate-50 p-3">
               <div>
                 <p class="text-[13px] font-semibold text-slate-900">Áp dụng voucher</p>
               </div>
               <div class="flex gap-2">
-                <div class="flex flex-1 items-center rounded-lg border border-slate-200 bg-white px-2.5 py-1.5">
+                <div class="flex flex-1 items-center rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 focus-within:border-primary">
                   <input
                     v-model="activeInvoice.voucherInput"
                     class="w-full bg-transparent text-sm font-semibold text-slate-900 outline-none uppercase"
@@ -214,8 +222,8 @@
                 </div>
                 <button class="rounded-lg bg-slate-700 px-3 py-1.5 text-xs font-bold text-white transition-colors hover:bg-slate-800" @click="applyVoucherByInput">Áp dụng</button>
               </div>
-              <div class="max-h-48 space-y-2 overflow-y-auto pr-1">
-                <div v-for="voucher in processedVouchers" :key="voucher.id || voucher.code" class="flex items-center justify-between gap-2 rounded-lg border p-2.5" :class="[voucher.isApplied ? 'border-primary bg-primary/5' : 'border-slate-200', !voucher.isEligible ? 'opacity-60 grayscale' : '', !voucher.isActive ? 'bg-slate-100 opacity-80' : '']">
+              <div class="max-h-48 space-y-2 overflow-y-auto pr-1 custom-scrollbar">
+                <div v-for="voucher in processedVouchers" :key="voucher.id || voucher.code" class="flex items-center justify-between gap-2 rounded-lg border p-2.5 transition-colors" :class="[voucher.isApplied ? 'border-primary bg-primary/5' : 'border-slate-200 hover:border-slate-300 bg-white', !voucher.isEligible ? 'opacity-60 grayscale' : '', !voucher.isActive ? 'bg-slate-100 opacity-80' : '']">
                   <div class="min-w-0">
                     <p class="truncate text-sm font-black text-slate-900" :class="voucher.isApplied ? 'text-primary' : ''">{{ voucher.code }}</p>
                     <p class="mt-0.5 text-xs text-slate-500">Giảm {{ formatDiscountLabel(voucher) }}, tối thiểu {{ formatMoney(voucher.minOrder) }}</p>
@@ -243,14 +251,6 @@
               <div class="mt-3 flex items-center justify-between border-t border-slate-200 pt-2">
                 <span class="text-sm font-bold text-slate-900">Cần thanh toán</span>
                 <span class="text-xl font-black text-primary">{{ formatMoney(activeTotal) }}</span>
-              </div>
-            </div>
-
-            <div class="rounded-xl border border-slate-200 bg-slate-50 p-3">
-              <p class="text-[13px] font-semibold text-slate-900">Thông tin khách hàng <span class="font-normal text-slate-400">(không bắt buộc)</span></p>
-              <div class="mt-2 grid gap-2 sm:grid-cols-2">
-                <input v-model.trim="activeInvoice.customer.fullname" class="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm outline-none placeholder:text-slate-400" placeholder="Tên khách hàng">
-                <input v-model.trim="activeInvoice.customer.phone" class="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm outline-none placeholder:text-slate-400" placeholder="Số điện thoại">
               </div>
             </div>
 
@@ -1631,10 +1631,6 @@
   async function handlePlaceOrder () {
     const invoice = activeInvoice.value
     if (!invoice) return
-
-    if (!window.confirm('Xác nhận thanh toán đơn hàng này?')) {
-      return
-    }
 
     const validationMessage = validateInvoiceBeforeSubmit(invoice)
     if (validationMessage) {
