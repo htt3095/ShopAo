@@ -147,11 +147,40 @@
     }, 200)
   }
 
-  function selectSuggestion (suggestion) {
+  async function selectSuggestion (suggestion) {
     if (blurTimer) clearTimeout(blurTimer)
-    emit('update:modelValue', suggestion.display_name || '')
-    emit('select', suggestion)
     closeSuggestions()
+
+    // Try reverse geocode with Nominatim to get full district/ward info
+    let fullAddress = suggestion.display_name || ''
+    const lat = suggestion.lat
+    const lon = suggestion.lon
+    if (lat && lon) {
+      try {
+        const res = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&addressdetails=1&accept-language=vi`,
+        )
+        if (res.ok) {
+          const data = await res.json()
+          const addr = data.address || {}
+          const parts = [
+            suggestion.address?.house_number || addr.house_number,
+            suggestion.address?.road || addr.road,
+            addr.quarter || addr.neighbourhood || addr.suburb,
+            addr.city_district || addr.county,
+            addr.city || addr.state,
+          ].filter(Boolean)
+          if (parts.length >= 3) {
+            fullAddress = parts.join(', ')
+          }
+        }
+      } catch {
+        // Fallback to original display_name
+      }
+    }
+
+    emit('update:modelValue', fullAddress)
+    emit('select', suggestion)
   }
 
   function closeSuggestions () {
