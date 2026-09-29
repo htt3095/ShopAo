@@ -806,6 +806,7 @@
       .toLowerCase()
       .normalize('NFD')
       .replace(/[\u0300-\u036F]/g, '')
+      .replace(/đ/g, 'd')
       .replace(/[^a-z0-9\s]/g, ' ')
       .replace(/\s+/g, ' ')
       .trim()
@@ -926,19 +927,21 @@
     for (const item of list) {
       const name = stripAdministrativePrefix(item?.name)
       if (!name) continue
-      const nameClean = name.replace(/\s+/g, '')
+      const nameClean = normalizeAddressText(name).replace(/\s+/g, '')
+      const nameNorm = normalizeAddressText(name)
 
       let score = 0
       for (const target of candidates) {
         if (!target) continue
-        const targetClean = target.replace(/\s+/g, '')
+        const targetClean = normalizeAddressText(target).replace(/\s+/g, '')
+        const targetNorm = normalizeAddressText(target)
 
-        if (target === name || targetClean === nameClean) score = Math.max(score, 100)
-        else if (target.includes(name) || targetClean.includes(nameClean)) score = Math.max(score, 80)
-        else if (name.includes(target) || nameClean.includes(targetClean)) score = Math.max(score, 70)
+        if (targetNorm === nameNorm || targetClean === nameClean) score = Math.max(score, 100)
+        else if (targetNorm.includes(nameNorm) || targetClean.includes(nameClean)) score = Math.max(score, 80)
+        else if (nameNorm.includes(targetNorm) || nameClean.includes(targetClean)) score = Math.max(score, 70)
         else {
-          const targetTokens = target.split(' ').filter(Boolean)
-          const nameTokens = new Set(name.split(' ').filter(Boolean))
+          const targetTokens = targetNorm.split(' ').filter(Boolean)
+          const nameTokens = new Set(nameNorm.split(' ').filter(Boolean))
           const overlap = targetTokens.filter(token => nameTokens.has(token)).length
           if (overlap > 0) {
             const tokenScore = overlap * 10
@@ -972,7 +975,7 @@
   }
 
   function parseAddressLocally(input) {
-    const parts = input.split(',').map(s => s.trim()).filter(Boolean)
+    const parts = String(input).split(/[,|-]/).map(s => s.trim()).filter(Boolean)
     if (parts.length < 3) return false
     
     const provStr = parts[parts.length - 1]
@@ -2202,7 +2205,10 @@
   watch(
     () => selectedWard.value,
     () => {
-      if (skipNextWatcherUpdate.value) return
+      if (skipNextWatcherUpdate.value) {
+        skipNextWatcherUpdate.value = false
+        return
+      }
 
       // Only recalculate if we have at least province + district
       if (!selectedProvince.value || !selectedDistrict.value) {
