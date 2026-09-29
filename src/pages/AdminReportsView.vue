@@ -410,17 +410,75 @@
           </div>
         </div>
 
-        <div class="retail-card p-5">
-          <div class="mb-4 flex items-center justify-between">
-            <h3 class="text-lg font-semibold">Sắp hết hàng</h3>
-            <span class="text-xs text-slate-500">Còn tối đa 20 cái</span>
-          </div>
-          <div class="space-y-2">
-            <div v-for="item in lowStockProducts" :key="item.name" class="flex items-center justify-between gap-3 rounded-xl bg-amber-50 px-3 py-2">
-              <span class="min-w-0 truncate">{{ item.name }}</span>
-              <span class="shrink-0 font-bold text-amber-700">{{ item.stock }} cái</span>
+        <div class="retail-card min-w-0 p-4">
+          <div class="mb-3 flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3">
+            <div class="min-w-0">
+              <h3 class="text-base font-semibold text-slate-800">Sản phẩm sắp hết hàng</h3>
+              <p class="mt-0.5 text-[11px] text-slate-500">{{ stockFilteredLowStockVariants.length }} biến thể phù hợp</p>
             </div>
-            <p v-if="lowStockProducts.length === 0" class="text-sm text-emerald-600">Kho đang ổn.</p>
+            <div class="flex min-w-0 flex-wrap gap-2">
+              <label class="flex min-w-0 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2 py-1.5">
+                <span aria-hidden="true" class="material-symbols-outlined text-[16px] text-slate-400">filter_list</span>
+                <select v-model="selectedLowStockProduct" aria-label="Lọc theo sản phẩm sắp hết hàng" class="min-w-0 max-w-[150px] border-0 bg-transparent p-0 pr-5 text-xs text-slate-700 focus:ring-0">
+                  <option value="">Tất cả sản phẩm</option>
+                  <option v-for="product in lowStockProductOptions" :key="product.key" :value="product.key">{{ product.name }}</option>
+                </select>
+              </label>
+              <label class="flex min-w-0 items-center rounded-lg border border-slate-200 bg-white px-2 py-1.5">
+                <span class="sr-only">Lọc theo trạng thái tồn kho</span>
+                <select v-model="lowStockStatus" aria-label="Lọc theo trạng thái tồn kho" class="min-w-0 max-w-[145px] border-0 bg-transparent p-0 pr-5 text-xs text-slate-700 focus:ring-0">
+                  <option value="all">Tất cả trạng thái</option>
+                  <option value="out_of_stock">Hết hàng</option>
+                  <option value="low_stock">Sắp hết (1-20)</option>
+                </select>
+              </label>
+            </div>
+          </div>
+
+          <div v-if="paginatedLowStockVariants.length > 0" class="space-y-1.5">
+            <div v-for="item in paginatedLowStockVariants" :key="item.key" class="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-lg border border-slate-100 bg-slate-50/70 px-3 py-2">
+              <div class="min-w-0">
+                <p class="truncate text-[13px] font-semibold text-slate-800">{{ item.productName }}</p>
+                <p class="mt-0.5 truncate text-[11px] text-slate-500">{{ item.variantName }}</p>
+              </div>
+              <div class="text-right">
+                <span class="block text-sm font-semibold tabular-nums text-slate-800">{{ item.stock }}</span>
+                <span class="text-[10px] text-slate-500">{{ item.stock <= 0 ? 'Hết hàng' : 'Sắp hết' }}</span>
+              </div>
+            </div>
+          </div>
+          <p v-else class="rounded-lg border border-dashed border-slate-200 px-3 py-6 text-center text-xs text-slate-500">Không có biến thể phù hợp.</p>
+
+          <div v-if="visibleLowStockVariants.length > 0" class="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 pt-3 text-[11px]">
+            <span class="text-slate-500">{{ lowStockPageStart }}–{{ lowStockPageEnd }} / {{ visibleLowStockVariants.length }}</span>
+            <div class="flex items-center gap-1.5">
+              <label class="sr-only" for="low-stock-page-size">Số biến thể mỗi trang</label>
+              <select id="low-stock-page-size" v-model.number="lowStockPageSize" class="rounded-md border border-slate-200 bg-white px-1.5 py-1 text-[11px] text-slate-600">
+                <option :value="5">5 / trang</option>
+                <option :value="10">10 / trang</option>
+              </select>
+              <button
+                aria-label="Trang trước"
+                class="grid size-7 place-items-center rounded-md border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+                :disabled="lowStockPage <= 1"
+                title="Trang trước"
+                type="button"
+                @click="lowStockPage = Math.max(1, lowStockPage - 1)"
+              >
+                <span class="material-symbols-outlined text-[16px]">chevron_left</span>
+              </button>
+              <span class="min-w-8 text-center font-medium text-slate-600">{{ lowStockPage }} / {{ lowStockTotalPages }}</span>
+              <button
+                aria-label="Trang sau"
+                class="grid size-7 place-items-center rounded-md border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+                :disabled="lowStockPage >= lowStockTotalPages"
+                title="Trang sau"
+                type="button"
+                @click="lowStockPage = Math.min(lowStockTotalPages, lowStockPage + 1)"
+              >
+                <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+              </button>
+            </div>
           </div>
         </div>
       </section>
@@ -454,6 +512,11 @@
   const error = ref('')
   const orders = ref([])
   const inventory = ref([])
+  const products = ref([])
+  const selectedLowStockProduct = ref('')
+  const lowStockStatus = ref('all')
+  const lowStockPage = ref(1)
+  const lowStockPageSize = ref(5)
   const reportMode = ref('day')
   const reportChartMetric = ref('net')
   const channelFilter = ref('ALL')
@@ -540,15 +603,75 @@
     }
   }))
 
-  const lowStockProducts = computed(() => {
-    const grouped = {}
-    for (const variant of inventory.value) {
-      const name = variant.productName || variant.product?.name || variant.product?.productName || 'Sản phẩm không tên'
-      const stock = Number(variant.stockQuantity ?? variant.stock_quantity ?? variant.quantity ?? 0)
-      if (!grouped[name]) grouped[name] = { name, stock: 0 }
-      grouped[name].stock += stock
+  const lowStockVariants = computed(() => {
+    return inventory.value
+      .map((variant, index) => {
+        const rawStock = variant.stockQuantity ?? variant.stock_quantity ?? variant.quantity ?? 0
+        const parsedStock = Number(rawStock)
+        const productId = Number(variant.productId ?? variant.product_id ?? variant.product?.id ?? variant.product?.productId)
+        const product = products.value.find(item => Number(item.id) === productId)
+        const productName = variant.productName || variant.product_name || variant.product?.name || variant.product?.productName || product?.name || 'Sản phẩm không tên'
+        const colorName = variant.colorName || variant.color_name || variant.color?.name
+        const sizeName = variant.sizeName || variant.size_name || variant.size?.name
+
+        return {
+          key: variant.id ?? variant.variantCode ?? `${productName}-${colorName || ''}-${sizeName || ''}-${index}`,
+          productKey: Number.isFinite(productId) ? String(productId) : `name:${productName}`,
+          productName,
+          variantName: [colorName, sizeName].filter(Boolean).join(' / ') || variant.variantCode || `Biến thể #${variant.id ?? index + 1}`,
+          stock: Number.isFinite(parsedStock) ? parsedStock : 0,
+        }
+      })
+      .filter(variant => variant.stock <= 20)
+  })
+
+  const lowStockProductOptions = computed(() => {
+    const options = new Map()
+    for (const variant of stockFilteredLowStockVariants.value) {
+      if (!options.has(variant.productKey)) {
+        options.set(variant.productKey, { key: variant.productKey, name: variant.productName })
+      }
     }
-    return Object.values(grouped).filter(item => item.stock <= 20).toSorted((a, b) => a.stock - b.stock).slice(0, 5)
+    return [...options.values()]
+  })
+
+  const stockFilteredLowStockVariants = computed(() => {
+    if (lowStockStatus.value === 'out_of_stock') {
+      return lowStockVariants.value.filter(variant => variant.stock <= 0)
+    }
+    if (lowStockStatus.value === 'low_stock') {
+      return lowStockVariants.value.filter(variant => variant.stock > 0)
+    }
+    return lowStockVariants.value
+  })
+
+  const visibleLowStockVariants = computed(() => {
+    if (!selectedLowStockProduct.value) return stockFilteredLowStockVariants.value
+    return stockFilteredLowStockVariants.value.filter(variant => variant.productKey === selectedLowStockProduct.value)
+  })
+
+  const lowStockTotalPages = computed(() => Math.max(1, Math.ceil(visibleLowStockVariants.value.length / lowStockPageSize.value)))
+  const paginatedLowStockVariants = computed(() => {
+    const start = (lowStockPage.value - 1) * lowStockPageSize.value
+    return visibleLowStockVariants.value.slice(start, start + lowStockPageSize.value)
+  })
+  const lowStockPageStart = computed(() => visibleLowStockVariants.value.length > 0 ? (lowStockPage.value - 1) * lowStockPageSize.value + 1 : 0)
+  const lowStockPageEnd = computed(() => Math.min(lowStockPage.value * lowStockPageSize.value, visibleLowStockVariants.value.length))
+
+  watch(lowStockProductOptions, options => {
+    if (selectedLowStockProduct.value && !options.some(option => option.key === selectedLowStockProduct.value)) {
+      selectedLowStockProduct.value = ''
+    }
+  })
+
+  watch([selectedLowStockProduct, lowStockStatus, lowStockPageSize], () => {
+    lowStockPage.value = 1
+  })
+
+  watch([visibleLowStockVariants, lowStockPageSize], () => {
+    if (lowStockPage.value > lowStockTotalPages.value) {
+      lowStockPage.value = lowStockTotalPages.value
+    }
   })
 
   const activeBuckets = computed(() => {
@@ -783,12 +906,14 @@
     error.value = ''
 
     try {
-      const [ordersData, variantsData] = await Promise.all([
+      const [ordersData, variantsData, productsData] = await Promise.all([
         adminApi.getOrders({ page: 0, size: 800 }),
         adminApi.getVariants({ page: 0, size: 500 }),
+        adminApi.getProducts({ page: 0, size: 500 }).catch(() => []),
       ])
       orders.value = Array.isArray(ordersData) ? ordersData : []
       inventory.value = Array.isArray(variantsData) ? variantsData : []
+      products.value = Array.isArray(productsData) ? productsData : []
     } catch (error_) {
       console.error('Failed to load reports:', error_)
       error.value = 'Không thể tải báo cáo tổng hợp. Vui lòng kiểm tra backend API.'
